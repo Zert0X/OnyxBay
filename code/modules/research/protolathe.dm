@@ -137,10 +137,6 @@
 	return
 
 /obj/machinery/r_n_d/protolathe/proc/removeFromQueue(index)
-	if(index  == -1)
-		queue.Cut()
-		return
-
 	queue.Cut(index, index + 1)
 	return
 
