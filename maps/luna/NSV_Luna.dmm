@@ -1,49 +1,73 @@
 "aa" = (/obj/structure/window/reinforced,/obj/effect/floor_decal/corner/beige{dir = 8},/turf/simulated/floor/tiled,/area/space)
 "aj" = (/obj/machinery/door/blast/regular{density = 0; dir = 4; icon_state = "pdoor0"; id = "virologyquar"; name = "Virology Emergency Quarantine Blast Doors"; opacity = 0},/obj/machinery/door/airlock/maintenance{req_access = list(); req_one_access = list(12,5)},/turf/simulated/floor/plating,/area/space)
+"ak" = (/obj/structure/table/reinforced,/obj/item/reagent_containers/spray/cleaner,/turf/simulated/floor/tiled/dark,/area/space)
+"am" = (/obj/structure/window/reinforced{dir = 4},/obj/effect/floor_decal/corner/red{dir = 6},/turf/simulated/floor/tiled,/area/space)
+"ap" = (/obj/item/modular_computer/console/preset/medical,/turf/simulated/floor/tiled/dark,/area/space)
 "aw" = (/obj/item/modular_computer/console/preset/security,/turf/simulated/floor/trim/lino,/area/space)
 "aA" = (/turf/simulated/shuttle/wall{tag = "icon-wall3 (WEST)"; icon_state = "wall3"; dir = 8},/area/space)
+"aQ" = (/obj/machinery/door/airlock/command{id_tag = "captaindoor"; name = "Captain's Office"; req_access = list(20)},/obj/machinery/door/firedoor,/turf/simulated/floor/tiled,/area/space)
+"aX" = (/obj/structure/table/reinforced,/obj/effect/floor_decal/corner/red,/obj/machinery/recharger{pixel_y = 4},/turf/simulated/floor/tiled,/area/space)
+"bc" = (/obj/effect/floor_decal/corner/red{dir = 5},/obj/machinery/light{dir = 1},/turf/simulated/floor/tiled,/area/space)
 "bf" = (/obj/structure/window/reinforced{dir = 1; health = null},/turf/simulated/floor/tiled,/area/space)
 "bj" = (/obj/machinery/door/airlock/maintenance{req_access = list(12)},/turf/simulated/floor/plating,/area/space)
 "bl" = (/obj/machinery/door/firedoor,/turf/simulated/floor/tiled,/area/space)
-"bp" = (/turf/simulated/floor/trim/wood/broken0,/area/space)
+"bp" = (/obj/structure/table/woodentable,/obj/item/storage/box/donkpockets,/turf/simulated/floor/trim/wood/broken0,/area/space)
 "bt" = (/obj/structure/window/reinforced{dir = 8},/obj/structure/window/reinforced,/obj/effect/floor_decal/corner/beige/three_quarters,/obj/item/stool/padded,/turf/simulated/floor/tiled,/area/space)
 "bu" = (/obj/structure/table/reinforced,/obj/machinery/door/window/brigdoor/southleft{name = "interior door"; dir = 4},/obj/structure/window/reinforced{dir = 1; health = null},/turf/simulated/floor/tiled,/area/space)
 "bv" = (/obj/machinery/door/window/brigdoor/westright{name = "Cell 2"; id = "Cell 2"; req_access = list(2)},/turf/simulated/floor/tiled,/area/space)
 "bw" = (/turf/simulated/floor/tiled/freezer,/area/space)
+"bx" = (/obj/structure/bed/chair{dir = 4},/turf/simulated/floor/tiled/dark,/area/space)
 "bB" = (/obj/structure/table/standard,/obj/effect/floor_decal/corner/lime{dir = 6},/turf/simulated/floor/tiled,/area/space)
 "bC" = (/obj/structure/window/reinforced{dir = 8},/obj/structure/window/reinforced{dir = 1; health = null},/obj/structure/bed/chair{dir = 4},/turf/simulated/floor/tiled,/area/space)
 "bO" = (/obj/machinery/chemical_dispenser/full,/turf/simulated/floor/tiled/white/rough,/area/space)
 "bQ" = (/obj/structure/window/reinforced,/turf/simulated/floor/reinforced/airless,/area/space)
-"bS" = (/turf/simulated/floor/trim/wood/broken1,/area/space)
+"bS" = (/obj/structure/filingcabinet/chestdrawer,/turf/simulated/floor/trim/wood/broken1,/area/space)
 "bT" = (/obj/machinery/door/airlock/glass{name = "Bar"},/turf/simulated/floor/tiled,/area/space)
 "cb" = (/obj/structure/table/rack,/turf/simulated/floor/tiled,/area/space)
 "ck" = (/obj/structure/closet/firecloset/full,/turf/simulated/floor/tiled/dark,/area/space)
 "cC" = (/obj/structure/window/reinforced{dir = 1; health = null},/obj/structure/bed/chair{dir = 8},/turf/simulated/floor/tiled,/area/space)
+"cE" = (/obj/structure/bed/chair/comfy/brown{dir = 4},/turf/simulated/floor/trim/wood,/area/space)
+"cO" = (/obj/structure/table/reinforced,/obj/item/stamp/denied{pixel_x = 4; pixel_y = 3},/turf/simulated/floor/tiled,/area/space)
+"cT" = (/obj/item/cartridge/signal/science,/obj/item/cartridge/signal/science{pixel_x = -4; pixel_y = 2},/obj/item/cartridge/signal/science{pixel_x = 4; pixel_y = 6},/obj/item/clothing/glasses/welding/superior,/obj/machinery/firealarm{dir = 1; pixel_y = -24},/obj/structure/closet/secure_closet/RD,/obj/item/paper/monitorkey,/turf/simulated/floor/tiled,/area/space)
 "cV" = (/obj/structure/window/reinforced,/obj/effect/floor_decal/industrial/warning,/turf/simulated/floor/tiled,/area/space)
 "dj" = (/obj/machinery/door/airlock/medical{autoclose = 0; frequency = 1379; icon = 'icons/obj/doors/doorviro.dmi'; icon_state = "door_locked"; id_tag = "virology_airlock_interior"; locked = 1; name = "Virology Interior Airlock"; req_access = list(39)},/turf/simulated/floor/tiled/white/rough,/area/space)
+"dO" = (/obj/structure/table/reinforced,/obj/effect/floor_decal/corner/yellow/three_quarters{dir = 1},/turf/simulated/floor/tiled,/area/space)
+"dR" = (/obj/structure/table/rack,/obj/item/tank/jetpack/oxygen,/obj/random_multi/single_item/captains_spare_id,/obj/item/clothing/suit/space/void/captain/prepared,/obj/item/clothing/mask/gas/captain,/turf/simulated/floor/trim/wood,/area/space)
 "dW" = (/turf/simulated/floor/tiled,/area/space)
+"dZ" = (/obj/structure/table/standard,/obj/item/device/flash,/turf/simulated/floor/tiled,/area/space)
 "ej" = (/turf/simulated/shuttle/wall/corner/dark/se,/area/space)
 "ek" = (/obj/effect/floor_decal/corner/grey{dir = 6},/turf/simulated/floor/tiled/white/rough,/area/space)
 "el" = (/obj/structure/window/reinforced,/obj/structure/window/reinforced{dir = 8},/turf/simulated/floor/reinforced/airless,/area/space)
+"es" = (/obj/effect/floor_decal/corner/red{dir = 6},/obj/structure/bookcase/manuals/engineering,/turf/simulated/floor/tiled,/area/space)
+"eu" = (/obj/structure/grille,/turf/space,/area/space)
 "ev" = (/obj/structure/filingcabinet/filingcabinet,/turf/simulated/floor/tiled,/area/space)
 "ez" = (/obj/effect/landmark/start/crew/cargotech,/turf/simulated/floor/tiled,/area/space)
 "eB" = (/obj/structure/window/reinforced{dir = 8},/obj/effect/floor_decal/industrial/warning{dir = 8},/turf/simulated/floor/tiled,/area/space)
+"eG" = (/obj/item/modular_computer/console/preset/sysadmin,/turf/simulated/floor/trim/wood,/area/space)
+"eT" = (/obj/machinery/door/airlock/maintenance{name = "Bridge Maintenance"; req_access = list(19)},/turf/simulated/floor/plating,/area/space)
 "eY" = (/obj/machinery/door/window/brigdoor/westright{name = "Cell 3"; id = "Cell 3"; req_access = list(2)},/turf/simulated/floor/tiled,/area/space)
 "fe" = (/obj/machinery/door/window/westleft,/obj/machinery/door/firedoor,/turf/simulated/floor/tiled,/area/space)
 "fk" = (/obj/structure/window/reinforced{dir = 4},/turf/simulated/floor/tiled,/area/space)
 "fI" = (/obj/effect/floor_decal/corner/white/diagonal,/turf/simulated/floor/tiled,/area/space)
 "fJ" = (/obj/machinery/door/airlock/external,/turf/simulated/floor/tiled,/area/space)
+"fK" = (/obj/machinery/door/airlock/command{id_tag = "captaindoor"; name = "Captain's Office"; req_access = list(20)},/obj/machinery/door/firedoor,/turf/simulated/floor,/area/space)
+"fM" = (/obj/structure/table/reinforced,/obj/item/device/camera,/turf/simulated/floor/tiled/dark,/area/space)
+"fU" = (/obj/structure/table/reinforced,/obj/item/paper_bin{pixel_x = -3; pixel_y = 7},/turf/simulated/floor/tiled,/area/space)
 "fZ" = (/obj/machinery/door/window/southright,/obj/machinery/door/firedoor,/turf/simulated/floor/tiled,/area/space)
+"gf" = (/obj/machinery/light{dir = 8; icon_state = "tube1"},/turf/simulated/floor/trim/wood,/area/space)
 "gv" = (/obj/effect/floor_decal/industrial/hatch/yellow,/turf/simulated/floor/tiled,/area/space)
 "gA" = (/obj/machinery/door/airlock/glass_security{name = "Security Lobby"},/turf/simulated/floor/tiled,/area/space)
 "gM" = (/obj/machinery/door/airlock/command{id_tag = "HoSdoor"; name = "Head of Security"; req_access = list(58)},/turf/simulated/floor/tiled,/area/space)
 "gO" = (/obj/structure/reagent_dispensers/fueltank,/turf/simulated/floor/tiled,/area/space)
 "ha" = (/obj/structure/closet/wardrobe/atmospherics_yellow,/turf/simulated/floor/tiled/dark,/area/space)
+"he" = (/obj/structure/bed/chair/comfy/brown{dir = 8},/turf/simulated/floor/trim/wood,/area/space)
 "hf" = (/obj/structure/closet/l3closet/general,/turf/simulated/floor/tiled/dark,/area/space)
 "hg" = (/obj/effect/floor_decal/industrial/warning{dir = 4},/obj/machinery/vending/coffee,/turf/simulated/floor/tiled,/area/space)
+"ho" = (/obj/structure/table/standard,/obj/machinery/light{dir = 1},/turf/simulated/floor/tiled,/area/space)
 "hp" = (/obj/machinery/door/window/brigdoor/westright{name = "Cell 5"; id = "Cell 5"; req_access = list(2)},/turf/simulated/floor/tiled,/area/space)
 "hX" = (/obj/effect/floor_decal/industrial/warning/corner{dir = 8},/obj/structure/closet/secure_closet/cargotech,/turf/simulated/floor/tiled,/area/space)
 "ib" = (/obj/effect/floor_decal/corner/red{dir = 5},/turf/simulated/floor/tiled,/area/space)
+"ie" = (/obj/machinery/door/airlock/maintenance{name = "Bridge Maintenance"; req_access = list(57)},/obj/machinery/door/firedoor,/turf/simulated/floor/plating,/area/space)
 "il" = (/obj/structure/bed/chair,/turf/simulated/floor/tiled,/area/space)
 "ix" = (/obj/structure/stairs/south,/turf/simulated/floor/plating,/area/space)
 "iA" = (/obj/machinery/door/airlock/maintenance,/turf/simulated/floor/plating,/area/space)
@@ -54,7 +78,8 @@
 "jc" = (/obj/item/stool/padded,/turf/simulated/floor/tiled,/area/space)
 "jd" = (/obj/structure/closet/emcloset,/turf/simulated/floor/tiled,/area/space)
 "jj" = (/obj/machinery/door/unpowered/shuttle,/turf/simulated/floor/shuttle/blue,/area/space)
-"jk" = (/obj/structure/window/reinforced{dir = 8},/turf/simulated/floor/tiled,/area/space)
+"jk" = (/obj/structure/window/reinforced{dir = 8},/obj/effect/floor_decal/corner/red{dir = 9},/turf/simulated/floor/tiled,/area/space)
+"jl" = (/obj/machinery/computer/mecha,/turf/simulated/floor/tiled/dark,/area/space)
 "jn" = (/obj/structure/bed/chair{dir = 8},/turf/simulated/floor/tiled,/area/space)
 "jw" = (/obj/map_ent/func_load_map/room/threexfive,/turf/simulated/floor/plating,/area/space)
 "jB" = (/obj/structure/grille,/obj/machinery/door/firedoor,/turf/simulated/floor/plating,/area/space)
@@ -69,47 +94,74 @@
 "kW" = (/turf/space,/area/space)
 "kZ" = (/obj/machinery/door/airlock/hatch,/turf/simulated/floor/shuttle/blue,/area/space)
 "la" = (/obj/structure/window/reinforced,/obj/structure/window/reinforced{dir = 8},/obj/structure/bed/chair{dir = 4},/turf/simulated/floor/tiled,/area/space)
+"le" = (/obj/structure/table/reinforced,/obj/effect/floor_decal/corner/red/three_quarters{dir = 4},/turf/simulated/floor/tiled,/area/space)
 "lk" = (/obj/effect/floor_decal/corner/lime,/turf/simulated/floor/tiled,/area/space)
 "ls" = (/turf/simulated/shuttle/wall/corner/blockwhite/ne,/area/space)
 "lv" = (/obj/machinery/teleporter_gate,/turf/simulated/floor/tiled,/area/space)
-"mf" = (/turf/simulated/floor/trim/wood/broken5,/area/space)
+"lF" = (/obj/effect/wingrille_spawn/reinforced,/obj/effect/floor_decal/corner/yellow{dir = 9},/turf/simulated/floor/tiled,/area/space)
+"lH" = (/obj/structure/table/standard,/obj/item/device/flashlight,/turf/simulated/floor/tiled,/area/space)
+"lI" = (/obj/structure/table/reinforced,/obj/item/device/flash,/turf/simulated/floor/tiled,/area/space)
+"lS" = (/obj/structure/table/reinforced,/obj/effect/floor_decal/corner/yellow/three_quarters{icon_state = "corner_white_three_quarters"; dir = 8},/obj/item/storage/box/donut,/turf/simulated/floor/tiled,/area/space)
+"lT" = (/obj/structure/table/standard,/obj/structure/table/standard,/obj/item/storage/box/donkpockets,/turf/simulated/floor/tiled,/area/space)
+"lY" = (/obj/structure/table/reinforced,/obj/item/cartridge/head,/turf/simulated/floor/tiled,/area/space)
+"mf" = (/obj/item/modular_computer/console/preset/command,/turf/simulated/floor/trim/wood/broken5,/area/space)
+"mg" = (/obj/machinery/status_display{pixel_y = 32},/obj/machinery/computer/station_alert/security,/turf/simulated/floor/tiled/dark,/area/space)
 "mC" = (/obj/effect/floor_decal/industrial/warning{dir = 1},/obj/effect/floor_decal/industrial/warning/corner{dir = 8},/turf/simulated/floor/tiled,/area/space)
 "mL" = (/turf/simulated/floor/grid,/area/space)
 "mN" = (/obj/structure/dispenser/oxygen,/turf/simulated/floor/tiled,/area/space)
+"mP" = (/obj/item/modular_computer/console/preset/research,/turf/simulated/floor/tiled,/area/space)
 "mQ" = (/turf/simulated/shuttle/wall/corner/blockwhite/se,/area/space)
+"nb" = (/obj/machinery/door/airlock/maintenance{name = "Bridge Maintenance"; req_access = list(19)},/obj/machinery/door/firedoor,/turf/simulated/floor/plating,/area/space)
 "np" = (/obj/effect/floor_decal/industrial/warning{dir = 1},/turf/simulated/floor/plating,/area/space)
+"nu" = (/obj/machinery/door/blast/regular/retro{name = "Retractable roof"; density = 0},/turf/simulated/open,/area/space)
+"nz" = (/obj/structure/bed/chair{dir = 8},/turf/simulated/floor/tiled/dark,/area/space)
 "nD" = (/obj/structure/window/reinforced{dir = 1; health = null},/obj/effect/floor_decal/corner/red{dir = 6},/turf/simulated/floor/tiled,/area/space)
 "nM" = (/obj/machinery/door/airlock/security{id_tag = "detdoor"; name = "Detective"; req_access = list(4)},/turf/simulated/floor/trim/lino,/area/space)
+"nP" = (/obj/effect/wingrille_spawn/reinforced,/obj/effect/floor_decal/corner/yellow{dir = 6},/turf/simulated/floor/tiled,/area/space)
+"nV" = (/obj/machinery/newscaster/security_unit{pixel_x = -32; pixel_y = 0},/turf/simulated/floor/trim/wood,/area/space)
 "nX" = (/turf/simulated/wall,/area/space)
+"or" = (/turf/simulated/floor/tiled/airless,/area/space)
 "oA" = (/obj/machinery/door/airlock/glass_command{name = "E.V.A."; req_one_access = list(18)},/turf/simulated/floor,/area/space)
 "oN" = (/obj/structure/stairs/south,/turf/simulated/floor,/area/space)
 "oS" = (/obj/structure/table/rack,/turf/simulated/floor/trim/wood,/area/space)
+"oX" = (/obj/structure/table/woodentable,/obj/machinery/recharger{pixel_y = 4},/obj/item/melee/whip/chainofcommand,/turf/simulated/floor/trim/wood,/area/space)
 "oY" = (/obj/structure/window/reinforced{dir = 8},/obj/structure/bed/chair{dir = 4},/turf/simulated/floor/tiled,/area/space)
 "pk" = (/obj/structure/window/reinforced{dir = 1; health = null},/obj/effect/floor_decal/corner/paleblue{dir = 1},/turf/simulated/floor/tiled,/area/space)
+"ps" = (/obj/structure/table/reinforced,/obj/item/flame/lighter/zippo,/turf/simulated/floor/tiled,/area/space)
 "pt" = (/obj/machinery/disposal,/turf/simulated/floor/trim/lino,/area/space)
 "pu" = (/obj/machinery/door/window/brigdoor/westright{name = "Cell 1"; id = "Cell 1"; req_access = list(2)},/turf/simulated/floor/tiled,/area/space)
 "pv" = (/obj/structure/window/reinforced,/obj/effect/floor_decal/corner/red,/turf/simulated/floor/tiled,/area/space)
 "pB" = (/obj/effect/floor_decal/industrial/warning/corner{dir = 4},/turf/simulated/floor/tiled,/area/space)
+"pH" = (/obj/structure/closet/secure_closet/captains,/turf/simulated/floor/trim/wood,/area/space)
 "pJ" = (/obj/machinery/vending/plasmaresearch,/turf/simulated/floor/tiled/white/rough,/area/space)
+"pN" = (/obj/structure/table/woodentable,/obj/machinery/photocopier/faxmachine{department = "Captain's Office"},/turf/simulated/floor/trim/wood,/area/space)
 "pQ" = (/obj/effect/floor_decal/industrial/warning{dir = 10},/turf/simulated/floor/plating,/area/space)
 "pS" = (/obj/effect/floor_decal/corner/red{dir = 4},/turf/simulated/floor/tiled,/area/space)
+"pV" = (/obj/item/modular_computer/console/preset/security,/turf/simulated/floor/tiled/dark,/area/space)
 "qb" = (/obj/effect/floor_decal/corner/red/diagonal,/obj/structure/table/standard,/turf/simulated/floor/tiled,/area/space)
 "qt" = (/turf/simulated/shuttle/wall/corner/dark/ne,/area/space)
 "qz" = (/obj/structure/window/reinforced{dir = 1; health = null},/obj/effect/floor_decal/industrial/warning{dir = 9},/turf/simulated/floor/tiled,/area/space)
 "qF" = (/obj/machinery/door/airlock/maintenance{name = "Disposal Access"; req_access = list(12)},/turf/simulated/floor/tiled,/area/space)
 "qJ" = (/obj/machinery/door/firedoor,/obj/effect/floor_decal/industrial/warning,/turf/simulated/floor/tiled,/area/space)
 "qL" = (/obj/map_ent/func_load_map/room/threexthree,/turf/simulated/floor/plating,/area/space)
+"qV" = (/obj/structure/table/standard,/obj/item/paper_bin{pixel_x = -3; pixel_y = 7},/turf/simulated/floor/tiled,/area/space)
 "rh" = (/obj/effect/floor_decal/industrial/warning{dir = 4},/turf/simulated/floor/plating,/area/space)
+"rp" = (/obj/structure/table/woodentable,/obj/item/pinpointer,/obj/item/disk/nuclear,/turf/simulated/floor/trim/wood,/area/space)
 "rr" = (/obj/machinery/door/airlock/glass_security{name = "Sub-Armory"; req_access = list(2)},/turf/simulated/floor/tiled,/area/space)
 "rE" = (/obj/effect/floor_decal/corner/lime{dir = 6},/turf/simulated/floor/tiled,/area/space)
 "rF" = (/obj/machinery/door/window/westright,/obj/effect/floor_decal/corner/paleblue{dir = 1},/turf/simulated/floor/tiled,/area/space)
+"rH" = (/obj/structure/filingcabinet/filingcabinet,/obj/effect/floor_decal/corner/red{dir = 6},/turf/simulated/floor/tiled,/area/space)
+"rW" = (/obj/structure/bed/padded,/obj/item/bedsheet/hop,/turf/simulated/floor/tiled,/area/space)
 "sb" = (/obj/effect/floor_decal/corner/grey{dir = 10},/turf/simulated/floor/tiled/dark,/area/space)
 "sd" = (/obj/structure/bed/chair/office/dark{dir = 1},/turf/simulated/floor/tiled/dark,/area/space)
 "sj" = (/obj/structure/closet/coffin,/turf/simulated/floor/tiled/dirty,/area/space)
 "sk" = (/obj/structure/closet/firecloset/full,/turf/simulated/floor/tiled,/area/space)
 "sm" = (/obj/effect/floor_decal/industrial/warning{dir = 4},/obj/machinery/vending/cola,/turf/simulated/floor/tiled,/area/space)
+"sw" = (/obj/structure/bed/padded,/obj/item/bedsheet/rd,/turf/simulated/floor/tiled,/area/space)
 "sy" = (/obj/structure/table/reinforced,/obj/structure/window/reinforced{dir = 8},/obj/structure/window/reinforced,/obj/structure/window/reinforced{dir = 1; health = null},/turf/simulated/floor/tiled,/area/space)
 "sF" = (/obj/machinery/door/airlock/maintenance{req_access = list(12)},/turf/simulated/floor,/area/space)
+"sL" = (/obj/machinery/computer/power_monitor,/turf/simulated/floor/tiled/dark,/area/space)
+"sO" = (/obj/machinery/light{dir = 4},/turf/simulated/floor/tiled,/area/space)
 "sP" = (/turf/simulated/open,/area/space)
 "sR" = (/obj/effect/wingrille_spawn/reinforced,/turf/simulated/floor/tiled,/area/space)
 "sW" = (/obj/structure/closet/toolcloset,/turf/simulated/floor/tiled,/area/space)
@@ -123,6 +175,7 @@
 "tz" = (/obj/effect/floor_decal/industrial/warning/corner{dir = 1},/obj/machinery/door/firedoor/border_only,/obj/machinery/door/airlock/glass_mining{id_tag = "cargodoor"; name = "Cargo Office"; req_access = list(50)},/turf/simulated/floor/tiled,/area/space)
 "tC" = (/obj/structure/window/reinforced{dir = 4},/obj/structure/window/reinforced{dir = 1; health = null},/turf/simulated/floor/reinforced/airless,/area/space)
 "tI" = (/obj/machinery/computer/arcade,/turf/simulated/floor/tiled,/area/space)
+"tQ" = (/obj/structure/table/reinforced,/obj/item/clothing/mask/smokable/cigarette/cigar,/turf/simulated/floor/tiled,/area/space)
 "tU" = (/turf/simulated/wall/r_wall,/area/space)
 "ua" = (/obj/machinery/washing_machine,/turf/simulated/floor/tiled,/area/space)
 "uc" = (/obj/structure/window/reinforced,/turf/simulated/floor/tiled,/area/space)
@@ -130,21 +183,29 @@
 "uj" = (/obj/effect/floor_decal/corner/red{dir = 10},/turf/simulated/floor/tiled,/area/space)
 "uq" = (/obj/machinery/door/window/westright,/obj/machinery/door/firedoor,/turf/simulated/floor/tiled,/area/space)
 "ux" = (/obj/machinery/door/blast/regular{density = 0; dir = 4; icon_state = "pdoor0"; id = "virologyquar"; name = "Virology Emergency Quarantine Blast Doors"; opacity = 0},/turf/simulated/floor/tiled/white/rough,/area/space)
+"uC" = (/obj/structure/table/reinforced,/obj/effect/floor_decal/corner/red{dir = 6},/obj/item/storage/firstaid/regular,/turf/simulated/floor/tiled,/area/space)
 "uO" = (/obj/structure/window/reinforced{dir = 1; health = null},/obj/structure/window/reinforced{dir = 8},/turf/simulated/floor/reinforced/airless,/area/space)
 "uW" = (/obj/structure/bed/chair,/obj/structure/window/reinforced{dir = 8},/obj/structure/window/reinforced,/obj/structure/window/reinforced{dir = 4},/obj/machinery/door/window/northleft,/turf/simulated/floor/tiled,/area/space)
+"vo" = (/obj/effect/floor_decal/corner/red{dir = 9},/obj/machinery/light{dir = 8; icon_state = "tube1"},/turf/simulated/floor/tiled,/area/space)
+"vq" = (/obj/structure/table/reinforced,/obj/effect/floor_decal/corner/yellow{dir = 6},/turf/simulated/floor/tiled,/area/space)
 "vA" = (/obj/structure/window/reinforced,/obj/effect/floor_decal/industrial/warning{dir = 10},/turf/simulated/floor/tiled,/area/space)
 "vO" = (/obj/structure/table/standard,/turf/simulated/floor/tiled/white/rough,/area/space)
 "vW" = (/obj/effect/wingrille_spawn/reinforced,/turf/simulated/floor/plating,/area/space)
 "wj" = (/obj/effect/wingrille_spawn/reinforced,/turf/simulated/floor,/area/space)
 "wo" = (/obj/effect/floor_decal/corner/white/diagonal,/obj/machinery/door/window/eastright{dir = 1; name = "Kitchen"; req_access = list(28)},/turf/simulated/floor/tiled,/area/space)
+"wq" = (/obj/item/modular_computer/console/preset/dock,/turf/simulated/floor/tiled/dark,/area/space)
 "ws" = (/obj/effect/floor_decal/corner/blue/three_quarters{dir = 8},/turf/simulated/floor/tiled,/area/space)
 "wt" = (/obj/machinery/door/airlock/medical{autoclose = 0; frequency = 1379; icon = 'icons/obj/doors/doorviro.dmi'; icon_state = "door_locked"; id_tag = "virology_airlock_exterior"; locked = 1; name = "Virology Exterior Airlock"; req_access = list(39)},/turf/simulated/floor/tiled/white/rough,/area/space)
 "wx" = (/obj/effect/floor_decal/corner/paleblue{dir = 6},/turf/simulated/floor/tiled/white/rough,/area/space)
 "wO" = (/obj/effect/floor_decal/corner/paleblue/three_quarters{dir = 4},/turf/simulated/floor/tiled/white/rough,/area/space)
 "xu" = (/obj/machinery/door/morgue,/turf/simulated/floor/tiled,/area/space)
+"xw" = (/obj/machinery/light,/turf/simulated/floor/tiled,/area/space)
+"xD" = (/obj/machinery/door/airlock/command{name = "Head of Personnel"; req_access = list(57)},/obj/machinery/door/firedoor,/turf/simulated/floor/tiled,/area/space)
 "xG" = (/obj/structure/ladder,/turf/simulated/floor/plating,/area/space)
 "xJ" = (/obj/machinery/photocopier,/turf/simulated/floor/trim/lino,/area/space)
+"xN" = (/obj/machinery/disposal,/obj/machinery/light{dir = 4},/turf/simulated/floor/trim/wood,/area/space)
 "xP" = (/obj/structure/bed/chair/office/light{dir = 8},/turf/simulated/floor/tiled/white/rough,/area/space)
+"xS" = (/obj/structure/table/standard,/obj/item/pen,/turf/simulated/floor/tiled,/area/space)
 "xW" = (/obj/structure/table/woodentable,/turf/simulated/floor/tiled,/area/space)
 "yc" = (/turf/simulated/floor,/area/space)
 "yd" = (/obj/machinery/portable_atmospherics/powered/pump,/turf/simulated/floor/tiled,/area/space)
@@ -158,17 +219,23 @@
 "yW" = (/turf/simulated/shuttle/wall{tag = "icon-wall3 (EAST)"; icon_state = "wall3"; dir = 4},/area/space)
 "za" = (/obj/effect/floor_decal/corner/lime{dir = 5},/turf/simulated/floor/tiled,/area/space)
 "zd" = (/obj/effect/floor_decal/industrial/warning/corner{dir = 1},/obj/structure/closet/secure_closet/quartermaster,/turf/simulated/floor/tiled,/area/space)
+"zf" = (/obj/machinery/computer/shuttle_control/security,/turf/simulated/floor/tiled/dark,/area/space)
+"zi" = (/obj/effect/floor_decal/corner/red/three_quarters{dir = 8},/turf/simulated/floor/tiled,/area/space)
+"zk" = (/obj/structure/table/woodentable,/obj/item/paper_bin{pixel_x = -3; pixel_y = 7},/obj/item/stamp/captain{pixel_x = -4; pixel_y = 3},/obj/item/stamp/denied{pixel_x = 4; pixel_y = 3},/obj/machinery/requests_console{announcementConsole = 1; department = "Captain's Desk"; departmentType = 5; name = "Captain RC"; pixel_x = -30; pixel_y = 0},/obj/item/pen,/turf/simulated/floor/trim/wood,/area/space)
 "zn" = (/obj/machinery/door/window/southleft,/obj/machinery/door/firedoor,/turf/simulated/floor/tiled,/area/space)
 "zw" = (/obj/effect/floor_decal/corner/grey{dir = 1},/turf/simulated/floor/tiled/white/rough,/area/space)
 "zz" = (/obj/structure/grille,/turf/simulated/floor,/area/space)
+"zA" = (/obj/structure/table/reinforced,/obj/effect/floor_decal/corner/yellow{dir = 9},/obj/random/coin,/turf/simulated/floor/tiled,/area/space)
 "zD" = (/obj/structure/table/standard,/turf/simulated/floor/tiled/dark,/area/space)
 "zP" = (/obj/structure/window/reinforced{dir = 8},/obj/structure/window/reinforced,/obj/structure/bed/chair{dir = 8},/turf/simulated/floor/tiled,/area/space)
+"zU" = (/obj/structure/displaycase,/turf/simulated/floor/trim/wood,/area/space)
 "zZ" = (/obj/effect/floor_decal/industrial/warning/corner{dir = 1},/turf/simulated/floor/tiled,/area/space)
 "Ak" = (/obj/effect/floor_decal/corner/red,/obj/effect/floor_decal/corner/white{dir = 8},/turf/simulated/floor/tiled,/area/space)
 "Al" = (/obj/effect/floor_decal/corner/lime{dir = 1},/turf/simulated/floor/tiled,/area/space)
 "Ap" = (/turf/simulated/shuttle/wall/corner/blockwhite/nw,/area/space)
 "At" = (/obj/structure/window_frame/grille,/turf/simulated/floor/tiled,/area/space)
 "Aw" = (/turf/simulated/shuttle/wall{icon_state = "wall3"},/area/space)
+"Ay" = (/obj/machinery/light/small{dir = 8},/turf/simulated/floor/plating,/area/space)
 "Az" = (/obj/structure/table/standard,/obj/structure/bedsheetbin,/turf/simulated/floor/tiled,/area/space)
 "AA" = (/obj/structure/table/woodentable,/turf/simulated/floor/trim/lino,/area/space)
 "AB" = (/obj/effect/floor_decal/corner/lime/three_quarters{dir = 4},/turf/simulated/floor/tiled,/area/space)
@@ -180,6 +247,7 @@
 "AV" = (/obj/structure/grille,/obj/item/ammo_magazine/caps,/turf/simulated/floor/plating,/area/space)
 "AY" = (/obj/effect/floor_decal/industrial/warning/full,/turf/simulated/floor/tiled,/area/space)
 "AZ" = (/obj/effect/floor_decal/corner/white/diagonal,/obj/structure/table/standard,/turf/simulated/floor/tiled,/area/space)
+"Ba" = (/obj/machinery/door/airlock/maintenance_hatch{req_access = list(19); name = "Bridge Emergency Access"},/obj/machinery/door/firedoor,/turf/simulated/floor/plating,/area/space)
 "Bt" = (/obj/structure/reagent_dispensers/water_cooler,/turf/simulated/floor/tiled,/area/space)
 "Bz" = (/obj/machinery/door/airlock/glass_atmos{name = "Atmospherics Monitoring Room"; req_access = list(24)},/turf/simulated/floor/tiled/dark,/area/space)
 "BD" = (/obj/machinery/door/airlock/glass_security{id_tag = "0"; name = "Court"; req_access = list(63)},/turf/simulated/floor/tiled,/area/space)
@@ -187,13 +255,17 @@
 "BJ" = (/turf/simulated/shuttle/wall/corner/dark/nw,/area/space)
 "BZ" = (/obj/effect/floor_decal/corner/lime{dir = 8},/turf/simulated/floor/tiled,/area/space)
 "Ca" = (/obj/machinery/portable_atmospherics/canister/air,/turf/simulated/floor/tiled,/area/space)
+"Cd" = (/obj/effect/floor_decal/corner/red/three_quarters,/turf/simulated/floor/tiled,/area/space)
+"Cf" = (/obj/structure/bed/chair{dir = 1},/turf/simulated/floor/tiled/dark,/area/space)
+"Cl" = (/obj/structure/table/reinforced,/obj/random/coin,/turf/simulated/floor/tiled,/area/space)
 "Cn" = (/obj/machinery/door/airlock/security{id_tag = "detdoor"; name = "Detective"; req_access = list(4)},/turf/simulated/floor/tiled,/area/space)
 "Cr" = (/obj/structure/bookcase/prefitted/nonfiction,/turf/simulated/floor/tiled,/area/space)
-"Cs" = (/turf/simulated/floor/trim/wood/broken3,/area/space)
+"Cs" = (/obj/structure/bed/padded,/obj/item/bedsheet/captain,/turf/simulated/floor/trim/wood/broken3,/area/space)
 "CD" = (/obj/structure/window/reinforced{dir = 4},/obj/structure/window/reinforced,/turf/simulated/floor/tiled,/area/space)
 "CJ" = (/obj/structure/table/reinforced,/turf/simulated/floor/trim/lino,/area/space)
 "CO" = (/turf/simulated/floor/tiled/dark,/area/space)
 "CP" = (/obj/structure/window/reinforced{dir = 1; health = null},/obj/effect/floor_decal/industrial/warning/cee{dir = 8},/turf/simulated/floor/tiled,/area/space)
+"CT" = (/obj/item/modular_computer/console/preset/command,/turf/simulated/floor/trim/lino,/area/space)
 "CW" = (/obj/structure/closet/secure_closet/cargotech,/turf/simulated/floor/tiled,/area/space)
 "CY" = (/obj/structure/window/reinforced{dir = 1; health = null},/obj/structure/window/reinforced{dir = 8},/obj/structure/bed/chair{dir = 8},/turf/simulated/floor/tiled,/area/space)
 "CZ" = (/obj/machinery/photocopier,/turf/simulated/floor/tiled,/area/space)
@@ -203,6 +275,7 @@
 "Dw" = (/obj/machinery/door/airlock/glass{name = "Primary Tool Storage"},/turf/simulated/floor/tiled,/area/space)
 "DA" = (/obj/machinery/portable_atmospherics/canister/oxygen,/turf/simulated/floor/tiled,/area/space)
 "DC" = (/obj/effect/floor_decal/industrial/warning{dir = 8},/turf/simulated/floor/plating,/area/space)
+"DG" = (/obj/structure/table/standard,/obj/item/stamp/hop,/turf/simulated/floor/tiled,/area/space)
 "DH" = (/obj/structure/window/reinforced{dir = 8},/obj/structure/window/reinforced,/obj/structure/table/reinforced,/turf/simulated/floor/tiled,/area/space)
 "DJ" = (/obj/machinery/door/window/eastright,/obj/effect/floor_decal/corner/red,/turf/simulated/floor/tiled,/area/space)
 "DK" = (/obj/machinery/vending/coffee,/turf/simulated/floor/tiled,/area/space)
@@ -214,58 +287,78 @@
 "Eg" = (/obj/machinery/portable_atmospherics/powered/scrubber,/turf/simulated/floor/tiled,/area/space)
 "Ej" = (/obj/effect/floor_decal/corner/lime/three_quarters{dir = 8},/turf/simulated/floor/tiled,/area/space)
 "Et" = (/obj/structure/ladder/up,/turf/simulated/floor/plating,/area/space)
+"Eu" = (/obj/structure/grille,/turf/simulated/floor/reinforced/airless,/area/space)
 "EO" = (/obj/structure/bed,/obj/structure/bed{pixel_y = 11},/turf/simulated/floor/tiled,/area/space)
+"ES" = (/obj/machinery/status_display{pixel_y = 32},/obj/item/modular_computer/console/preset/supply,/turf/simulated/floor/tiled/dark,/area/space)
+"ET" = (/obj/structure/closet/emcloset,/obj/effect/floor_decal/corner/red{dir = 10},/turf/simulated/floor/tiled,/area/space)
 "EX" = (/obj/effect/floor_decal/corner/grey{dir = 10},/turf/simulated/floor/tiled/white/rough,/area/space)
 "Fi" = (/obj/structure/window/reinforced{dir = 4},/obj/structure/window/reinforced,/turf/simulated/floor/reinforced/airless,/area/space)
+"Fn" = (/obj/structure/table/reinforced,/obj/item/clipboard,/obj/item/pen,/turf/simulated/floor/tiled,/area/space)
 "Fp" = (/obj/effect/floor_decal/corner/grey,/turf/simulated/floor/tiled/dark,/area/space)
+"Fs" = (/obj/item/modular_computer/console/preset/engineering,/turf/simulated/floor/tiled/dark,/area/space)
 "FA" = (/obj/effect/floor_decal/industrial/warning,/turf/simulated/floor/plating,/area/space)
 "FS" = (/obj/effect/floor_decal/industrial/warning{dir = 8},/turf/simulated/floor/tiled,/area/space)
 "FX" = (/obj/machinery/door/airlock/glass_command{id_tag = "sbridgedoor"; name = "Bridge"; req_access = list(19)},/turf/simulated/floor/tiled,/area/space)
 "FZ" = (/obj/effect/floor_decal/corner/red{dir = 4; tag = "icon-corner_white (EAST)"},/turf/simulated/floor/tiled,/area/space)
 "Ge" = (/obj/machinery/button/remote/blast_door{dir = 4; id = "Armoury"; name = "Emergency Access"; pixel_x = -26; pixel_y = 4; req_access = list(3)},/turf/simulated/floor/tiled,/area/space)
 "Gi" = (/obj/structure/table/reinforced,/obj/structure/window/reinforced,/turf/simulated/floor/tiled,/area/space)
+"Gy" = (/obj/structure/table/reinforced,/obj/item/storage/photo_album,/turf/simulated/floor/tiled/dark,/area/space)
+"Gz" = (/obj/effect/wingrille_spawn/reinforced,/obj/machinery/door/firedoor,/turf/simulated/floor/plating,/area/space)
 "GA" = (/obj/structure/table/standard,/obj/item/material/coin/plasma,/turf/simulated/floor/tiled,/area/space)
 "GB" = (/obj/machinery/door/window/eastleft,/obj/effect/floor_decal/corner/lime{dir = 4},/turf/simulated/floor/tiled,/area/space)
 "GH" = (/turf/simulated/floor/trim/wood,/area/space)
+"GS" = (/obj/machinery/status_display{pixel_y = 32},/obj/effect/floor_decal/corner/red{dir = 5},/turf/simulated/floor/tiled,/area/space)
 "GV" = (/obj/machinery/chem_master,/turf/simulated/floor/tiled/white/rough,/area/space)
 "Hc" = (/obj/structure/window/shuttle,/turf/simulated/floor/shuttle/blue,/area/space)
 "Hj" = (/obj/effect/floor_decal/industrial/warning{dir = 4},/obj/machinery/vending/snack,/turf/simulated/floor/tiled,/area/space)
+"Hn" = (/obj/machinery/door/airlock/command{name = "Research Director"; req_access = list(30)},/obj/machinery/door/firedoor,/turf/simulated/floor/tiled,/area/space)
+"Hw" = (/obj/machinery/computer/rdconsole/robotics,/turf/simulated/floor/tiled/dark,/area/space)
 "Hz" = (/obj/effect/floor_decal/industrial/warning{dir = 4},/turf/simulated/floor/tiled,/area/space)
 "HD" = (/obj/structure/table/standard,/turf/simulated/floor/tiled,/area/space)
 "HW" = (/obj/machinery/embedded_controller/radio/airlock/access_controller{id_tag = "virology_airlock_control"; name = "Virology Access Console"; pixel_x = 8; pixel_y = 24; tag_exterior_door = "virology_airlock_exterior"; tag_interior_door = "virology_airlock_interior"},/turf/simulated/floor/tiled/white/rough,/area/space)
 "Ii" = (/obj/structure/shuttle/engine/propulsion/burst/huge,/turf/space,/area/space)
 "Iu" = (/obj/effect/floor_decal/corner/blue/three_quarters,/turf/simulated/floor/tiled,/area/space)
+"IG" = (/obj/structure/table/reinforced,/obj/item/device/radio/uplink,/turf/simulated/floor/tiled,/area/space)
 "II" = (/obj/machinery/computer/teleporter,/turf/simulated/floor/tiled,/area/space)
 "IJ" = (/obj/effect/floor_decal/corner/red{dir = 1},/obj/effect/floor_decal/corner/red,/obj/effect/floor_decal/corner/white{dir = 8},/turf/simulated/floor/tiled,/area/space)
 "IQ" = (/obj/machinery/door/firedoor/border_only,/turf/simulated/floor/tiled,/area/space)
+"IU" = (/obj/machinery/door/airlock/maintenance{name = "Captain's Office Maintenance"; req_access = list(20)},/obj/machinery/door/firedoor,/turf/simulated/floor/plating,/area/space)
 "IW" = (/obj/structure/table/woodentable,/turf/simulated/floor/trim/wood,/area/space)
 "IZ" = (/obj/effect/floor_decal/corner/lime{dir = 9},/turf/simulated/floor/tiled,/area/space)
 "Ja" = (/obj/structure/closet/secure_closet/atmos_personal,/turf/simulated/floor/tiled/dark,/area/space)
 "Jf" = (/obj/effect/floor_decal/corner/grey/full,/turf/simulated/floor/tiled/white/rough,/area/space)
 "JC" = (/obj/machinery/door/airlock/glass_security{name = "Security Processing 2"; req_access = list(63)},/turf/simulated/floor/tiled,/area/space)
 "JH" = (/obj/effect/floor_decal/corner/red{dir = 9},/turf/simulated/floor/tiled,/area/space)
+"JI" = (/obj/structure/table/reinforced,/turf/simulated/floor/tiled/dark,/area/space)
 "JP" = (/obj/machinery/computer/atmoscontrol,/turf/simulated/floor/tiled/dark,/area/space)
 "JX" = (/obj/machinery/door/window/westleft,/obj/machinery/door/window/eastleft,/turf/simulated/floor/tiled,/area/space)
 "Kl" = (/turf/simulated/floor/trim/carpet/purple,/area/space)
+"Kt" = (/obj/structure/table/reinforced,/obj/effect/floor_decal/corner/red{dir = 10},/turf/simulated/floor/tiled,/area/space)
 "Kz" = (/obj/machinery/door/airlock/glass_security{id_tag = "BrigFoyer"; name = "Security Wing"; req_access = list(1)},/turf/simulated/floor/tiled,/area/space)
 "KN" = (/obj/effect/floor_decal/industrial/warning,/obj/effect/floor_decal/industrial/warning/corner{dir = 1},/turf/simulated/floor/tiled,/area/space)
+"KR" = (/obj/structure/table/reinforced,/obj/item/reagent_containers/spray/pepper{pixel_y = 2},/obj/item/reagent_containers/spray/pepper{pixel_y = 7; pixel_x = 4},/obj/item/reagent_containers/spray/pepper{pixel_y = 7; pixel_x = -5},/turf/simulated/floor/tiled,/area/space)
 "KU" = (/obj/effect/floor_decal/corner/red/three_quarters{dir = 1},/turf/simulated/floor/tiled,/area/space)
 "Li" = (/obj/machinery/access_button{command = "cycle_exterior"; frequency = 1379; master_tag = "virology_airlock_control"; name = "Virology Access Button"; pixel_x = -24; pixel_y = -6; req_access = list(39); dir = 8},/turf/simulated/floor/tiled/white/rough,/area/space)
 "LK" = (/obj/structure/bed/chair{dir = 1},/turf/simulated/floor/tiled,/area/space)
 "LY" = (/turf/simulated/floor/tiled/white/rough,/area/space)
 "Mt" = (/obj/structure/table/standard,/turf/simulated/floor/tiled/dirty,/area/space)
+"Mv" = (/obj/machinery/door/airlock/glass_command{id_tag = "sbridgedoor"; name = "Bridge"; req_access = list(19)},/obj/machinery/door/firedoor,/turf/simulated/floor/tiled,/area/space)
 "MW" = (/obj/structure/window/reinforced{dir = 8},/turf/simulated/floor/reinforced/airless,/area/space)
 "Nj" = (/obj/structure/table/standard,/obj/item/storage/box/donut,/turf/simulated/floor/tiled,/area/space)
-"Nn" = (/obj/structure/window_frame/grille/glass,/turf/simulated/floor/tiled/dark,/area/space)
+"Nn" = (/obj/effect/wingrille_spawn/reinforced,/turf/simulated/floor/tiled/dark,/area/space)
 "Nv" = (/obj/effect/floor_decal/industrial/warning{dir = 1},/obj/effect/floor_decal/industrial/warning,/obj/structure/window/reinforced,/turf/simulated/floor/tiled,/area/space)
 "ND" = (/obj/effect/floor_decal/corner/red{dir = 6},/turf/simulated/floor/tiled,/area/space)
 "NF" = (/obj/structure/table/rack,/obj/item/tank/oxygen,/obj/item/clothing/mask/gas,/turf/simulated/floor/tiled,/area/space)
+"NT" = (/obj/machinery/computer/power_monitor,/obj/effect/floor_decal/corner/red{dir = 10},/turf/simulated/floor/tiled,/area/space)
 "NW" = (/obj/structure/window/reinforced{dir = 8},/turf/simulated/floor/trim/wood,/area/space)
 "NX" = (/obj/machinery/door/airlock/glass{name = "Central Access"},/turf/simulated/floor/tiled,/area/space)
+"Oe" = (/obj/machinery/vending/coffee,/obj/effect/floor_decal/corner/red/three_quarters{dir = 4},/turf/simulated/floor/tiled,/area/space)
 "Oi" = (/obj/structure/morgue{dir = 8},/turf/simulated/floor/tiled/dark/mono,/area/space)
 "Oj" = (/obj/effect/floor_decal/corner/grey{dir = 9},/turf/simulated/floor/tiled/white/rough,/area/space)
 "Ol" = (/obj/structure/closet/secure_closet/personal/patient,/turf/simulated/floor/tiled/white/rough,/area/space)
+"Om" = (/obj/structure/table/woodentable,/obj/machinery/microwave,/turf/simulated/floor/trim/wood,/area/space)
 "Oq" = (/obj/structure/bed/chair/office/light{dir = 4},/turf/simulated/floor/tiled/white/rough,/area/space)
+"OA" = (/obj/effect/floor_decal/corner/red{dir = 6},/obj/machinery/light{dir = 4},/turf/simulated/floor/tiled,/area/space)
 "OF" = (/obj/effect/floor_decal/corner/lime{dir = 10},/turf/simulated/floor/tiled,/area/space)
 "OO" = (/turf/simulated/floor/tiled/dirty,/area/space)
 "OY" = (/obj/structure/window/reinforced{dir = 1; health = null},/obj/effect/floor_decal/corner/lime{dir = 4},/turf/simulated/floor/tiled,/area/space)
@@ -277,15 +370,21 @@
 "Qb" = (/obj/structure/dispenser/oxygen,/turf/simulated/floor/tiled/dark,/area/space)
 "Qe" = (/obj/structure/filingcabinet/filingcabinet,/turf/simulated/floor/trim/lino,/area/space)
 "QH" = (/obj/effect/floor_decal/corner/white{dir = 8},/turf/simulated/floor/tiled,/area/space)
+"QL" = (/obj/structure/bed/chair,/turf/simulated/floor/plating,/area/space)
 "QY" = (/obj/structure/window/reinforced{dir = 4},/turf/simulated/floor/reinforced/airless,/area/space)
+"Rg" = (/obj/item/modular_computer/console/preset/command,/turf/simulated/floor/tiled/dark,/area/space)
+"Rt" = (/obj/machinery/disposal,/obj/effect/floor_decal/corner/red{dir = 10},/turf/simulated/floor/tiled,/area/space)
+"Rz" = (/obj/structure/table/woodentable,/obj/prefab/hand_teleporter,/turf/simulated/floor/trim/wood,/area/space)
 "RT" = (/obj/machinery/door/airlock/engineering{name = "Engineering Lower"; req_access = list(12); req_one_access = list(11,24)},/turf/simulated/floor/tiled,/area/space)
 "RZ" = (/obj/structure/window/reinforced,/obj/item/modular_computer/console/preset/supply,/turf/simulated/floor/tiled,/area/space)
 "Sc" = (/obj/effect/floor_decal/industrial/warning{dir = 9},/turf/simulated/floor/tiled,/area/space)
 "Sd" = (/obj/structure/table/standard,/obj/item/game_kit,/turf/simulated/floor/tiled,/area/space)
 "Sf" = (/obj/structure/window/reinforced{dir = 1; health = null},/obj/effect/floor_decal/industrial/warning,/obj/effect/floor_decal/industrial/warning{dir = 1},/turf/simulated/floor/tiled,/area/space)
+"Sg" = (/obj/structure/closet/emcloset,/turf/simulated/floor/trim/wood,/area/space)
 "So" = (/turf/simulated/floor/trim/lino,/area/space)
 "Sr" = (/turf/simulated/floor/plating,/area/space)
 "Ss" = (/obj/machinery/button/remote/blast_door{desc = "A remote control-switch for shutters."; id = "virologyquar"; name = "Virology Emergency Lockdown Control"; pixel_y = 28; req_access = list(5)},/turf/simulated/floor/tiled/white/rough,/area/space)
+"Su" = (/obj/structure/closet/secure_closet/hop2,/turf/simulated/floor/tiled,/area/space)
 "SB" = (/turf/simulated/floor/tiled/dark/mono,/area/space)
 "SC" = (/obj/effect/floor_decal/corner/lime/three_quarters,/turf/simulated/floor/tiled,/area/space)
 "SE" = (/obj/effect/floor_decal/corner/yellow{dir = 8},/obj/effect/floor_decal/corner/black{dir = 1},/turf/simulated/floor/tiled,/area/space)
@@ -296,20 +395,26 @@
 "Tb" = (/obj/structure/table/reinforced,/turf/simulated/floor/tiled,/area/space)
 "Td" = (/obj/structure/bed/chair,/obj/structure/noticeboard{pixel_x = 0; pixel_y = 30},/turf/simulated/floor/tiled,/area/space)
 "Te" = (/obj/machinery/door/blast/regular{id = "Armoury"; name = "Emergency Access"; dir = 4},/turf/simulated/floor/tiled,/area/space)
+"Tf" = (/obj/structure/closet/secure_closet/hop,/turf/simulated/floor/tiled,/area/space)
 "Tk" = (/obj/structure/window/reinforced{dir = 1; health = null},/obj/structure/window/reinforced{dir = 8},/obj/effect/floor_decal/corner/paleblue/three_quarters{dir = 8},/obj/item/stool/padded,/turf/simulated/floor/tiled,/area/space)
 "Tq" = (/obj/structure/grille,/obj/item/gun/projectile/revolver/capgun,/obj/item/ammo_magazine/caps,/turf/simulated/floor/plating,/area/space)
+"Tr" = (/obj/machinery/light/small,/turf/simulated/floor/plating,/area/space)
 "Tv" = (/obj/effect/floor_decal/corner/red/diagonal,/turf/simulated/floor/tiled,/area/space)
 "TD" = (/obj/effect/floor_decal/industrial/loading,/turf/simulated/floor/tiled,/area/space)
+"TG" = (/obj/structure/window/reinforced,/obj/effect/floor_decal/corner/red{dir = 10},/turf/simulated/floor/tiled,/area/space)
 "TN" = (/turf/simulated/floor/trim/carpet/oldred,/area/space)
+"TW" = (/obj/machinery/computer/station_alert,/turf/simulated/floor/tiled/dark,/area/space)
 "Ub" = (/obj/machinery/vending/snack,/turf/simulated/floor/tiled,/area/space)
 "Ug" = (/obj/structure/window/reinforced{dir = 1; health = null},/obj/structure/table/reinforced,/turf/simulated/floor/trim/lino,/area/space)
 "Uo" = (/turf/simulated/shuttle/wall/corner/dark/sw,/area/space)
+"Us" = (/obj/effect/floor_decal/corner/red/three_quarters{dir = 4},/turf/simulated/floor/tiled,/area/space)
 "Uw" = (/obj/effect/floor_decal/corner/blue{dir = 9},/turf/simulated/floor/tiled,/area/space)
 "UG" = (/obj/structure/window/reinforced{dir = 8},/obj/structure/table/reinforced,/turf/simulated/floor/trim/lino,/area/space)
 "UH" = (/obj/machinery/vending/cigarette,/turf/simulated/floor/tiled,/area/space)
 "UX" = (/obj/structure/stairs/north,/turf/simulated/floor,/area/space)
 "Vh" = (/obj/effect/floor_decal/corner/red{dir = 1},/obj/effect/floor_decal/corner/white{dir = 8},/turf/simulated/floor/tiled,/area/space)
 "Vj" = (/obj/structure/table/reinforced,/obj/machinery/door/window/westleft{name = "Cargo Desk"; req_access = list(50)},/obj/machinery/door/firedoor/border_only,/turf/simulated/floor/tiled,/area/space)
+"Vn" = (/obj/structure/table/reinforced,/obj/effect/floor_decal/corner/yellow{dir = 5},/turf/simulated/floor/tiled,/area/space)
 "Vt" = (/obj/effect/floor_decal/industrial/outline/yellow,/turf/simulated/floor/tiled,/area/space)
 "Vv" = (/obj/structure/window/syndi,/turf/simulated/floor/shuttle/blue,/area/space)
 "VC" = (/obj/effect/floor_decal/industrial/warning,/turf/simulated/floor/tiled,/area/space)
@@ -319,7 +424,9 @@
 "We" = (/obj/machinery/door/airlock/security{name = "Security Checkpoint"; req_access = list(1)},/turf/simulated/floor/tiled,/area/space)
 "Wj" = (/obj/machinery/door/airlock/freezer{name = "Kitchen"; req_access = list(28)},/turf/simulated/floor,/area/space)
 "Wu" = (/turf/simulated/shuttle/wall/corner/blockwhite/sw,/area/space)
+"WC" = (/obj/structure/bed/chair/comfy/brown{dir = 1},/turf/simulated/floor/trim/wood,/area/space)
 "WF" = (/obj/structure/window/reinforced{dir = 1; health = null},/obj/structure/window/reinforced{dir = 4},/obj/effect/floor_decal/corner/lime/three_quarters{dir = 1},/obj/item/stool/padded,/turf/simulated/floor/tiled,/area/space)
+"WR" = (/obj/item/modular_computer/console/preset/command,/turf/simulated/floor/tiled,/area/space)
 "Xf" = (/turf/simulated/shuttle/wall{tag = "icon-wall"; icon_state = "wall"; dir = 2},/area/space)
 "Xj" = (/turf/simulated/floor/reinforced/airless,/area/space)
 "Xp" = (/turf/simulated/wall{can_open = 1},/area/space)
@@ -328,11 +435,14 @@
 "XN" = (/obj/structure/window/reinforced,/obj/structure/bed/chair{dir = 8},/turf/simulated/floor/tiled,/area/space)
 "XT" = (/obj/structure/grille,/turf/simulated/floor/plating,/area/space)
 "XZ" = (/obj/effect/floor_decal/corner/red{dir = 1},/obj/effect/floor_decal/corner/white{dir = 4},/turf/simulated/floor/tiled,/area/space)
+"Yd" = (/obj/item/modular_computer/console/preset/sysadmin,/turf/simulated/floor/tiled/dark,/area/space)
 "Yl" = (/obj/effect/wingrille_spawn/reinforced,/obj/structure/window/reinforced,/obj/structure/window/reinforced{dir = 4},/obj/structure/window/reinforced{dir = 8},/obj/structure/window/reinforced{dir = 1; health = null},/turf/simulated/floor/trim/lino,/area/space)
 "Yt" = (/obj/effect/floor_decal/industrial/warning{dir = 5},/turf/simulated/floor/tiled,/area/space)
 "Yv" = (/turf/simulated/shuttle/wall{tag = "icon-wall (EAST)"; icon_state = "wall"; dir = 4},/area/space)
 "YB" = (/obj/effect/floor_decal/corner/grey{dir = 8},/turf/simulated/floor/tiled/dark,/area/space)
+"YO" = (/obj/structure/bed/chair/comfy/beige{dir = 1; icon_state = "comfychair_preview"},/obj/item/device/radio/intercom{pixel_y = 22},/turf/simulated/floor/tiled,/area/space)
 "YX" = (/obj/structure/bed/chair{dir = 4},/turf/simulated/floor/trim/carpet/oldred,/area/space)
+"Za" = (/obj/machinery/door/airlock/maintenance{name = "Bridge Maintenance"; req_access = list(30)},/obj/machinery/door/firedoor,/turf/simulated/floor/plating,/area/space)
 "Zn" = (/obj/structure/window/reinforced{dir = 8},/obj/structure/table/reinforced,/obj/machinery/photocopier/faxmachine,/turf/simulated/floor/trim/lino,/area/space)
 "Zt" = (/obj/machinery/disposal,/turf/simulated/floor/tiled,/area/space)
 "Zy" = (/obj/effect/floor_decal/corner/red/diagonal,/obj/structure/table/woodentable,/turf/simulated/floor/tiled,/area/space)
@@ -413,7 +523,7 @@ kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUSrSrSrSrSrSrnXSrSrnXnXSrnXnXnXnX
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUtUtUtUSrSrSrSrSrSrSrSrSrSrSrSrnXdWdWbCdWbfnDWbUgnXnXnXnXnXnXnXnXSrSrSrSrSrSrtUkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUvWvWvWtUtUSrSrnXSrSrSrSrnXdWdWoYdWdWNDUGSoSopttUSrSrSrSrnXSrSrSrSrSrSrtUkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUnXSrnXSrSrSrSrSrdWdWoYdWfkNDUGSoSoawtUSrSrSrSrnXSrSrnXnXnXtUtUkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUSrSrnXSrSrSrSrnXdWdWoYdWfkAYCJSoPtawtUSrSrSrSrnXSrSrSrnXSrSrtUtUkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUSrSrnXSrSrSrSrnXdWdWoYdWfkAYCJSoPtCTtUSrSrSrSrnXSrSrSrnXSrSrtUtUkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUSrSrnXSrSrSrSrnXdWdWoYdWfkNDUGSoSoQetUSrSrSrSrnXSrSrSrbjSrSrSrvWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUnXSrnXnXSOnXnXnXkIdWlaucCDNDZnSoSoxJtUtUSrnXnXnXSrSrSrnXSrSrSrvWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWvWdWdWdWdWdWdWdWRTSEdWdWdWdWNDYlSoSoSotUSrSrSrSrSrSrSrSrnXqLSrSrvWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
@@ -868,57 +978,57 @@ kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXj
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWXjXjXjXjkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWXjXjXjXjkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWXjXjXjXjkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjtUXjXjXjXjXjXjXjtUXjXjXjXjXjXjkWkWkWXjXjXjkWkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjtUXjXjXjXjXjtUXjXjXjXjXjXjXjkWkWkWXjXjXjXjkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjSrSrSrSrSrXjXjXjXjXjXjXjXjkWkWkWXjXjXjXjkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjSrsPsPsPSrXjXjXjXjXjXjXjXjkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjSrsPsPsPSrXjXjXjXjXjXjXjXjkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjSrsPsPsPSrXjXjXjXjXjXjXjXjkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjSrSrSrSrSrXjXjXjXjXjXjXjXjkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjtUXjXjXjXjXjtUXjXjXjXjXjXjXjkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjtUXjXjXjXjXjXjXjtUXjXjXjXjXjXjkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjtUEuEuEuEuEuEuEutUXjXjXjXjXjXjkWkWkWXjXjXjkWkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjEutUXjXjXjXjXjtUEuXjXjXjXjXjXjkWkWkWXjXjXjXjkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjEuXjorororororXjEuXjXjXjXjXjXjkWkWkWXjXjXjXjkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjEuXjornununuorXjEuXjXjXjXjXjXjkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjEuXjornununuorXjEuXjXjXjXjXjXjkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjEuXjornununuorXjEuXjXjXjXjXjXjkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjEuXjorororororXjEuXjXjXjXjXjXjkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjEutUXjXjXjXjXjtUEuXjXjXjXjXjXjkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjtUEuEuEuEuEuEuEutUXjXjXjXjXjXjkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWXjkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWXjkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjtUvWvWvWvWvWvWvWvWvWvWvWvWvWtUXjXjXjXjXjkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjvWdWdWdWdWdWdWdWdWdWdWdWdWdWvWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjkWkWXjXjXjXjvWdWdWucucucucucucucucucdWdWvWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjkWkWXjXjXjXjvWdWfkNnCOCOCOCOCOCOCONnjkdWvWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjkWkWXjXjXjXjvWdWfkCOCOCOCOCOCOCOCOCOjkdWvWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjkWkWXjXjXjXjvWdWfkCOCOCOCOCOCOCOCOCOjkdWtUtUtUtUtUtUtUXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjkWkWXjXjXjXjvWdWfkCOCOCOCOCOCOCOCOCOjkdWycdWdWdWdWdWtUXjXjXjXjXjXjXjkWkWkWkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjkWkWXjXjXjXjtUdWfkCOCOCOCOCOCOCOCOCOjkdWnXdWdWdWdWdWtUXjXjXjXjXjXjXjkWkWkWkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjkWkWXjXjXjXjvWdWfkCOCOCOCOCOCOCOCOCOjkdWtUdWdWtUdWdWtUXjXjXjXjXjXjXjkWkWkWkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjvWdWfkCOCOCOdWdWdWCOCOCOjkdWtUsPsPtUdWdWvWXjXjXjXjXjXjXjXjXjXjkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjvWdWfkCOCOCOdWdWdWCOCOCOjkdWtUsPsPtUdWdWvWXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjvWdWfkNnCOCOdWdWdWCOCONnjkdWtUtUtUtUdWdWvWXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjvWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWtUXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjvWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWtUXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUtUtUtUtUdWdWdWdWdWdWdWdWdWdWtUtUtUdWtUtUtUdWdWvWXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjtUsPSrSrnXdWdWdWdWdWdWdWdWdWdWtUGHGHGHGHGHtUdWdWvWXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjtUsPSrSrnXdWdWdWdWdWdWdWtUtUtUtUGHGHGHGHbStUdWdWvWXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjtUtUtUtUtUdWdWdWdWdWdWdWtUGHGHGHmfGHGHGHGHycdWdWtUXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjSrdWdWdWdWdWdWdWtUGHGHGHGHGHGHGHGHtUdWdWtUXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjSrdWdWdWdWdWdWdWtUGHGHGHGHGHGHGHbptUdWdWvWXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjSrdWdWdWdWdWdWdWtUCsGHGHGHGHGHGHGHtUdWdWvWXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjtUtUtUtUSrtUtUtUtUtUtUtUtUtUtUtUtUSrtUtUtUdWdWvWXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjtUsPnXSrSrSrSrSrSrSrSrSrSrSrSrSrnXSrSrSrnXdWdWtUXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUSrnXSrSrSrnXSrSrSrSrSrnXSrSrSrSrSrSrSrSrdWdWtUXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUtUSrSrSrSrSrnXnXnXnXSrSrnXnXnXnXSrnXnXnXnXdWdWvWXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUsPSrSrnXnXnXnXdWdWnXSrSrnXdWdWdWdWdWdWdWnXdWdWvWXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUsPSrSrnXdWdWdWdWdWnXSrSrnXdWdWdWdWdWdWdWnXdWdWvWXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUtUnXSrSrdWdWdWdWdWnXSrnXnXdWdWdWdWdWdWdWnXdWdWtUXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUSrSrnXdWdWdWdWdWnXSrSrnXdWdWdWdWdWdWdWnXdWdWtUXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUSrSrnXdWdWdWdWdWnXSrSrnXdWdWdWdWdWdWdWnXdWdWvWXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUSrnXnXnXnXnXdWnXnXnXSrnXnXnXdWnXnXnXnXnXdWdWvWXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWvWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWvWXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWvWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWtUXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUSrtUtUtUtUvWvWvWtUtUtUtUtUtUtUvWvWvWtUtUtUtUtUXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUSrtUXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
-kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUSrtUXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjEuEuXjEuEuEueueuEuXjEuEuEuEuEuEuEuXjEuEuXjXjkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjEuXjXjXjXjXjkWkWXjXjXjXjXjXjXjXjXjXjXjEuXjXjkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjtUGzGzGzGzGzGzGzGzGzGzGzGzGztUXjXjXjXjXjkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjEuXjGzziibibibibibbcibibibibibKUGzXjXjEuXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjkWkWXjXjEuXjGzJHAOTGTGTGTGTGTGTGTGTGPDNDGzXjXjEuXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjkWkWXjXjEuXjGzJHamNnGyfMJIJIJIJIakNnjkNDGzXjXjEuXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjkWkWXjXjEuXjGzJHamESCOCOCOCOCOCOCOmgjkNDGzXjXjEuXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjkWkWXjXjEuXjGzvoamYdnzCOCOCOCOCObxzfjkOAtUtUtUtUtUtUtUXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjkWkWXjXjEuXjGzJHamRgCOCOsLFssLCOCOpVjkNDGzdWdWdWdWdWtUXjXjXjXjXjXjXjkWkWkWkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjkWkWXjXjXjXjtUJHamJInzCOCOCfCOCObxJIjkNDGzdWdWdWdWsOtUXjXjXjXjXjXjXjkWkWkWkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjkWkWXjXjEuXjGzJHamiRCOCOCOCOCOCOCOapjkNDtUqJqJtUMvMvtUXjXjXjXjXjXjXjkWkWkWkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjEuXjGzJHamTWnzCOlSVndOCObxHwjkNDtUsPsPtUdWdWGzXjEuXjXjXjXjXjXjXjXjkWkWXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjEuXjGzJHamwqCOCOzAYOvqCOCOjljkNDtUsPsPtUdWdWGzXjEuXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjEuXjGzJHamNnCOCOlFdWnPCOCONnjkNDtUtUtUtUdWdWGzXjEuXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjEuXjGzJHpSGSibibWadWpSibibGSWapSbcibKUMvdWdWtUXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjEuXjGzJHdWdWdWdWdWdWdWdWAOujujujujujUsMvdWdWtUXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUtUtUtUtUvodWililililevdWdWNDtUtUtUaQtUtUtUdWdWGzXjEuXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjtUsPSrQLnXJHcOfUpstQlIaXETRtOetUzkheGHGHdRtUdWdWGzXjEuXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjtUsPSrSrnXJHIGFnlYClKRuCtUtUtUtUpNGHGHGHbStUdWdWGzXjEuXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjtUtUtUtUtUJHdWLKLKLKLKrHtUSgpHeGmfGHzUGHGHfKdWdWtUXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjEuXjXjGzJHdWdWdWdWdWestUgfGHWCGHGHGHGHxNtUdWsOtUXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjEuXjXjGzJHdWililililNDtUnVGHGHGHGHGHGHbptUdWdWGzXjEuXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjEuXjXjGzCdKtNTNTNTNTletUCsrpRzoXheGHcEOmtUdWdWGzXjEuXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjtUtUtUtUeTtUtUtUtUtUtUtUtUtUtUtUtUIUtUtUtUdWdWGzXjEuXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjtUsPnXSrSrSrTrSrSrSrSrSrSrSrSrTrSrSrSrSrnXdWdWtUXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUXTnXSrSrSrnXSrSrSrSrnXSrSrnXnXSrSrSrSrnbdWdWtUXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUtUXTSrSrSrSrnXnXnXnXSrnXnXnXnXnXienXnXnXnXdWdWGzXjEuXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUsPXTSrnXnXnXnXjdZtnXSrSrnXZtlTDGdWWRevjdnXdWsOGzXjEuXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUsPXTSrnXHDHDhodWdWnXSrSrnXdWdWdWdWjcdWrWnXdWdWGzXjEuXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUtUnXAyZadWdWdWdWevnXSrnXnXdWqVlHjcdWdWsOnXdWdWtUXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUSrSrnXdWdWdWdWilnXSrSrnXdWxSdZdWdWdWTfnXMvMvtUXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUSrSrnXswHDcTdWmPnXAySrnXdWdWdWdWdWdWSunXdWdWGzXjEuXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWeukWtUnbnXnXnXnXnXHnnXnXnXnbnXnXnXxDnXnXnXnXnXdWdWGzXjEuXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWeukWGzdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWdWGzXjEuXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWeukWGzVCxwdWdWdWdWdWdWdWdWxwdWdWdWdWdWdWdWdWxwdWdWtUXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWeukWtUBatUtUtUtUGzGzGztUtUtUtUtUtUtUGzGzGztUtUtUtUtUXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUnptUXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
+kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUxGtUXjXjEuEuEuEuEuXjXjXjXjXjEuEuEuEuEuXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWtUtUtUXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
 kWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjXjkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkWkW
