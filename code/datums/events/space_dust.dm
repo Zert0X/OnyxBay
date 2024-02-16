@@ -27,7 +27,7 @@
 		}
 	)
 
-	blacklisted_maps = list(/datum/map/polar)
+
 
 /datum/event/space_dust_base/get_mtth()
 	. = ..()
@@ -58,7 +58,7 @@
 /datum/event/space_dust/New()
 	. = ..()
 
-	add_think_ctx("end", CALLBACK(src, .proc/end), 0)
+	add_think_ctx("end", CALLBACK(src, nameof(.proc/end)), 0)
 
 /datum/event/space_dust/on_fire()
 	severity = SSevents.evars["space_dust_severity"]
@@ -107,6 +107,6 @@
 	for(var/turf/T in starters)
 		for(var/i = 1 to rocks_per_tile)
 			var/obj/item/projectile/bullet/rock/R = new(T)
-			R.launch(targloc, null, startloc.x - T.x, startloc.y - T.y)
+			R.launch(targloc)
 
 	set_next_think(world.time + (2 SECONDS))

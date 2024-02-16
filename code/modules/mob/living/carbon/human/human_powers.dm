@@ -100,7 +100,7 @@
 
 	B.chemicals -= 100
 
-	addtimer(CALLBACK(src, .proc/host_pain_disable), 30 SECONDS)
+	addtimer(CALLBACK(src, nameof(.proc/host_pain_disable)), 30 SECONDS)
 
 /mob/living/carbon/human/proc/host_pain_disable()
 	if(no_pain)
@@ -371,7 +371,7 @@
 		return
 
 	last_special = world.time + 10 SECONDS
-	nutrition -= 50
+	remove_nutrition(50)
 
 	var/turf/T = get_turf(src)
 	var/obj/effect/effect/water/chempuff/chem = new(T)
@@ -416,4 +416,4 @@
 		if(target.getBruteLoss() > target.maxHealth)
 			target.gib()
 		adjustBruteLoss(-25)
-		nutrition += 20
+		add_nutrition(20)

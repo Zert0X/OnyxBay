@@ -355,7 +355,7 @@
 	return candidates
 
 /proc/ScreenText(obj/O, maptext = "", screen_loc = "CENTER-7,CENTER-7", maptext_height = 480, maptext_width = 480)
-	if(!isobj(O))	O = new /obj/screen/text()
+	if(!isobj(O))	O = new /atom/movable/screen/text()
 	O.maptext = maptext
 	O.maptext_height = maptext_height
 	O.maptext_width = maptext_width
@@ -396,7 +396,7 @@
 		return
 	for(var/client/add_to in show_to)
 		LAZYADD(add_to.images, image_to_show)
-	addtimer(CALLBACK(GLOBAL_PROC, /.proc/remove_image_from_clients, image_to_show, show_to), duration)
+	addtimer(CALLBACK(GLOBAL_PROC, /proc/remove_image_from_clients, image_to_show, show_to), duration)
 
 // Flicks a certain overlay onto an atom, handling icon_state strings.
 /atom/proc/flick_overlay(image_to_show, list/show_to, duration, layer)

@@ -6,7 +6,7 @@
 	mtth = 2.5 HOURS
 	difficulty = 80
 
-	blacklisted_maps = list(/datum/map/polar)
+
 
 	options = newlist(
 		/datum/event_option/meteor_wave_option {
@@ -67,7 +67,7 @@
 /datum/event/meteor_wave/New()
 	. = ..()
 
-	add_think_ctx("end", CALLBACK(src, .proc/end), 0)
+	add_think_ctx("end", CALLBACK(src, nameof(.proc/end)), 0)
 
 /datum/event/meteor_wave/on_fire()
 	SSevents.evars["meteor_wave_running"] = TRUE
@@ -90,7 +90,7 @@
 	activeFor += 1
 	// Begin sending the alarm signals to shield diffusers so the field is already regenerated (if it exists) by the time actual meteors start flying around.
 	if(alarmWhen < activeFor)
-		for(var/obj/machinery/shield_diffuser/SD in GLOB.machines)
+		for(var/obj/machinery/shield_diffuser/SD in SSmachines.machinery)
 			if(isStationLevel(SD.z))
 				SD.meteor_alarm(10)
 

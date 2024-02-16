@@ -36,9 +36,6 @@
 		/datum/announce/level_7_biohazard 				= 'sound/announcer/default/level_7_biohazard.ogg',
 		/datum/announce/suspicious_cargo 				= 'sound/announcer/default/suspicious_cargo.ogg',
 		/datum/announce/command_report 					= 'sound/announcer/default/command_report.ogg',
-		/datum/announce/weather_normal 					= 'sound/announcer/default/weather_normal.ogg',
-		/datum/announce/weather_snowfall 				= 'sound/announcer/default/weather_snowfall.ogg',
-		/datum/announce/weather_snowstorm 				= 'sound/announcer/default/weather_snowstorm.ogg',
 		/datum/announce/brand_intelligence_start 		= 'sound/announcer/default/brand_intelligence_start.ogg',
 		/datum/announce/brand_intelligence_end 			= 'sound/announcer/default/brand_intelligence_end.ogg',
 		/datum/announce/carp_migration_major 			= 'sound/announcer/default/carp_migration_major.ogg',
@@ -73,7 +70,7 @@
 	)
 
 /datum/announcer/vgstation
-	required_tier = PATREON_CARGO
+	required_tier = PATREON_NONE
 
 	sounds = list(
 		/datum/announce/command_report 			= 'sound/announcer/vgstation/command_report.ogg',
@@ -86,7 +83,7 @@
 	)
 
 /datum/announcer/baystation12
-	required_tier = PATREON_CARGO
+	required_tier = PATREON_NONE
 
 	sounds = list(
 		/datum/announce/command_report 				= 'sound/announcer/baystation12/command_report.ogg',
@@ -106,7 +103,7 @@
 
 
 /datum/announcer/baystation12_torch
-	required_tier = PATREON_CARGO
+	required_tier = PATREON_NONE
 
 	sounds = list(
 		/datum/announce/command_report 			= 'sound/announcer/baystation12-torch/command_report.ogg',
@@ -120,7 +117,7 @@
 	)
 
 /datum/announcer/tgstation
-	required_tier = PATREON_CARGO
+	required_tier = PATREON_NONE
 
 	sounds = list(
 		/datum/announce/command_report 				= 'sound/announcer/tgstation/command_report.ogg',

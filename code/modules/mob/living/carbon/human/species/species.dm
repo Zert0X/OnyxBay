@@ -24,8 +24,9 @@
 
 	var/prone_icon                            // If set, draws this from icobase when mob is prone.
 
-	var/blood_color = COLOR_BLOOD_HUMAN               // Red.
+	var/blood_color = COLOR_BLOOD_HUMAN       // Red.
 	var/flesh_color = "#ffc896"               // Pink.
+	var/default_eye_color = "#000000"         // Black
 	var/fixed_mut_color
 	var/fixed_skin_tone
 	var/blood_oxy = 1
@@ -155,7 +156,8 @@
 	var/species_flags = 0              // Various specific features.
 	var/appearance_flags = 0           // Appearance/display related features.
 	var/spawn_flags = 0                // Flags that specify who can spawn as this species
-	var/slowdown = 0                   // Passive movement speed malus (or boost, if negative)
+	/// Movespeed modifier. Defined in movespeed_species.dm
+	var/movespeed_modifier = /datum/movespeed_modifier/species
 	var/primitive_form                 // Lesser form, if any (ie. monkey for humans)
 	var/greater_form                   // Greater form, if any, ie. human for monkeys.
 	var/holder_type
@@ -455,10 +457,12 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 	return
 
 /datum/species/proc/on_species_loss(mob/living/carbon/human/H)
+	H.remove_movespeed_modifier(movespeed_modifier)
 	remove_inherent_verbs(H)
 	remove_inherent_traits(H)
 
 /datum/species/proc/handle_post_spawn(mob/living/carbon/human/H) //Handles anything not already covered by basic species assignment.
+	H.add_movespeed_modifier(movespeed_modifier)
 	add_inherent_verbs(H)
 	add_inherent_traits(H)
 	H.mob_bump_flag = bump_flag
@@ -561,15 +565,15 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 	if(!H.client)//no client, no screen to update
 		return 1
 
-	H.set_fullscreen(H.eye_blind && !H.equipment_prescription, "blind", /obj/screen/fullscreen/blind)
-	H.set_fullscreen(H.stat == UNCONSCIOUS, "blackout", /obj/screen/fullscreen/blackout)
+	H.set_fullscreen(H.eye_blind && !H.equipment_prescription, "blind", /atom/movable/screen/fullscreen/blind)
+	H.set_fullscreen(H.stat == UNCONSCIOUS, "blackout", /atom/movable/screen/fullscreen/blackout)
 
 	if(config.misc.welder_vision_allowed)
-		H.set_fullscreen(H.equipment_tint_total, "welder", /obj/screen/fullscreen/impaired, H.equipment_tint_total)
+		H.set_fullscreen(H.equipment_tint_total, "welder", /atom/movable/screen/fullscreen/impaired, H.equipment_tint_total)
 	var/how_nearsighted = get_how_nearsighted(H)
-	H.set_fullscreen(how_nearsighted, "nearsighted", /obj/screen/fullscreen/oxy, how_nearsighted)
-	H.set_fullscreen(H.eye_blurry, "blurry", /obj/screen/fullscreen/blurry)
-	H.set_fullscreen(H.druggy, "high", /obj/screen/fullscreen/high)
+	H.set_fullscreen(how_nearsighted, "nearsighted", /atom/movable/screen/fullscreen/oxy, how_nearsighted)
+	H.set_renderer_filter(H.eye_blurry, SCENE_GROUP_RENDERER, EYE_BLURRY_FILTER_NAME, 0, EYE_BLURRY_FILTER(H.eye_blurry))
+	H.set_fullscreen(H.druggy, "high", /atom/movable/screen/fullscreen/high)
 
 	for(var/overlay in H.equipment_overlays)
 		H.client.screen |= overlay
@@ -620,10 +624,13 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 
 // Impliments different trails for species depending on if they're wearing shoes.
 /datum/species/proc/get_move_trail(mob/living/carbon/human/H)
-	if( H.shoes || ( H.wear_suit && (H.wear_suit.body_parts_covered & FEET) ) )
+	if(H.lying)
+		return /obj/effect/decal/cleanable/blood/tracks/trail
+
+	if(H.shoes || (H.wear_suit && (H.wear_suit.body_parts_covered & FEET)))
 		return /obj/effect/decal/cleanable/blood/tracks/footprints
-	else
-		return move_trail
+
+	return move_trail
 
 /datum/species/proc/update_skin(mob/living/carbon/human/H)
 	return

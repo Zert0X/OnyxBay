@@ -28,11 +28,12 @@
 	screen_on = anchored
 	update_icon()
 
-/obj/item/modular_computer/laptop/update_icon()
+/obj/item/modular_computer/laptop/on_update_icon()
 	if(anchored)
 		..()
 	else
-		overlays.Cut()
+		set_light(0)
+		ClearOverlays()
 		icon_state = icon_state_closed
 
 /obj/item/modular_computer/laptop/preset

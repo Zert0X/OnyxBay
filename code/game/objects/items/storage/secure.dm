@@ -28,6 +28,10 @@
 	max_w_class = ITEM_SIZE_SMALL
 	max_storage_space = DEFAULT_BOX_STORAGE
 
+/obj/item/storage/secure/Destroy()
+	QDEL_NULL(lock_menu)
+	return ..()
+
 /obj/item/storage/secure/_examine_text(mob/user)
 	. = ..()
 	. += "The service panel is [open ? "open" : "closed"]."
@@ -124,15 +128,15 @@
 				src.l_set = 1
 			else if((src.code == src.l_code) && (src.emagged == 0) && (src.l_set == 1))
 				src.locked = 0
-				src.overlays = null
-				overlays += image('icons/obj/storage.dmi', icon_opened)
+				ClearOverlays()
+				AddOverlays(image(icon, icon_opened))
 				src.code = null
 			else
 				src.code = "ERROR"
 		else
 			if((href_list["type"] == "R") && (src.emagged == 0) && (!src.l_setshort))
 				src.locked = 1
-				src.overlays = null
+				ClearOverlays()
 				src.code = null
 				src.close(usr)
 			else
@@ -159,10 +163,10 @@
 	playsound(src.loc, "spark", 50, 1)
 	if(!emagged)
 		emagged = TRUE
-		overlays += image('icons/obj/storage.dmi', icon_sparking)
+		AddOverlays(image(icon, icon_sparking))
 		sleep(6)
-		overlays = null
-		overlays += image('icons/obj/storage.dmi', icon_locking)
+		ClearOverlays()
+		AddOverlays(image(icon, icon_locking))
 		locked = FALSE
 
 // -----------------------------
@@ -170,7 +174,6 @@
 // -----------------------------
 /obj/item/storage/secure/briefcase
 	name = "secure briefcase"
-	icon = 'icons/obj/storage.dmi'
 	icon_state = "secure"
 	item_state = "sec-case"
 	desc = "A large briefcase with a digital locking system."
@@ -202,7 +205,6 @@
 
 /obj/item/storage/secure/safe
 	name = "secure safe"
-	icon = 'icons/obj/storage.dmi'
 	icon_state = "safe"
 	icon_opened = "safe0"
 	icon_locking = "safeb"
@@ -234,7 +236,6 @@
 /obj/item/storage/secure/guncase
 	name = "guncase"
 	desc = "A heavy-duty container with a digital locking system. Has a thick layer of foam inside."
-	icon = 'icons/obj/storage.dmi'
 	icon_state = "guncase"
 	item_state = "guncase"
 	icon_opened = "guncase0"
@@ -316,11 +317,11 @@
 		else if(guntype == "M2019")
 			dat += text("<p>\n Quite a controversial weapon. Combining both pros and cons of revolvers and railguns, it's extremely versatile, yet requires a lot of care.")
 			if(!gunspawned)
-				dat += text("<p>\n Comes with three .44 SPEC five round speedloaders, two .44 CHEM five round speedloaders, and two replaceable power cells.")
-				dat += text("<p>\n Brief instructions: <p>\n - M2019 Detective Special can be loaded with any type .44 rounds, yet works best with .44 CHEM and .44 SPEC.")
+				dat += text("<p>\n Comes with three .38 SPEC five round speedloaders, two .38 CHEM five round speedloaders, and two replaceable power cells.")
+				dat += text("<p>\n Brief instructions: <p>\n - M2019 Detective Special can be loaded with any type .38 rounds, yet works best with .38 CHEM and .38 SPEC.")
 				dat += text("<p>\n - With a powercell installed, M2019 can be used in two modes: non-lethal and lethal.")
-				dat += text("<p>\n - .44 SPEC no cell - works like a rubber bullet. <p>\n - .44 SPEC non-lethal - stuns the target. <p>\n - .44 SPEC lethal - accelerates the bullet, deals great damage and pierces medium armor.")
-				dat += text("<p>\n - .44 CHEM no cell - works like a flash bullet. <p>\n - .44 CHEM non-lethal - emmits a weak electromagnetic impulse. <p>\n - .44 CHEM lethal - not supposed to be used like this. The cartride reaches extremely high temperature and melts.")
+				dat += text("<p>\n - .38 SPEC no cell - works like a rubber bullet. <p>\n - .38 SPEC non-lethal - stuns the target. <p>\n - .38 SPEC lethal - accelerates the bullet, deals great damage and pierces medium armor.")
+				dat += text("<p>\n - .38 CHEM no cell - works like a flash bullet. <p>\n - .38 CHEM non-lethal - emmits a weak electromagnetic impulse. <p>\n - .38 CHEM lethal - not supposed to be used like this. The cartride reaches extremely high temperature and melts.")
 		else if(guntype == "T9 Patrol")
 			dat += text("<p>\n A relatively cheap and reliable knock-off of a Beretta M9. Uses 9mm rounds. Used to be a standart-issue gun in almost every security company.")
 			if(!gunspawned)
@@ -354,8 +355,8 @@
 				l_set = 1
 			else if((code == l_code) && !emagged && (l_set == 1))
 				locked = 0
-				overlays.Cut()
-				overlays += image(icon, icon_opened)
+				ClearOverlays()
+				AddOverlays(image(icon, icon_opened))
 				code = null
 				if(!gunspawned)
 					spawn_set(guntype)
@@ -364,7 +365,7 @@
 		else
 			if((href_list["type"] == "R") && !emagged && (!l_setshort))
 				locked = 1
-				overlays = null
+				ClearOverlays()
 				code = null
 				close(usr)
 			else
@@ -448,9 +449,9 @@
 					gun.owner = I.registered_name
 		to_chat(user, SPAN("notice", "You [locked ? "un" : ""]lock \the [src]."))
 		locked = !locked
-		overlays.Cut()
+		ClearOverlays()
 		if(!locked)
-			overlays += image(icon, icon_opened)
+			AddOverlays(image(icon, icon_opened))
 		return
 	return ..()
 
@@ -562,9 +563,9 @@
 			lock_menu.close(user)
 		to_chat(user, SPAN("notice", "You [locked ? "un" : ""]lock \the [src]."))
 		locked = !locked
-		overlays.Cut()
+		ClearOverlays()
 		if(!locked)
-			overlays += image(icon, icon_opened)
+			AddOverlays(image(icon, icon_opened))
 		return
 	return ..()
 

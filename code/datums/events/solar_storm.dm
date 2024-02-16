@@ -6,7 +6,7 @@
 	mtth = 3 HOURS
 	difficulty = 30
 	fire_only_once = TRUE
-	blacklisted_maps = list(/datum/map/polar)
+
 
 	var/const/temp_incr     = 100
 	var/const/fire_loss     = 40
@@ -16,8 +16,8 @@
 /datum/event/solar_storm/New()
 	. = ..()
 
-	add_think_ctx("start", CALLBACK(src, .proc/start), 0)
-	add_think_ctx("end", CALLBACK(src, .proc/end), 0)
+	add_think_ctx("start", CALLBACK(src, nameof(.proc/start)), 0)
+	add_think_ctx("end", CALLBACK(src, nameof(.proc/end)), 0)
 
 /datum/event/solar_storm/get_mtth()
 	. = ..()

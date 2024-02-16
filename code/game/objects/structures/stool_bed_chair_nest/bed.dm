@@ -40,10 +40,10 @@
 	return material
 
 // Reuse the cache/code from stools, todo maybe unify.
-/obj/structure/bed/update_icon()
+/obj/structure/bed/on_update_icon()
 	// Prep icon.
 	icon_state = ""
-	overlays.Cut()
+	ClearOverlays()
 	// Base icon.
 	var/cache_key = "[base_icon]-[material.name]"
 	if(isnull(stool_cache[cache_key]))
@@ -51,7 +51,7 @@
 		if(material_alteration & MATERIAL_ALTERATION_COLOR)
 			I.color = material.icon_colour
 		stool_cache[cache_key] = I
-	overlays |= stool_cache[cache_key]
+	AddOverlays(stool_cache[cache_key])
 	// Padding overlay.
 	if(padding_material)
 		var/padding_cache_key = "[base_icon]-padding-[padding_material.name]"
@@ -60,7 +60,7 @@
 			if(material_alteration & MATERIAL_ALTERATION_COLOR)
 				I.color = padding_material.icon_colour
 			stool_cache[padding_cache_key] = I
-		overlays |= stool_cache[padding_cache_key]
+		AddOverlays(stool_cache[padding_cache_key])
 
 	// Strings.
 	if(material_alteration & MATERIAL_ALTERATION_NAME)
@@ -230,7 +230,7 @@
 	rollertype = /obj/item/roller/adv
 	pull_slowdown = PULL_SLOWDOWN_NONE
 
-/obj/structure/bed/roller/update_icon()
+/obj/structure/bed/roller/on_update_icon()
 	if(buckled_mob || buckled_bodybag)
 		set_density(1)
 		icon_state = "[initial(icon_state)]_up"
@@ -264,6 +264,8 @@
 	w_class = ITEM_SIZE_GARGANTUAN // Not sure if it's actually necessary, I can barely imagine this thing being bigger than a mecha part;
 	var/rollertype = /obj/item/roller
 	var/bedtype = /obj/structure/bed/roller
+	drop_sound = SFX_DROP_AXE
+	pickup_sound = SFX_PICKUP_AXE
 
 /obj/item/roller/adv
 	name = "advanced roller bed"
@@ -384,7 +386,7 @@
 	if(buckling_y)
 		buckled_bodybag.pixel_y = buckled_bodybag.buckle_offset + buckling_y
 	add_fingerprint(user)
-	register_signal(B, SIGNAL_MOVED, .proc/on_move)
+	register_signal(B, SIGNAL_MOVED, nameof(.proc/on_move))
 
 /obj/structure/bed/roller/proc/on_move()
 	if(buckled_bodybag)
@@ -407,14 +409,15 @@
 		update_icon()
 
 /obj/structure/bed/roller/proc/manual_unbuckle(mob/user)
-	if(isanimal(user))
-		return 0
-	if(!user.Adjacent(buckled_bodybag) || user.incapacitated(INCAPACITATION_ALL) || istype(user, /mob/living/silicon/pai))
-		return 0
-	if(buckled_bodybag)
-		unbuckle()
-		add_fingerprint(user)
-		return 1
+	if(isanimal(user) || istype(user, /mob/living/silicon/pai))
+		return FALSE
+	if(user.incapacitated(INCAPACITATION_ALL))
+		return FALSE
+	if(buckled_bodybag && !user.Adjacent(buckled_bodybag))
+		return FALSE
+	unbuckle()
+	add_fingerprint(user)
+	return TRUE
 
 /obj/structure/bed/roller/buckle_mob(mob/living/M)
 	if(buckled_bodybag)

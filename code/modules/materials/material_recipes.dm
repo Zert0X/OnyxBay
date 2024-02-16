@@ -17,7 +17,7 @@
 
 	if(integrity>=50)
 		recipes += new /datum/stack_recipe("[display_name] door", /obj/machinery/door/unpowered/simple, 10, time = 50, one_per_turf = 1, on_floor = 1, supplied_material = "[name]")
-		recipes += new /datum/stack_recipe("[display_name] barricade", /obj/structure/barricade, 5, time = 50, one_per_turf = 1, on_floor = 1, supplied_material = "[name]")
+		recipes += new /datum/stack_recipe("[display_name] barricade", /obj/structure/barricade/material, 5, time = 50, one_per_turf = 1, on_floor = 1, supplied_material = "[name]")
 		recipes += new /datum/stack_recipe("[display_name] stool", /obj/item/stool, 2, one_per_turf = 1, on_floor = 1, supplied_material = "[name]")
 		recipes += new /datum/stack_recipe("[display_name] bar stool", /obj/item/stool/bar, 2, time = 20, one_per_turf = 1, on_floor = 1, supplied_material = "[name]")
 		recipes += new /datum/stack_recipe("[display_name] bed", /obj/structure/bed, 3, time = 40, one_per_turf = 1, on_floor = 1, supplied_material = "[name]")
@@ -69,6 +69,7 @@
 	recipes += new /datum/stack_recipe("machine frame", /obj/machinery/constructable_frame/machine_frame, 5, time = 25, one_per_turf = 1, on_floor = 1)
 	recipes += new /datum/stack_recipe("vending frame", /obj/machinery/vending_frame, 5, time = 25, one_per_turf = 1, on_floor = 1)
 	recipes += new /datum/stack_recipe("turret frame", /obj/machinery/porta_turret_construct, 5, time = 25, one_per_turf = 1, on_floor = 1)
+	recipes += new /datum/stack_recipe("shutters assembly", /obj/structure/secure_door_assembly/shutters, 10, time = 50, one_per_turf = 1, on_floor = 1)
 	recipes += new /datum/stack_recipe_list("airlock assemblies", list( \
 		new /datum/stack_recipe("standard airlock assembly", /obj/structure/door_assembly, 4, time = 50, one_per_turf = 1, on_floor = 1), \
 		new /datum/stack_recipe("command airlock assembly", /obj/structure/door_assembly/door_assembly_com, 4, time = 50, one_per_turf = 1, on_floor = 1), \
@@ -105,6 +106,7 @@
 	..()
 	recipes += new /datum/stack_recipe("AI core", /obj/structure/AIcore, 8, time = 50, one_per_turf = 1)
 	recipes += new /datum/stack_recipe("Handmade crate", /obj/structure/closet/crate/handmade, 5, time = 30, one_per_turf = 1)
+	recipes += new /datum/stack_recipe("blast door assembly", /obj/structure/secure_door_assembly/blast, 10, time = 50, one_per_turf = 1, on_floor = 1)
 
 /material/stone/generate_recipes()
 	..()
@@ -125,7 +127,8 @@
 	recipes += new /datum/stack_recipe("freezer floor tile", /obj/item/stack/tile/floor_freezer, 1, 4, 20)
 	recipes += new /datum/stack_recipe("hazard cone", /obj/item/caution/cone, 2, on_floor = 1)
 	recipes += new /datum/stack_recipe("small knife grip", /obj/item/material/shivgrip/plastic, 2, time = 20, one_per_turf = 0, on_floor = 1, supplied_material = "[name]")
-
+	recipes += new /datum/stack_recipe("plastic flaps", /obj/structure/plasticflaps, 5, time = 100, one_per_turf = 1, on_floor = 1)
+	recipes += new /datum/stack_recipe("mining plastic flaps", /obj/structure/plasticflaps/mining, 20, time = 130, one_per_turf = 1, on_floor = 1)
 
 /material/wood/generate_recipes()
 	..()

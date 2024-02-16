@@ -787,9 +787,9 @@
 	var/list/boxes = list() // If the boxes are stacked, they come here
 	var/boxtag = ""
 
-/obj/item/pizzabox/update_icon()
+/obj/item/pizzabox/on_update_icon()
 
-	overlays = list()
+	ClearOverlays()
 
 	// Set appropriate description
 	if( open && pizza )
@@ -817,7 +817,7 @@
 		if( pizza )
 			var/image/pizzaimg = image("food.dmi", icon_state = pizza.icon_state)
 			pizzaimg.pixel_y = -3
-			overlays += pizzaimg
+			AddOverlays(pizzaimg)
 
 		return
 	else
@@ -834,7 +834,7 @@
 		if( doimgtag )
 			var/image/tagimg = image("food.dmi", icon_state = "pizzabox_tag")
 			tagimg.pixel_y = boxes.len * 3
-			overlays += tagimg
+			AddOverlays(tagimg)
 
 	icon_state = "pizzabox[boxes.len+1]"
 
@@ -930,18 +930,22 @@
 		return
 	..()
 
-/obj/item/pizzabox/margherita/New()
+/obj/item/pizzabox/margherita/Initialize()
+	. = ..()
 	pizza = new /obj/item/reagent_containers/food/sliceable/pizza/margherita(src)
 	boxtag = "Margherita Deluxe"
 
-/obj/item/pizzabox/vegetable/New()
+/obj/item/pizzabox/vegetable/Initialize()
+	. = ..()
 	pizza = new /obj/item/reagent_containers/food/sliceable/pizza/vegetablepizza(src)
 	boxtag = "Gourmet Vegatable"
 
-/obj/item/pizzabox/mushroom/New()
+/obj/item/pizzabox/mushroom/Initialize()
+	. = ..()
 	pizza = new /obj/item/reagent_containers/food/sliceable/pizza/mushroompizza(src)
 	boxtag = "Mushroom Special"
 
-/obj/item/pizzabox/meat/New()
+/obj/item/pizzabox/meat/Initialize()
+	. = ..()
 	pizza = new /obj/item/reagent_containers/food/sliceable/pizza/meatpizza(src)
 	boxtag = "Meatlover's Supreme"

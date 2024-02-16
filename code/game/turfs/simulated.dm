@@ -30,31 +30,41 @@
 	if(!wet)
 		wet = wet_val
 		wet_overlay = image('icons/effects/water.dmi',src,"wet_floor")
-		overlays += wet_overlay
+		AddOverlays(wet_overlay)
 
-	timer_id = addtimer(CALLBACK(src,/turf/simulated/proc/unwet_floor), 20 SECONDS, TIMER_STOPPABLE|TIMER_UNIQUE|TIMER_NO_HASH_WAIT|TIMER_OVERRIDE)
+	timer_id = addtimer(CALLBACK(src, nameof(.proc/unwet_floor)), 20 SECONDS, TIMER_STOPPABLE|TIMER_UNIQUE|TIMER_NO_HASH_WAIT|TIMER_OVERRIDE)
 
 /turf/simulated/proc/unwet_floor(check_very_wet = TRUE)
 	if(check_very_wet && wet >= 2)
 		wet--
-		timer_id = addtimer(CALLBACK(src,/turf/simulated/proc/unwet_floor), 20 SECONDS, TIMER_STOPPABLE|TIMER_UNIQUE|TIMER_NO_HASH_WAIT|TIMER_OVERRIDE)
+		timer_id = addtimer(CALLBACK(src, nameof(.proc/unwet_floor)), 20 SECONDS, TIMER_STOPPABLE|TIMER_UNIQUE|TIMER_NO_HASH_WAIT|TIMER_OVERRIDE)
 		return
 
 	wet = 0
 	if(wet_overlay)
-		overlays -= wet_overlay
+		CutOverlays(wet_overlay)
 		wet_overlay = null
 
 /turf/simulated/clean_blood()
 	for(var/obj/effect/decal/cleanable/blood/B in contents)
 		B.clean_blood()
-	..()
+	return ..()
 
 /turf/simulated/New()
 	..()
 	if(istype(loc, /area/chapel))
 		holy = TRUE
 	levelupdate()
+
+/turf/simulated/Destroy()
+	if (zone && !zone.invalid)
+		// Try to remove it gracefully first.
+		if (can_safely_remove_from_zone())
+			c_copy_air()
+			zone.remove(src)
+		else	// Can't remove it safely, just rebuild the entire thing.
+			zone.rebuild()
+	return ..()
 
 /turf/simulated/proc/AddTracks(typepath,bloodDNA,comingdir,goingdir,bloodcolor=COLOR_BLOOD_HUMAN)
 	var/obj/effect/decal/cleanable/blood/tracks/tracks = locate(typepath) in src
@@ -77,8 +87,6 @@
 /turf/simulated/Entered(atom/A, atom/OL)
 	if (istype(A,/mob/living))
 		var/mob/living/M = A
-		if(M.lying)
-			return ..()
 
 		// Dirt overlays.
 		update_dirt()
@@ -88,27 +96,33 @@
 			// Tracking blood
 			var/list/bloodDNA = null
 			var/bloodcolor = ""
+
 			if(H.shoes)
 				var/obj/item/clothing/shoes/S = H.shoes
 				if(istype(S))
 					S.handle_movement(src,(H.m_intent == M_RUN ? 1 : 0))
-					if(S.track_blood && S.blood_DNA)
-						bloodDNA = S.blood_DNA
-						bloodcolor=S.blood_color
+					if(S.track_blood)
+						if(S.blood_DNA)
+							bloodDNA = S.blood_DNA
+						bloodcolor = S.blood_color
 						S.track_blood--
-			else
-				if(H.track_blood && H.feet_blood_DNA)
-					bloodDNA = H.feet_blood_DNA
-					bloodcolor = H.feet_blood_color
-					H.track_blood--
 
-			if (bloodDNA)
-				src.AddTracks(H.species.get_move_trail(H),bloodDNA,H.dir,0,bloodcolor) // Coming
-				var/turf/simulated/from = get_step(H,reverse_direction(H.dir))
+			else if(H.track_blood)
+				if(H.feet_blood_DNA)
+					bloodDNA = H.feet_blood_DNA
+				bloodcolor = H.feet_blood_color
+				H.track_blood--
+
+			if(bloodDNA)
+				AddTracks(H.species.get_move_trail(H), bloodDNA, H.dir, 0, bloodcolor) // Coming
+				var/turf/simulated/from = get_step(H, reverse_direction(H.dir))
 				if(istype(from) && from)
-					from.AddTracks(H.species.get_move_trail(H),bloodDNA,0,H.dir,bloodcolor) // Going
+					from.AddTracks(H.species.get_move_trail(H), bloodDNA, 0, H.dir, bloodcolor) // Going
 
 				bloodDNA = null
+
+		if(M.lying)
+			return ..()
 
 		if(wet)
 
@@ -136,21 +150,22 @@
 	..()
 
 //returns 1 if made bloody, returns 0 otherwise
-/turf/simulated/add_blood(mob/living/carbon/human/M as mob)
-	if (!..())
-		return 0
+/turf/simulated/add_blood(source)
+	if(!ishuman(source))
+		return FALSE // Meh, fuck it, if you'll ever need the add_blood("#abcdef") behavior - just go ahead code it yourself. ~ToTh
+	. = ..()
+	if(!.)
+		return
 
-	if(istype(M))
-		for(var/obj/effect/decal/cleanable/blood/B in contents)
-			if(!B.blood_DNA)
-				B.blood_DNA = list()
-			if(!B.blood_DNA[M.dna.unique_enzymes])
-				B.blood_DNA[M.dna.unique_enzymes] = M.dna.b_type
-				B.virus2 = virus_copylist(M.virus2)
-			return 1 //we bloodied the floor
-		blood_splatter(src,M.get_blood(M.vessel),1)
-		return 1 //we bloodied the floor
-	return 0
+	var/mob/living/carbon/human/M = source
+	for(var/obj/effect/decal/cleanable/blood/B in contents)
+		if(!B.blood_DNA)
+			B.blood_DNA = list()
+		if(!B.blood_DNA[M.dna.unique_enzymes])
+			B.blood_DNA[M.dna.unique_enzymes] = M.dna.b_type
+			B.virus2 = virus_copylist(M.virus2)
+		return
+	blood_splatter(src, M.get_blood(M.vessel), 1)
 
 // Only adds blood on the floor -- Skie
 /turf/simulated/proc/add_blood_floor(mob/living/carbon/M as mob)

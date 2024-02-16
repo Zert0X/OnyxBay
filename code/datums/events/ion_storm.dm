@@ -6,12 +6,12 @@
 	mtth = 3 HOURS
 	difficulty = 30
 
-	blacklisted_maps = list(/datum/map/polar)
+
 
 /datum/event/ion_storm/New()
 	. = ..()
 
-	add_think_ctx("announce", CALLBACK(src, .proc/announce), 0)
+	add_think_ctx("announce", CALLBACK(src, nameof(.proc/announce)), 0)
 
 /datum/event/ion_storm/get_conditions_description()
 	. = "Count of <em>AI</em> >= <em>1</em>."

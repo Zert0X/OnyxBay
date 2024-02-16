@@ -25,6 +25,15 @@ GLOBAL_VAR_CONST(PREF_SILENT, "Silent")
 GLOBAL_VAR_CONST(PREF_SHORTHAND, "Shorthand")
 GLOBAL_VAR_CONST(PREF_WHITE, "White")
 GLOBAL_VAR_CONST(PREF_DARK, "Dark")
+GLOBAL_VAR_CONST(PREF_LOW, "Low")
+GLOBAL_VAR_CONST(PREF_MED, "Medium")
+GLOBAL_VAR_CONST(PREF_HIGH, "High")
+GLOBAL_VAR_CONST(PREF_AS_GHOST, "Only as ghost")
+GLOBAL_VAR_CONST(PREF_AS_LIVING, "Only when alive")
+GLOBAL_VAR_CONST(PREF_DARKNESS_VISIBLE, "Fully visible")
+GLOBAL_VAR_CONST(PREF_DARKNESS_MOSTLY_VISIBLE, "Mostly visible")
+GLOBAL_VAR_CONST(PREF_DARKNESS_BARELY_VISIBLE, "Barely visible")
+GLOBAL_VAR_CONST(PREF_DARKNESS_INVISIBLE, "Invisible")
 
 var/global/list/_client_preferences
 var/global/list/_client_preferences_by_key
@@ -90,6 +99,13 @@ var/global/list/_client_preferences_by_type
 /*********************
 * Player Preferences *
 *********************/
+
+/datum/client_preference/become_midround_antag
+	description = "Become Midround Antag"
+	key = "GAME_MIDROUND_ANTAG"
+	options = list(GLOB.PREF_YES, GLOB.PREF_NO, GLOB.PREF_AS_GHOST, GLOB.PREF_AS_LIVING)
+	default_value = GLOB.PREF_YES
+
 /datum/client_preference/runechat
 	description = "Show Runechat (Above-Head-Speech)"
 	key = "CHAT_RUNECHAT"
@@ -285,8 +301,9 @@ var/global/list/_client_preferences_by_type
 	options = list(GLOB.PREF_YES, GLOB.PREF_NO)
 
 /datum/client_preference/ambient_occlusion/changed(mob/preference_mob, new_value)
-	if (preference_mob.client)
-		preference_mob.UpdatePlanes()
+	if(preference_mob?.client)
+		var/atom/movable/renderer/R = preference_mob.renderers[GAME_RENDERER]
+		R.GraphicsUpdate()
 
 /datum/client_preference/fullscreen_mode
 	description = "Fullscreen Mode"
@@ -377,7 +394,6 @@ var/global/list/_client_preferences_by_type
 	var/mob/observer/ghost/preference_ghost = preference_mob
 	if(istype(preference_ghost))
 		preference_ghost.updateghostprefs()
-		preference_ghost.updateghostsight()
 
 /datum/client_preference/affects_ghost/ghost_anonymous_chat
 	description = "Ghost anonymous chat"
@@ -403,7 +419,7 @@ var/global/list/_client_preferences_by_type
 	description = "Ghost lighting"
 	key = "GHOST_DARKVISION"
 	category = PREF_CATEGORY_GHOST
-	options = list(GLOB.PREF_NO, GLOB.PREF_YES)
+	options = list(GLOB.PREF_DARKNESS_VISIBLE, GLOB.PREF_DARKNESS_MOSTLY_VISIBLE, GLOB.PREF_DARKNESS_BARELY_VISIBLE, GLOB.PREF_DARKNESS_INVISIBLE)
 
 /********************
 * General Staff Preferences *

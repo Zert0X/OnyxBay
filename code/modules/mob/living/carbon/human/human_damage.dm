@@ -1,12 +1,17 @@
 //Updates the mob's health from organs and mob damage variables
 /mob/living/carbon/human/updatehealth()
-
+	var/previous_health = health
 	if(status_flags & GODMODE)
 		health = maxHealth
 		set_stat(CONSCIOUS)
+		if(health != previous_health)
+			update_health_slowdown()
 		return
 
 	health = maxHealth - getBrainLoss()
+
+	if(health != previous_health)
+		update_health_slowdown()
 
 	//TODO: fix husking
 	if(((maxHealth - getFireLoss()) < config.health.health_threshold_dead) && is_ic_dead())
@@ -379,6 +384,7 @@ In most cases it makes more sense to use apply_damage() instead! And make sure t
 //Heal MANY external organs, in random order
 /mob/living/carbon/human/heal_overall_damage(brute, burn)
 	var/list/obj/item/organ/external/parts = get_damaged_organs(brute,burn)
+	var/should_update_damage_icon = FALSE
 
 	while(parts.len && (brute>0 || burn>0) )
 		var/obj/item/organ/external/picked = pick(parts)
@@ -386,13 +392,17 @@ In most cases it makes more sense to use apply_damage() instead! And make sure t
 		var/brute_was = picked.brute_dam
 		var/burn_was = picked.burn_dam
 
-		picked.heal_damage(brute,burn)
+		if(picked.heal_damage(brute,burn, update_damage_icon = FALSE))
+			should_update_damage_icon = TRUE
 
 		brute -= (brute_was-picked.brute_dam)
 		burn -= (burn_was-picked.burn_dam)
 
 		parts -= picked
 	updatehealth()
+	if(should_update_damage_icon)
+		UpdateDamageIcon()
+
 	BITSET(hud_updateflag, HEALTH_HUD)
 
 // damage MANY external organs, in random order
@@ -433,8 +443,11 @@ This function restores all organs.
 		var/obj/item/organ/external/current_organ = organs_by_name[bodypart]
 		if(istype(current_organ))
 			current_organ.rejuvenate(ignore_prosthetic_prefs)
-	if (src.mind?.vampire)
-		src.replace_vampiric_organs()
+	if(mind?.vampire)
+		var/datum/vampire/V = mind.vampire
+		V.set_up_organs()
+
+	update_organ_movespeed()
 
 /mob/living/carbon/human/proc/HealDamage(zone, brute, burn)
 	var/obj/item/organ/external/E = get_organ(zone)
@@ -473,11 +486,16 @@ This function restores all organs.
 	if(blocked >= 100)	return 0
 	if(blocked) damage *= blocked_mult(blocked)
 
-	if(damage > 15 && prob(damage*4))
-		make_adrenaline(round(damage/10))
-
 	var/datum/wound/created_wound
 	damageoverlaytemp = 20
+	if(getHalLoss() < last_body_response_to_pain)
+		last_body_response_to_pain = getHalLoss()
+	if(can_feel_pain() && damage > 5)
+		make_adrenaline(round(damage)/10)
+		last_body_response_to_pain = getHalLoss()
+	else if(can_feel_pain() && getHalLoss() - last_body_response_to_pain > 5)
+		make_adrenaline(round(getHalLoss() - last_body_response_to_pain)/10)
+		last_body_response_to_pain = getHalLoss()
 
 	switch(damagetype)
 		if(BRUTE)

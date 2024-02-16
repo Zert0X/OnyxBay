@@ -71,7 +71,7 @@
 	..()
 	update_icon()
 
-/obj/item/material/twohanded/update_icon()
+/obj/item/material/twohanded/on_update_icon()
 	var/new_item_state = "[base_icon][wielded]"
 	item_state_slots[slot_l_hand_str] = new_item_state
 	item_state_slots[slot_r_hand_str] = new_item_state
@@ -240,6 +240,9 @@
 	applies_material_colour = 0
 	unbreakable = 1 // Because why should it break at all
 	material_amount = 8
+
+	drop_sound = SFX_DROP_AXE
+	pickup_sound = SFX_PICKUP_AXE
 
 /obj/item/material/twohanded/fireaxe/afterattack(atom/A, mob/user, proximity)
 	if(!proximity) return

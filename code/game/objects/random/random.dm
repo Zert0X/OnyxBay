@@ -24,6 +24,10 @@
 
 	var/build_path = util_pick_weight(spawn_choices())
 
+	if(isnull(build_path))
+		util_crash_with("Improper random object spawner found on the map! (at [loc.x], [loc.y], [loc.z], of type [type])")
+		return
+
 	var/atom/A = new build_path(src.loc)
 	if(pixel_x || pixel_y)
 		A.pixel_x = pixel_x
@@ -194,8 +198,7 @@
 	spawn_nothing_percentage = 66
 
 /obj/random/contraband/spawn_choices()
-	return list(/obj/item/haircomb = 4,
-				/obj/item/storage/pill_bottle/tramadol = 3,
+	return list(/obj/item/storage/pill_bottle/tramadol = 3,
 				/obj/item/storage/pill_bottle/happy = 2,
 				/obj/item/storage/pill_bottle/zoom = 2,
 				/obj/item/reagent_containers/vessel/beaker/vial/random/toxin = 1,
@@ -215,7 +218,10 @@
 				/obj/item/clothing/under/syndicate = 2,
 				/obj/item/reagent_containers/syringe = 3,
 				/obj/item/reagent_containers/syringe/steroid/packaged = 2,
-				/obj/item/reagent_containers/syringe/drugs = 1)
+				/obj/item/reagent_containers/syringe/drugs = 1,
+				/obj/item/melee/baton/cattleprod = 2,
+				/obj/item/gun/projectile/pistol/holdout = 1,
+				/obj/item/material/brass_knuckle = 3)
 
 /obj/random/drinkbottle
 	name = "random drink"
@@ -563,7 +569,7 @@
 	spawn_nothing_percentage = 25
 
 /obj/random/obstruction/spawn_choices()
-	return list(/obj/structure/barricade,
+	return list(/obj/structure/barricade/material,
 				/obj/structure/girder,
 				/obj/structure/window_frame/grille,
 				/obj/structure/window_frame/broken,

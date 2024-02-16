@@ -27,27 +27,21 @@
 /obj/structure/barricade/metroid
 	name = "gelatinous barrier"
 	desc = "A huge chunk of grey metroid. Bullets might get stuck in it."
+
 	icon = 'icons/obj/xenobiology/metroidcrossing.dmi'
 	icon_state = "metroidbarrier"
-	maxhealth = 60
+
 	atom_flags = ATOM_FLAG_FULLTILE_OBJECT
 
-/obj/structure/barricade/metroid/New(newloc, material_name)
-	..()
-	material = null
-	name = "gelatinous barrier"
-	desc = "A huge chunk of grey metroid. Bullets might get stuck in it."
-	color = null
+	maxdamage = 60
 
-/obj/structure/barricade/metroid/dismantle()
-	qdel(src)
-	return
 
-/obj/structure/barricade/metroid/bullet_act(obj/item/projectile/Proj, def_zone)
-	if(!(Proj.damage_type == BRUTE || Proj.damage_type == BURN))
+/obj/structure/barricade/metroid/bullet_act(obj/item/projectile/proj, def_zone)
+	if(!(proj.damage_type == BRUTE || proj.damage_type == BURN))
 		return
 
-	take_damage(Proj.damage)
+	take_damage(proj.damage)
+
 
 //metroid forcefield - Chilling Metal
 /obj/effect/forcefield/metroidwall
@@ -57,7 +51,7 @@
 	icon_state = "metroidbarrier_thick"
 
 /obj/effect/forcefield/metroidwall/New()
-	addtimer(CALLBACK(src, .proc/finish_existance), 300)
+	addtimer(CALLBACK(src, nameof(.proc/finish_existance)), 300)
 
 /obj/effect/forcefield/metroidwall/proc/finish_existance()
 	qdel(src)
@@ -110,7 +104,7 @@
 	playsound(src, 'sound/effects/materials/glass/glassbr.ogg', 50, TRUE)
 	return ..()
 
-/obj/screen/movable/alert/status_effect/freon/stasis
+/atom/movable/screen/movable/alert/status_effect/freon/stasis
 	name = "Frozen Solid"
 	desc = "You're frozen inside of a protective ice cube! While inside, you can't do anything, but are immune! Resist to get out."
 	icon_state = "frozen"
@@ -118,9 +112,9 @@
 /obj/item/flame/lighter/zippo/metroid
 	name = "metroid zippo"
 	desc = "A specialty zippo made from metroids and industry. Has a much hotter flame than normal."
-	icon_state = "slighter"
-	light_color = COLOR_LIGHT_CYAN
-	flame_overlay = "metroid"
+	icon_state = "zippo-metroid"
+	light_color = COLOR_PALE_GREEN_GRAY
+	flame_overlay = "metroidoverlay"
 
 //Gold capture device - Chilling Gold
 /obj/item/capturedevice
@@ -212,7 +206,7 @@
 
 /obj/item/capturedevice/proc/store(mob/living/M)
 	M.forceMove(src)
-	register_signal(M, SIGNAL_MOB_RESIST, .proc/resist_act)
+	register_signal(M, SIGNAL_MOB_RESIST, nameof(.proc/resist_act))
 
 /obj/item/capturedevice/proc/resist_act(mob/living/M)
 	to_chat(M, SPAN_NOTICE("You trying to release yourself."))

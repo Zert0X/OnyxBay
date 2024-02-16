@@ -6,6 +6,7 @@
 	opacity = 1
 	density = 1
 	blocks_air = 1
+	plane = TURF_PLANE
 	thermal_conductivity = WALL_HEAT_TRANSFER_COEFFICIENT
 	heat_capacity = 312500 //a little over 5 cm thick , 312500 for 1 m by 2.5 m by 0.25 m plasteel wall
 	hitby_sound = 'sound/effects/metalhit2.ogg'
@@ -28,12 +29,13 @@
 	var/construction_stage
 	var/ricochet_id = 0
 	var/hitsound = 'sound/effects/fighting/Genhit.ogg'
-	var/list/wall_connections = list("0", "0", "0", "0")
+	var/wall_connections = 0 // Sum of connected dirs
 	var/floor_type = /turf/simulated/floor/plating //turf it leaves after destruction
 	var/masks_icon = 'icons/turf/wall_masks.dmi'
+	var/static/list/mask_overlay_states = list()
 
-/turf/simulated/wall/New(newloc, materialtype, rmaterialtype)
-	..(newloc)
+/turf/simulated/wall/Initialize(mapload, materialtype, rmaterialtype)
+	. = ..(mapload)
 	if(GLOB.using_map.legacy_mode)
 		masks_icon = 'icons/turf/wall_masks_legacy.dmi'
 	icon_state = "blank"
@@ -175,6 +177,8 @@
 				reflectchance = min(max(reflectchance, 0), 100)
 				var/damagediff = round(proj_damage * reflectchance / 100)
 				proj_damage /= reinf_material.burn_armor
+				if(reflectchance > 0)
+					take_damage(min(proj_damage - damagediff, 100))
 				// Walls with positive reflection values deal with laser better than walls with negative.
 				burn(1500)
 			else
@@ -192,6 +196,8 @@
 					reflectchance = round(projectile_reflection(Proj, 1) * reflectchance)
 				reflectchance = min(max(reflectchance, 0), 100)
 				var/damagediff = round(proj_damage * reflectchance / 100)
+				if(reflectchance > 0)
+					take_damage(min(proj_damage - damagediff, 100))
 				// Walls with positive reflection values deal with laser better than walls with negative.
 				burn(2000)
 			else

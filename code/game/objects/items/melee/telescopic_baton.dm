@@ -12,6 +12,8 @@
 	mod_reach = 0.5
 	mod_handy = 1.0
 	var/on = FALSE
+	drop_sound = SFX_DROP_CROWBAR
+	pickup_sound = SFX_PICKUP_CROWBAR
 
 /obj/item/melee/telebaton/attack_self(mob/user as mob)
 	on = !on
@@ -41,17 +43,14 @@
 	update_icon()
 	update_held_icon()
 
-/obj/item/melee/telebaton/update_icon()
+/obj/item/melee/telebaton/on_update_icon()
 	if(on)
 		icon_state = "telebaton_1"
 		item_state = "telebaton_1"
 	else
 		icon_state = "telebaton_0"
 		item_state = "telebaton_0"
-	if(length(blood_DNA))
-		generate_blood_overlay(TRUE) // Force recheck.
-		overlays.Cut()
-		overlays += blood_overlay
+	update_blood_overlay()
 
 /obj/item/melee/telebaton/attack(mob/target as mob, mob/living/user as mob)
 	if(on)

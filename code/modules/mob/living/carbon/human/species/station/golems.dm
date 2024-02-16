@@ -182,7 +182,7 @@
 /datum/species/golem/gold
 	name = SPECIES_GOLEM_GOLD
 	fixed_mut_color = "#484800"
-	slowdown = -0.5
+	movespeed_modifier = /datum/movespeed_modifier/golem_gold
 	brute_mod = 0.90 //down from 55
 	meat_type = /obj/item/stack/material/gold
 	info_text = "As a <span class='danger'>Gold Golem</span>, you are faster but less resistant than the average golem."
@@ -216,7 +216,7 @@
 	bump_flag = HEAVY
 	push_flags = ALLMOBS
 	swap_flags = ALLMOBS
-	slowdown = 4 //pretty fucking slow
+	movespeed_modifier = /datum/movespeed_modifier/golem_plasteel
 
 	meat_type = /obj/item/stack/material/plasteel
 	info_text = "As a <span class='danger'>Plasteel Golem</span>, you are slower, but harder to stun, and hit very hard when punching. You also magnetically attach to surfaces and so don't float without gravity and cannot have positions swapped with other beings."
@@ -260,27 +260,6 @@
 	//REMOVE_TRAIT(H, TRAIT_LAVA_IMMUNE)
 	//REMOVE_TRAIT(H, TRAIT_ASHSTORM_IMMUNE)
 
-//Fast and regenerates... but can only speak like an abductor
-/datum/species/golem/alloy
-	name = "Alien Alloy Golem"
-	name = SPECIES_GOLEM_ALIEN
-	fixed_mut_color = "#402835"
-	additional_langs = list(LANGUAGE_ABDUCTOR)
-	meat_type = /obj/item/stack/material/platinum
-	slowdown = -1 //faster
-	info_text = "As an <span class='danger'>Alloy Golem</span>, you are made of advanced alien materials: you are faster and regenerate over time. You are, however, only able to be heard by other alloy golems."
-	prefix = "Alien"
-	special_names = list("Outsider", "Technology", "Watcher", "Stranger") //ominous and unknown
-
-
-//Regenerates because self-repairing super-advanced alien tech
-/datum/species/golem/alloy/handle_environment_special(mob/living/carbon/human/H)
-	if(H.stat == DEAD)
-		return
-	H.heal_overall_damage(brute = 1 * 0.1, burn = 1 * 0.1)
-	H.adjustToxLoss(-1 * 0.1)
-	H.adjustOxyLoss(-1 * 0.1)
-
 /datum/species/golem/wood
 	name = SPECIES_GOLEM_WOOD
 	fixed_mut_color = "#512704"
@@ -306,7 +285,7 @@
 	if(isturf(H.loc)) //else, there's considered to be no light
 		var/turf/T = H.loc
 		light_amount = min(1, T.get_lumcount()) - 0.5
-		H.nutrition += 5 * light_amount
+		H.add_nutrition(5 * light_amount)
 		if(H.nutrition > STOMACH_FULLNESS_HIGH)
 			H.nutrition = STOMACH_FULLNESS_HIGH
 		if(light_amount > 0.2) //if there's enough light, heal
@@ -473,7 +452,7 @@
 	var/mob/living/carbon/human/H = owner
 	H.visible_message(SPAN_WARNING("[H] starts vibrating!"), SPAN_DANGER("You start charging your bluespace core..."))
 	playsound(get_turf(H), 'sound/weapons/flash.ogg', 25, TRUE)
-	addtimer(CALLBACK(src, .proc/teleport, H), 1.5 SECONDS)
+	addtimer(CALLBACK(src, nameof(.proc/teleport), H), 1.5 SECONDS)
 	return TRUE
 
 /datum/action/cooldown/unstable_teleport/proc/teleport(mob/living/carbon/human/H)
@@ -534,7 +513,7 @@
 	heat_level_3 = 1000
 	brute_mod = 0.9 //feels no pain, but not too resistant
 	burn_mod = 2 // don't get burned
-	slowdown = -0.5 // not as heavy as stone
+	movespeed_modifier = /datum/movespeed_modifier/golem_cloth
 	prefix = "Cloth"
 	special_names = null
 
@@ -590,7 +569,7 @@
 		H.forceMove(src)
 		cloth_golem = H
 		to_chat(cloth_golem, SPAN_NOTICE("You start gathering your life energy, preparing to rise again..."))
-		addtimer(CALLBACK(src, .proc/revive), revive_time)
+		addtimer(CALLBACK(src, nameof(.proc/revive)), revive_time)
 	else
 		return INITIALIZE_HINT_QDEL
 
@@ -619,7 +598,7 @@
 	else
 		SetName("dry [initial(name)]")
 
-/obj/structure/cloth_pile/update_icon()
+/obj/structure/cloth_pile/on_update_icon()
 	if(on_fire)
 		icon_state = "pile_bandages_lit"
 	else
@@ -740,7 +719,7 @@
 	fixed_mut_color = null
 	brute_mod = 0.85
 	burn_mod = 1.25
-	slowdown = -1.5
+	movespeed_modifier = /datum/movespeed_modifier/golem_cardboard
 	species_flags = SPECIES_FLAG_NO_PAIN | SPECIES_FLAG_NO_SCAN | SPECIES_FLAG_NO_POISON | SPECIES_FLAG_NO_BLOOD | SPECIES_FLAG_NO_ANTAG_TARGET | SPECIES_FLAG_NO_MINOR_CUT | SPECIES_FLAG_NO_EMBED | SPECIES_NO_LACE
 	heat_level_1 = 400
 	heat_level_2 = 500

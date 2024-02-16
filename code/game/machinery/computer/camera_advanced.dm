@@ -15,9 +15,9 @@
 	var/list/initial_coordinates
 
 /obj/machinery/computer/camera_advanced/Initialize()
-	..()
+	. = ..()
 	vision = new eye_type(src)
-	initial_coordinates=list(src.x,src.y,src.z)
+	initial_coordinates = list(x, y, z)
 	if(off_action)
 		actions += new off_action(src)
 	if(reset_action)
@@ -42,10 +42,10 @@
 		var/mob/living/L = I
 		GrantActions(L)
 		vision.possess(L, FALSE)
-		register_signal(L, SIGNAL_QDELETING, /obj/machinery/computer/camera_advanced/proc/release)
-		register_signal(L, SIGNAL_LOGGED_OUT, /obj/machinery/computer/camera_advanced/proc/release)
-		register_signal(L, SIGNAL_MOB_DEATH, /obj/machinery/computer/camera_advanced/proc/release)
-		register_signal(L, SIGNAL_MOVED, /obj/machinery/computer/camera_advanced/proc/release)
+		register_signal(L, SIGNAL_QDELETING, nameof(.proc/release))
+		register_signal(L, SIGNAL_LOGGED_OUT, nameof(.proc/release))
+		register_signal(L, SIGNAL_MOB_DEATH, nameof(.proc/release))
+		register_signal(L, SIGNAL_MOVED, nameof(.proc/release))
 
 /obj/machinery/computer/camera_advanced/proc/release(mob/living/L)
 	vision.release(L)

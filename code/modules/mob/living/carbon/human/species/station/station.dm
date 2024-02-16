@@ -84,6 +84,7 @@
 	name_plural = "Tajaran"
 	icobase = 'icons/mob/human_races/r_tajaran.dmi'
 	tail = "tajtail"
+	var/tail_slim = "tajtail_slim"
 	tail_animation = 'icons/mob/species/tajaran/tail.dmi'
 	default_h_style = "Ears"
 	hair_key = SPECIES_TAJARA
@@ -92,7 +93,7 @@
 	generic_attack_mod = 2.0
 	darksight_range = 8
 	darksight_tint = DARKTINT_GOOD
-	slowdown = -0.5
+	movespeed_modifier = /datum/movespeed_modifier/tajaran
 	brute_mod = 1.15
 	burn_mod =  1.15
 	gluttonous = GLUT_TINY
@@ -135,6 +136,7 @@
 
 	flesh_color = "#663300"
 	base_color = "#333333"
+	default_eye_color = "#339900"
 	blood_color = COLOR_BLOOD_TAJARAN
 	organs_icon = 'icons/mob/human_races/organs/tajaran.dmi'
 	reagent_tag = IS_TAJARA
@@ -156,6 +158,11 @@
 /datum/species/tajaran/equip_survival_gear(mob/living/carbon/human/H)
 	..()
 	H.equip_to_slot_or_del(new /obj/item/clothing/shoes/sandal(H),slot_shoes)
+
+/datum/species/tajaran/get_tail(mob/living/carbon/human/H)
+	if(istype(H.body_build, /datum/body_build/slim/alt/tajaran))
+		return tail_slim
+	return ..()
 
 /datum/species/skrell
 	name = SPECIES_SKRELL
@@ -204,6 +211,7 @@
 	flesh_color = "#339966"
 	blood_color = COLOR_BLOOD_SKRELL
 	base_color = "#006666"
+	default_eye_color = "#ffffff"
 	organs_icon = 'icons/mob/human_races/organs/skrell.dmi'
 
 	cold_level_1 = 280 //Default 260 - Lower is better
@@ -245,7 +253,7 @@
 	language = LANGUAGE_ROOTLOCAL
 	unarmed_types = list(/datum/unarmed_attack/stomp, /datum/unarmed_attack/kick, /datum/unarmed_attack/diona)
 	//primitive_form = "Nymph"
-	slowdown = 7
+	movespeed_modifier = /datum/movespeed_modifier/diona
 	rarity_value = 3
 	hud_type = /datum/hud_data/diona
 	siemens_coefficient = 0.3
@@ -396,21 +404,21 @@
 		// Heals normal damage.
 		if(H.getBruteLoss())
 			H.adjustBruteLoss(-4)
-			H.nutrition -= 2
+			H.remove_nutrition(2)
 		if(H.getFireLoss())
 			H.adjustFireLoss(-4)
-			H.nutrition -= 2
+			H.remove_nutrition(2)
 
 		if(prob(10) && H.nutrition > 200 && !H.getBruteLoss() && !H.getFireLoss())
 			var/obj/item/organ/external/head/D = H.organs_by_name["head"]
 			if(D.status & ORGAN_DISFIGURED)
 				D.status &= ~ORGAN_DISFIGURED
-				H.nutrition -= 20
+				H.remove_nutrition(20)
 
 		for(var/obj/item/organ/I in H.internal_organs)
 			if(I.damage > 0)
 				I.damage = max(I.damage - 2, 0)
-				H.nutrition -= 2
+				H.remove_nutrition(2)
 				if (prob(5))
 					to_chat(H, SPAN("warning", "You sense your nymphs shifting internally to regenerate your [I.name]..."))
 
@@ -427,7 +435,7 @@
 					var/obj/item/organ/O = new limb_path(H)
 					organ_data["descriptor"] = O.name
 					to_chat(H, SPAN("notice", "Some of your nymphs split and hurry to reform your [O.name]."))
-					H.nutrition -= 60
+					H.remove_nutrition(60)
 					H.update_body()
 				else
 					for(var/datum/wound/W in E.wounds)

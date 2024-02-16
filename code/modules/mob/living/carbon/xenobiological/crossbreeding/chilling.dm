@@ -278,7 +278,7 @@ Chilling extracts:
 
 /obj/item/metroidcross/chilling/oil/do_effect(mob/user)
 	user.visible_message(SPAN_DANGER("[src] begins to shake with muted intensity!"))
-	addtimer(CALLBACK(src, .proc/boom), 50)
+	addtimer(CALLBACK(src, nameof(.proc/boom)), 50)
 
 /obj/item/metroidcross/chilling/oil/proc/boom()
 	explosion(src, devastation_range = -1, heavy_impact_range = -1, light_impact_range = 10) //Large radius, but mostly light damage, and no flash.
@@ -303,7 +303,6 @@ Chilling extracts:
 			SPECIES_GOLEM_PLASTEEL,
 			SPECIES_GOLEM_TITANIUM,
 			SPECIES_GOLEM_PLASTITANIUM,
-			SPECIES_GOLEM_ALIEN,
 			SPECIES_GOLEM_WOOD,
 			SPECIES_GOLEM_URANIUM,
 			SPECIES_GOLEM_SAND,

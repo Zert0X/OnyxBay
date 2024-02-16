@@ -24,15 +24,12 @@
 	return 0
 
 /mob/living/carbon/human/isSynthetic()
-	if(istype(species, /datum/species/machine))
-		return 1
 	if(isnull(full_prosthetic))
 		robolimb_count = 0
 		for(var/obj/item/organ/external/E in organs)
 			if(BP_IS_ROBOTIC(E))
 				robolimb_count++
 		full_prosthetic = (robolimb_count == organs.len)
-		update_emotes()
 	return full_prosthetic
 
 /mob/living/silicon/isSynthetic()
@@ -599,7 +596,7 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 	if(client)
 		client.images -= image
 
-/mob/proc/flash_eyes(intensity = FLASH_PROTECTION_MODERATE, override_blindness_check = FALSE, affect_silicon = FALSE, visual = FALSE, type = /obj/screen/fullscreen/flash)
+/mob/proc/flash_eyes(intensity = FLASH_PROTECTION_MODERATE, override_blindness_check = FALSE, affect_silicon = FALSE, visual = FALSE, type = /atom/movable/screen/fullscreen/flash)
 	return
 
 /mob/proc/fully_replace_character_name(new_name, in_depth = TRUE)
@@ -683,7 +680,7 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 	for(var/mob/observer/ghost/O in GLOB.player_list)
 
 		var/follow_link = ""
-		if (source && action == NOTIFY_FOLLOW)
+		if (source && (action == NOTIFY_FOLLOW || action == NOTIFY_POSSES))
 			follow_link = create_ghost_link(O, source, "(F)")
 
 		var/posses_link = posses_mob ? possess_link(O, source) : ""
@@ -697,7 +694,7 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 			winset(O.client, "mainwindow", "flash=5")
 
 		if(source)
-			var/obj/screen/movable/alert/notify_action/A = O.throw_alert("\ref[source]_notify_action", /obj/screen/movable/alert/notify_action)
+			var/atom/movable/screen/movable/alert/notify_action/A = O.throw_alert("\ref[source]_notify_action", /atom/movable/screen/movable/alert/notify_action)
 			if(A)
 
 				var/ui_style = O.client?.prefs?.UI_style
@@ -730,7 +727,7 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 
 				alert_overlay.layer = FLOAT_LAYER
 				alert_overlay.plane = FLOAT_PLANE
-				A.overlays += alert_overlay
+				A.AddOverlays(alert_overlay)
 
 /mob/proc/shift_view(new_pixel_x = 0, new_pixel_y = 0, animate = 0)
 	if(!client)

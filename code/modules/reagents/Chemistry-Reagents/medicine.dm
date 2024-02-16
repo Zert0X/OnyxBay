@@ -774,21 +774,30 @@
 	scannable = 1
 	overdose = 20
 	metabolism = REM * 0.5
+	var/effective_dose = 0.6
 
 /datum/reagent/adrenaline/affect_blood(mob/living/carbon/human/M, alien, removed)
 	if(alien == IS_DIONA)
 		return
 
-	if(M.chem_doses[type] < 0.2)	//not that effective after initial rush
-		M.add_chemical_effect(CE_PAINKILLER, min(30*volume, 80))
-		M.add_chemical_effect(CE_PULSE, 1)
-	else if(M.chem_doses[type] < 1)
-		M.add_chemical_effect(CE_PAINKILLER, min(10*volume, 20))
-	M.add_chemical_effect(CE_PULSE, 2)
-	if(M.chem_doses[type] > 10)
+	var/max_painkiller = min(70, volume*3 + rand(20, 35))
+	var/painkiller = 0
+	if(max_painkiller > 10)
+		if(M.chem_doses[type] <= effective_dose)
+			painkiller = max(0, round(-(200/volume) * (M.chem_doses[type] - effective_dose) ** 2 + max_painkiller)) //-(200/20)*(x-0.6)^2+60
+		else
+			painkiller = round(max_painkiller * 2.7 ** (-((M.chem_doses[type]-effective_dose) ** 2)/(volume*2))) //60 * e^(-((x-0.6)^2)/40)
+		if(painkiller > 5)
+			M.add_chemical_effect(CE_PAINKILLER, painkiller)
+	if(volume > 8)
+		M.add_chemical_effect(CE_PULSE, 3)
+	else if(volume > 1)
+		M.add_chemical_effect(CE_PULSE, 2)
+
+	if(M.chem_doses[type] > 15)
 		M.make_jittery(5)
-	if(volume >= 5 && M.is_asystole())
-		remove_self(5)
+	if(volume >= 8 && M.is_asystole())
+		remove_self(8)
 		M.resuscitate()
 
 /datum/reagent/nanoblood
@@ -835,7 +844,7 @@
 
 	if(affecting_dose >= 15) // Stoned
 		M.add_chemical_effect(CE_MIND, 3)
-		M.nutrition = max(0, M.nutrition - 50 * removed)
+		M.set_nutrition(max(0, M.nutrition - 50 * removed))
 		M.add_chemical_effect(CE_PAINKILLER, 75)
 		M.drowsyness = max(M.drowsyness, 10)
 		if(prob(30))
@@ -854,7 +863,7 @@
 
 	else if(affecting_dose >= 10) // Smoked a good load of kush.
 		M.add_chemical_effect(CE_MIND, 2)
-		M.nutrition -= max(0, M.nutrition - 20 * removed)
+		M.remove_nutrition(max(0, M.nutrition - 20 * removed))
 		M.add_chemical_effect(CE_PAINKILLER, 50)
 		if(prob(15))
 			M.druggy = max(M.druggy, 2)
@@ -873,7 +882,7 @@
 
 	else if(affecting_dose >= 5) // Smoked a single bud.
 		M.add_chemical_effect(CE_MIND, 1)
-		M.nutrition -= max(0, M.nutrition - 10 * removed)
+		M.remove_nutrition(max(0, M.nutrition - 10 * removed))
 		M.add_chemical_effect(CE_PAINKILLER, 25)
 		if(prob(10))
 			M.druggy = max(M.druggy, 2)
@@ -892,7 +901,7 @@
 
 	else if(affecting_dose >= 2) // The end of the trip.
 		M.add_chemical_effect(CE_MIND, 0.5)
-		M.nutrition -= max(0, M.nutrition - 3 * removed)
+		M.remove_nutrition(max(0, M.nutrition - 3 * removed))
 		M.add_chemical_effect(CE_PAINKILLER, 5)
 		if(prob(3))
 			M.druggy = max(M.druggy, 2)

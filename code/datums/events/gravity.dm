@@ -6,12 +6,10 @@
 	mtth = 2 HOURS
 	difficulty = 40
 
-	blacklisted_maps = (/datum/map/polar)
-
 /datum/event/gravity/New()
 	. = ..()
 
-	add_think_ctx("announce", CALLBACK(src, .proc/announce), 0)
+	add_think_ctx("announce", CALLBACK(src, nameof(.proc/announce)), 0)
 
 /datum/event/gravity/get_mtth()
 	. = ..()

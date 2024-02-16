@@ -36,8 +36,6 @@
 
 #define ishuman(A) istype(A, /mob/living/carbon/human)
 
-#define isabductor(A) (is_species(A, /datum/species/abductor))
-
 #define ispromethean(A) (is_species(A, /datum/species/promethean))
 #define isgolem(A) (is_species(A, /datum/species/golem))
 #define isitem(A) istype(A, /obj/item)
@@ -57,8 +55,6 @@
 #define isobj(A) istype(A, /obj)
 
 #define isghost(A) istype(A, /mob/observer/ghost)
-
-#define isvrhuman(A) (istype(A, /mob/living/carbon/human/vrhuman))
 
 #define isobserver(A) istype(A, /mob/observer)
 
@@ -103,6 +99,8 @@
 #define isMultitool(A) (istype(A, /obj/item) && A.tool_behaviour == TOOL_MULTITOOL)
 
 #define isCrowbar(A) (istype(A, /obj/item) && A.tool_behaviour == TOOL_CROWBAR)
+
+#define isEmag(A) (istype(A, /obj/item/card/emag) || (istype(A, /obj/item/device/emag) && A:revealed))
 
 #define iscapacitor(A) istype(A, /obj/item/stock_parts/capacitor)
 
@@ -170,6 +168,8 @@
 #define LAZYADD(L, I) if(!L) { L = list(); } L += I;
 // Insert I into L at position X, initalizing L if necessary
 #define LAZYINSERT(L, I, X) if(!L) { L = list(); } L.Insert(X, I);
+/// Use LAZYLISTDUPLICATE instead if you want it to null with no entries
+#define LAZYCOPY(L) (L ? L.Copy() : list() )
 // Adds I to L, initalizing L if necessary, if I is not already in L
 #define LAZYDISTINCTADD(L, I) if(!L) { L = list(); } L |= I;
 // Sets L[A] to I, initalizing L if necessary
@@ -186,7 +186,7 @@
 #define SANITIZE_LIST(L) ( islist(L) ? L : list() )
 
 // Adds value V to associati list L[K]
-#define LAZYADDASSOC(L, K, V) if(!L) { L = list(); } L[K] += islist(V) ? list(V) : V;
+#define LAZYADDASSOC(L, K, V) if(!L) { L = list(); } L[K] += list(V);
 // Removes value V and key K from associative list L
 #define LAZYREMOVEASSOC(L, K, V) if(L) { if(L[K]) { L[K] -= V; if(!length(L[K])) L -= K; } if(!length(L)) L = null; }
 
@@ -220,6 +220,8 @@
 
 #define SPAN_SPIDER(X)   SPAN("spider", X)
 
+#define SPAN_BOLD(X)	 SPAN("bold", X)
+
 #define FONT_SMALL(X)    SPAN("small", X)
 
 #define FONT_NORMAL(X)   SPAN("normal", X)
@@ -229,3 +231,5 @@
 #define FONT_HUGE(X)     SPAN("huge", X)
 
 #define FONT_GIANT(X)    SPAN("giant", X)
+
+#define EMPTY_BITFIELD 0

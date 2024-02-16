@@ -6,7 +6,6 @@
 	density = 1
 	w_class = ITEM_SIZE_NO_CONTAINER
 	var/state = 0
-	var/base_icon_state = ""
 	var/base_name = "Airlock"
 	var/obj/item/airlock_electronics/electronics = null
 	var/airlock_type = "" //the type path of the airlock once completed
@@ -14,8 +13,13 @@
 	var/glass = 0 // 0 = glass can be installed. -1 = glass can't be installed. 1 = glass is already installed. Text = mineral plating is installed instead.
 	var/created_name = null
 
-	New()
-		update_state()
+/obj/structure/door_assembly/Initialize()
+	. = ..()
+	update_state()
+
+/obj/structure/door_assembly/Destroy()
+	QDEL_NULL(electronics)
+	return ..()
 
 /obj/structure/door_assembly/door_assembly_com
 	base_icon_state = "com"
@@ -120,24 +124,24 @@
 	airlock_type = "/multi_tile/glass"
 	glass = -1 //To prevent bugs in deconstruction process.
 
-	New()
-		if(dir in list(EAST, WEST))
-			bound_width = width * world.icon_size
-			bound_height = world.icon_size
-		else
-			bound_width = world.icon_size
-			bound_height = width * world.icon_size
-		update_state()
+/obj/structure/door_assembly/multi_tile/Initialize()
+	. = ..()
+	if(dir in list(EAST, WEST))
+		bound_width = width * world.icon_size
+		bound_height = world.icon_size
+	else
+		bound_width = world.icon_size
+		bound_height = width * world.icon_size
+	update_state()
 
-	Move()
-		. = ..()
-		if(dir in list(EAST, WEST))
-			bound_width = width * world.icon_size
-			bound_height = world.icon_size
-		else
-			bound_width = world.icon_size
-			bound_height = width * world.icon_size
-
+/obj/structure/door_assembly/multi_tile/Move()
+	. = ..()
+	if(dir in list(EAST, WEST))
+		bound_width = width * world.icon_size
+		bound_height = world.icon_size
+	else
+		bound_width = world.icon_size
+		bound_height = width * world.icon_size
 
 
 /obj/structure/door_assembly/attackby(obj/item/W as obj, mob/user as mob)
@@ -243,7 +247,7 @@
 			to_chat(user, "<span class='notice'>You removed the airlock electronics!</span>")
 			src.state = 1
 			src.SetName("Wired Airlock Assembly")
-			electronics.loc = src.loc
+			electronics.dropInto(loc)
 			electronics = null
 		in_use = FALSE
 

@@ -93,6 +93,9 @@
 	var/mob/autofiring_by
 	var/autofiring_timer
 
+	drop_sound = SFX_DROP_GUN
+	pickup_sound = SFX_PICKUP_GUN
+
 /obj/item/gun/Initialize()
 	. = ..()
 	for(var/i in 1 to firemodes.len)
@@ -101,10 +104,16 @@
 	if(isnull(scoped_accuracy))
 		scoped_accuracy = accuracy
 
+	if(config.misc.toogle_gun_safety)
+		verbs |= /obj/item/gun/proc/toggle_safety_verb
+
 /obj/item/gun/Destroy()
 	// autofire timer is automatically cleaned up
 	autofiring_at = null
 	autofiring_by = null
+	aim_targets = null
+	last_moved_mob = null
+	QDEL_NULL_LIST(firemodes)
 	. = ..()
 
 /obj/item/gun/proc/set_autofire(atom/fire_at, mob/fire_by)
@@ -119,7 +128,7 @@
 		autofiring_at = fire_at
 		autofiring_by = fire_by
 		if(!autofiring_timer)
-			autofiring_timer = addtimer(CALLBACK(src, .proc/handle_autofire), burst_delay, (TIMER_STOPPABLE | TIMER_LOOP | TIMER_UNIQUE | TIMER_OVERRIDE))
+			autofiring_timer = addtimer(CALLBACK(src, nameof(.proc/handle_autofire)), burst_delay, (TIMER_STOPPABLE | TIMER_LOOP | TIMER_UNIQUE | TIMER_OVERRIDE))
 	else
 		clear_autofire()
 
@@ -150,11 +159,11 @@
 		update_icon() // In case item_state is set somewhere else.
 	..()
 
-/obj/item/gun/update_icon()
+/obj/item/gun/on_update_icon()
 	if(wielded_item_state)
 		var/mob/living/M = loc
 		if(istype(M))
-			if(M.can_wield_item(src) && src.is_held_twohanded(M))
+			if(M.can_wield_item(src) && is_held_twohanded(M))
 				item_state_slots[slot_l_hand_str] = wielded_item_state
 				item_state_slots[slot_r_hand_str] = wielded_item_state
 			else
@@ -163,14 +172,15 @@
 	update_held_icon()
 
 /obj/item/gun/equipped(mob/living/user, slot)
+	..()
 	update_safety_icon()
 	clear_autofire()
 
 /obj/item/gun/dropped(mob/living/user)
-	. = ..()
-	overlays.Cut()
-	update_icon()
+	ClearOverlays()
 	clear_autofire()
+	..()
+	update_icon()
 
 //Checks whether a given mob can use the gun
 //Any checks that shouldn't result in handle_click_empty() being called if they fail should go here.
@@ -257,12 +267,14 @@
 
 	//actually attempt to shoot
 	var/turf/targloc = get_turf(target) //cache this in case target gets deleted during shooting, e.g. if it was a securitron that got destroyed.
+	var/fired = FALSE
 	for(var/i in 1 to burst)
 		var/obj/projectile = consume_next_projectile(user)
 		if(!projectile)
 			handle_click_empty(user)
 			break
 
+		fired = TRUE
 		process_accuracy(projectile, user, target, i, held_twohanded)
 
 		if(pointblank)
@@ -286,6 +298,13 @@
 			pointblank = 0
 
 	//update timing
+	var/turf/T = get_turf(user)
+	var/area/A = get_area(T)
+	if(((istype(T, /turf/space)) || (A.has_gravity == FALSE)) && fired)
+		user.inertia_dir = get_dir(target, src)
+		user.setMoveCooldown(shoot_time) //no moving while shooting either
+		step(user, user.inertia_dir) // they're in space, move em in the opposite direction
+
 	user.setClickCooldown(DEFAULT_QUICK_COOLDOWN)
 	user.setMoveCooldown(move_delay)
 	next_fire_time = world.time + fire_delay
@@ -378,6 +397,8 @@
 		for(var/obj/item/grab/G in H.grabbed_by)
 			if(G.point_blank_mult() > max_mult)
 				max_mult = G.point_blank_mult()
+		if(H.lying)
+			max_mult *= 1.5
 	P.damage *= max_mult
 	P.accuracy += 4
 
@@ -429,7 +450,7 @@
 			shock_dispersion = rand(-2,2)
 	P.dispersion += shock_dispersion
 
-	var/launched = !P.launch_from_gun(target, target_zone, user, params)
+	var/launched = !P.launch(target, target_zone, user, params, src)
 	if(launched)
 		play_fire_sound(user,P)
 
@@ -588,7 +609,7 @@
 	if(firemodes.len > 1)
 		var/datum/firemode/current_mode = firemodes[sel_mode]
 		. += "\nThe fire selector is set to [current_mode.name]."
-	if(has_safety)
+	if(config.misc.toogle_gun_safety && has_safety)
 		. += "\nThe safety is [safety() ? "on" : "off"]"
 
 // (re)Setting firemodes from the given list
@@ -624,9 +645,15 @@
 	return (autofire_enabled && world.time >= next_fire_time)
 
 /obj/item/gun/proc/safety()
+	if(!config.misc.toogle_gun_safety)
+		return FALSE
+
 	return has_safety && safety_state
 
 /obj/item/gun/proc/toggle_safety(mob/user)
+	if(!config.misc.toogle_gun_safety)
+		return
+
 	if(!has_safety)
 		return
 
@@ -641,13 +668,16 @@
 		playsound(src, 'sound/weapons/flipblade.ogg', 15, 1)
 
 /obj/item/gun/proc/update_safety_icon()
-	overlays.Cut()
-	update_icon()
-	overlays += (image('icons/obj/guns/gui.dmi',"safety[safety()]"))
-	if(safety_icon)
-		overlays += (image(icon,"[safety_icon][safety()]"))
+	if(!config.misc.toogle_gun_safety)
+		return
 
-/obj/item/gun/verb/toggle_safety_verb()
+	ClearOverlays()
+	update_icon()
+	AddOverlays((image('icons/obj/guns/gui.dmi',"safety[safety()]")))
+	if(safety_icon)
+		AddOverlays((image(icon,"[safety_icon][safety()]")))
+
+/obj/item/gun/proc/toggle_safety_verb()
 	set src in usr
 	set category = "Object"
 	set name = "Toggle Gun Safety"

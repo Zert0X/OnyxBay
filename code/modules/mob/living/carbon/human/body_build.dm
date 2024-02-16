@@ -28,17 +28,15 @@ var/global/datum/body_build/default_body_build = new
 		"slot_r_hand"    = 'icons/mob/onmob/items/righthand.dmi'
 		)
 
-	var/rig_back     = 'icons/inv_slots/rig/mob.dmi'
-	var/blood_icon   = 'icons/mob/human_races/masks/blood_human.dmi'
-	var/dam_mask     = 'icons/mob/human_races/masks/dam_mask_human.dmi'
+	var/rig_back      = 'icons/inv_slots/rig/mob.dmi'
+	var/blood_icon    = 'icons/mob/human_races/masks/blood_human.dmi'
+	var/dam_mask      = 'icons/mob/human_races/masks/dam_mask_human.dmi'
+	var/bandages_icon = 'icons/mob/human_races/bandages/mob.dmi'
 
-	var/slowdown           = 0 // Movement slowdown
+	var/movespeed_modifier = /datum/movespeed_modifier/bodybuild
 	var/equipment_modifier = 0 // Positive values allow to partially ignore equipment_slowdown, negative values apply additional slowdown if any slowing-down equipment is being worn
 	var/poise_pool         = HUMAN_DEFAULT_POISE
 	var/stomach_capacity   = STOMACH_CAPACITY_NORMAL
-
-	var/next_body_build = "Fat"
-	var/previous_body_build ="Slim"
 
 /datum/body_build/proc/get_mob_icon(slot, icon_state)
 	var/icon/I
@@ -83,12 +81,10 @@ var/global/datum/body_build/default_body_build = new
 	rig_back             = 'icons/inv_slots/rig/mob_slim.dmi'
 	blood_icon           = 'icons/mob/human_races/masks/blood_human_slim.dmi'
 	dam_mask             = 'icons/mob/human_races/masks/dam_mask_human_slim.dmi'
+	bandages_icon        = 'icons/mob/human_races/bandages/mob_slim.dmi'
 
 	stomach_capacity   = STOMACH_CAPACITY_LOW
 	poise_pool         = HUMAN_LOW_POISE
-
-	next_body_build = "Default"
-	previous_body_build ="Slim Alt"
 
 /datum/body_build/slim/alt
 	name                 = "Slim Alt"
@@ -116,9 +112,7 @@ var/global/datum/body_build/default_body_build = new
 		)
 	blood_icon           = 'icons/mob/human_races/masks/blood_human_slim_alt.dmi'
 	dam_mask             = 'icons/mob/human_races/masks/dam_mask_human_slim_alt.dmi'
-
-	next_body_build = "Slim"
-	previous_body_build = null
+	bandages_icon        = 'icons/mob/human_races/bandages/mob_slim_alt.dmi'
 
 /datum/body_build/slim/male
 	name                 = "Slim"
@@ -147,9 +141,6 @@ var/global/datum/body_build/default_body_build = new
 	blood_icon           = 'icons/mob/human_races/masks/blood_human_m_slim.dmi'
 	dam_mask             = 'icons/mob/human_races/masks/dam_mask_human_m_slim.dmi'
 
-	next_body_build = "Default"
-	previous_body_build = null
-
 /datum/body_build/fat
 	name                 = "Fat"
 	index                = "_fat"
@@ -177,14 +168,13 @@ var/global/datum/body_build/default_body_build = new
 	rig_back             = 'icons/inv_slots/rig/mob_fat.dmi'
 	blood_icon           = 'icons/mob/human_races/masks/blood_human.dmi'
 	dam_mask             = 'icons/mob/human_races/masks/dam_mask_human.dmi'
+	bandages_icon        = 'icons/mob/human_races/bandages/mob_fat.dmi'
 
 	stomach_capacity   = STOMACH_CAPACITY_HIGH
-	slowdown           = 0.5
+	movespeed_modifier = /datum/movespeed_modifier/bodybuild/fat
 	equipment_modifier = 0.5
 	poise_pool         = HUMAN_HIGH_POISE
 
-	next_body_build = null
-	previous_body_build = "Default"
 
 /datum/body_build/slim/alt/tajaran //*sigh. I regret of doing this.
 	name                 = "Slim Tajaran"
@@ -215,9 +205,6 @@ var/global/datum/body_build/default_body_build = new
 
 	equipment_modifier = -0.5
 
-	next_body_build = "Tajaran"
-	previous_body_build = null
-
 /datum/body_build/tajaran
 	name                 = "Tajaran"
 
@@ -241,9 +228,6 @@ var/global/datum/body_build/default_body_build = new
 		"slot_r_hand"    = 'icons/mob/onmob/items/righthand.dmi'
 		)
 	dam_mask             = 'icons/mob/human_races/masks/dam_mask_tajaran.dmi'
-
-	next_body_build = "Fat Tajaran"
-	previous_body_build = "Slim Tajaran"
 
 /datum/body_build/tajaran/fat
 	name                 = "Fat Tajaran"
@@ -269,13 +253,11 @@ var/global/datum/body_build/default_body_build = new
 		"slot_r_hand"    = 'icons/mob/onmob/items/righthand.dmi'
 		)
 	rig_back             = 'icons/inv_slots/rig/mob_fat.dmi'
+	bandages_icon        = 'icons/mob/human_races/bandages/mob_fat.dmi'
 
-	slowdown           = 0.5
+	movespeed_modifier = /datum/movespeed_modifier/bodybuild/fat
 	equipment_modifier = 0.5
 	poise_pool         = HUMAN_HIGH_POISE
-
-	next_body_build = null
-	previous_body_build = "Tajaran"
 
 /datum/body_build/unathi
 	name                 = SPECIES_UNATHI
@@ -350,6 +332,7 @@ var/global/datum/body_build/default_body_build = new
 		)
 	blood_icon           = 'icons/mob/human_races/masks/blood_monkey.dmi'
 	dam_mask             = 'icons/mob/human_races/masks/dam_mask_monkey.dmi'
+	bandages_icon        =  null
 
 	stomach_capacity   = STOMACH_CAPACITY_LOW
 
@@ -360,5 +343,6 @@ var/global/datum/body_build/default_body_build = new
 	genders              = list(MALE, FEMALE, NEUTER)
 	blood_icon           = null // Fuck it, I ain't gonna spend all day showering if I'm an apex predator
 	dam_mask             = 'icons/mob/human_races/masks/dam_mask_xenos.dmi'
+	bandages_icon        =  null
 
 	poise_pool         = HUMAN_MAX_POISE

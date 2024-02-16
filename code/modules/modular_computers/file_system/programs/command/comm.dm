@@ -9,6 +9,7 @@
 	program_icon_state = "comm"
 	program_key_state = "med_key"
 	program_menu_icon = "flag"
+	program_light_color = "#0099FF"
 	nanomodule_path = /datum/nano_module/program/comm
 	extended_desc = "Used to command and control. Can relay long-range communications. This program can not be run on tablet computers."
 	required_access = access_heads
@@ -288,23 +289,22 @@ var/last_message_id = 0
 	messages -= list(message)
 
 /proc/post_status(command, data1, data2)
+	var/datum/frequency/frequency = SSradio.return_frequency(1435)
+	if(!frequency)
+		return
 
-	var/datum/radio_frequency/frequency = radio_controller.return_frequency(1435)
 
-	if(!frequency) return
-
-	var/datum/signal/status_signal = new
-	status_signal.transmission_method = 1
-	status_signal.data["command"] = command
+	var/list/data = list("command" = command)
 
 	switch(command)
 		if("message")
-			status_signal.data["msg1"] = data1
-			status_signal.data["msg2"] = data2
+			data["msg1"] = data1
+			data["msg2"] = data2
 			log_admin("STATUS: [key_name(usr)] set status screen message with: [data1] [data2]")
 		if("image")
-			status_signal.data["picture_state"] = data1
+			data["picture_state"] = data1
 
+	var/datum/signal/status_signal = new(data)
 	frequency.post_signal(signal = status_signal)
 
 /proc/cancel_call_proc(mob/user)
@@ -319,7 +319,7 @@ var/last_message_id = 0
 
 
 /proc/is_relay_online()
-	for(var/obj/machinery/bluespacerelay/M in GLOB.machines)
+	for(var/obj/machinery/bluespacerelay/M in SSmachines.machinery)
 		if(M.stat == 0)
 			return 1
 	return 0

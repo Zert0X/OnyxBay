@@ -5,7 +5,7 @@
 
 	mtth = 2 HOURS
 	difficulty = 60
-	blacklisted_maps = list(/datum/map/polar)
+
 
 	var/list/drones_list = list()
 	var/list/affecting_z = list()
@@ -13,7 +13,7 @@
 /datum/event/rogue_drones/New()
 	. = ..()
 
-	add_think_ctx("end", CALLBACK(src, .proc/end), 0)
+	add_think_ctx("end", CALLBACK(src, nameof(.proc/end)), 0)
 
 /datum/event/rogue_drones/get_conditions_description()
 	. = "<em>Rogue Drones</em> should not be <em>running</em>.<br>"
