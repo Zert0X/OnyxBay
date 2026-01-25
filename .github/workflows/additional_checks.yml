@@ -29,6 +29,18 @@ jobs:
       - name: Include Maps
         shell: pwsh
         run: ./scripts/IncludeMaps.ps1
+      - name: Install 32-bit runtime deps
+        run: |
+          set -eux
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y \
+            libc6:i386 \
+            libstdc++6:i386 \
+            zlib1g:i386 \
+            libcurl4:i386 \
+            libssl3:i386
+
       - name: Diagnose DreamMaker arch + missing deps
         run: |
           set -eux
