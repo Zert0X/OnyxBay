@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   Checks:
     runs-on: ubuntu-latest
-    if: github.repository == 'ChaoticOnyx/OnyxBay' && github.event.pull_request.draft == false
+    if: github.event.pull_request.draft == false
     env:
       BYOND_MAJOR: 516
       BYOND_MINOR: 1666
