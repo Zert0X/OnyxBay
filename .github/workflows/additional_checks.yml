@@ -4,13 +4,38 @@ on: [push, pull_request]
 
 jobs:
   Checks:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
     env:
       BYOND_MAJOR: 516
       BYOND_MINOR: 1666
       DM_BUILDFILE: "baystation12.dme"
     steps:
+      - name: Install BYOND runtime deps (libcurl)
+        run: |
+          set -eux
+          sudo apt-get update
+
+          # Ubuntu 22.04 обычно: libcurl4
+          # Ubuntu 24.04 обычно: libcurl4t64
+          sudo apt-get install -y libcurl4 || sudo apt-get install -y libcurl4t64
+
+          # Проверяем, что в кеше линкера есть libcurl.so.4
+          if ! ldconfig -p | grep -q 'libcurl\.so\.4'; then
+            # Если библиотека установлена, но alias/путь не подхватился — создаём симлинк на реальный файл
+            real="$(find /usr/lib -name 'libcurl.so.4*' -type f 2>/dev/null | head -n 1 || true)"
+            echo "Detected libcurl file: ${real:-<none>}"
+            test -n "$real"
+            sudo ln -sf "$real" /usr/lib/x86_64-linux-gnu/libcurl.so.4 || true
+            sudo ldconfig
+          fi
+
+          ldconfig -p | grep 'libcurl\.so\.4'
+      - name: Diagnose DreamMaker deps
+        run: |
+          set -eux
+          ldd "$HOME/BYOND-${BYOND_MAJOR}.${BYOND_MINOR}/byond/bin/DreamMaker" | grep -E 'curl|not found' || true
+          find /usr/lib -name 'libcurl.so.4*' -type f 2>/dev/null || true
       - name: Checkout
         uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
         with:
