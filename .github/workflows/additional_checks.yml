@@ -31,7 +31,7 @@ jobs:
           fi
 
           ldconfig -p | grep 'libcurl\.so\.4'
-      - name: Diagnose DreamMaker deps
+      - name: Diagnose DreamMaker deps before byond install
         run: |
           set -eux
           ldd "$HOME/BYOND-${BYOND_MAJOR}.${BYOND_MINOR}/byond/bin/DreamMaker" | grep -E 'curl|not found' || true
@@ -45,6 +45,11 @@ jobs:
         run: |
           chmod +x ./install-byond.sh
           ./install-byond.sh
+      - name: Diagnose DreamMaker deps after install
+        run: |
+          set -eux
+          ldd "$HOME/BYOND-${BYOND_MAJOR}.${BYOND_MINOR}/byond/bin/DreamMaker" | grep -E 'curl|not found' || true
+          find /usr/lib -name 'libcurl.so.4*' -type f 2>/dev/null || true
       - name: Steps Check
         run: |
           shopt -s globstar
