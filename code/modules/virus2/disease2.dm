@@ -13,13 +13,36 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	var/antigen = list() // 16 bits describing the antigens, when one bit is set, a cure with that bit can dock here
 	var/max_stage = 4
 	var/list/affected_species = list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_SKRELL, SPECIES_TAJARA, SPECIES_SWINE)
+	var/datum/pathogen_profile/profile
+	var/datum/pathogen_strain/strain
+	var/datum/pathogen_culture/culture
+	var/datum/pathogen_knowledge/knowledge
+	var/model_managed = FALSE
 
 /datum/disease2/disease/New(random_severity = 0)
+	profile = new
+	strain = new
+	culture = new
+	knowledge = new
+	model_managed = (src.type == /datum/disease2/disease)
 	uniqueID = rand(0, 10000)
+	strain.strain_id = uniqueID
 	if(random_severity)
 		makerandom(random_severity)
+	else if(model_managed)
+		strain.initialize_random()
+		rebuild_effects_from_strain()
+		sync_knowledge_from_model()
 
 /datum/disease2/disease/proc/update_disease()
+	if(model_managed)
+		strain.strain_id = uniqueID
+		strain.recompute_phenotype()
+		rebuild_effects_from_strain()
+		sync_knowledge_from_model()
+	else
+		sync_knowledge_from_effects()
+
 	var/list/datum/disease2/effect/effects_sorted = list() //Sort effects by stage
 
 	for(var/i in 1 to max_stage)
@@ -44,14 +67,11 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 		E.change_parent()
 
 /datum/disease2/disease/proc/makerandom(severity = 2)
-	var/list/excludetypes = list()
-	for(var/i = 1 ; i <= max_stage ; i++)
-		var/datum/disease2/effect/E = get_random_virus2_effect(i, severity, excludetypes)
-		E.stage = i
-		if(!E.allow_multiple)
-			excludetypes += E.type
-		effects += E
+	if(model_managed)
+		strain.initialize_random()
+		rebuild_effects_from_strain()
 	uniqueID = rand(0, 10000)
+	strain.strain_id = uniqueID
 	switch(severity)
 		if(1, 2)
 			infectionchance = rand(10, 20)
@@ -64,7 +84,51 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 
 	if(all_species.len)
 		affected_species = get_infectable_species()
+	sync_knowledge_from_model()
 	update_disease()
+
+/datum/disease2/disease/proc/rebuild_effects_from_strain()
+	if(!model_managed || !strain)
+		return
+	for(var/datum/disease2/effect/E in effects)
+		if(infected)
+			E.deactivate(infected)
+		effects -= E
+		qdel(E)
+	for(var/list/blueprint in strain.phenotype_blueprints)
+		var/effect_type = blueprint["effect_type"]
+		if(!effect_type)
+			continue
+		if(!can_add_symptom(effect_type))
+			continue
+		var/datum/disease2/effect/new_effect = new effect_type
+		new_effect.stage = blueprint["stage"]
+		new_effect.chance = blueprint["chance"]
+		new_effect.multiplier = blueprint["multiplier"]
+		effects += new_effect
+
+/datum/disease2/disease/proc/sync_knowledge_from_model()
+	if(!knowledge)
+		knowledge = new
+	knowledge.knowledge_level = 0
+	if(strain)
+		knowledge.confirm_hypothesis("Genome signature [strain.get_genome_signature()]")
+	knowledge.confirm_hypothesis("Transmission route [spreadtype]")
+	if(antigen && antigen.len)
+		knowledge.prove_vulnerability("Antigen docking: [antigens2string(antigen)]")
+	if(affected_species && affected_species.len)
+		knowledge.prove_vulnerability("Host range constrained to [jointext(affected_species, \", \")]")
+	if(knowledge.proven_vulnerabilities.len >= 2)
+		knowledge.knowledge_level = 3
+
+/datum/disease2/disease/proc/sync_knowledge_from_effects()
+	if(!knowledge)
+		knowledge = new
+	knowledge.knowledge_level = 1
+	if(effects.len)
+		knowledge.confirm_hypothesis("Phenotype observed: [effects.len] symptom(s)")
+	if(antigen && antigen.len)
+		knowledge.prove_vulnerability("Antigen docking: [antigens2string(antigen)]")
 
 /proc/get_infectable_species()
 	var/list/meat = list()
@@ -158,10 +222,19 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	BITSET(infected.hud_updateflag, STATUS_HUD)
 
 /datum/disease2/disease/proc/minormutate()
+	if(model_managed && strain)
+		strain.mutate_minor()
+		update_disease()
+		return
 	var/datum/disease2/effect/E = pick(effects)
-	E.minormutate()
+	if(E)
+		E.minormutate()
 
 /datum/disease2/disease/proc/mediummutate()
+	if(model_managed && strain)
+		strain.mutate_medium()
+		update_disease()
+		return 1
 	var/list/datum/disease2/effect/mutable_effects = list()
 	for(var/datum/disease2/effect/T in effects)
 		if(T.possible_mutations && T.possible_mutations.len)
@@ -187,6 +260,15 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	return 1
 
 /datum/disease2/disease/proc/majormutate(badness = VIRUS_ENGINEERED)
+	if(model_managed && strain)
+		strain.mutate_major()
+		if(prob(5))
+			antigen = list(pick(ALL_ANTIGENS))
+			antigen |= pick(ALL_ANTIGENS)
+		if(prob(5) && all_species.len)
+			affected_species = get_infectable_species()
+		update_disease()
+		return
 	uniqueID = rand(0,10000)
 	var/datum/disease2/effect/E = pick(effects)
 	var/list/exclude = list()
@@ -210,6 +292,11 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	update_disease()
 
 /datum/disease2/disease/proc/stageshift()
+	if(model_managed)
+		for(var/list/blueprint in strain.phenotype_blueprints)
+			blueprint["stage"] = min(max_stage, blueprint["stage"] + 1)
+		update_disease()
+		return
 	uniqueID = rand(0, 10000)
 	var/list/exclude = list()
 	for(var/datum/disease2/effect/D in effects)
@@ -228,7 +315,24 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	disease.speed = speed
 	disease.antigen   = antigen
 	disease.uniqueID = uniqueID
+	disease.model_managed = model_managed
 	disease.affected_species = affected_species.Copy()
+	if(model_managed && strain)
+		disease.strain.segments = list()
+		for(var/datum/pathogen_genome_segment/segment in strain.segments)
+			var/datum/pathogen_genome_segment/new_segment = new
+			new_segment.slot = segment.slot
+			new_segment.allele = segment.allele
+			new_segment.expression = segment.expression
+			disease.strain.segments += new_segment
+		disease.strain.regulators = list()
+		for(var/datum/pathogen_regulator/regulator in strain.regulators)
+			var/datum/pathogen_regulator/new_regulator = new
+			new_regulator.id = regulator.id
+			new_regulator.target_trait = regulator.target_trait
+			new_regulator.modifier = regulator.modifier
+			disease.strain.regulators += new_regulator
+		disease.strain.recompute_phenotype()
 	for(var/datum/disease2/effect/effect in effects)
 		var/datum/disease2/effect/neweffect = new effect.type
 		neweffect.generate(effect.data)
@@ -236,6 +340,8 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 		neweffect.multiplier = effect.multiplier
 		neweffect.stage = effect.stage
 		disease.effects += neweffect
+	if(model_managed)
+		disease.rebuild_effects_from_strain()
 	disease.update_disease()
 	return disease
 
@@ -269,25 +375,35 @@ var/global/list/virusDB = list()
 		.= V.fields["name"]
 
 /datum/disease2/disease/proc/get_basic_info()
-	var/t = ""
+	var/list/symptoms = list()
 	for(var/datum/disease2/effect/E in effects)
-		t += ", [E.name]"
-	return "[name()] ([copytext(t,3)])"
+		symptoms += E.name
+	var/symptom_text = symptoms.len ? jointext(symptoms, ", ") : "No active phenotype"
+	return "[name()] ([symptom_text])"
 
 /datum/disease2/disease/proc/get_info()
+	var/knowledge_label = knowledge ? knowledge.get_level_label() : "Level 0 - Unknown"
+	var/species_text = affected_species && affected_species.len ? jointext(affected_species, ", ") : "Unknown"
 	var/r = {"
 	<small>Analysis determined the existence of a GNAv2-based viral lifeform.</small><br>
 	<u>Designation:</u> [name()]<br>
+	<u>Knowledge:</u> [knowledge_label]<br>
 	<u>Antigen:</u> [antigens2string(antigen)]<br>
 	<u>Transmitted By:</u> [spreadtype]<br>
 	<u>Rate of Progression:</u> [speed * 100]%<br>
-	<u>Species Affected:</u> [jointext(affected_species, ", ")]<br>
+	<u>Species Affected:</u> [species_text]<br>
 "}
+	if(strain && strain.metadata && strain.metadata["genome_signature"])
+		r += "<u>Genome Signature:</u> [strain.metadata[\"genome_signature\"]]<br>"
+	var/hypothesis_text = (knowledge && knowledge.confirmed_hypotheses.len) ? jointext(knowledge.confirmed_hypotheses, "; ") : "none"
+	var/vulnerability_text = (knowledge && knowledge.proven_vulnerabilities.len) ? jointext(knowledge.proven_vulnerabilities, "; ") : "none"
+	r += "<u>Confirmed Hypotheses:</u> [hypothesis_text]<br>"
+	r += "<u>Proven Vulnerabilities:</u> [vulnerability_text]<br>"
 
 	r += "<u>Symptoms:</u><br>"
 	for(var/datum/disease2/effect/E in effects)
 		r += "([E.stage]) [E.name]    "
-		r += "<small><u>Strength:</u> [E.multiplier >= 3 ? "Severe" : E.multiplier > 1 ? "Above Average" : "Average"]    "
+		r += "<small><u>Strength:</u> [E.multiplier >= 3 ? \"Severe\" : E.multiplier > 1 ? \"Above Average\" : \"Average\"]    "
 		r += "<u>Verosity:</u> [E.chance * 15]</small><br>"
 
 	return r
