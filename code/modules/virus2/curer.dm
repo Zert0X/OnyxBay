@@ -51,11 +51,11 @@
 		var/datum/reagent/blood/B = locate(/datum/reagent/blood) in container.reagents.reagent_list
 		if(B)
 			dat += "Blood sample inserted."
-			dat += "<BR>Known antibodies: [antigens2string(B.data[\"antibodies\"])]"
+			dat += "<BR>Known antibodies: [antigens2string(B.data["antibodies"])]"
 			var/datum/disease2/disease/reference = get_reference_pathogen(B)
 			if(reference)
 				dat += "<BR>Target signature: [antigens2string(reference.antigen)]"
-				dat += "<BR>Knowledge level: [reference.knowledge ? reference.knowledge.get_level_label() : \"Unknown\"]"
+				dat += "<BR>Knowledge level: [reference.knowledge ? reference.knowledge.get_level_label() : "Unknown"]"
 			dat += "<BR><A href='?src=\ref[src];build=suppressor'>Assemble temporary suppressor</a>"
 			dat += "<BR><A href='?src=\ref[src];build=target'>Assemble target-agent</a>"
 			dat += "<BR><A href='?src=\ref[src];build=vaccine'>Assemble adaptive vaccine</a>"

@@ -131,7 +131,7 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	if(antigen && antigen.len)
 		knowledge.prove_vulnerability("Antigen docking: [antigens2string(antigen)]")
 	if(affected_species && affected_species.len)
-		knowledge.prove_vulnerability("Host range constrained to [jointext(affected_species, \", \")]")
+		knowledge.prove_vulnerability("Host range constrained to [jointext(affected_species, ", ")]")
 	if(knowledge.proven_vulnerabilities.len >= 2)
 		knowledge.knowledge_level = 3
 
@@ -420,7 +420,7 @@ var/global/list/virusDB = list()
 	<u>Species Affected:</u> [species_text]<br>
 "}
 	if(strain && strain.metadata && strain.metadata["genome_signature"])
-		r += "<u>Genome Signature:</u> [strain.metadata[\"genome_signature\"]]<br>"
+		r += "<u>Genome Signature:</u> [strain.metadata["genome_signature"]]<br>"
 	var/hypothesis_text = (knowledge && knowledge.confirmed_hypotheses.len) ? jointext(knowledge.confirmed_hypotheses, "; ") : "none"
 	var/vulnerability_text = (knowledge && knowledge.proven_vulnerabilities.len) ? jointext(knowledge.proven_vulnerabilities, "; ") : "none"
 	r += "<u>Confirmed Hypotheses:</u> [hypothesis_text]<br>"
@@ -429,7 +429,7 @@ var/global/list/virusDB = list()
 	r += "<u>Symptoms:</u><br>"
 	for(var/datum/disease2/effect/E in effects)
 		r += "([E.stage]) [E.name]    "
-		r += "<small><u>Strength:</u> [E.multiplier >= 3 ? \"Severe\" : E.multiplier > 1 ? \"Above Average\" : \"Average\"]    "
+		r += "<small><u>Strength:</u> [E.multiplier >= 3 ? "Severe" : E.multiplier > 1 ? "Above Average" : "Average"]    "
 		r += "<u>Verosity:</u> [E.chance * 15]</small><br>"
 
 	return r
