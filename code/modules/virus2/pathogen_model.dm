@@ -37,15 +37,43 @@
 	var/growth_index = 1.0
 	var/heterogeneity = 0.0
 	var/contamination = 0.0
+	var/BiohazardLevel = 0
 	var/list/pressure_history = list()
 
-/datum/pathogen_culture/proc/apply_pressure(pressure_label, delta_growth = 0, delta_heterogeneity = 0, delta_contamination = 0)
+/datum/pathogen_culture/proc/apply_pressure(pressure_label, delta_growth = 0, delta_heterogeneity = 0, delta_contamination = 0, pressure_kpa = null)
 	if(!pressure_label)
 		return
 	pressure_history += "[world.time]: [pressure_label]"
-	growth_index = max(0.2, growth_index + delta_growth)
+
+	var/adjusted_growth = delta_growth
+	if(is_dangerous_pressure(pressure_label, pressure_kpa) && delta_growth > 0)
+		adjusted_growth *= get_danger_pressure_growth_multiplier(pressure_kpa)
+
+	growth_index = max(0.2, growth_index + adjusted_growth)
 	heterogeneity = clamp(heterogeneity + delta_heterogeneity, 0, 1)
 	contamination = clamp(contamination + delta_contamination, 0, 1)
+	recalculate_biohazard_level(pressure_label, pressure_kpa)
+
+/datum/pathogen_culture/proc/is_dangerous_pressure(pressure_label, pressure_kpa)
+	if(isnum(pressure_kpa) && pressure_kpa >= (ONE_ATMOSPHERE * 1.8))
+		return TRUE
+
+	if(findtext(lowertext("[pressure_label]"), "danger") || findtext(lowertext("[pressure_label]"), "hazard") || findtext(lowertext("[pressure_label]"), "critical"))
+		return TRUE
+
+	return FALSE
+
+/datum/pathogen_culture/proc/get_danger_pressure_growth_multiplier(pressure_kpa)
+	if(!isnum(pressure_kpa))
+		return 1.6
+
+	var/normalized_pressure = clamp((pressure_kpa - (ONE_ATMOSPHERE * 1.8)) / (ONE_ATMOSPHERE * 2.2), 0, 2)
+	return 1 + (normalized_pressure ** 2) * 1.5
+
+/datum/pathogen_culture/proc/recalculate_biohazard_level(pressure_label, pressure_kpa)
+	var/danger_bonus = is_dangerous_pressure(pressure_label, pressure_kpa) ? 0.75 : 0
+	var/hazard_score = (growth_index * 0.5) + (heterogeneity * 2) + (contamination * 2.5) + danger_bonus
+	BiohazardLevel = clamp(round(hazard_score), 0, 5)
 
 /datum/pathogen_genome_segment
 	var/slot = 1
