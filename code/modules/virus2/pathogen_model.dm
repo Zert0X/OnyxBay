@@ -59,6 +59,17 @@
 
 /datum/pathogen_strain
 	var/strain_id = 0
+	var/Infectivity = 1
+	var/Shedding = 1
+	var/Stealth = 1
+	var/Latency = 1
+	var/StageSpeed = 1
+	var/Severity = 1
+	var/Resistance = 1
+	var/Stability = 1
+	var/MutationRate = 1
+	var/Recombination = 1
+	var/list/TransmissionMode = list("airborne" = 0.5, "contact" = 0.5, "blood" = 0.2)
 	var/list/datum/pathogen_genome_segment/segments = list()
 	var/list/datum/pathogen_regulator/regulators = list()
 	var/list/phenotype_blueprints = list()
@@ -69,6 +80,21 @@
 	strain_id = rand(0, 10000)
 
 /datum/pathogen_strain/proc/initialize_random()
+	Infectivity = rand(50, 160) / 100
+	Shedding = rand(50, 160) / 100
+	Stealth = rand(50, 160) / 100
+	Latency = rand(50, 160) / 100
+	StageSpeed = rand(50, 160) / 100
+	Severity = rand(50, 160) / 100
+	Resistance = rand(50, 160) / 100
+	Stability = rand(50, 160) / 100
+	MutationRate = rand(50, 160) / 100
+	Recombination = rand(50, 160) / 100
+	TransmissionMode = list(
+		"airborne" = rand(10, 100) / 100,
+		"contact" = rand(10, 100) / 100,
+		"blood" = rand(10, 100) / 100
+	)
 	segments = list()
 	regulators = list()
 	var/segment_count = rand(6, 10)

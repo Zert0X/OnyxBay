@@ -16,7 +16,8 @@
 				if(B.virus2.len)
 					for(var/ID in B.virus2)
 						var/datum/disease2/disease/V = B.virus2[ID]
-						infect_virus2(src, V)
+						if(V && V.supports_transmission_channel("blood"))
+							infect_virus2(src, V)
 
 			else if(istype(O, /obj/effect/decal/cleanable/mucus))
 				var/obj/effect/decal/cleanable/mucus/M = O
@@ -27,7 +28,8 @@
 				if(M.virus2.len)
 					for(var/ID in M.virus2)
 						var/datum/disease2/disease/V = M.virus2[ID]
-						infect_virus2(src, V)
+						if(V && V.supports_transmission_channel("airborne"))
+							infect_virus2(src, V)
 
 	if(virus2.len)
 		for(var/ID in virus2)

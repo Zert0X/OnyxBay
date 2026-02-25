@@ -85,7 +85,7 @@
 				var/list/virus = B.data["virus2"]
 				for (var/ID in virus)
 					var/datum/disease2/disease/V = virus[ID]
-					pathogens.Add(list(list("name" = V.name(), "spread_type" = V.spreadtype, "reference" = "\ref[V]")))
+					pathogens.Add(list(list("name" = V.name(), "spread_type" = V.transmission_mode_to_text(), "reference" = "\ref[V]")))
 
 				if (pathogens.len > 0)
 					data["pathogens"] = pathogens

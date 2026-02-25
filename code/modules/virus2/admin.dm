@@ -195,7 +195,7 @@
 					if(a == "Yes") return
 				var/datum/disease2/disease/D = new
 				D.infectionchance = infectionchance
-				D.spreadtype = spreadtype
+				D.set_legacy_spreadtype(spreadtype)
 				D.antigen = antigens
 				D.affected_species = species
 				D.speed = speed

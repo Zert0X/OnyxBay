@@ -245,7 +245,7 @@
 	mob.immunity -= 2 * multiplier
 
 /datum/disease2/effect/aids/change_parent()
-	parent_disease.spreadtype = "Contact"
+	parent_disease.set_legacy_spreadtype("Contact")
 	parent_disease.infectionchance = 110
 
 /datum/disease2/effect/drowsness

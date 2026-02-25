@@ -110,7 +110,7 @@
 		if(vlist.len)
 			for(var/ID in vlist)
 				var/datum/disease2/disease/V = vlist[ID]
-				if(V && V.spreadtype == "Contact")
+				if(V && V.supports_transmission_channel("blood"))
 					infect_virus2(M, V.getcopy())
 
 /datum/reagent/blood/affect_digest(mob/living/carbon/M, alien, removed)
@@ -128,7 +128,7 @@
 		if(vlist.len)
 			for(var/ID in vlist)
 				var/datum/disease2/disease/V = vlist[ID]
-				if(V.spreadtype == "Contact")
+				if(V.supports_transmission_channel("blood") || V.supports_transmission_channel("contact"))
 					infect_virus2(M, V.getcopy())
 	if(data && data["antibodies"])
 		M.antibodies |= data["antibodies"]

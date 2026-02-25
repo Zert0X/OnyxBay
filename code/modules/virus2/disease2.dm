@@ -4,6 +4,7 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	var/infectionchance = 70
 	var/speed = 1
 	var/spreadtype = "Contact" // Can also be "Airborne"
+	var/list/transmission_mode = list("airborne" = 0, "contact" = 1, "blood" = 0)
 	var/stage = 1
 	var/dead = 0
 	var/clicks = 0
@@ -27,10 +28,13 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	model_managed = (src.type == /datum/disease2/disease)
 	uniqueID = rand(0, 10000)
 	strain.strain_id = uniqueID
+	set_legacy_spreadtype(spreadtype)
 	if(random_severity)
 		makerandom(random_severity)
 	else if(model_managed)
 		strain.initialize_random()
+		transmission_mode = strain.TransmissionMode ? strain.TransmissionMode.Copy() : transmission_mode
+		spreadtype = derive_legacy_spreadtype()
 		rebuild_effects_from_strain()
 		sync_knowledge_from_model()
 
@@ -38,9 +42,13 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	if(model_managed)
 		strain.strain_id = uniqueID
 		strain.recompute_phenotype()
+		if(strain.TransmissionMode)
+			transmission_mode = strain.TransmissionMode.Copy()
+		spreadtype = derive_legacy_spreadtype()
 		rebuild_effects_from_strain()
 		sync_knowledge_from_model()
 	else
+		set_legacy_spreadtype(spreadtype)
 		sync_knowledge_from_effects()
 
 	var/list/datum/disease2/effect/effects_sorted = list() //Sort effects by stage
@@ -80,7 +88,10 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 
 	antigen = list(pick(ALL_ANTIGENS))
 	antigen |= pick(ALL_ANTIGENS)
-	spreadtype = prob(70) ? "Airborne" : "Contact"
+	if(prob(70))
+		set_legacy_spreadtype("Airborne")
+	else
+		set_legacy_spreadtype("Contact")
 
 	if(all_species.len)
 		affected_species = get_infectable_species()
@@ -113,7 +124,7 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	knowledge.knowledge_level = 0
 	if(strain)
 		knowledge.confirm_hypothesis("Genome signature [strain.get_genome_signature()]")
-	knowledge.confirm_hypothesis("Transmission route [spreadtype]")
+	knowledge.confirm_hypothesis("Transmission route [transmission_mode_to_text()]")
 	if(antigen && antigen.len)
 		knowledge.prove_vulnerability("Antigen docking: [antigens2string(antigen)]")
 	if(affected_species && affected_species.len)
@@ -312,6 +323,7 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	var/datum/disease2/disease/disease = new /datum/disease2/disease
 	disease.infectionchance = infectionchance
 	disease.spreadtype = spreadtype
+	disease.transmission_mode = transmission_mode.Copy()
 	disease.speed = speed
 	disease.antigen   = antigen
 	disease.uniqueID = uniqueID
@@ -332,6 +344,17 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 			new_regulator.target_trait = regulator.target_trait
 			new_regulator.modifier = regulator.modifier
 			disease.strain.regulators += new_regulator
+		disease.strain.Infectivity = strain.Infectivity
+		disease.strain.Shedding = strain.Shedding
+		disease.strain.Stealth = strain.Stealth
+		disease.strain.Latency = strain.Latency
+		disease.strain.StageSpeed = strain.StageSpeed
+		disease.strain.Severity = strain.Severity
+		disease.strain.Resistance = strain.Resistance
+		disease.strain.Stability = strain.Stability
+		disease.strain.MutationRate = strain.MutationRate
+		disease.strain.Recombination = strain.Recombination
+		disease.strain.TransmissionMode = strain.TransmissionMode ? strain.TransmissionMode.Copy() : list()
 		disease.strain.recompute_phenotype()
 	for(var/datum/disease2/effect/effect in effects)
 		var/datum/disease2/effect/neweffect = new effect.type
@@ -389,7 +412,7 @@ var/global/list/virusDB = list()
 	<u>Designation:</u> [name()]<br>
 	<u>Knowledge:</u> [knowledge_label]<br>
 	<u>Antigen:</u> [antigens2string(antigen)]<br>
-	<u>Transmitted By:</u> [spreadtype]<br>
+	<u>Transmitted By:</u> [transmission_mode_to_text()]<br>
 	<u>Rate of Progression:</u> [speed * 100]%<br>
 	<u>Species Affected:</u> [species_text]<br>
 "}
@@ -416,9 +439,43 @@ var/global/list/virusDB = list()
 	v.fields["name"] = name()
 	v.fields["description"] = get_info()
 	v.fields["antigen"] = antigens2string(antigen)
-	v.fields["spread type"] = spreadtype
+	v.fields["spread type"] = transmission_mode_to_text()
 	virusDB["[uniqueID]"] = v
 	return 1
+
+/datum/disease2/disease/proc/set_legacy_spreadtype(mode)
+	if(mode == "Airborne")
+		transmission_mode = list("airborne" = 1, "contact" = 0.2, "blood" = 0)
+	else
+		transmission_mode = list("airborne" = 0.05, "contact" = 1, "blood" = 1)
+	if(model_managed && strain)
+		strain.TransmissionMode = transmission_mode.Copy()
+	spreadtype = derive_legacy_spreadtype()
+
+/datum/disease2/disease/proc/get_transmission_weight(channel)
+	if(!transmission_mode)
+		return 0
+	channel = lowertext(channel)
+	return clamp(transmission_mode[channel] || 0, 0, 1)
+
+/datum/disease2/disease/proc/supports_transmission_channel(channel, min_weight = 0.15)
+	return get_transmission_weight(channel) >= min_weight
+
+/datum/disease2/disease/proc/derive_legacy_spreadtype()
+	return get_transmission_weight("airborne") >= get_transmission_weight("contact") ? "Airborne" : "Contact"
+
+/datum/disease2/disease/proc/transmission_mode_to_text()
+	if(!transmission_mode || !transmission_mode.len)
+		return "Unknown"
+	var/list/channels = list()
+	for(var/channel in transmission_mode)
+		var/weight = round((transmission_mode[channel] || 0) * 100)
+		if(weight <= 0)
+			continue
+		channels += "[uppertext(copytext(channel, 1, 2))][copytext(channel, 2)]([weight]%)"
+	if(!channels.len)
+		return "None"
+	return jointext(channels, ", ")
 
 
 /proc/virology_letterhead(report_name)
