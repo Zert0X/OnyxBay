@@ -27,6 +27,10 @@
 	var/mutation_prob = 1
 	var/cmo_launch_confirmed = FALSE
 	var/rd_launch_confirmed = FALSE
+	var/list/audit_log = list()
+	var/max_audit_log_entries = 60
+	var/cmo_confirm_reason = ""
+	var/rd_confirm_reason = ""
 
 /obj/machinery/disease2/incubator/Initialize()
 	. = ..()
@@ -35,6 +39,70 @@
 /obj/machinery/disease2/incubator/proc/reset_launch_confirmations()
 	cmo_launch_confirmed = FALSE
 	rd_launch_confirmed = FALSE
+	cmo_confirm_reason = ""
+	rd_confirm_reason = ""
+
+/obj/machinery/disease2/incubator/proc/has_audit_read_access(mob/user)
+	if(!user)
+		return FALSE
+	var/list/user_access = user.GetAccess()
+	if(access_security in user_access)
+		return TRUE
+	if(access_cmo in user_access)
+		return TRUE
+	if(access_heads in user_access)
+		return TRUE
+	return FALSE
+
+/obj/machinery/disease2/incubator/proc/current_alerts()
+	var/list/alerts = list()
+	if(requires_role_confirmation())
+		alerts += list(list(
+			"id" = "risk_escalation",
+			"severity" = "danger",
+			"title" = "Risk escalation",
+			"details" = "High-risk mutation profile requires CMO/RD sign-off before launch."
+		))
+	if(toxins >= 60)
+		alerts += list(list(
+			"id" = "reagent_leak",
+			"severity" = "warning",
+			"title" = "Reagent leak hazard",
+			"details" = "Toxin pressure is elevated and may destabilize the sample chamber."
+		))
+	if((mutagen + toxins) >= 120)
+		alerts += list(list(
+			"id" = "contamination",
+			"severity" = "danger",
+			"title" = "Contamination risk",
+			"details" = "Combined mutagen/toxin pressure indicates contamination risk."
+		))
+	return alerts
+
+/obj/machinery/disease2/incubator/proc/add_audit_entry(entry_label, mob/user, confirmation_reason = "", pharmaceutical_release = "")
+	var/operator_name = "System"
+	if(user)
+		operator_name = user.real_name ? user.real_name : user.name
+	var/list/entry = list(
+		"timestamp" = time2text(world.realtime, "YYYY-MM-DD hh:mm:ss"),
+		"operator" = operator_name,
+		"event" = entry_label,
+		"pressures" = list(
+			"food" = foodsupply,
+			"radiation" = radiation,
+			"mutagen" = mutagen,
+			"toxins" = toxins
+		),
+		"confirmationReason" = confirmation_reason || "-",
+		"pharmaceuticalRelease" = pharmaceutical_release || "-",
+		"confirmations" = list(
+			"cmo" = cmo_launch_confirmed,
+			"rd" = rd_launch_confirmed
+		)
+	)
+	audit_log.Insert(1, list(entry))
+	if(length(audit_log) > max_audit_log_entries)
+		audit_log.Cut(max_audit_log_entries + 1)
 
 /obj/machinery/disease2/incubator/proc/risk_profiles()
 	var/list/profiles = list()
@@ -139,7 +207,10 @@
 		"riskProfiles" = risk_profiles(),
 		"requiresRoleConfirmation" = requires_role_confirmation(),
 		"cmoConfirmed" = cmo_launch_confirmed,
-		"rdConfirmed" = rd_launch_confirmed
+		"rdConfirmed" = rd_launch_confirmed,
+		"systemAlerts" = current_alerts(),
+		"canReadAuditLog" = has_audit_read_access(user),
+		"auditLog" = has_audit_read_access(user) ? audit_log : list()
 	)
 	return data
 
@@ -156,55 +227,71 @@
 				if(on)
 					on = FALSE
 					icon_state = "incubator"
+					add_audit_entry("Run stopped", usr)
 					reset_launch_confirmations()
 				else if(requires_role_confirmation() && !has_required_launch_confirmations())
 					to_chat(usr, SPAN_WARNING("High-risk mutation profile detected. Launch requires CMO and RD confirmations."))
 				else
 					on = TRUE
 					icon_state = "incubator_on"
+					add_audit_entry("Run started", usr)
 		if("ejectdish")
 			if(dish)
 				dish.dropInto(loc)
 				dish = null
+				add_audit_entry("Dish ejected", usr)
 				reset_launch_confirmations()
 		if("chem")
 			if(beaker && beaker.reagents)
+				var/list/release_labels = list()
 				var/previous_risky_state = requires_role_confirmation()
 				if(beaker.reagents.has_reagent(/datum/reagent/nutriment/virus_food, 5) && foodsupply < max_food_storage)
 					beaker.reagents.remove_reagent(/datum/reagent/nutriment/virus_food, 5)
 					foodsupply = min(max_food_storage, foodsupply + Clamp(max_food_storage - foodsupply, 0, 5))
+					release_labels += "virus food"
 				if(beaker.reagents.has_reagent(/datum/reagent/radium, 5) && radiation < max_food_storage)
 					beaker.reagents.remove_reagent(/datum/reagent/radium, 5)
 					radiation = min(100, radiation + Clamp(100 - radiation, 0, 5))
+					release_labels += "radium"
 				if(mutagen < 100)
 					for(var/datum/reagent/mutagen/T in beaker.reagents.reagent_list)
 						if(T.volume >= 5)
 							beaker.reagents.remove_reagent(/datum/reagent/mutagen, 5)
 							mutagen = min(100, mutagen + Clamp(100 - mutagen, 0, 5))
+							release_labels += "mutagen"
 				if(toxins < 100)
 					for(var/datum/reagent/toxin/T in beaker.reagents.reagent_list)
 						if(T.volume >= 5)
 							beaker.reagents.remove_reagent(T.type, 5)
 							toxins = min(100, toxins + T.strength)
+							release_labels += "toxin"
 				if(previous_risky_state != requires_role_confirmation())
 					reset_launch_confirmations()
+				if(length(release_labels))
+					add_audit_entry("Pressure chemicals loaded", usr, "", english_list(release_labels))
 		if("flush")
 			radiation = 0
 			toxins = 0
 			foodsupply = 0
 			mutagen = 0
+			add_audit_entry("Pressure profile flushed", usr)
 			reset_launch_confirmations()
 		if("confirm_risk")
 			var/list/user_access = usr ? usr.GetAccess() : list()
+			var/reason = trim(params["reason"])
 			switch(params["role"])
 				if("cmo")
 					if(access_cmo in user_access)
 						cmo_launch_confirmed = TRUE
+						cmo_confirm_reason = reason || "No reason supplied"
+						add_audit_entry("CMO risk confirmation", usr, cmo_confirm_reason)
 					else
 						to_chat(usr, SPAN_WARNING("CMO authorization required."))
 				if("rd")
 					if(access_rd in user_access)
 						rd_launch_confirmed = TRUE
+						rd_confirm_reason = reason || "No reason supplied"
+						add_audit_entry("RD risk confirmation", usr, rd_confirm_reason)
 					else
 						to_chat(usr, SPAN_WARNING("RD authorization required."))
 		if("inject")
@@ -216,6 +303,7 @@
 					if(!("[dish.virus2.uniqueID]" in B.data["virus2"]))
 						B.data["virus2"] += list("[dish.virus2.uniqueID]" = dish.virus2.getcopy())
 					ping("\The [src] pings, \"Injection complete.\"")
+					add_audit_entry("Pathogen injected", usr, "", "Bloodborne inoculation")
 	tgui_update()
 	return TRUE
 

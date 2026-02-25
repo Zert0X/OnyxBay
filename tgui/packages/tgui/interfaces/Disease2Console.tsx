@@ -1,5 +1,6 @@
 import { useBackend } from '../backend';
-import { Box, Button, LabeledList, NoticeBox, ProgressBar, Section, Stack, Tabs } from '../components';
+import { useLocalState } from '../backend';
+import { Box, Button, Input, LabeledList, NoticeBox, ProgressBar, Section, Stack, Tabs } from '../components';
 import { Window } from '../layouts';
 
 const SCREENS = [
@@ -31,12 +32,17 @@ export const Disease2Console = (_props, context) => {
     requiresRoleConfirmation,
     cmoConfirmed,
     rdConfirmed,
+    systemAlerts,
+    canReadAuditLog,
+    auditLog,
     pathogens,
     pathogenPool,
     antibodies,
     effects,
     powerOn,
   } = data;
+  const [cmoReason, setCmoReason] = useLocalState(context, 'cmoReason', '');
+  const [rdReason, setRdReason] = useLocalState(context, 'rdReason', '');
 
   return (
     <Window width={720} height={620}>
@@ -52,6 +58,11 @@ export const Disease2Console = (_props, context) => {
         {!!busy && <NoticeBox info>{busy}</NoticeBox>}
 
         <Section title="Outbreak Dashboard">
+          {(systemAlerts || []).map((alert, i) => (
+            <NoticeBox key={alert.id || i} danger={alert.severity === 'danger'} warning={alert.severity === 'warning'} mb={1}>
+              <b>{alert.title}</b>: {alert.details}
+            </NoticeBox>
+          ))}
           <LabeledList>
             <LabeledList.Item label="Dish">{dishInserted ? 'Loaded' : 'Empty'}</LabeledList.Item>
             <LabeledList.Item label="Syringe">{syringeInserted ? 'Loaded' : 'Empty'}</LabeledList.Item>
@@ -127,17 +138,35 @@ export const Disease2Console = (_props, context) => {
                 <Button
                   icon={cmoConfirmed ? 'check' : 'id-badge'}
                   color={cmoConfirmed ? 'good' : undefined}
-                  onClick={() => act('confirm_risk', { role: 'cmo' })}>
+                  onClick={() => act('confirm_risk', { role: 'cmo', reason: cmoReason })}>
                   CMO {cmoConfirmed ? 'Confirmed' : 'Confirm'}
                 </Button>
+                {!cmoConfirmed && (
+                  <Input
+                    mt={0.5}
+                    fluid
+                    placeholder="CMO confirmation reason"
+                    value={cmoReason}
+                    onChange={(_, value) => setCmoReason(value)}
+                  />
+                )}
               </Stack.Item>
               <Stack.Item>
                 <Button
                   icon={rdConfirmed ? 'check' : 'flask'}
                   color={rdConfirmed ? 'good' : undefined}
-                  onClick={() => act('confirm_risk', { role: 'rd' })}>
+                  onClick={() => act('confirm_risk', { role: 'rd', reason: rdReason })}>
                   RD {rdConfirmed ? 'Confirmed' : 'Confirm'}
                 </Button>
+                {!rdConfirmed && (
+                  <Input
+                    mt={0.5}
+                    fluid
+                    placeholder="RD confirmation reason"
+                    value={rdReason}
+                    onChange={(_, value) => setRdReason(value)}
+                  />
+                )}
               </Stack.Item>
             </Stack>
           )}
@@ -165,9 +194,29 @@ export const Disease2Console = (_props, context) => {
         </Section>
 
         <Section title="Audit Log">
-          <NoticeBox>
-            Legacy NanoUI workflow retired. This unified console keeps all disease2 actions in a single contract.
-          </NoticeBox>
+          {!canReadAuditLog && (
+            <NoticeBox warning>
+              Read access is restricted to Security, CMO, and command staff.
+            </NoticeBox>
+          )}
+          {!!canReadAuditLog && !(auditLog || []).length && (
+            <NoticeBox>No audit entries yet.</NoticeBox>
+          )}
+          {!!canReadAuditLog && (auditLog || []).map((entry, i) => (
+            <Section key={i} title={`${entry.timestamp} // ${entry.event}`} level={2}>
+              <LabeledList>
+                <LabeledList.Item label="Operator">{entry.operator}</LabeledList.Item>
+                <LabeledList.Item label="Pressures">
+                  Food: {entry.pressures?.food} / Radiation: {entry.pressures?.radiation} / Mutagen: {entry.pressures?.mutagen} / Toxins: {entry.pressures?.toxins}
+                </LabeledList.Item>
+                <LabeledList.Item label="Confirmation reason">{entry.confirmationReason}</LabeledList.Item>
+                <LabeledList.Item label="Pharmaceutical release">{entry.pharmaceuticalRelease}</LabeledList.Item>
+                <LabeledList.Item label="Sign-off">
+                  CMO: {entry.confirmations?.cmo ? 'yes' : 'no'} / RD: {entry.confirmations?.rd ? 'yes' : 'no'}
+                </LabeledList.Item>
+              </LabeledList>
+            </Section>
+          ))}
         </Section>
       </Window.Content>
     </Window>
