@@ -54,7 +54,7 @@
 			dat += "<BR>Known antibodies: [antigens2string(B.data["antibodies"])]"
 			var/datum/disease2/disease/reference = get_reference_pathogen(B)
 			if(reference)
-				dat += "<BR>Target signature: [antigens2string(reference.antigen)]"
+				dat += "<BR>Target signature: [antigens2string(reference.get_antigen_signature())]"
 				dat += "<BR>Knowledge level: [reference.knowledge ? reference.knowledge.get_level_label() : "Unknown"]"
 			dat += "<BR><A href='?src=\ref[src];build=suppressor'>Assemble temporary suppressor</a>"
 			dat += "<BR><A href='?src=\ref[src];build=target'>Assemble target-agent</a>"
@@ -113,7 +113,7 @@
 		return
 
 	var/datum/disease2/disease/reference = get_reference_pathogen(B)
-	var/list/target_signature = reference ? normalize_antibody_map(reference.antigen) : normalize_antibody_map(B.data["antibodies"])
+	var/list/target_signature = reference ? reference.get_antigen_signature() : normalize_antibody_map(B.data["antibodies"])
 	var/list/data = list("antibodies" = list(), "antibody_epitopes" = list())
 
 	switch(mode)

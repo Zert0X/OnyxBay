@@ -50,7 +50,7 @@ SUBSYSTEM_DEF(virus)
 // Store the entries like this so that components can be queued multiple times at once.
 // With immediate set, will generally imitate the order of the call stack if execution happened directly.
 // With immediate off, you go to the bottom of the pile.
-/datum/controller/subsystem/virus/proc/queue_virus(datum/disease2/disease/circuit, immediate = TRUE)
+/datum/controller/subsystem/virus/proc/queue_runtime(datum/disease2/disease/circuit, immediate = TRUE)
 	if(!can_fire)
 		return
 	var/list/entry = list(circuit) + args.Copy(3)
@@ -60,6 +60,9 @@ SUBSYSTEM_DEF(virus)
 			position++
 	else
 		viruses_life.Insert(position, list(entry))
+
+/datum/controller/subsystem/virus/proc/queue_virus(datum/disease2/disease/circuit, immediate = TRUE)
+	queue_runtime(circuit, immediate)
 
 /datum/controller/subsystem/virus/proc/dequeue_virus(datum/disease2/disease/circuit)
 	var/i = 1

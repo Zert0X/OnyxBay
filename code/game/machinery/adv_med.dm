@@ -452,8 +452,8 @@
 		var/stage = 1
 		for(var/ID in H.virus2)
 			var/datum/disease2/disease/D = H.virus2[ID]
-			if(D.stage > stage)
-				stage = D.stage
+			if(D.get_current_stage() > stage)
+				stage = D.get_current_stage()
 		data["warnings"] += list("Viral pathogen on stage [stage] of its life cycle detected in blood stream.")
 
 		if(H.antibodies.len)
@@ -607,8 +607,8 @@
 		var/stage = 1
 		for(var/ID in H.virus2)
 			var/datum/disease2/disease/D = H.virus2[ID]
-			if(D.stage > stage)
-				stage = D.stage
+			if(D.get_current_stage() > stage)
+				stage = D.get_current_stage()
 		dat += "<font color='red'>Viral pathogen on stage [stage] of its life cycle detected in blood stream.</font>"
 		if(H.antibodies.len)
 			dat += "Antibodies detected: [antigens2string(H.antibodies)]"

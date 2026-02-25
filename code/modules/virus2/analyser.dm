@@ -70,7 +70,8 @@
 			tropism = "Respiratory"
 		else if(findtext(lowertext(V.transmission_mode_to_text()), "blood"))
 			tropism = "Hematologic"
-		var/vulnerability = V.antigen && length(V.antigen) ? "Antigen docking" : "Broad epithelial inhibitors"
+		var/list/antigen_signature = V.get_antigen_signature()
+		var/vulnerability = antigen_signature && length(antigen_signature) ? "Antigen docking" : "Broad epithelial inhibitors"
 		var/suppressor = V.infectionchance >= 60 ? "Aggressive antiviral suppressor" : "Standard antiviral suppressor"
 		rapid_assay = list(
 			"eta" = "2-3 minutes",

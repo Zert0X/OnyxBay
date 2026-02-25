@@ -6,19 +6,25 @@
 		// spawn or admin privileges to see info about viruses
 		if(!check_rights(R_ADMIN|R_SPAWN)) return
 
-		to_chat(usr, "Infection chance: [infectionchance]; Speed: [speed]; Spread type: [spreadtype]")
+		to_chat(usr, "Infection chance: [infectionchance]; Speed: [speed]; Spread type: [get_transmission_descriptor()]")
 		to_chat(usr, "Affected species: [english_list(affected_species)]")
 		to_chat(usr, "Effects:")
-		for(var/datum/disease2/effect/E in effects)
-			to_chat(usr, "[E.stage]: [E.name]; chance=[E.chance]; multiplier=[E.multiplier]")
-		to_chat(usr, "Antigens: [antigens2string(antigen)]")
+		for(var/list/effect_dto in get_effect_dtos())
+			var/effect_stage = effect_dto["stage"]
+			var/effect_name = effect_dto["name"]
+			var/effect_chance = effect_dto["chance"]
+			var/effect_multiplier = effect_dto["multiplier"]
+			to_chat(usr, "[effect_stage]: [effect_name]; chance=[effect_chance]; multiplier=[effect_multiplier]")
+		to_chat(usr, "Antigens: [antigens2string(get_antigen_signature())]")
 
 		return 1
 
 /datum/disease2/disease/get_view_variables_header()
 	. = list()
-	for(var/datum/disease2/effect/E in effects)
-		. += "[E.stage]: [E.name]"
+	for(var/list/effect_dto in get_effect_dtos())
+		var/effect_stage = effect_dto["stage"]
+		var/effect_name = effect_dto["name"]
+		. += "[effect_stage]: [effect_name]"
 	return {"
 		<b>[name()]</b><br><font size=1>
 		[jointext(., "<br>")]</font>

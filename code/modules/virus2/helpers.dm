@@ -1,5 +1,162 @@
 #define VIRUS_THRESHOLD 10
 
+/datum/pathogen_runtime
+	proc/queue(datum/disease2/disease/circuit, immediate = TRUE)
+		if(!istype(circuit))
+			return
+		SSvirus.queue_runtime(circuit, immediate)
+
+	proc/infect(mob/living/carbon/M, datum/disease2/disease/disease, forced = 0)
+		if(!istype(disease))
+			return
+		if(!istype(M))
+			return
+		if((M.status_flags & GODMODE) || (isundead(M)))
+			return
+		if("[disease.uniqueID]" in M.virus2)
+			return
+		if(length(M.virus2) > VIRUS_THRESHOLD)
+			return
+		// if one of the antibodies in the mob's body matches one of the disease's antigens, don't infect
+		if(antibodies_match_signature(M.antibodies, disease.get_antigen_signature()))
+			return
+		if(prob(100 * M.reagents.get_reagent_amount(/datum/reagent/spaceacillin) / (REAGENTS_OVERDOSE/2)))
+			return
+
+		if(!disease.affected_species.len)
+			return
+
+		if (!(M.species?.name in disease.affected_species))
+			if (forced)
+				disease.affected_species[1] = M.species.name
+			else
+				return //not compatible with this species
+
+		var/datum/pathogen_strain/strain = disease.strain
+		if(!strain)
+			strain = new
+			disease.strain = strain
+		if(!disease.transmission_mode)
+			disease.transmission_mode = strain.TransmissionMode ? strain.TransmissionMode.Copy() : list("contact" = 1)
+
+		var/channel_exposure = 0
+		for(var/channel in disease.transmission_mode)
+			var/weight = disease.get_transmission_weight(channel)
+			if(weight <= 0)
+				continue
+			channel_exposure += infection_chance(M, channel) * weight
+
+		channel_exposure = min(channel_exposure, 100)
+		var/strain_modifier = strain.Infectivity * (0.5 + 0.5 * strain.Shedding)
+		var/mob_infection_prob = clamp(channel_exposure * M.immunity_weakness() * strain_modifier, 0, 100)
+		if(forced || (prob(disease.infectionchance) && prob(mob_infection_prob)))
+			var/datum/disease2/disease/D = disease.getcopy()
+			D.minormutate()
+			D.update_disease()
+			D.infected = M
+			M.virus2["[D.uniqueID]"] = D
+			BITSET(M.hud_updateflag, STATUS_HUD)
+
+
+	proc/handle_mob(mob/living/carbon/host)
+		if(!istype(host))
+			return
+
+		if(host.bodytemperature > 406)
+			for(var/ID in host.virus2)
+				var/datum/disease2/disease/V = host.virus2[ID]
+				V.cure()
+
+		if(host.life_tick % 3)
+			for(var/obj/effect/decal/cleanable/O in view(1, host))
+				if(istype(O, /obj/effect/decal/cleanable/blood))
+					var/obj/effect/decal/cleanable/blood/B = O
+					if(isnull(B.virus2))
+						B.virus2 = list()
+					if(B.virus2.len)
+						for(var/ID in B.virus2)
+							var/datum/disease2/disease/V = B.virus2[ID]
+							if(V && V.supports_transmission_channel("blood"))
+								infect(host, V)
+
+				else if(istype(O, /obj/effect/decal/cleanable/mucus))
+					var/obj/effect/decal/cleanable/mucus/M = O
+					if(M.dried && M.loc != host.loc)
+						continue
+					if(isnull(M.virus2))
+						M.virus2 = list()
+					if(M.virus2.len)
+						for(var/ID in M.virus2)
+							var/datum/disease2/disease/V = M.virus2[ID]
+							if(V && V.supports_transmission_channel("airborne"))
+								infect(host, V)
+
+		if(host.has_active_viruses())
+			for(var/ID in host.virus2)
+				var/datum/disease2/disease/V = host.virus2[ID]
+				if(QDELETED(V))
+					util_crash_with("virus2 [ID] (in [host]) was nulled before calling activate()")
+					host.virus2.Remove(ID)
+					continue
+				else
+					queue(V, TRUE)
+				if(!V)
+					continue
+				if(antibodies_match_signature(host.antibodies, V.get_antigen_signature()))
+					V.dead = 1
+
+		host.immunity = min(host.immunity + 0.25, host.immunity_norm)
+
+		if(host.life_tick % 5 && host.immunity < 15 && host.chem_effects[CE_ANTIVIRAL] < VIRUS_COMMON && !host.has_active_viruses())
+			var/infection_prob = 15 - host.immunity
+			var/turf/simulated/T = host.loc
+			if(istype(T))
+				infection_prob += T.dirt
+			if(prob(infection_prob))
+				infect_mob_random_lesser(host)
+
+	proc/spread(mob/living/carbon/source, mob/living/carbon/victim, channel = "airborne")
+		if (source == victim)
+			return "retardation"
+
+		channel = normalize_transmission_channel(channel)
+
+		if (source.has_active_viruses())
+			for (var/ID in source.virus2)
+				var/datum/disease2/disease/V = source.virus2[ID]
+				if(!can_transmit_via(source, victim, V, channel))
+					continue
+				infect(victim, V)
+
+		//contact goes both ways
+		if (victim.has_active_viruses() && channel == "contact" && source.Adjacent(victim))
+			var/nudity = 1
+
+			if (ishuman(victim))
+				var/mob/living/carbon/human/H = victim
+				var/touch_zone = source.zone_sel ? source.zone_sel.selecting : "chest"
+				touch_zone = ran_zone(touch_zone, 80)
+				var/obj/item/organ/external/select_area = H.get_organ(touch_zone)
+				if(!select_area)
+					select_area = H.get_organ(ran_zone())
+
+				if(!select_area)
+					nudity = 0
+				else
+					var/list/clothes = list(H.head, H.wear_mask, H.wear_suit, H.w_uniform, H.gloves, H.shoes)
+					for(var/obj/item/clothing/C in clothes)
+						if(C && istype(C))
+							if(C.body_parts_covered & select_area.body_part)
+								nudity = 0
+			if (nudity)
+				for (var/ID in victim.virus2)
+					var/datum/disease2/disease/V = victim.virus2[ID]
+					if(!can_transmit_via(victim, source, V, "contact"))
+						continue
+					infect(source, V)
+
+var/global/datum/pathogen_runtime/pathogen_runtime = new
+
 /proc/normalize_transmission_channel(channel)
 	if(!istext(channel))
 		return "contact"
@@ -103,55 +260,7 @@
 
 //Attemptes to infect mob M with virus. Set forced to 1 to ignore protective clothnig
 /proc/infect_virus2(mob/living/carbon/M,datum/disease2/disease/disease,forced = 0)
-	if(!istype(disease))
-		return
-	if(!istype(M))
-		return
-	if((M.status_flags & GODMODE) || (isundead(M)))
-		return
-	if("[disease.uniqueID]" in M.virus2)
-		return
-	if(length(M.virus2) > VIRUS_THRESHOLD)
-		return
-	// if one of the antibodies in the mob's body matches one of the disease's antigens, don't infect
-	if(antibodies_match_signature(M.antibodies, disease.antigen))
-		return
-	if(prob(100 * M.reagents.get_reagent_amount(/datum/reagent/spaceacillin) / (REAGENTS_OVERDOSE/2)))
-		return
-
-	if(!disease.affected_species.len)
-		return
-
-	if (!(M.species?.name in disease.affected_species))
-		if (forced)
-			disease.affected_species[1] = M.species.name
-		else
-			return //not compatible with this species
-
-	var/datum/pathogen_strain/strain = disease.strain
-	if(!strain)
-		strain = new
-		disease.strain = strain
-	if(!disease.transmission_mode)
-		disease.transmission_mode = strain.TransmissionMode ? strain.TransmissionMode.Copy() : list("contact" = 1)
-
-	var/channel_exposure = 0
-	for(var/channel in disease.transmission_mode)
-		var/weight = disease.get_transmission_weight(channel)
-		if(weight <= 0)
-			continue
-		channel_exposure += infection_chance(M, channel) * weight
-
-	channel_exposure = min(channel_exposure, 100)
-	var/strain_modifier = strain.Infectivity * (0.5 + 0.5 * strain.Shedding)
-	var/mob_infection_prob = clamp(channel_exposure * M.immunity_weakness() * strain_modifier, 0, 100)
-	if(forced || (prob(disease.infectionchance) && prob(mob_infection_prob)))
-		var/datum/disease2/disease/D = disease.getcopy()
-		D.minormutate()
-		D.update_disease()
-		D.infected = M
-		M.virus2["[D.uniqueID]"] = D
-		BITSET(M.hud_updateflag, STATUS_HUD)
+	pathogen_runtime.infect(M, disease, forced)
 
 //Infects mob M with random lesser disease, if he doesn't have one
 /proc/infect_mob_random_lesser(mob/living/carbon/M)
@@ -180,48 +289,6 @@
 	return TRUE
 
 /mob/living/carbon/proc/spread_disease_to(mob/living/carbon/victim, channel = "airborne")
-	if (src == victim)
-		return "retardation"
-
-	channel = normalize_transmission_channel(channel)
-
-	if (virus2.len > 0)
-		for (var/ID in virus2)
-			var/datum/disease2/disease/V = virus2[ID]
-			if(!can_transmit_via(src, victim, V, channel))
-				continue
-			infect_virus2(victim, V)
-
-	//contact goes both ways
-	if (victim.virus2.len > 0 && channel == "contact" && Adjacent(victim))
-		var/nudity = 1
-
-		if (ishuman(victim))
-			var/mob/living/carbon/human/H = victim
-
-			//Allow for small chance of touching other zones.
-			//This is proc is also used for passive spreading so just because they are targeting
-			//that zone doesn't mean that's necessarily where they will touch.
-			var/touch_zone = zone_sel ? zone_sel.selecting : "chest"
-			touch_zone = ran_zone(touch_zone, 80)
-			var/obj/item/organ/external/select_area = H.get_organ(touch_zone)
-			if(!select_area)
-				//give it one more chance, since this is also called for passive spreading
-				select_area = H.get_organ(ran_zone())
-
-			if(!select_area)
-				nudity = 0 //cant contact a missing body part
-			else
-				var/list/clothes = list(H.head, H.wear_mask, H.wear_suit, H.w_uniform, H.gloves, H.shoes)
-				for(var/obj/item/clothing/C in clothes)
-					if(C && istype(C))
-						if(C.body_parts_covered & select_area.body_part)
-							nudity = 0
-		if (nudity)
-			for (var/ID in victim.virus2)
-				var/datum/disease2/disease/V = victim.virus2[ID]
-				if(!can_transmit_via(victim, src, V, "contact"))
-					continue
-				infect_virus2(src, V)
+	return pathogen_runtime.spread(src, victim, channel)
 
 #undef VIRUS_THRESHOLD

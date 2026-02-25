@@ -407,6 +407,39 @@ var/global/list/virusDB = list()
 	var/symptom_text = symptoms.len ? jointext(symptoms, ", ") : "No active phenotype"
 	return "[name()] ([symptom_text])"
 
+/datum/disease2/disease/proc/get_current_stage()
+	return stage
+
+/datum/disease2/disease/proc/get_antigen_signature()
+	return normalize_antibody_map(antigen)
+
+/datum/disease2/disease/proc/get_effects()
+	return effects.Copy()
+
+/datum/disease2/disease/proc/get_effect_dtos()
+	var/list/effect_dtos = list()
+	for(var/datum/disease2/effect/E in effects)
+		effect_dtos += list(list(
+			"name" = E.name,
+			"stage" = E.stage,
+			"chance" = E.chance,
+			"multiplier" = E.multiplier
+		))
+	return effect_dtos
+
+/datum/disease2/disease/proc/get_transmission_descriptor()
+	return transmission_mode_to_text()
+
+/datum/disease2/disease/proc/to_runtime_dto()
+	return list(
+		"id" = uniqueID,
+		"name" = name(),
+		"stage" = get_current_stage(),
+		"antigen" = get_antigen_signature(),
+		"effects" = get_effect_dtos(),
+		"transmission" = get_transmission_descriptor()
+	)
+
 /datum/disease2/disease/proc/get_info()
 	var/knowledge_label = knowledge ? knowledge.get_level_label() : "Level 0 - Unknown"
 	var/species_text = affected_species && affected_species.len ? jointext(affected_species, ", ") : "Unknown"

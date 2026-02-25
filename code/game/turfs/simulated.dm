@@ -164,7 +164,7 @@
 			B.blood_DNA = list()
 		if(!B.blood_DNA[M.dna.unique_enzymes])
 			B.blood_DNA[M.dna.unique_enzymes] = M.dna.b_type
-			B.virus2 = virus_copylist(M.virus2)
+			B.virus2 = M.get_virus_copies()
 		return
 	blood_splatter(src, M.get_blood(M.vessel), 1)
 

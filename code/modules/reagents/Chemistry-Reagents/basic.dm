@@ -380,7 +380,7 @@
 		for(var/ID in M.virus2)
 			var/datum/disease2/disease/V = M.virus2[ID]
 			if(prob(5))
-				M.antibodies = merge_antibody_maps(M.antibodies, V.antigen)
+				M.antibodies = merge_antibody_maps(M.antibodies, V.get_antigen_signature())
 				if(prob(50))
 					M.radiation += radiation.calc_equivalent_dose(AVERAGE_HUMAN_WEIGHT) * 10 // curing it that way may kill you instead
 					var/absorbed = 0
