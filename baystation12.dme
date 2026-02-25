@@ -3169,6 +3169,7 @@
 #include "code\modules\virus2\antibodyanalyser.dm"
 #include "code\modules\virus2\centrifuge.dm"
 #include "code\modules\virus2\curer.dm"
+#include "code\modules\virus2\pathogen_model.dm"
 #include "code\modules\virus2\disease2.dm"
 #include "code\modules\virus2\diseasesplicer.dm"
 #include "code\modules\virus2\dishincubator.dm"
