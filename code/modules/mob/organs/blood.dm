@@ -31,7 +31,8 @@
 				"blood_type" = dna.b_type,
 				"trace_chem" = null,
 				"virus2" = list(),
-				"antibodies" = list()
+				"antibodies" = list(),
+				"antibody_epitopes" = list()
 			)
 			B.color = B.data["blood_colour"]
 
@@ -168,7 +169,7 @@
 		var/datum/disease2/disease/sniffle = sniffles[ID]
 		infect_virus2(src,sniffle,1)
 	if (injected.data["antibodies"] && prob(5))
-		antibodies |= injected.data["antibodies"]
+		antibodies = merge_antibody_maps(antibodies, injected.data["antibodies"])
 	var/list/chems = list()
 	chems = params2list(injected.data["trace_chem"])
 	for(var/C in chems)

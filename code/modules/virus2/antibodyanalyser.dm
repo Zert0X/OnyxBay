@@ -37,9 +37,9 @@
 
 			else
 				var/list/data = container.reagents.get_data(/datum/reagent/antibodies) //now that we know there are antibody reagents, get the data
-				var/list/given_antibodies = data["antibodies"] //now check what specific antibodies it's holding
+				var/list/given_antibodies = flatten_antibody_map(data["antibodies"]) //now check what specific antibodies it's holding
 				var/list/common_antibodies = known_antibodies & given_antibodies
-				var/list/unknown_antibodies = common_antibodies ^ given_antibodies
+				var/list/unknown_antibodies = given_antibodies - common_antibodies
 				if(unknown_antibodies.len)
 					var/payout = unknown_antibodies.len * 45
 					SSsupply.add_points_from_source(payout, "virology")

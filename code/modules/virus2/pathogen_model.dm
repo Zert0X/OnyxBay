@@ -74,6 +74,7 @@
 	var/list/datum/pathogen_regulator/regulators = list()
 	var/list/phenotype_blueprints = list()
 	var/list/metadata = list()
+	var/list/AntigenicSignature = list()
 
 /datum/pathogen_strain/New()
 	..()
@@ -111,6 +112,7 @@
 		regulator.target_trait = pick("respiratory", "neurological", "digestive", "systemic")
 		regulator.modifier = rand(70, 140) / 100
 		regulators += regulator
+	AntigenicSignature = random_antigenic_signature()
 	recompute_phenotype()
 
 /datum/pathogen_strain/proc/get_trait_signal(target_trait)

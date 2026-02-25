@@ -45,9 +45,7 @@
 				continue
 
 			// check if we're immune
-			var/list/common_antibodies = list()
-			common_antibodies = V.antigen & antibodies
-			if(common_antibodies.len)
+			if(antibodies_match_signature(antibodies, V.antigen))
 				V.dead = 1
 
 	immunity = min(immunity + 0.25, immunity_norm)

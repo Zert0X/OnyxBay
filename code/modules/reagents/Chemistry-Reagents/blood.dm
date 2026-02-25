@@ -25,6 +25,7 @@
 		"dose_chem" = null,
 		"virus2" = list(),
 		"antibodies" = list(),
+		"antibody_epitopes" = list(),
 		"has_oxy" = 1
 	)
 
@@ -39,7 +40,8 @@
 	if (!data["virus2"])
 		data["virus2"] = list()
 	data["virus2"] |= virus_copylist(C.virus2)
-	data["antibodies"] = C.antibodies
+	data["antibodies"] = normalize_antibody_map(C.antibodies)
+	data["antibody_epitopes"] = data["antibodies"] ? data["antibodies"].Copy() : list()
 	data["blood_DNA"] = C.dna.unique_enzymes
 	data["blood_type"] = C.dna.b_type
 	data["species"] = C.species.name
@@ -58,16 +60,14 @@
 	if(!data["virus2"])
 		data["virus2"] = list()
 	data["virus2"] |= newdata["virus2"]
-	if(!data["antibodies"])
-		data["antibodies"] = list()
-	data["antibodies"] |= newdata["antibodies"]
+	data["antibodies"] = merge_antibody_maps(data["antibodies"], newdata["antibodies"])
+	data["antibody_epitopes"] = data["antibodies"] ? data["antibodies"].Copy() : list()
 
 /datum/reagent/antibodies/mix_data(newdata, newamount)
 	if(!islist(newdata))
 		return
-	if(!data["antibodies"])
-		data["antibodies"] = list()
-	data["antibodies"] |= newdata["antibodies"]
+	data["antibodies"] = merge_antibody_maps(data["antibodies"], newdata["antibodies"])
+	data["antibody_epitopes"] = data["antibodies"] ? data["antibodies"].Copy() : list()
 
 /datum/reagent/blood/get_data() // Just in case you have a reagent that handles data differently.
 	var/t = data.Copy()
@@ -131,7 +131,7 @@
 				if(V.supports_transmission_channel("blood") || V.supports_transmission_channel("contact"))
 					infect_virus2(M, V.getcopy())
 	if(data && data["antibodies"])
-		M.antibodies |= data["antibodies"]
+		M.antibodies = merge_antibody_maps(M.antibodies, data["antibodies"])
 
 /datum/reagent/blood/affect_blood(mob/living/carbon/M, alien, removed)
 	M.inject_blood(src, volume)
@@ -146,9 +146,9 @@
 	reagent_state = LIQUID
 	color = "#0050f0"
 
-	data = list("antibodies"=list())
+	data = list("antibodies"=list(), "antibody_epitopes" = list())
 
 /datum/reagent/antibodies/affect_blood(mob/living/carbon/M, alien, removed)
 	if(src.data)
-		M.antibodies |= src.data["antibodies"]
+		M.antibodies = merge_antibody_maps(M.antibodies, src.data["antibodies"])
 	..()

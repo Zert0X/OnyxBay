@@ -181,7 +181,7 @@
 	if(!B)
 		return
 
-	var/list/data = list("antibodies" = B.data["antibodies"])
+	var/list/data = list("antibodies" = normalize_antibody_map(B.data["antibodies"]), "antibody_epitopes" = normalize_antibody_map(B.data["antibodies"]))
 	var/amt = sample.reagents.get_reagent_amount(/datum/reagent/blood)
 	sample.reagents.remove_reagent(/datum/reagent/blood, amt)
 	sample.reagents.add_reagent(/datum/reagent/antibodies, amt, data)

@@ -30,7 +30,7 @@
 
 /datum/disease2/disease/space_migraine/New()
 	. = ..()
-	antigen = list(pick(ALL_ANTIGENS))
+	antigen = random_antigenic_signature()
 	var/datum/disease2/effect/headache/E1 = new()
 	E1.stage = 1
 	E1.chance = 90
@@ -68,7 +68,7 @@
 
 /datum/disease2/disease/retrovirus/New()
 	..()
-	antigen = list(pick(ALL_ANTIGENS))
+	antigen = random_antigenic_signature()
 	var/datum/disease2/effect/sneeze/E1 = new()
 	E1.stage = 1
 	E1.chance = 75
@@ -120,7 +120,7 @@
 
 /datum/disease2/disease/gbs/New()
 	..()
-	antigen = list(pick(ALL_ANTIGENS))
+	antigen = random_antigenic_signature()
 	var/datum/disease2/effect/cough/E1 = new()
 	E1.stage = 1
 	E1.chance = 35
@@ -167,7 +167,7 @@
 
 /datum/disease2/disease/fake_gbs/New()
 	..()
-	antigen = list(pick(ALL_ANTIGENS))
+	antigen = random_antigenic_signature()
 	var/datum/disease2/effect/cough/E1 = new()
 	E1.stage = 1
 	E1.chance = 35
@@ -213,7 +213,7 @@
 
 /datum/disease2/disease/cold9/New()
 	..()
-	antigen = list(pick(ALL_ANTIGENS))
+	antigen = random_antigenic_signature()
 	var/datum/disease2/effect/sneeze/E1 = new()
 	E1.stage = 1
 	E1.chance = 75
@@ -255,7 +255,7 @@
 
 /datum/disease2/disease/nuclear/New()
 	..()
-	antigen = list(pick(ALL_ANTIGENS))
+	antigen = random_antigenic_signature()
 	var/datum/disease2/effect/nuclear/E1 = new()
 	E1.stage = 1
 	E1.chance = 50
@@ -297,7 +297,7 @@
 
 /datum/disease2/disease/flu/New()
 	..()
-	antigen = list(pick(ALL_ANTIGENS))
+	antigen = random_antigenic_signature()
 	var/datum/disease2/effect/sneeze/E1 = new()
 	E1.stage = 1
 	E1.chance = 50
@@ -344,7 +344,7 @@
 
 /datum/disease2/disease/fluspanish/New()
 	..()
-	antigen = list(pick(ALL_ANTIGENS))
+	antigen = random_antigenic_signature()
 	var/datum/disease2/effect/sneeze/E1 = new()
 	E1.stage = 1
 	E1.chance = 50
@@ -390,7 +390,7 @@
 
 /datum/disease2/disease/vulnerability/New()
 	..()
-	antigen = list(pick(ALL_ANTIGENS))
+	antigen = random_antigenic_signature()
 	var/datum/disease2/effect/vulnerability/E1 = new()
 	E1.stage = 1
 	E1.chance = 75
@@ -432,7 +432,7 @@
 
 /datum/disease2/disease/emp/New()
 	..()
-	antigen = list(pick(ALL_ANTIGENS))
+	antigen = random_antigenic_signature()
 	var/datum/disease2/effect/headache/E1 = new()
 	E1.stage = 1
 	E1.chance = 50
@@ -478,7 +478,7 @@
 
 /datum/disease2/disease/xeno/New()
 	..()
-	antigen = list(pick(ALL_ANTIGENS))
+	antigen = random_antigenic_signature()
 	var/datum/disease2/effect/cough/E1 = new()
 	E1.stage = 1
 	E1.chance = 50
@@ -524,7 +524,7 @@
 
 /datum/disease2/disease/hisstarvation/New()
 	..()
-	antigen = list(pick(ALL_ANTIGENS))
+	antigen = random_antigenic_signature()
 	var/datum/disease2/effect/cough/E1 = new()
 	E1.stage = 1
 	E1.chance = 50
@@ -566,7 +566,7 @@
 
 /datum/disease2/disease/musclerace/New()
 	..()
-	antigen = list(pick(ALL_ANTIGENS))
+	antigen = random_antigenic_signature()
 	var/datum/disease2/effect/twitch/E1 = new()
 	E1.stage = 1
 	E1.chance = 50

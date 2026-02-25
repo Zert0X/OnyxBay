@@ -114,8 +114,7 @@
 	if(length(M.virus2) > VIRUS_THRESHOLD)
 		return
 	// if one of the antibodies in the mob's body matches one of the disease's antigens, don't infect
-	var/list/antibodies_in_common = M.antibodies & disease.antigen
-	if(antibodies_in_common.len)
+	if(antibodies_match_signature(M.antibodies, disease.antigen))
 		return
 	if(prob(100 * M.reagents.get_reagent_amount(/datum/reagent/spaceacillin) / (REAGENTS_OVERDOSE/2)))
 		return

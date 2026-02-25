@@ -102,7 +102,7 @@
 		<br />
 		"}
 		f = 1
-		for(var/k in ALL_ANTIGENS)
+		for(var/k in ANTIGENIC_EPITOPES)
 			if(!f) H += " | "
 			else f = 0
 			H += "<a href='?src=\ref[src];what=antigen;toggle=[k]' style='color:[(k in antigens) ? "#006600" : "#ff0000"]'>[k]</a>"
@@ -167,11 +167,11 @@
 			if("antigen")
 				if(href_list["toggle"])
 					var/T = href_list["toggle"]
-					if(length(T) != 1) return
+					if(!(T in ANTIGENIC_EPITOPES)) return
 					if(T in antigens)
 						antigens -= T
 					else
-						antigens |= T
+						antigens[T] = "1"
 				else if(href_list["reset"])
 					antigens = list()
 			if("infectee")
@@ -196,7 +196,7 @@
 				var/datum/disease2/disease/D = new
 				D.infectionchance = infectionchance
 				D.set_legacy_spreadtype(spreadtype)
-				D.antigen = antigens
+				D.antigen = normalize_antibody_map(antigens)
 				D.affected_species = species
 				D.speed = speed
 				for(var/i in 1 to 4)

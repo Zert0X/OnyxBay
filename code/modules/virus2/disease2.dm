@@ -11,7 +11,7 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	var/uniqueID = 0
 	var/list/datum/disease2/effect/effects = list()
 	var/mob/living/carbon/human/infected = null // Someone who will suffer from disease
-	var/antigen = list() // 16 bits describing the antigens, when one bit is set, a cure with that bit can dock here
+	var/list/antigen = list() // Epitope->variant antigenic signature used for immunity docking.
 	var/max_stage = 4
 	var/list/affected_species = list(SPECIES_HUMAN, SPECIES_UNATHI, SPECIES_SKRELL, SPECIES_TAJARA, SPECIES_SWINE)
 	var/datum/pathogen_profile/profile
@@ -33,6 +33,7 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 		makerandom(random_severity)
 	else if(model_managed)
 		strain.initialize_random()
+		antigen = normalize_antibody_map(strain.AntigenicSignature)
 		transmission_mode = strain.TransmissionMode ? strain.TransmissionMode.Copy() : transmission_mode
 		spreadtype = derive_legacy_spreadtype()
 		rebuild_effects_from_strain()
@@ -42,6 +43,8 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	if(model_managed)
 		strain.strain_id = uniqueID
 		strain.recompute_phenotype()
+		if(strain.AntigenicSignature)
+			antigen = normalize_antibody_map(strain.AntigenicSignature)
 		if(strain.TransmissionMode)
 			transmission_mode = strain.TransmissionMode.Copy()
 		spreadtype = derive_legacy_spreadtype()
@@ -59,9 +62,8 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 				effects_sorted.Add(D)
 
 	effects = effects_sorted
-	if(!antigen)
-		antigen = list(pick(ALL_ANTIGENS))
-		antigen |= pick(ALL_ANTIGENS)
+	if(!antigen || !antigen.len)
+		antigen = random_antigenic_signature()
 
 	if(infected) //if virus mutated inside human, update his virus2
 		for(var/ID in infected.virus2)
@@ -86,8 +88,9 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 		else
 			infectionchance = rand(60, 90)
 
-	antigen = list(pick(ALL_ANTIGENS))
-	antigen |= pick(ALL_ANTIGENS)
+	antigen = random_antigenic_signature()
+	if(model_managed && strain)
+		strain.AntigenicSignature = normalize_antibody_map(antigen)
 	if(prob(70))
 		set_legacy_spreadtype("Airborne")
 	else
@@ -228,7 +231,7 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 		e.deactivate(infected)
 	infected.virus2.Remove("[uniqueID]")
 	if(antigen)
-		infected.antibodies |= antigen
+		infected.antibodies = merge_antibody_maps(infected.antibodies, antigen)
 
 	BITSET(infected.hud_updateflag, STATUS_HUD)
 
@@ -274,8 +277,8 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	if(model_managed && strain)
 		strain.mutate_major()
 		if(prob(5))
-			antigen = list(pick(ALL_ANTIGENS))
-			antigen |= pick(ALL_ANTIGENS)
+			antigen = random_antigenic_signature()
+			strain.AntigenicSignature = normalize_antibody_map(antigen)
 		if(prob(5) && all_species.len)
 			affected_species = get_infectable_species()
 		update_disease()
@@ -295,8 +298,7 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	effects += get_random_virus2_effect(effect_stage, badness, exclude)
 
 	if(prob(5))
-		antigen = list(pick(ALL_ANTIGENS))
-		antigen |= pick(ALL_ANTIGENS)
+		antigen = random_antigenic_signature()
 
 	if(prob(5) && all_species.len)
 		affected_species = get_infectable_species()
@@ -325,7 +327,7 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 	disease.spreadtype = spreadtype
 	disease.transmission_mode = transmission_mode.Copy()
 	disease.speed = speed
-	disease.antigen   = antigen
+	disease.antigen = normalize_antibody_map(antigen)
 	disease.uniqueID = uniqueID
 	disease.model_managed = model_managed
 	disease.affected_species = affected_species.Copy()
@@ -355,6 +357,7 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 		disease.strain.MutationRate = strain.MutationRate
 		disease.strain.Recombination = strain.Recombination
 		disease.strain.TransmissionMode = strain.TransmissionMode ? strain.TransmissionMode.Copy() : list()
+		disease.strain.AntigenicSignature = normalize_antibody_map(strain.AntigenicSignature)
 		disease.strain.recompute_phenotype()
 	for(var/datum/disease2/effect/effect in effects)
 		var/datum/disease2/effect/neweffect = new effect.type
@@ -378,7 +381,7 @@ LEGACY_RECORD_STRUCTURE(virus_records, virus_record)
 		if(!(d.type in types))
 			return 0
 
-	if(antigen != disease.antigen)
+	if(antigenic_signature_to_string(antigen, none = "") != antigenic_signature_to_string(disease.antigen, none = ""))
 		return 0
 
 /proc/virus_copylist(list/datum/disease2/disease/viruses)
