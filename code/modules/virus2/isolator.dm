@@ -71,9 +71,72 @@
 
 /obj/machinery/disease2/isolator/attack_hand(mob/user)
 	if(stat & (NOPOWER|BROKEN)) return
-	ui_interact(user)
+	tgui_interact(user)
+
+/obj/machinery/disease2/isolator/tgui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "Disease2Console", name)
+		ui.open()
+		ui.set_autoupdate(TRUE)
+
+/obj/machinery/disease2/isolator/tgui_data(mob/user)
+	var/list/pathogen_pool = list()
+	if(sample)
+		for(var/datum/reagent/blood/B in sample.reagents.reagent_list)
+			var/list/virus = B.data["virus2"]
+			for (var/ID in virus)
+				var/datum/disease2/disease/V = virus[ID]
+				pathogen_pool += list(list(
+					"name" = V.name(),
+					"spreadType" = V.transmission_mode_to_text(),
+					"reference" = "\ref[V]"
+				))
+	var/list/data = list(
+		"machineType" = "isolator",
+		"screen" = "sample_intake",
+		"syringeInserted" = !!sample,
+		"isolating" = isolating,
+		"pathogenPool" = length(pathogen_pool) ? pathogen_pool : null,
+		"databaseCount" = length(virusDB),
+		"state" = state,
+		"entryName" = entry ? entry.fields["name"] : null,
+		"entryDescription" = entry ? replacetext(entry.fields["description"], "\n", "") : null
+	)
+	return data
+
+/obj/machinery/disease2/isolator/tgui_act(action, params)
+	. = ..()
+	if(.) return
+	switch(action)
+		if("home")
+			state = HOME
+		if("list")
+			state = LIST
+		if("entry")
+			if (istype(locate(params["record"]), /datum/computer_file/data/virus_record))
+				entry = locate(params["record"])
+			state = ENTRY
+		if("print")
+			print(usr)
+		if("isolate")
+			if(sample)
+				var/datum/disease2/disease/V = locate(params["reference"])
+				if(V)
+					virus2 = V
+					isolating = 20
+					update_icon()
+		if("eject")
+			if(sample)
+				sample.dropInto(loc)
+				sample = null
+				update_icon()
+	tgui_update()
+	return TRUE
 
 /obj/machinery/disease2/isolator/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1)
+	return tgui_interact(user)
+
 	user.set_machine(src)
 
 	var/data[0]

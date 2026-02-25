@@ -48,6 +48,55 @@
 	dish = O
 	user.visible_message("[user] adds \a [O] to \the [src]!", "You add \a [O] to \the [src]!")
 
+
+/obj/machinery/disease2/diseaseanalyser/attack_hand(mob/user)
+	if(stat & (NOPOWER|BROKEN))
+		return
+	tgui_interact(user)
+
+/obj/machinery/disease2/diseaseanalyser/tgui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "Disease2Console", name)
+		ui.open()
+		ui.set_autoupdate(TRUE)
+
+/obj/machinery/disease2/diseaseanalyser/tgui_data(mob/user)
+	var/list/rapid_assay = null
+	if(dish && dish.virus2)
+		var/datum/disease2/disease/V = dish.virus2
+		var/tropism = "Systemic"
+		if(findtext(lowertext(V.transmission_mode_to_text()), "air"))
+			tropism = "Respiratory"
+		else if(findtext(lowertext(V.transmission_mode_to_text()), "blood"))
+			tropism = "Hematologic"
+		var/vulnerability = V.antigen && length(V.antigen) ? "Antigen docking" : "Broad epithelial inhibitors"
+		var/suppressor = V.infectionchance >= 60 ? "Aggressive antiviral suppressor" : "Standard antiviral suppressor"
+		rapid_assay = list(
+			"eta" = "2-3 minutes",
+			"tropism" = tropism,
+			"vulnerabilityClass" = vulnerability,
+			"suppressor" = suppressor
+		)
+	return list(
+		"machineType" = "analyser",
+		"screen" = "rapid_assay",
+		"dishInserted" = !!dish,
+		"scanning" = scanning,
+		"growth" = dish ? dish.growth : 0,
+		"rapidAssay" = rapid_assay
+	)
+
+/obj/machinery/disease2/diseaseanalyser/tgui_act(action, params)
+	. = ..()
+	if(.)
+		return
+	if(action == "eject" && dish && !scanning)
+		dish.dropInto(loc)
+		dish = null
+	tgui_update()
+	return TRUE
+
 /obj/machinery/disease2/diseaseanalyser/Process()
 	if(stat & (NOPOWER|BROKEN))
 		return

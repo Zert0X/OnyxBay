@@ -62,9 +62,11 @@
 
 /obj/machinery/computer/diseasesplicer/attack_hand(mob/user)
 	if(..()) return
-	ui_interact(user)
+	tgui_interact(user)
 
 /obj/machinery/computer/diseasesplicer/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1)
+	return tgui_interact(user)
+
 	user.set_machine(src)
 
 	var/data[0]
@@ -227,3 +229,87 @@
 	if(href_list["disk"])
 		burning = 10
 		return TOPIC_REFRESH
+
+
+/obj/machinery/computer/diseasesplicer/tgui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "Disease2Console", name)
+		ui.open()
+		ui.set_autoupdate(TRUE)
+
+/obj/machinery/computer/diseasesplicer/tgui_data(mob/user)
+	var/list/effects = list()
+	if(dish && dish.virus2 && dish.growth >= 50)
+		for (var/datum/disease2/effect/e in dish.virus2.effects)
+			effects.Add(list(list("name" = (dish.analysed ? e.name : "Unknown"), "stage" = e.stage, "reference" = "\ref[e]")))
+	var/list/data = list(
+		"machineType" = "splicer",
+		"screen" = "mutation_planner",
+		"dishInserted" = !!dish,
+		"growth" = dish ? min(dish.growth, 100) : 0,
+		"busy" = splicing ? "Splicing..." : (scanning ? "Scanning..." : (burning ? "Copying data to disk..." : null)),
+		"bufferName" = memorybank ? (analysed ? memorybank.name : "Unknown Symptom") : null,
+		"bufferStage" = memorybank ? memorybank.stage : null,
+		"speciesBuffer" = species_buffer ? (analysed ? jointext(species_buffer, ", ") : "Unknown Species") : null,
+		"effects" = length(effects) ? effects : null
+	)
+	return data
+
+/obj/machinery/computer/diseasesplicer/tgui_act(action, params)
+	. = ..()
+	if(.) return
+	switch(action)
+		if("grab")
+			if(dish)
+				memorybank = locate(params["reference"])
+				species_buffer = null
+				analysed = dish.analysed
+				dish = null
+				scanning = 10
+		if("species")
+			if(dish)
+				memorybank = null
+				species_buffer = dish.virus2.affected_species
+				analysed = dish.analysed
+				dish = null
+				scanning = 10
+		if("eject")
+			if(dish)
+				dish.dropInto(loc)
+				dish = null
+		if("splice")
+			if(dish)
+				var/target = text2num(params["target"])
+				if(memorybank && target > 0)
+					if(target < memorybank.stage)
+						return TRUE
+					var/datum/disease2/effect/target_effect
+					var/list/illegal_types = list()
+					var/datum/disease2/effect/neweffect = new memorybank.type
+					neweffect.generate(memorybank.data)
+					neweffect.chance = memorybank.chance
+					neweffect.multiplier = memorybank.multiplier
+					neweffect.stage = target
+					for(var/datum/disease2/effect/e in dish.virus2.effects)
+						if(e.stage == target)
+							target_effect = e
+						if(!e.allow_multiple)
+							illegal_types += e.type
+					if(neweffect.type in illegal_types)
+						to_chat(usr, "<span class='warning'>Virus DNA can't hold more than one [memorybank]</span>")
+						return TRUE
+					dish.virus2.effects -= target_effect
+					dish.virus2.effects += neweffect
+					dish.virus2.update_disease()
+					qdel(target_effect)
+				else if(species_buffer && target == -1)
+					dish.virus2.affected_species = species_buffer
+				else
+					return TRUE
+				splicing = 10
+				dish.virus2.uniqueID = rand(0,10000)
+		if("disk")
+			burning = 10
+	tgui_update()
+	return TRUE

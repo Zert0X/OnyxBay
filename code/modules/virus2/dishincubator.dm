@@ -69,9 +69,98 @@
 
 /obj/machinery/disease2/incubator/attack_hand(mob/user)
 	if(stat & (NOPOWER|BROKEN)) return
-	ui_interact(user)
+	tgui_interact(user)
+
+/obj/machinery/disease2/incubator/tgui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "Disease2Console", name)
+		ui.open()
+		ui.set_autoupdate(TRUE)
+
+/obj/machinery/disease2/incubator/tgui_data(mob/user)
+	var/list/data = list(
+		"machineType" = "incubator",
+		"screen" = "culture_workbench",
+		"dishInserted" = !!dish,
+		"chemicalsInserted" = !!beaker,
+		"growth" = dish ? min(dish.growth, 100) : 0,
+		"infectionRate" = dish && dish.virus2 ? dish.virus2.infectionchance * 10 : 0,
+		"foodSupply" = foodsupply,
+		"radiation" = radiation,
+		"mutagen" = min(mutagen, 100),
+		"toxins" = min(toxins, 100),
+		"maxFoodStorage" = max_food_storage,
+		"systemInUse" = foodsupply > 0 || radiation > 0 || toxins > 0 || mutagen > 0,
+		"powerOn" = on,
+		"pressureAxes" = list(
+			list("id" = "medium", "label" = "?????", "value" = foodsupply, "min" = 0, "max" = max_food_storage),
+			list("id" = "stressors", "label" = "?????????", "value" = toxins, "min" = 0, "max" = 100),
+			list("id" = "immune", "label" = "???????? ????????", "value" = radiation, "min" = 0, "max" = 100),
+			list("id" = "selection", "label" = "??????????? ????", "value" = mutagen, "min" = 0, "max" = 100)
+		),
+		"pressureForecast" = list(
+			"growthRange" = "[max(0, round((dish ? dish.growth : 0) - toxins / 10))]-[min(100, round((dish ? dish.growth : 0) + foodsupply / 8 + radiation / 12))]%",
+			"mutationRange" = "[round(max(1, mutation_prob + mutagen / 25), 0.1)]-[round(max(1.2, mutation_prob + mutagen / 15), 0.1)]x",
+			"stabilityRange" = "[max(0, 100 - round(toxins * 0.7 + mutagen * 0.4))]-[max(0, 100 - round(toxins * 0.3))]%"
+		)
+	)
+	return data
+
+/obj/machinery/disease2/incubator/tgui_act(action, params)
+	. = ..()
+	if(.) return
+	switch(action)
+		if("ejectchem")
+			if(beaker)
+				beaker.dropInto(loc)
+				beaker = null
+		if("power")
+			if(dish)
+				on = !on
+				icon_state = on ? "incubator_on" : "incubator"
+		if("ejectdish")
+			if(dish)
+				dish.dropInto(loc)
+				dish = null
+		if("chem")
+			if(beaker && beaker.reagents)
+				if(beaker.reagents.has_reagent(/datum/reagent/nutriment/virus_food, 5) && foodsupply < max_food_storage)
+					beaker.reagents.remove_reagent(/datum/reagent/nutriment/virus_food, 5)
+					foodsupply = min(max_food_storage, foodsupply + Clamp(max_food_storage - foodsupply, 0, 5))
+				if(beaker.reagents.has_reagent(/datum/reagent/radium, 5) && radiation < max_food_storage)
+					beaker.reagents.remove_reagent(/datum/reagent/radium, 5)
+					radiation = min(100, radiation + Clamp(100 - radiation, 0, 5))
+				if(mutagen < 100)
+					for(var/datum/reagent/mutagen/T in beaker.reagents.reagent_list)
+						if(T.volume >= 5)
+							beaker.reagents.remove_reagent(/datum/reagent/mutagen, 5)
+							mutagen = min(100, mutagen + Clamp(100 - mutagen, 0, 5))
+				if(toxins < 100)
+					for(var/datum/reagent/toxin/T in beaker.reagents.reagent_list)
+						if(T.volume >= 5)
+							beaker.reagents.remove_reagent(T.type, 5)
+							toxins = min(100, toxins + T.strength)
+		if("flush")
+			radiation = 0
+			toxins = 0
+			foodsupply = 0
+			mutagen = 0
+		if("inject")
+			if(dish && beaker)
+				var/datum/reagent/blood/B = locate(/datum/reagent/blood) in beaker.reagents.reagent_list
+				if(B)
+					if (!B.data["virus2"])
+						B.data["virus2"] = list()
+					if(!("[dish.virus2.uniqueID]" in B.data["virus2"]))
+						B.data["virus2"] += list("[dish.virus2.uniqueID]" = dish.virus2.getcopy())
+					ping("\The [src] pings, \"Injection complete.\"")
+	tgui_update()
+	return TRUE
 
 /obj/machinery/disease2/incubator/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1)
+	return tgui_interact(user)
+
 	user.set_machine(src)
 
 	var/data[0]

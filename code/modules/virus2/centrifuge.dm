@@ -59,9 +59,11 @@
 
 /obj/machinery/computer/centrifuge/attack_hand(mob/user)
 	if(..()) return
-	ui_interact(user)
+	tgui_interact(user)
 
 /obj/machinery/computer/centrifuge/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1)
+	return tgui_interact(user)
+
 	user.set_machine(src)
 
 	var/data[0]
@@ -244,3 +246,76 @@
 "}
 
 	state("The nearby computer prints out a pathology report.")
+
+
+/obj/machinery/computer/centrifuge/tgui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "Disease2Console", name)
+		ui.open()
+		ui.set_autoupdate(TRUE)
+
+/obj/machinery/computer/centrifuge/tgui_data(mob/user)
+	var/list/pathogens = list()
+	var/antibodies = null
+	var/is_antibody_sample = FALSE
+	if(sample)
+		var/datum/reagent/blood/B = locate(/datum/reagent/blood) in sample.reagents.reagent_list
+		if (B)
+			antibodies = antigens2string(B.data["antibodies"], none=null)
+			var/list/virus = B.data["virus2"]
+			for (var/ID in virus)
+				var/datum/disease2/disease/V = virus[ID]
+				pathogens.Add(list(list("name" = V.name(), "spreadType" = V.transmission_mode_to_text(), "reference" = "\ref[V]")))
+		else
+			var/datum/reagent/antibodies/A = locate(/datum/reagent/antibodies) in sample.reagents.reagent_list
+			if(A)
+				antibodies = antigens2string(A.data["antibodies"], none=null)
+			is_antibody_sample = TRUE
+	var/list/data = list(
+		"machineType" = "centrifuge",
+		"screen" = "treatment_builder",
+		"sampleInserted" = !!sample,
+		"busy" = curing ? "Isolating antibodies..." : (isolating ? "Isolating pathogens..." : null),
+		"antibodies" = antibodies,
+		"pathogens" = length(pathogens) ? pathogens : null,
+		"isAntibodySample" = is_antibody_sample
+	)
+	return data
+
+/obj/machinery/computer/centrifuge/tgui_act(action, params)
+	. = ..()
+	if(.) return
+	switch(action)
+		if("print")
+			print(usr)
+		if("isolate")
+			if(sample)
+				var/datum/reagent/blood/B = locate(/datum/reagent/blood) in sample.reagents.reagent_list
+				if(B)
+					var/datum/disease2/disease/virus = locate(params["reference"])
+					if(virus)
+						virus2 = virus.getcopy()
+						isolating = 40
+						update_icon()
+		if("antibody")
+			if(sample)
+				var/delay = 20
+				var/datum/reagent/blood/B = locate(/datum/reagent/blood) in sample.reagents.reagent_list
+				if (!B)
+					state("\The [src] buzzes, \"No antibody carrier detected.\"", "blue")
+				else
+					var/has_toxins = locate(/datum/reagent/toxin) in sample.reagents.reagent_list
+					var/has_radium = sample.reagents.has_reagent(/datum/reagent/radium)
+					if (has_toxins || has_radium)
+						if (has_toxins) delay = delay/2
+						if (has_radium) delay = delay/2
+					curing = round(delay)
+					playsound(src.loc, 'sound/machines/juicer.ogg', 50, 1)
+					update_icon()
+		if("sample")
+			if(sample)
+				sample.dropInto(loc)
+				sample = null
+	tgui_update()
+	return TRUE
