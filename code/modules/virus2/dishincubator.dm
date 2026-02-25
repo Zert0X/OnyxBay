@@ -25,10 +25,42 @@
 
 	var/speed = 1
 	var/mutation_prob = 1
+	var/cmo_launch_confirmed = FALSE
+	var/rd_launch_confirmed = FALSE
 
 /obj/machinery/disease2/incubator/Initialize()
 	. = ..()
 	RefreshParts()
+
+/obj/machinery/disease2/incubator/proc/reset_launch_confirmations()
+	cmo_launch_confirmed = FALSE
+	rd_launch_confirmed = FALSE
+
+/obj/machinery/disease2/incubator/proc/risk_profiles()
+	var/list/profiles = list()
+	if(foodsupply > 50)
+		profiles += list(list(
+			"id" = "infectivity_surge",
+			"label" = "Infectivity Surge",
+			"riskType" = "contagiousness",
+			"dangerous" = TRUE,
+			"details" = "Nutrient pressure above 50 can amplify transmission potential."
+		))
+	if(radiation > 50 || mutagen > 50)
+		profiles += list(list(
+			"id" = "lethality_drift",
+			"label" = "Lethality Drift",
+			"riskType" = "lethality",
+			"dangerous" = TRUE,
+			"details" = "Radiation/mutagen pressure above 50 can generate severe symptom mutations."
+		))
+	return profiles
+
+/obj/machinery/disease2/incubator/proc/requires_role_confirmation()
+	return length(risk_profiles()) > 0
+
+/obj/machinery/disease2/incubator/proc/has_required_launch_confirmations()
+	return cmo_launch_confirmed && rd_launch_confirmed
 
 /obj/machinery/disease2/incubator/attackby(obj/O, mob/user)
 	if(istype(O, /obj/item/reagent_containers/vessel/beaker) || istype(O, /obj/item/reagent_containers/vessel/bottle/chemical) || istype(O,/obj/item/reagent_containers/syringe))
@@ -103,7 +135,11 @@
 			"growthRange" = "[max(0, round((dish ? dish.growth : 0) - toxins / 10))]-[min(100, round((dish ? dish.growth : 0) + foodsupply / 8 + radiation / 12))]%",
 			"mutationRange" = "[round(max(1, mutation_prob + mutagen / 25), 0.1)]-[round(max(1.2, mutation_prob + mutagen / 15), 0.1)]x",
 			"stabilityRange" = "[max(0, 100 - round(toxins * 0.7 + mutagen * 0.4))]-[max(0, 100 - round(toxins * 0.3))]%"
-		)
+		),
+		"riskProfiles" = risk_profiles(),
+		"requiresRoleConfirmation" = requires_role_confirmation(),
+		"cmoConfirmed" = cmo_launch_confirmed,
+		"rdConfirmed" = rd_launch_confirmed
 	)
 	return data
 
@@ -117,14 +153,23 @@
 				beaker = null
 		if("power")
 			if(dish)
-				on = !on
-				icon_state = on ? "incubator_on" : "incubator"
+				if(on)
+					on = FALSE
+					icon_state = "incubator"
+					reset_launch_confirmations()
+				else if(requires_role_confirmation() && !has_required_launch_confirmations())
+					to_chat(usr, SPAN_WARNING("High-risk mutation profile detected. Launch requires CMO and RD confirmations."))
+				else
+					on = TRUE
+					icon_state = "incubator_on"
 		if("ejectdish")
 			if(dish)
 				dish.dropInto(loc)
 				dish = null
+				reset_launch_confirmations()
 		if("chem")
 			if(beaker && beaker.reagents)
+				var/previous_risky_state = requires_role_confirmation()
 				if(beaker.reagents.has_reagent(/datum/reagent/nutriment/virus_food, 5) && foodsupply < max_food_storage)
 					beaker.reagents.remove_reagent(/datum/reagent/nutriment/virus_food, 5)
 					foodsupply = min(max_food_storage, foodsupply + Clamp(max_food_storage - foodsupply, 0, 5))
@@ -141,11 +186,27 @@
 						if(T.volume >= 5)
 							beaker.reagents.remove_reagent(T.type, 5)
 							toxins = min(100, toxins + T.strength)
+				if(previous_risky_state != requires_role_confirmation())
+					reset_launch_confirmations()
 		if("flush")
 			radiation = 0
 			toxins = 0
 			foodsupply = 0
 			mutagen = 0
+			reset_launch_confirmations()
+		if("confirm_risk")
+			var/list/user_access = usr ? usr.GetAccess() : list()
+			switch(params["role"])
+				if("cmo")
+					if(access_cmo in user_access)
+						cmo_launch_confirmed = TRUE
+					else
+						to_chat(usr, SPAN_WARNING("CMO authorization required."))
+				if("rd")
+					if(access_rd in user_access)
+						rd_launch_confirmed = TRUE
+					else
+						to_chat(usr, SPAN_WARNING("RD authorization required."))
 		if("inject")
 			if(dish && beaker)
 				var/datum/reagent/blood/B = locate(/datum/reagent/blood) in beaker.reagents.reagent_list
@@ -300,19 +361,28 @@
 
 	if (href_list["power"])
 		if (dish)
-			on = !on
-			icon_state = on ? "incubator_on" : "incubator"
+			if(on)
+				on = FALSE
+				icon_state = "incubator"
+				reset_launch_confirmations()
+			else if(requires_role_confirmation() && !has_required_launch_confirmations())
+				to_chat(user, SPAN_WARNING("High-risk mutation profile detected. Launch requires CMO and RD confirmations."))
+			else
+				on = TRUE
+				icon_state = "incubator_on"
 		return TOPIC_REFRESH
 
 	if (href_list["ejectdish"])
 		if(dish)
 			dish.dropInto(loc)
 			dish = null
+			reset_launch_confirmations()
 		return TOPIC_REFRESH
 
 	if (href_list["chem"])
 		if(!beaker.reagents)
 			return TOPIC_REFRESH
+		var/previous_risky_state = requires_role_confirmation()
 		if(beaker.reagents.has_reagent(/datum/reagent/nutriment/virus_food, 5) && foodsupply < max_food_storage)
 			beaker.reagents.remove_reagent(/datum/reagent/nutriment/virus_food, 5)
 			foodsupply = min(max_food_storage, foodsupply + Clamp(max_food_storage - foodsupply, 0, 5))
@@ -329,6 +399,8 @@
 				if(T.volume >= 5)
 					beaker.reagents.remove_reagent(T.type, 5)
 					toxins = min(100, toxins + T.strength)
+		if(previous_risky_state != requires_role_confirmation())
+			reset_launch_confirmations()
 		return TOPIC_REFRESH
 
 	if (href_list["flush"])
@@ -336,6 +408,7 @@
 		toxins = 0
 		foodsupply = 0
 		mutagen = 0
+		reset_launch_confirmations()
 		return TOPIC_REFRESH
 
 	if(href_list["virus"])

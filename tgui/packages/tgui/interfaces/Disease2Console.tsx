@@ -27,6 +27,10 @@ export const Disease2Console = (_props, context) => {
     pressureAxes,
     pressureForecast,
     pathways,
+    riskProfiles,
+    requiresRoleConfirmation,
+    cmoConfirmed,
+    rdConfirmed,
     pathogens,
     pathogenPool,
     antibodies,
@@ -98,13 +102,46 @@ export const Disease2Console = (_props, context) => {
           <Button onClick={() => act('chem')}>Load Chemicals</Button>
           <Button onClick={() => act('power')}>{powerOn ? 'Stop' : 'Start'} Run</Button>
           <Button onClick={() => act('flush')}>Flush</Button>
+          {!!requiresRoleConfirmation && !powerOn && (
+            <NoticeBox warning mt={1}>
+              High-risk profile detected. Launch is blocked until both CMO and RD confirm.
+            </NoticeBox>
+          )}
         </Section>
 
         <Section title="Mutation Planner">
           {(effects || []).map((effect, i) => (
             <Box key={i}>{effect.name} / Stage {effect.stage}</Box>
           ))}
-          <Button onClick={() => act('disk')}>Write Disk</Button>
+          {(riskProfiles || pathways || []).map((profile, i) => (
+            <Box key={profile.id || i} mt={0.5}>
+              {profile.label || profile.name}
+              {profile.dangerous ? ' ? HIGH RISK' : ''}
+              {!!profile.riskType && ` (${profile.riskType})`}
+              {!!profile.details && <Box color="label">{profile.details}</Box>}
+            </Box>
+          ))}
+          {!!requiresRoleConfirmation && (
+            <Stack mt={1}>
+              <Stack.Item>
+                <Button
+                  icon={cmoConfirmed ? 'check' : 'id-badge'}
+                  color={cmoConfirmed ? 'good' : undefined}
+                  onClick={() => act('confirm_risk', { role: 'cmo' })}>
+                  CMO {cmoConfirmed ? 'Confirmed' : 'Confirm'}
+                </Button>
+              </Stack.Item>
+              <Stack.Item>
+                <Button
+                  icon={rdConfirmed ? 'check' : 'flask'}
+                  color={rdConfirmed ? 'good' : undefined}
+                  onClick={() => act('confirm_risk', { role: 'rd' })}>
+                  RD {rdConfirmed ? 'Confirmed' : 'Confirm'}
+                </Button>
+              </Stack.Item>
+            </Stack>
+          )}
+          <Button mt={1} onClick={() => act('disk')}>Write Disk</Button>
         </Section>
 
         <Section title="Treatment Builder">
