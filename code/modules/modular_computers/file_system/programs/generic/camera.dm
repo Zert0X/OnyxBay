@@ -38,16 +38,20 @@
 	/// Assoc list with all active temporary maps shown in UI windows.
 	var/list/screen_maps = list()
 
-/atom/movable/screen
-	/// Temporary map id assigned to this screen object.
+/atom/movable
+	/// Temporary map id assigned to this movable map object.
 	var/assigned_map
 	/// Whether object should be qdel'd when map is cleared.
 	var/del_on_map_removal = TRUE
+
+/atom/movable/screen
 
 /atom/movable/screen/map_view
 	name = "map view"
 	layer = DEFAULT_PLANE
 	plane = DEFAULT_PLANE
+	// Keep original planes of vis_contents atoms so renderer chain can compose them.
+	vis_flags = VIS_INHERIT_ID
 
 /atom/movable/screen/background
 	name = "background"
@@ -69,28 +73,52 @@
 	else
 		screen_loc = "[x1],[y1] to [x2],[y2]"
 
-/client/proc/register_map_obj(atom/movable/screen/screen_obj)
-	if(!screen_obj?.assigned_map)
-		CRASH("Can't register [screen_obj] without assigned_map.")
-	if(!screen_maps[screen_obj.assigned_map])
-		screen_maps[screen_obj.assigned_map] = list()
-	var/list/screen_map = screen_maps[screen_obj.assigned_map]
-	if(!(screen_obj in screen_map))
-		screen_map += screen_obj
-	if(!(screen_obj in screen))
-		screen += screen_obj
+/client/proc/register_map_obj(atom/movable/map_obj)
+	if(!map_obj?.assigned_map)
+		CRASH("Can't register [map_obj] without assigned_map.")
+	if(!screen_maps[map_obj.assigned_map])
+		screen_maps[map_obj.assigned_map] = list()
+	var/list/screen_map = screen_maps[map_obj.assigned_map]
+	if(!(map_obj in screen_map))
+		screen_map += map_obj
+	if(!(map_obj in screen))
+		screen += map_obj
 
 /client/proc/clear_map(map_name)
 	if(!map_name || !(map_name in screen_maps))
 		return FALSE
 	var/list/screen_map = screen_maps[map_name]
-	for(var/atom/movable/screen/screen_obj as anything in screen_map.Copy())
-		screen_map -= screen_obj
-		screen -= screen_obj
-		if(screen_obj.del_on_map_removal)
-			qdel(screen_obj)
+	for(var/atom/movable/map_obj as anything in screen_map.Copy())
+		screen_map -= map_obj
+		screen -= map_obj
+		if(map_obj.del_on_map_removal)
+			qdel(map_obj)
 	screen_maps -= map_name
 	return TRUE
+
+/atom/movable/renderer/camera_lighting
+	name = "CAMERA_LIGHTING"
+	group = RENDER_GROUP_SCENE
+	plane = LIGHTING_PLANE
+	appearance_flags = PLANE_MASTER | NO_CLIENT_COLOR
+	relay_blend_mode = BLEND_MULTIPLY
+	color = list(
+		-1,  0,  0,  0,
+		 0, -1,  0,  0,
+		 0,  0, -1,  0,
+		 0,  0,  0,  0,
+		 1,  1,  1,  1
+	)
+	mouse_opacity = MOUSE_OPACITY_UNCLICKABLE
+	render_target_name = LIGHTING_RENDER_TARGET
+
+/atom/movable/renderer/camera_lighting/Initialize(mapload, mob/owner)
+	. = ..()
+	filters += filter(
+		type = "alpha",
+		render_source = EMISSIVE_TARGET,
+		flags = MASK_INVERSE
+	)
 
 /client/proc/clear_all_maps()
 	for(var/map_name in screen_maps.Copy())
@@ -124,6 +152,7 @@
 	/// Per-slot map refs and screen objects for camera viewport rendering.
 	var/list/map_refs = list(null, null, null, null, null, null)
 	var/list/cam_screens = list(null, null, null, null, null, null)
+	var/list/cam_renderers = list(null, null, null, null, null, null)
 	var/list/cam_backgrounds = list(null, null, null, null, null, null)
 	var/list/last_camera_refs = list(null, null, null, null, null, null)
 	var/list/last_camera_turfs = list(null, null, null, null, null, null)
@@ -137,6 +166,7 @@
 	multi_slots = list(null, null, null, null, null, null)
 	map_refs = list(null, null, null, null, null, null)
 	cam_screens = list(null, null, null, null, null, null)
+	cam_renderers = list(null, null, null, null, null, null)
 	cam_backgrounds = list(null, null, null, null, null, null)
 	last_camera_refs = list(null, null, null, null, null, null)
 	last_camera_turfs = list(null, null, null, null, null, null)
@@ -159,6 +189,7 @@
 		cam_screen.del_on_map_removal = FALSE
 		cam_screen.set_position(1, 1)
 		cam_screens[i] = cam_screen
+		cam_renderers[i] = create_camera_plane_masters_for_map(map_ref)
 
 		var/atom/movable/screen/background/cam_background = new
 		cam_background.assigned_map = map_ref
@@ -171,12 +202,17 @@
 
 /datum/nano_module/camera_monitor/Destroy()
 	for(var/i = 1, i <= CAMERA_MULTI_SLOT_COUNT, i++)
+		var/list/slot_masters = cam_renderers[i]
+		if(islist(slot_masters))
+			for(var/atom/movable/renderer/renderer as anything in slot_masters)
+				qdel(renderer)
 		qdel(cam_screens[i])
 		qdel(cam_backgrounds[i])
 
 	concurrent_users.Cut()
 	map_refs.Cut()
 	cam_screens.Cut()
+	cam_renderers.Cut()
 	cam_backgrounds.Cut()
 	last_camera_refs.Cut()
 	last_camera_turfs.Cut()
@@ -430,12 +466,18 @@
 		concurrent_users += user_ref
 
 	for(var/i = 1, i <= CAMERA_MULTI_SLOT_COUNT, i++)
-		if(i > length(cam_screens) || i > length(cam_backgrounds))
+		if(i > length(cam_screens) || i > length(cam_renderers) || i > length(cam_backgrounds))
 			continue
 		var/atom/movable/screen/map_view/cam_screen = cam_screens[i]
+		var/list/slot_masters = cam_renderers[i]
 		var/atom/movable/screen/background/cam_background = cam_backgrounds[i]
 		if(cam_screen)
 			user.client.register_map_obj(cam_screen)
+		if(islist(slot_masters))
+			for(var/atom/movable/renderer/renderer as anything in slot_masters)
+				user.client.register_map_obj(renderer)
+				if(renderer.relay)
+					user.client.register_map_obj(renderer.relay)
 		if(cam_background)
 			user.client.register_map_obj(cam_background)
 
@@ -710,12 +752,34 @@
 		map_refs = list(null, null, null, null, null, null)
 	if(length(cam_screens) < CAMERA_MULTI_SLOT_COUNT)
 		cam_screens = list(null, null, null, null, null, null)
+	if(length(cam_renderers) < CAMERA_MULTI_SLOT_COUNT)
+		cam_renderers = list(null, null, null, null, null, null)
 	if(length(cam_backgrounds) < CAMERA_MULTI_SLOT_COUNT)
 		cam_backgrounds = list(null, null, null, null, null, null)
 	if(length(last_camera_refs) < CAMERA_MULTI_SLOT_COUNT)
 		last_camera_refs = list(null, null, null, null, null, null)
 	if(length(last_camera_turfs) < CAMERA_MULTI_SLOT_COUNT)
 		last_camera_turfs = list(null, null, null, null, null, null)
+
+/datum/nano_module/camera_monitor/proc/create_camera_plane_masters_for_map(map_ref)
+	var/list/renderers = list()
+	if(!map_ref)
+		return renderers
+
+	for(var/renderer_type in typesof(/atom/movable/renderer))
+		var/atom/movable/renderer/renderer = new renderer_type
+		renderer.assigned_map = map_ref
+		renderer.del_on_map_removal = FALSE
+		renderer.screen_loc = "[map_ref]:CENTER"
+
+		if(renderer.relay)
+			renderer.relay.assigned_map = map_ref
+			renderer.relay.del_on_map_removal = FALSE
+			renderer.relay.screen_loc = "[map_ref]:CENTER"
+
+		renderers += renderer
+
+	return renderers
 
 /datum/nano_module/camera_monitor/proc/get_holomap_images(list/map_z_levels)
 	var/list/result = list()
