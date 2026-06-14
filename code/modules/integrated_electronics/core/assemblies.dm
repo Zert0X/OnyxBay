@@ -38,7 +38,7 @@
 
 	var/max_integrity = 50
 	pass_flags = 0
-	armor = list("melee" = 50, "bullet" = 70, "laser" = 70, "energy" = 100, "bomb" = 10, "bio" = 100, "rad" = 100, "fire" = 0, "acid" = 0)
+	armor_values = alist("melee" = 50, "bullet" = 70, "laser" = 70, "energy" = 100, "bomb" = 10, "bio" = 100, "rad" = 100, "fire" = 0, "acid" = 0)
 	anchored = FALSE
 	var/can_anchor = TRUE
 	var/detail_color = COLOR_ASSEMBLY_BLACK
@@ -669,7 +669,7 @@
 
 		if("seal")
 			if(!opened)
-				if(!I.use_tool(src, user, amount = 3))
+				if(!I.use_tool(src, user, amount = 30))
 					return
 
 				sealed = TRUE
@@ -682,7 +682,7 @@
 
 		if("unseal")
 			to_chat(user,SPAN_NOTICE("You start unsealing the assembly carefully..."))
-			if(!I.use_tool(src, user, amount = 3))
+			if(!I.use_tool(src, user, amount = 30))
 				return
 
 			for(var/obj/item/integrated_circuit/IC in assembly_components)

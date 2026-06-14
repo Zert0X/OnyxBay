@@ -32,3 +32,12 @@
 	P.pixel_x = pixel_x
 	P.pixel_y = pixel_y
 	..()
+
+/obj/effect/landmark/roundstart/mykola
+	name = "Mykola"
+	icon_state = "landmark_mykola"
+
+/obj/effect/landmark/roundstart/mykola/activate()
+	if(config.misc.meme_content)
+		new /mob/living/simple_animal/pig/mini/mykola(loc)
+	..()

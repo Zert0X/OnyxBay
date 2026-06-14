@@ -25,6 +25,7 @@
 	var/picture_state		// icon_state of alert picture, if not displaying text/numbers
 	var/list/obj/machinery/targets = list()
 	var/timetoset = 0		// Used to set releasetime upon starting the timer
+	var/thinking_display = FALSE
 
 	maptext_height = 26
 	maptext_width = 32
@@ -54,28 +55,45 @@
 // if it's less than 0, open door, reset timer
 // update the door_timer window and the icon
 /obj/machinery/door_timer/Process()
+	if(stat & (NOPOWER|BROKEN))
+		return
 
-	if(stat & (NOPOWER|BROKEN))	return
-	if(src.timing)
+	if(timing)
 
 		// poorly done midnight rollover
 		// (no seriously there's gotta be a better way to do this)
 		var/timeleft = timeleft()
 		if(timeleft > 1e5)
-			src.releasetime = 0
+			releasetime = 0
 
+		if(world.timeofday > releasetime)
+			timer_end(TRUE) // open doors, reset timer, clear status screen
+			timing = 0
+			update_icon()
+			return
 
-		if(world.timeofday > src.releasetime)
-			src.timer_end(TRUE) // open doors, reset timer, clear status screen
-			src.timing = 0
-
-		src.update_icon()
+		if(!thinking_display)
+			thinking_display = TRUE
+			set_next_think(world.time)
 
 	else
 		timer_end()
+		if(thinking_display)
+			thinking_display = FALSE
+			set_next_think(0)
+			update_icon()
 
 	return
 
+/obj/machinery/door_timer/think()
+	if(stat & (NOPOWER|BROKEN))
+		thinking_display = FALSE
+		update_icon()
+		return
+
+	update_icon()
+
+	set_next_think(world.time + 1 SECOND)
 
 // open/closedoor checks if door_timer has power, if so it checks if the
 // linked door is open/closed (by density) then opens it/closes it.
@@ -91,10 +109,14 @@
 	// set timing
 	timing = 1
 
+	if(!thinking_display)
+		thinking_display = TRUE
+		set_next_think(world.time)
+
 	for(var/obj/machinery/door/window/brigdoor/door in targets)
-		if(door.density)	continue
-		spawn(0)
-			door.close()
+		if(door.density)
+			continue
+		INVOKE_ASYNC(door, nameof(/obj/machinery/door/window.proc/close))
 
 	for(var/obj/structure/closet/secure_closet/brig/C in targets)
 		if(C.broken)	continue
@@ -118,9 +140,9 @@
 		broadcast_security_hud_message("The timer for [id] has expired.", src)
 
 	for(var/obj/machinery/door/window/brigdoor/door in targets)
-		if(!door.density)	continue
-		spawn(0)
-			door.open()
+		if(!door.density)
+			continue
+		INVOKE_ASYNC(door, nameof(/obj/machinery/door/window.proc/open), FALSE, FALSE)
 
 	for(var/obj/structure/closet/secure_closet/brig/C in targets)
 		if(C.broken)	continue
@@ -181,7 +203,7 @@
 	if(.)
 		return
 
-	if(!allowed(usr))
+	if(!check_access(usr))
 		to_chat(usr, SPAN("warning", "Access denied."))
 		return
 
@@ -228,21 +250,23 @@
 /obj/machinery/door_timer/on_update_icon()
 	if(stat & (NOPOWER))
 		icon_state = "frame"
+		maptext = ""
 		return
+
 	if(stat & (BROKEN))
 		set_picture("ai_bsod")
+		maptext = ""
 		return
-	if(src.timing)
-		var/disp1 = id
+
+	if(timing)
 		var/timeleft = timeleft()
-		var/disp2 = "[add_zero(num2text((timeleft / 60) % 60),2)]~[add_zero(num2text(timeleft % 60), 2)]"
-		if(length(disp2) > CHARS_PER_LINE)
-			disp2 = "Error"
-		update_display(disp1, disp2)
-	else
-		if(maptext)
-			maptext = ""
-		update_display("Set","Time") // would be nice to have some default printed text
+		var/time_text = "[add_zero(num2text((timeleft / 60) % 60),2)]:[add_zero(num2text(timeleft % 60), 2)]"
+		if(length(time_text) > CHARS_PER_LINE)
+			time_text = "Error"
+		update_display("[id]", time_text)
+		return
+
+	update_display("[id]","Empty") // would be nice to have some default printed text
 	return
 
 

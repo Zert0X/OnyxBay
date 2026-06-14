@@ -107,42 +107,20 @@ var/server_name = "OnyxBay"
 		tracy_lib = "./libprof.so"
 
 	var/tracy_init = call_ext(tracy_lib, "init")()
-
-	if(tracy_init != "0")
+	if(length(tracy_init) != 0 && tracy_init[1] == ".") // if first character is ., then it returned the output filename
+		return tracy_init
+	else if("0" != tracy_init)
 		CRASH("[tracy_lib] init error: [tracy_init]")
 #else
 	return
 #endif
 
-/world/proc/__init_prometheus(server_name, port)
-	rustg_prom_set_labels(list("server" = server_name))
-	rustg_prom_init(port)
-
-	// Register all the metrics here
-
-	rustg_prom_counter_register(PROM_MASTER_ITERATIONS, "How many times have we ran")
-	rustg_prom_gauge_float_register(PROM_MASTER_TICK_DRIFT, "Tick drift")
-	rustg_prom_gauge_float_register(PROM_SUBSYSTEM_COST, "Average time to execute")
-	rustg_prom_gauge_float_register(PROM_SUBSYSTEM_TICKS_TO_RUN, "How many ticks does this subsystem take to run on avg")
-	rustg_prom_gauge_float_register(PROM_SUBSYSTEM_TICK_USAGE, "Average tick usage")
-	rustg_prom_gauge_float_register(PROM_SUBSYSTEM_TICK_OVERRUN, "Average tick overrun")
-	rustg_prom_counter_register(PROM_RUNTIMES, "Total amount of runtimes")
-	rustg_prom_gauge_int_register(PROM_TOTAL_PLAYERS, "Total amount of players")
-	rustg_prom_gauge_int_register(PROM_TOTAL_LIVING, "Total amount of living players")
-	rustg_prom_gauge_int_register(PROM_WIDESCREEN_PLAYERS, "Total amount of players with widescreen")
-	rustg_prom_gauge_int_register(PROM_GC_QUEUED, "Count of queued datums to be deleted")
-	rustg_prom_counter_register(PROM_GC_HARD_DELS, "Count of hard deleted datums")
-	rustg_prom_counter_register(PROM_GC_COLLECTED, "Count of garbage collected datums")
-	rustg_prom_counter_register(PROM_GC_ITEM_QDELS, "Total number of times it's passed thru qdel")
-	rustg_prom_counter_register(PROM_GC_ITEM_FAILURES, "Times it was queued for soft deletion but failed to soft delete.")
-	rustg_prom_counter_register(PROM_GC_ITEM_HARD_DELETES, "Different from failures because it also includes QDEL_HINT_HARDDEL deletions")
-	rustg_prom_gauge_int_register(PROM_MOBS_TOTAL, "Total amount of mobs")
-	rustg_prom_gauge_int_register(PROM_MOBS_INSTANCE_TOTAL, "Total amount of mob's instances")
-
 #define RECOMMENDED_VERSION 514
 /world/New()
 	__init_tracy()
 	__detect_rust_g()
+	__z_detect()
+
 	SetupLogs()
 
 	changelog_hash = md5('html/changelog.html')					//used for telling if the changelog has changed recently
@@ -150,15 +128,11 @@ var/server_name = "OnyxBay"
 	if(byond_version < RECOMMENDED_VERSION)
 		to_world_log("Your server's byond version does not meet the recommended requirements for this server. Please update BYOND")
 
-	load_sql_config("config/dbconfig.txt")
-
 	// Load up the base config.toml
 	config.load_configuration()
 
-	if(config.general.prometheus_port)
-		to_world_log("Enabled metrics endpoint on [config.general.prometheus_port]")
-
-		__init_prometheus(config.general.server_id, config.general.prometheus_port)
+	// As early as possible
+	SSws.start_server()
 
 	if(config.general.server_port)
 		var/port = OpenPort(config.general.server_port)
@@ -184,9 +158,6 @@ var/server_name = "OnyxBay"
 	GLOB.lobby_music = new lobby_music_type()
 
 	callHook("startup")
-	//Emergency Fix
-	load_mods()
-	//end-emergency fix
 
 	. = ..()
 
@@ -370,7 +341,8 @@ var/world_topic_spam_protect_time = world.timeofday
 							fire = L.getFireLoss(),
 							brute = L.getBruteLoss(),
 							clone = L.getCloneLoss(),
-							brain = L.getBrainLoss()
+							brain = L.getBrainLoss(),
+							internal = L.getInternalLoss()
 						))
 				if(ishuman(M))
 					var/mob/living/carbon/human/H = M
@@ -555,6 +527,7 @@ var/world_topic_spam_protect_time = world.timeofday
 	// sound_to(world, sound('sound/AI/newroundsexy.ogg')
 
 	if(reboot_hardness == REBOOT_REALLY_HARD)
+		Z_DEINIT()
 		..(reason)
 		return
 
@@ -568,15 +541,18 @@ var/world_topic_spam_protect_time = world.timeofday
 			send_link(C, "byond://[config.external.server]")
 
 	if(config.general.wait_for_sigusr1 && reason != 3)
+		Z_DEINIT()
 		text2file("foo", "reboot_called")
 		to_world("<span class=danger>World reboot waiting for external scripts. Please be patient.</span>")
 		return
 
 	game_log("World rebooted at [time_stamp()]")
 
-	if(blackbox)
-		blackbox.save_all_data_to_sql()
+	// TODO: Find out what the fuck.
+	//if(blackbox)
+	//	blackbox.save_all_data_to_sql()
 
+	Z_DEINIT()
 	..(reason)
 
 /world/Del()
@@ -593,54 +569,8 @@ var/world_topic_spam_protect_time = world.timeofday
 	return 1
 
 /world/proc/load_motd()
-	join_motd = file2text("config/motd.txt")
+	join_motd = config.texts.motd
 	load_regular_announcement()
-
-/hook/startup/proc/loadMods()
-	world.load_mods()
-	world.load_mentors() // no need to write another hook.
-	return 1
-
-/world/proc/load_mods()
-	if(config.admin.admin_legacy_system)
-		var/text = file2text("config/moderators.txt")
-		if (!text)
-			error("Failed to load config/mods.txt")
-		else
-			var/list/lines = splittext(text, "\n")
-			for(var/line in lines)
-				if (!line)
-					continue
-
-				if (copytext(line, 1, 2) == ";")
-					continue
-
-				var/title = "Moderator"
-				var/rights = admin_ranks[title]
-
-				var/ckey = copytext(line, 1, length(line)+1)
-				var/datum/admins/D = new /datum/admins(title, rights, ckey)
-				D.associate(GLOB.ckey_directory[ckey])
-
-/world/proc/load_mentors()
-	if(config.admin.admin_legacy_system)
-		var/text = file2text("config/mentors.txt")
-		if (!text)
-			error("Failed to load config/mentors.txt")
-		else
-			var/list/lines = splittext(text, "\n")
-			for(var/line in lines)
-				if (!line)
-					continue
-				if (copytext(line, 1, 2) == ";")
-					continue
-
-				var/title = "Mentor"
-				var/rights = admin_ranks[title]
-
-				var/ckey = copytext(line, 1, length(line)+1)
-				var/datum/admins/D = new /datum/admins(title, rights, ckey)
-				D.associate(GLOB.ckey_directory[ckey])
 
 /world/proc/update_status()
 	var/s = ""
@@ -738,18 +668,17 @@ var/failed_don_db_connections = 0
 	return TRUE
 
 /proc/setup_database_connection()
-
 	if(failed_db_connections > FAILED_DB_CONNECTION_CUTOFF)	//If it failed to establish a connection more than 5 times in a row, don't bother attempting to connect anymore.
 		return 0
 
 	if(!dbcon)
 		dbcon = new()
 
-	var/user = sql_feedback_login
-	var/pass = sql_feedback_pass
-	var/db = sql_feedback_db
-	var/address = sqladdress
-	var/port = sqlport
+	var/user = config.database.feedback_login
+	var/pass = config.database.feedback_password
+	var/db = config.database.feedback_database
+	var/address = config.database.address
+	var/port = config.database.port
 
 	dbcon.Connect("dbi:mysql:[db]:[address]:[port]","[user]","[pass]")
 	. = dbcon.IsConnected()
@@ -794,11 +723,11 @@ var/failed_don_db_connections = 0
 	if(!dbcon_old)
 		dbcon_old = new()
 
-	var/user = sqllogin
-	var/pass = sqlpass
-	var/db = sqldb
-	var/address = sqladdress
-	var/port = sqlport
+	var/user = config.database.login
+	var/pass = config.database.password
+	var/db = config.database.database
+	var/address = config.database.address
+	var/port = config.database.port
 
 	dbcon_old.Connect("dbi:mysql:[db]:[address]:[port]","[user]","[pass]")
 	. = dbcon_old.IsConnected()
@@ -841,11 +770,11 @@ proc/setup_don_database_connection()
 	if(!dbcon_don)
 		dbcon_don = new()
 
-	var/user = sqldonlogin
-	var/pass = sqldonpass
-	var/db = sqldondb
-	var/address = sqldonaddress
-	var/port = sqldonport
+	var/user = config.database.donation_login
+	var/pass = config.database.donation_password
+	var/db = config.database.donation_database
+	var/address = config.database.donation_address
+	var/port = config.database.donation_port
 	dbcon_don.Connect("dbi:mysql:[db]:[address]:[port]","[user]","[pass]")
 	log_debug("Connecting to donationsDB")
 

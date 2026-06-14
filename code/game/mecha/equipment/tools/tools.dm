@@ -60,9 +60,9 @@
 		if(M.stat > 1)
 			return
 		if(chassis.occupant.a_intent == I_HURT)
-			M.take_overall_damage(dam_force)
+			M.take_overall_damage(dam_force, spread_damage = FALSE, check_armor = "melee")
 			M.adjustOxyLoss(round(dam_force/2))
-			M.updatehealth()
+			M.update_health()
 			occupant_message(SPAN("warning", "You squeeze [target] with [src.name]. Something cracks."))
 			chassis.visible_message(SPAN("warning", "[chassis] squeezes [target]."))
 			playsound(chassis, 'sound/effects/fighting/crunch5.ogg', 100, 1)
@@ -170,8 +170,8 @@
 	required_type = /obj/mecha/working
 	need_colorize = FALSE
 	var/spray_particles = 5
-	var/spray_amount = 200	//units of liquid per spray
-	var/max_volume = 5000
+	var/spray_amount = 2 LITERS //units of liquid per spray
+	var/max_volume = 50 LITERS
 	var/ff_reagent = /datum/reagent/water/firefoam
 
 /obj/item/mecha_parts/mecha_equipment/tool/extinguisher/New()
@@ -197,7 +197,7 @@
 				return
 			O.reagents.remove_any(amount)
 			reagents.add_reagent(ff_reagent, amount)
-			occupant_message(SPAN("notice", "[amount] units transferred into internal tank."))
+			occupant_message(SPAN("notice", "[amount] ml transferred into internal tank."))
 			playsound(chassis, 'sound/effects/refill.ogg', 50, 1, -6)
 			return
 
@@ -750,6 +750,7 @@
 /obj/item/mecha_parts/mecha_equipment/tesla_energy_relay/get_equip_info()
 	if(!chassis)
 		return
+
 	return "<span style=\"color:[equip_ready?"#0f0":"#f00"];\">*</span>&nbsp;[src.name] - <a href='?src=\ref[src];toggle_relay=1'>[pr_energy_relay.active()?"Dea":"A"]ctivate</a>"
 
 /datum/global_iterator/mecha_energy_relay/process(obj/item/mecha_parts/mecha_equipment/tesla_energy_relay/ER)
@@ -757,13 +758,15 @@
 		stop()
 		ER.set_ready_state(1)
 		return
+
 	var/cur_charge = ER.chassis.get_charge()
 	if(isnull(cur_charge) || !ER.chassis.cell)
 		stop()
 		ER.set_ready_state(1)
 		ER.occupant_message("No powercell detected.")
 		return
-	if(cur_charge<ER.chassis.cell.maxcharge)
+
+	if(cur_charge < (ER.chassis.cell.maxcharge / CELLRATE))
 		var/area/A = get_area(ER.chassis)
 		if(A)
 			var/pow_chan
@@ -771,8 +774,9 @@
 				if(A.powered(c))
 					pow_chan = c
 					break
+
 			if(pow_chan)
-				var/delta = min(12, ER.chassis.cell.maxcharge-cur_charge)
+				var/delta = min(1200, (ER.chassis.cell.maxcharge / CELLRATE) - cur_charge)
 				ER.chassis.give_power(delta)
 				A.use_power_oneoff(delta*ER.coeff, pow_chan)
 	return
@@ -846,7 +850,7 @@
 		else if(!result)
 			message = "Unit is full."
 		else
-			message = "[result] unit\s of [fuel] successfully loaded."
+			message = "[result] ml of [fuel] successfully loaded."
 			send_byjax(chassis.occupant, "exosuit.browser", "\ref[src]", src.get_equip_info())
 		occupant_message(message)
 	return
@@ -872,7 +876,7 @@
 	else if(!result)
 		to_chat(user, "Unit is full.")
 	else
-		user.visible_message("[user] loads [src] with [fuel].","[result] unit\s of [fuel] successfully loaded.")
+		user.visible_message("[user] loads [src] with [fuel].","[result] ml of [fuel] successfully loaded.")
 	return
 
 /obj/item/mecha_parts/mecha_equipment/generator/critfail()
@@ -1050,7 +1054,7 @@
 	if (chassis)
 		chassis.visible_message(SPAN("notice", "[user] starts to climb into [chassis]."))
 
-	if(do_after(user, 40, src, needhand=0))
+	if(do_after(user, 40, src, needhand = FALSE, luck_check_type = LUCK_CHECK_ENG))
 		if(!src.occupant)
 			user.forceMove(src)
 			occupant = user

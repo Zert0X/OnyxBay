@@ -11,7 +11,7 @@
 	mod_reach = 1.0
 	mod_handy = 0.5
 	item_state = "jetpack"
-	distribute_pressure = ONE_ATMOSPHERE*O2STANDARD
+	distribute_pressure = ONE_ATMOSPHERE * O2_STANDARD
 	var/datum/effect/effect/system/trail/ion/ion_trail
 	var/on = 0.0
 	var/stabilization_on = 0
@@ -22,6 +22,7 @@
 	. = ..()
 	ion_trail = new /datum/effect/effect/system/trail/ion()
 	ion_trail.set_up(src)
+	refresh_ion_trail()
 
 /obj/item/tank/jetpack/Destroy()
 	QDEL_NULL(ion_trail)
@@ -46,10 +47,10 @@
 	on = !on
 	if(on)
 		icon_state = "[icon_state]-on"
-		ion_trail.start()
 	else
 		icon_state = initial(icon_state)
-		ion_trail.stop()
+
+	refresh_ion_trail()
 
 	if (ismob(usr))
 		var/mob/M = usr
@@ -78,6 +79,18 @@
 
 /obj/item/tank/jetpack/ui_action_click()
 	toggle()
+
+/obj/item/tank/jetpack/equipped(mob/user, slot)
+	. = ..()
+	refresh_ion_trail()
+
+/obj/item/tank/jetpack/proc/refresh_ion_trail()
+	if(on && isliving(loc))
+		var/mob/living/wearer = loc
+		if(wearer.get_jetpack() == src)
+			ion_trail.start()
+			return
+	ion_trail.stop()
 
 
 /obj/item/tank/jetpack/void

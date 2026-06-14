@@ -45,9 +45,8 @@ SUBSYSTEM_DEF(open_space)
 	if(!length(turfs_to_process))
 		suspend()
 
-/datum/controller/subsystem/open_space/stat_entry(msg)
-	msg = "T: [length(turfs_to_process)], U: [times_updated]"
-	return ..()
+/datum/controller/subsystem/open_space/stat_entry()
+	..("T: [length(turfs_to_process)] | U: [times_updated]")
 
 /datum/controller/subsystem/open_space/proc/update_turf(turf/T)
 	for(var/atom/movable/A in T)
@@ -74,6 +73,8 @@ SUBSYSTEM_DEF(open_space)
 	. = ..()
 	SSopen_space.add_turf(src)
 
+/turf/simulated/open/is_open()
+	return TRUE
 
 /obj/on_update_icon()
 	. = ..()

@@ -221,8 +221,8 @@ GLOBAL_LIST_EMPTY(all_turrets)
 			store_ammo(I, user)
 			return
 
-	if(istype(I, /obj/item/card/id) || istype(I, /obj/item/device/pda))
-		if(allowed(user))
+	if(I?.get_id_card())
+		if(check_access(I))
 			if(emagged)
 				show_splash_text(user, "Control panel is unresponsive")
 			else
@@ -231,7 +231,7 @@ GLOBAL_LIST_EMPTY(all_turrets)
 		return
 
 	if(isCrowbar(I) && !locked && installed_gun)
-		if(do_after(user, 50, src))
+		if(do_after(user, 50, src, luck_check_type = LUCK_CHECK_ENG))
 			if(QDELETED(src) || !installed_gun || locked)
 				return
 
@@ -243,7 +243,7 @@ GLOBAL_LIST_EMPTY(all_turrets)
 
 	if(isWelder(I))
 		var/obj/item/weldingtool/WT = I
-		if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 5))
+		if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 50))
 			return
 
 		if(QDELETED(src) || !user)
@@ -265,7 +265,7 @@ GLOBAL_LIST_EMPTY(all_turrets)
 
 /// Called after the gun gets instantiated or slotted in.
 /obj/machinery/turret/proc/setup_gun()
-	pass()
+	return
 
 // State machine processing steps, called by looping timer
 /obj/machinery/turret/proc/process_turning()

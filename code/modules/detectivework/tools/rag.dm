@@ -11,7 +11,7 @@
 	item_flags = ITEM_FLAG_NO_BLUDGEON
 	atom_flags = ATOM_FLAG_OPEN_CONTAINER
 	unacidable = FALSE
-	var/obj/item/stack/medical/bruise_pack/BP
+	var/obj/item/stack/medical/bandage/BP
 
 	var/on_fire = 0
 	var/burn_time = 20 //if the rag burns for too long it turns to ashes
@@ -92,7 +92,7 @@
 /obj/item/reagent_containers/rag/proc/default_attack(atom/target, mob/user)
 	if(!on_fire && reagents.total_volume)
 		if(user.zone_sel.selecting == BP_MOUTH)
-			if (standard_feed_mob(user, target))
+			if (standard_feed_mob(user, target, bypass_resist = FALSE))
 				user.do_attack_animation(src)
 				user.visible_message(
 					SPAN("danger", "\The [user] smothers [target] with [src]!"),

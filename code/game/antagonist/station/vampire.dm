@@ -39,7 +39,7 @@ GLOBAL_DATUM_INIT(vampires, /datum/antagonist/vampire, new)
 			message = pick("Nice job!", "Great results!", "What a creature of the night!", "A professional bloodfeeder!")
 		else
 			message = pick("Dear God.", "Somebody, stop them!", "The beast of bedtime tales!", "Night-time is their time!", "A bloody feast!")
-	return "<br><b>They drank </b>[player.vampire.blood_total]<br> units of blood. [message]"
+	return "<br><b>They drank </b>[player.vampire.blood_total]<br> ml of blood. [message]"
 
 
 /datum/antagonist/vampire/create_objectives(datum/mind/player)

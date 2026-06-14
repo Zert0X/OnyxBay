@@ -73,6 +73,9 @@
 
 	msg += "<br>"
 
+	if (isundead(src) && !isfakeliving(src) && (!skipface || (!skipgloves && !gloves) || (!skipjumpsuit && !w_uniform) || (!skipshoes && !shoes)))
+		msg += FONT_LARGE(SPAN_DANGER("[T.He] looks like a month-old corpse.\n"))
+
 	// uniform
 	if(w_uniform && !skipjumpsuit)
 		msg += "[T.He] [T.is] wearing [w_uniform.get_examine_line(!skipjumpsuitaccessories)].\n"
@@ -198,10 +201,24 @@
 					else
 						to_chat(user, SPAN("deadsay", "[T.He] [T.has] a pulse!"))
 
-	if(fire_stacks)
-		msg += "[T.He] looks flammable.\n"
-	if(on_fire)
-		msg += SPAN("warning", "[T.He] [T.is] on fire!.\n")
+	switch(get_fire_level())
+		if(3)
+			if(on_fire)
+				msg += SPAN("danger", "[T.He] [T.is] is burning bright!\n")
+			else
+				msg += SPAN("danger", "[T.He] looks extremely flammable!\n")
+		if(2)
+			if(on_fire)
+				msg += SPAN("warning", "[T.He] [T.is] covered in flames!\n")
+			else
+				msg += SPAN("warning", "[T.He] looks very flammable!\n")
+		if(1)
+			if(on_fire)
+				msg += SPAN("warning", "[T.He] [T.is] on fire!\n")
+			else
+				msg += SPAN("warning", "[T.He] looks flammable.\n")
+		if(-1)
+			msg += SPAN("notice", "[T.He] looks damp.\n")
 
 	for(var/datum/modifier/M in modifiers)
 		var/modifier_txt = M.examine()
@@ -215,7 +232,7 @@
 		else if(!client)
 			msg += SPAN("deadsay", "[T.He] [T.is] [ssd_msg].\n")
 
-	var/obj/item/organ/external/head/H = organs_by_name[BP_HEAD]
+	var/obj/item/organ/external/head/H = external_organs_by_name[BP_HEAD]
 	if(istype(H) && H.forehead_graffiti && H.graffiti_style)
 		msg += SPAN("notice", "[T.He] [T.has] \"[H.forehead_graffiti]\" written on [T.his] [H.name] in [H.graffiti_style]!\n")
 
@@ -227,7 +244,7 @@
 
 		var/list/organ_data = species.has_limbs[organ_tag]
 		var/organ_descriptor = organ_data["descriptor"]
-		var/obj/item/organ/external/E = organs_by_name[organ_tag]
+		var/obj/item/organ/external/E = external_organs_by_name[organ_tag]
 
 		if(!E)
 			wound_flavor_text[organ_descriptor] = "<b>[T.He] [T.is] missing [T.his] [organ_descriptor].</b>\n"
@@ -246,37 +263,42 @@
 				break
 
 		if(hidden && user != src)
-			if(E.status & ORGAN_BLEEDING && !(hidden.item_flags & ITEM_FLAG_THICKMATERIAL)) //not through a spacesuit
+			if(E.bleeding && !(hidden.item_flags & ITEM_FLAG_THICKMATERIAL)) //not through a spacesuit
 				wound_flavor_text[hidden.name] = SPAN("danger", "[T.He] [T.has] blood soaking through [hidden]!<br>")
 		else
 			if(E.is_stump())
 				wound_flavor_text[E.name] += "<b>[T.He] [T.has] a stump where [T.his] [organ_descriptor] should be.</b>\n"
-				if(LAZYLEN(E.wounds) && E.parent)
-					wound_flavor_text[E.name] += "[T.He] [T.has] [E.get_wounds_desc()] on [T.his] [E.parent.name].<br>"
 			else
 				if(!is_synth && BP_IS_ROBOTIC(E) && (E.parent && !BP_IS_ROBOTIC(E.parent) && !BP_IS_ASSISTED(E.parent)))
 					wound_flavor_text[E.name] = "[T.He] [T.has] a [E.name].\n"
+				var/damagedesc = E.get_damages_desc()
 				var/wounddesc = E.get_wounds_desc()
-				if(wounddesc != "nothing")
+				if(damagedesc)
+					wound_flavor_text[E.name] += "[T.His] [E.name] [damagedesc]."
+					if(wounddesc == "nothing")
+						wound_flavor_text[E.name] += "<br>"
+					else
+						wound_flavor_text[E.name] += " It has [wounddesc].<br>"
+				else if(wounddesc != "nothing")
 					wound_flavor_text[E.name] += "[T.He] [T.has] [wounddesc] on [T.his] [E.name].<br>"
+
 		if(!hidden || distance <=1)
 			if(E.dislocated > 0)
 				wound_flavor_text[E.name] += "[T.His] [E.joint] is dislocated!<br>"
-			if(((E.status & ORGAN_BROKEN) && E.brute_dam > E.min_broken_damage) || (E.status & ORGAN_MUTATED))
+			if(((E.status & ORGAN_BROKEN) && E.blunt_dam > E.min_broken_damage) || (E.status & ORGAN_MUTATED))
 				wound_flavor_text[E.name] += "[T.His] [E.name] is dented and swollen!<br>"
 
-		for(var/datum/wound/wound in E.wounds)
-			var/list/embedlist = wound.embedded_objects
-			if(LAZYLEN(embedlist))
-				shown_objects += embedlist
-				var/parsedembed[0]
-				for(var/obj/embedded in embedlist)
-					if(!parsedembed.len || (!parsedembed.Find(embedded.name) && !parsedembed.Find("multiple [embedded.name]")))
-						parsedembed.Add(embedded.name)
-					else if(!parsedembed.Find("multiple [embedded.name]"))
-						parsedembed.Remove(embedded.name)
-						parsedembed.Add("multiple "+embedded.name)
-				wound_flavor_text["[E.name]"] += "The [wound.desc] on [T.his] [E.name] has [english_list(parsedembed)] sticking out of it!<br>"
+		if(LAZYLEN(E.embedded_objects))
+			var/list/embedlist = E.embedded_objects
+			shown_objects += embedlist
+			var/parsedembed[0]
+			for(var/obj/embedded in embedlist)
+				if(!parsedembed.len || (!parsedembed.Find(embedded.name) && !parsedembed.Find("multiple [embedded.name]")))
+					parsedembed.Add(embedded.name)
+				else if(!parsedembed.Find("multiple [embedded.name]"))
+					parsedembed.Remove(embedded.name)
+					parsedembed.Add("multiple "+embedded.name)
+			wound_flavor_text["[E.name]"] += "[T.his] [E.name] has [english_list(parsedembed)] sticking out of it!<br>"
 
 	msg += "<span class='warning'>"
 	for(var/limb in wound_flavor_text)
@@ -339,8 +361,12 @@
 
 	msg += applying_pressure
 
-	if (isundead(src) && !isfakeliving(src))
-		msg += SPAN("warning", "[T.He] looks unhealthy pale.\n")
+	if(!skipeyes)
+		var/obj/item/organ/internal/eyes/eyes = internal_organs_by_name[BP_EYES]
+		if(istype(eyes))
+			var/list/glow = eyes.get_active_glow()
+			if(glow && glow["name"])
+				msg += SPAN("notice", "[T.His] eyes are glowing [glow["name"]].\n")
 
 	if (pose)
 		if( findtext(pose,".",length(pose)) == 0 && findtext(pose,"!",length(pose)) == 0 && findtext(pose,"?",length(pose)) == 0 )

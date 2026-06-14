@@ -3,15 +3,14 @@ GLOBAL_DATUM_INIT(temp_reagents_holder, /obj, new)
 /datum/reagents
 	var/list/datum/reagent/reagent_list = list()
 	var/total_volume = 0
-	var/maximum_volume = 120
+	var/maximum_volume = 1 LITER
 	var/atom/my_atom = null
 	var/list/rad_sources = list()
 
-/datum/reagents/New(maximum_volume = 120, atom/my_atom)
+/datum/reagents/New(maximum_volume = 1 LITER, atom/my_atom)
 	if(!istype(my_atom))
 		CRASH("Invalid reagents holder: [log_info_line(my_atom)]")
 	..()
-	add_think_ctx("delayed_add_reagent", CALLBACK(src, nameof(.proc/add_reagent)), 0)
 	src.my_atom = my_atom
 	src.maximum_volume = maximum_volume
 
@@ -155,6 +154,10 @@ GLOBAL_DATUM_INIT(temp_reagents_holder, /obj, new)
 	else
 		warning("[log_info_line(my_atom)] attempted to add a reagent of type '[reagent_type]' which doesn't exist. ([usr])")
 	return 0
+
+/datum/reagents/proc/_delayed_add_reagents(reagent_type, amount, data = null, safety = 0)
+	remove_think_ctx("delayed_add_reagents")
+	return add_reagent(reagent_type, amount, data, safety)
 
 /datum/reagents/proc/remove_reagent(reagent_type, amount, safety = 0)
 	if(!isnum(amount))
@@ -331,7 +334,7 @@ GLOBAL_DATUM_INIT(temp_reagents_holder, /obj, new)
 //If for some reason touch effects are bypassed (e.g. injecting stuff directly into a reagent container or person),
 //call the appropriate trans_to_*() proc.
 /datum/reagents/proc/trans_to(atom/target, amount = 1, multiplier = 1, copy = 0)
-	touch(target) //First, handle mere touch effects
+	touch(target, amount) //First, handle mere touch effects
 
 	if(ismob(target))
 		return splash_mob(target, amount, copy)
@@ -350,7 +353,7 @@ GLOBAL_DATUM_INIT(temp_reagents_holder, /obj, new)
 	if(spill)
 		splash(target.loc, spill, multiplier, copy, min_spill, max_spill)
 
-	trans_to(target, amount, multiplier, copy)
+	return trans_to(target, amount, multiplier, copy)
 
 /datum/reagents/proc/trans_type_to(atom/target, type, amount = 1)
 	if (!target || !target.reagents || !target.simulated)
@@ -374,39 +377,39 @@ GLOBAL_DATUM_INIT(temp_reagents_holder, /obj, new)
 // This does not handle transferring reagents to things.
 // For example, splashing someone with water will get them wet and extinguish them if they are on fire,
 // even if they are wearing an impermeable suit that prevents the reagents from contacting the skin.
-/datum/reagents/proc/touch(atom/target)
+/datum/reagents/proc/touch(atom/target, amount)
 	if(ismob(target))
-		touch_mob(target)
+		touch_mob(target, amount)
 	if(isturf(target))
-		touch_turf(target)
+		touch_turf(target, amount)
 	if(isobj(target))
-		touch_obj(target)
+		touch_obj(target, amount)
 	return
 
-/datum/reagents/proc/touch_mob(mob/target)
+/datum/reagents/proc/touch_mob(mob/target, amount)
 	if(!target || !istype(target) || !target.simulated)
 		return
 
 	for(var/datum/reagent/current in reagent_list)
-		current.touch_mob(target, current.volume)
+		current.touch_mob(target, min(amount, current.volume))
 
 	update_total()
 
-/datum/reagents/proc/touch_turf(turf/target)
+/datum/reagents/proc/touch_turf(turf/target, amount)
 	if(!target || !istype(target) || !target.simulated)
 		return
 
 	for(var/datum/reagent/current in reagent_list)
-		current.touch_turf(target, current.volume)
+		current.touch_turf(target, min(amount, current.volume))
 
 	update_total()
 
-/datum/reagents/proc/touch_obj(obj/target)
+/datum/reagents/proc/touch_obj(obj/target, amount)
 	if(!target || !istype(target) || !target.simulated)
 		return
 
 	for(var/datum/reagent/current in reagent_list)
-		current.touch_obj(target, current.volume)
+		current.touch_obj(target, min(amount, current.volume))
 
 	update_total()
 
@@ -442,9 +445,12 @@ GLOBAL_DATUM_INIT(temp_reagents_holder, /obj, new)
 			return trans_to_holder(R, amount, multiplier, copy)
 		if(type == CHEM_INGEST)
 			var/datum/reagents/R = C.get_ingested_reagents()
-			return C.ingest(src, R, amount, multiplier, copy) //perhaps this is a bit of a hack, but currently there's no common proc for eating reagents
+			return trans_to_holder(R, amount, multiplier, copy)
 		if(type == CHEM_TOUCH)
 			var/datum/reagents/R = C.touching
+			return trans_to_holder(R, amount, multiplier, copy)
+		if(type == CHEM_DIGEST)
+			var/datum/reagents/R = C.get_digested_reagents()
 			return trans_to_holder(R, amount, multiplier, copy)
 	else
 		var/datum/reagents/R = new /datum/reagents(amount, GLOB.temp_reagents_holder)
@@ -458,7 +464,7 @@ GLOBAL_DATUM_INIT(temp_reagents_holder, /obj, new)
 
 	var/datum/reagents/R = new /datum/reagents(amount * multiplier, GLOB.temp_reagents_holder)
 	. = trans_to_holder(R, amount, multiplier, copy)
-	R.touch_turf(target)
+	R.touch_turf(target, amount)
 	qdel(R)
 	return
 
@@ -469,7 +475,7 @@ GLOBAL_DATUM_INIT(temp_reagents_holder, /obj, new)
 	if(!target.reagents)
 		var/datum/reagents/R = new /datum/reagents(amount * multiplier, GLOB.temp_reagents_holder)
 		. = trans_to_holder(R, amount, multiplier, copy)
-		R.touch_obj(target)
+		R.touch_obj(target, amount)
 		qdel(R)
 		return
 

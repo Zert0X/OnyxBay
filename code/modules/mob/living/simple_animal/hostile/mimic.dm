@@ -145,20 +145,16 @@ var/global/list/protected_objects = list(
 		return
 
 	if(C.w_class < ITEM_SIZE_NORMAL)
-		grant_verb(src, list(
-			/mob/living/proc/ventcrawl,
-			/mob/living/proc/hide,
-		))
+		verbs |= /mob/living/proc/ventcrawl
+		verbs |= /mob/living/proc/hide
 	else
-		revoke_verb(src, list(
-			/mob/living/proc/ventcrawl,
-			/mob/living/proc/hide,
-		))
+		verbs -= /mob/living/proc/ventcrawl
+		verbs -= /mob/living/proc/hide
 
 	if(can_setup_trap())
-		grant_verb(src, /mob/living/simple_animal/hostile/mimic/verb/Trap)
+		verbs |= /mob/living/simple_animal/hostile/mimic/verb/Trap
 	else
-		revoke_verb(src, /mob/living/simple_animal/hostile/mimic/verb/Trap)
+		verbs -= /mob/living/simple_animal/hostile/mimic/verb/Trap
 
 /mob/living/simple_animal/hostile/mimic/proc/_handle_healing()
 	var/healing_check = world.time > inactive_time + WAIT_TO_HEAL
@@ -443,7 +439,7 @@ var/global/list/protected_objects = list(
 		"gold coin" = /obj/item/material/coin/gold,
 		"insulated gloves" = /obj/item/clothing/gloves/insulated,
 		"multitool" = /obj/item/device/multitool,
-		"one-hand energy sword" = /obj/item/melee/energy/sword/one_hand,
+		"energy saber" = /obj/item/melee/energy/sword/saber,
 		"powersink" = /obj/item/device/powersink,
 		"toy katana" = /obj/item/toy/katana,
 		"hypospray" = /obj/item/reagent_containers/hypospray,

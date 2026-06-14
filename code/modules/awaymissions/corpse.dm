@@ -126,7 +126,7 @@
 
 /obj/effect/landmark/corpse/chef
 	name = "Chef"
-	corpse_outfits = list(/decl/hierarchy/outfit/job/service/chef)
+	corpse_outfits = list(/decl/hierarchy/outfit/job/provisioning/chef)
 
 /obj/effect/landmark/corpse/doctor
 	name = "Doctor"
@@ -200,7 +200,7 @@
 /obj/effect/landmark/corpse/nurse/equip_outfit(mob/living/carbon/human/M)
 	. = ..()
 
-	var/obj/item/organ/external/E = M.organs_by_name[BP_CHEST]
+	var/obj/item/organ/external/E = M.external_organs_by_name[BP_CHEST]
 	var/obj/item/card/id/ID = new /obj/item/card/id/medical(E)
 	E.implants += ID
 

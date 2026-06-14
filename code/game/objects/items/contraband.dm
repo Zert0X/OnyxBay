@@ -6,7 +6,7 @@
 	desc = "Highly illegal drug. When you want to see the rainbow."
 
 /obj/item/storage/pill_bottle/happy/Initialize()
-	..()
+	. = ..()
 	new /obj/item/reagent_containers/pill/happy(src)
 	new /obj/item/reagent_containers/pill/happy(src)
 	new /obj/item/reagent_containers/pill/happy(src)
@@ -20,7 +20,7 @@
 	desc = "Highly illegal drug. Trade brain for speed."
 
 /obj/item/storage/pill_bottle/zoom/Initialize()
-	..()
+	. = ..()
 	new /obj/item/reagent_containers/pill/zoom(src)
 	new /obj/item/reagent_containers/pill/zoom(src)
 	new /obj/item/reagent_containers/pill/zoom(src)
@@ -82,7 +82,7 @@
 		return
 
 	for(var/i in 1 to 5)
-		if(!do_after(user, 6 SECOND, src))
+		if(!do_after(user, 6 SECOND, src, luck_check_type = LUCK_CHECK_COMBAT))
 			to_chat(user, SPAN("warning", "Your reading has been interrupted."))
 			return
 		subjects.Cut()

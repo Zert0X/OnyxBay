@@ -21,11 +21,11 @@ GLOBAL_DATUM_INIT(sound_player, /decl/sound_player, new)
 
 
 //This can be called if either we're doing whole sound setup ourselves or it will be as part of from-file sound setup
-/decl/sound_player/proc/PlaySoundDatum(atom/source, sound_id, sound/sound, range, prefer_mute, datum/client_preference/preference, streaming)
+/decl/sound_player/proc/PlaySoundDatum(atom/source, sound_id, sound/sound, range, prefer_mute, datum/client_preference/preference, streaming, is_spatial = TRUE)
 	var/token_type = isnum(sound.environment) ? /datum/sound_token : /datum/sound_token/static_environment
-	return new token_type(source, sound_id, sound, range, prefer_mute, preference, streaming)
+	return new token_type(source, sound_id, sound, range, prefer_mute, preference, streaming, is_spatial)
 
-/decl/sound_player/proc/PlayLoopingSound(atom/source, sound_id, sound, volume, range, falloff = 1, echo, frequency, prefer_mute, datum/client_preference/preference, streaming)
+/decl/sound_player/proc/PlayLoopingSound(atom/source, sound_id, sound, volume, range, falloff = 1, echo, frequency, prefer_mute, datum/client_preference/preference, streaming, is_spatial = TRUE)
 	var/sound/S = istype(sound, /sound) ? sound : new(sound)
 	S.environment = 0 // Ensures a 3D effect even if x/y offset happens to be 0 the first time it's played
 	S.volume  = volume
@@ -34,7 +34,7 @@ GLOBAL_DATUM_INIT(sound_player, /decl/sound_player, new)
 	S.frequency = frequency
 	S.repeat = TRUE
 
-	return PlaySoundDatum(source, sound_id, S, range, prefer_mute, preference, streaming)
+	return PlaySoundDatum(source, sound_id, S, range, prefer_mute, preference, streaming, is_spatial)
 
 /decl/sound_player/proc/PrivStopSound(datum/sound_token/sound_token)
 	var/channel = sound_token.sound.channel
@@ -80,12 +80,13 @@ GLOBAL_DATUM_INIT(sound_player, /decl/sound_player, new)
 	var/sound_id       // The associated sound id, used for cleanup
 	var/status = 0     // Paused, muted, running? Global for all listeners
 	var/listener_status// Paused, muted, running? Specific for the given listener.
+	var/is_spatial = TRUE
 	var/const/SOUND_STOPPED = 0x8000
 	var/datum/client_preference/preference
 	var/datum/proximity_trigger/square/proxy_listener
 	var/list/can_be_heard_from
 
-/datum/sound_token/New(atom/source, sound_id, sound/sound, range = 4, prefer_mute = FALSE, datum/client_preference/preference, streaming)
+/datum/sound_token/New(atom/source, sound_id, sound/sound, range = 4, prefer_mute = FALSE, datum/client_preference/preference, streaming, is_spatial = TRUE)
 	..()
 	if(!istype(source))
 		CRASH("Invalid sound source: [log_info_line(source)]")
@@ -102,6 +103,7 @@ GLOBAL_DATUM_INIT(sound_player, /decl/sound_player, new)
 	src.sound       = sound
 	src.sound_id    = sound_id
 	src.preference  = preference
+	src.is_spatial       = is_spatial
 
 	if(streaming) // Streams music
 		src.status |= SOUND_STREAM
@@ -235,9 +237,15 @@ GLOBAL_DATUM_INIT(sound_player, /decl/sound_player, new)
 	else if(prefer_mute)
 		listener_status[listener] &= ~SOUND_MUTE
 
-	sound.x = source_turf.x - listener_turf.x
-	sound.z = source_turf.y - listener_turf.y
-	sound.y = 1
+	if(is_spatial)
+		sound.x = source_turf.x - listener_turf.x
+		sound.z = source_turf.y - listener_turf.y
+		sound.y = 1
+	else
+		sound.x = 0
+		sound.z = 0
+		sound.y = 0
+
 	// Far as I can tell from testing, sound priority just doesn't work.
 	// Sounds happily steal channels from each other no matter what.
 	sound.priority = Clamp(255 - distance, 0, 255)
@@ -251,7 +259,6 @@ GLOBAL_DATUM_INIT(sound_player, /decl/sound_player, new)
 	if(!check_preference(listener))
 		PrivRemoveListener(listener)
 		return
-
 	sound.environment = PrivGetEnvironment(listener)
 	sound.status = status|listener_status[listener]
 	if(update_sound)

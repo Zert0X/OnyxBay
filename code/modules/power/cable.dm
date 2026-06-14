@@ -96,7 +96,7 @@ var/list/possible_cable_coil_colours
 	if(powernet)
 		cut_cable_from_powernet()  // update the powernets
 	cable_list -= src              // remove it from global cable list
-	. = ..()                       // then go ahead and delete the cable
+	return ..()                    // then go ahead and delete the cable
 
 
 /obj/structure/cable/attack_ghost(mob/observer/ghost/user)
@@ -519,7 +519,7 @@ var/list/possible_cable_coil_colours
 /obj/item/stack/cable_coil/attack(atom/A, mob/living/user, def_zone)
 	if(ishuman(A) && user.a_intent == I_HELP)
 		var/mob/living/carbon/human/H = A
-		var/obj/item/organ/external/S = H.organs_by_name[user.zone_sel.selecting]
+		var/obj/item/organ/external/S = H.external_organs_by_name[user.zone_sel.selecting]
 
 		if (!S) return
 		if(!BP_IS_ROBOTIC(S) || user.a_intent != I_HELP)

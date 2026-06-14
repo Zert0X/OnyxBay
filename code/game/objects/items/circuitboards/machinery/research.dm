@@ -4,6 +4,7 @@
 
 /obj/item/circuitboard/rdserver
 	name = T_BOARD("R&D server")
+	icon_state = "id_mod_purple"
 	build_path = /obj/machinery/r_n_d/server
 	board_type = "machine"
 	origin_tech = list(TECH_DATA = 3)
@@ -13,6 +14,7 @@
 
 /obj/item/circuitboard/destructive_analyzer
 	name = T_BOARD("destructive analyzer")
+	icon_state = "id_mod_purple"
 	build_path = /obj/machinery/r_n_d/destructive_analyzer
 	board_type = "machine"
 	origin_tech = list(TECH_MAGNET = 2, TECH_ENGINEERING = 2, TECH_DATA = 2)
@@ -33,6 +35,7 @@
 
 /obj/item/circuitboard/protolathe
 	name = T_BOARD("protolathe")
+	icon_state = "id_mod_purple"
 	build_path = /obj/machinery/r_n_d/protolathe
 	board_type = "machine"
 	origin_tech = list(TECH_ENGINEERING = 2, TECH_DATA = 2)
@@ -44,6 +47,7 @@
 
 /obj/item/circuitboard/circuit_imprinter
 	name = T_BOARD("circuit imprinter")
+	icon_state = "id_mod_purple"
 	build_path = /obj/machinery/r_n_d/circuit_imprinter
 	board_type = "machine"
 	origin_tech = list(TECH_ENGINEERING = 2, TECH_DATA = 2)
@@ -54,6 +58,7 @@
 
 /obj/item/circuitboard/mechfab
 	name = "Circuit board (Exosuit Fabricator)"
+	icon_state = "id_mod_purple"
 	build_path = /obj/machinery/mecha_part_fabricator
 	board_type = "machine"
 	origin_tech = list(TECH_DATA = 3, TECH_ENGINEERING = 3)
@@ -65,6 +70,7 @@
 
 /obj/item/circuitboard/ntnet_relay
 	name = "Circuit board (NTNet Quantum Relay)"
+	icon_state = "id_mod_blue"
 	build_path = /obj/machinery/ntnet_relay
 	board_type = "machine"
 	origin_tech = list(TECH_DATA = 4)
@@ -73,6 +79,7 @@
 
 /obj/item/circuitboard/stock_parts_processor
 	name = T_BOARD("stock parts processor")
+	icon_state = "id_mod_purple"
 	build_path = /obj/machinery/stock_parts_processor
 	board_type = "machine"
 	origin_tech = list(TECH_DATA = 2, TECH_ENGINEERING = 2)

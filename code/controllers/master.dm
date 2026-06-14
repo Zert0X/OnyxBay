@@ -120,7 +120,7 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 	var/msg = "## DEBUG: [time2text(world.timeofday)] MC restarted. Reports:\n"
 	for (var/varname in Master.vars)
 		switch (varname)
-			if("name", "tag", "bestF", "type", "parent_type", "vars") // Built-in junk.
+			if("name", "tag", "bestF", "type", "parent_type", "vars", "statclick") // Built-in junk.
 				continue
 			else
 				var/varval = Master.vars[varname]
@@ -178,7 +178,8 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 	// Initialize subsystems.
 	current_ticklimit = config.general.tick_limit_mc_init
 	for (var/datum/controller/subsystem/SS in subsystems)
-		if (SS.flags & SS_NO_INIT)
+		if(SS.flags & SS_NO_INIT)
+			SS.initialized = TRUE // set initialized to TRUE, because the value of initialized may still be checked on SS_NO_INIT subsystems as an "is this ready" check
 			continue
 		SS.Initialize(REALTIMEOFDAY)
 		CHECK_TICK
@@ -288,8 +289,6 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 	var/list/subsystems_to_check
 	//the actual loop.
 	while (1)
-		rustg_prom_counter_inc(PROM_MASTER_ITERATIONS, null)
-
 		tickdrift = max(0, MC_AVERAGE_FAST(tickdrift, (((REALTIMEOFDAY - init_timeofday) - (world.time - init_time)) / world.tick_lag)))
 
 		var/starting_tick_usage = TICK_USAGE
@@ -587,9 +586,12 @@ GLOBAL_REAL(Master, /datum/controller/master) = new
 
 
 
-/datum/controller/master/stat_entry(msg)
-	msg = "(TickRate:[Master.processing]) (Iteration:[Master.iteration])"
-	return msg
+/datum/controller/master/stat_entry()
+	if(!statclick)
+		statclick = new /obj/effect/statclick/debug(null, "Initializing...", src)
+
+	stat("Byond:", "(FPS:[world.fps]) (TickCount:[world.time/world.tick_lag]) (TickDrift:[round(Master.tickdrift,1)]([round((Master.tickdrift/(world.time/world.tick_lag))*100,0.1)]%))")
+	stat("Master Controller:", statclick.update("(TickRate:[Master.processing]) (Iteration:[Master.iteration])"))
 
 /datum/controller/master/StartLoadingMap()
 	//disallow more than one map to load at once, multithreading it will just cause race conditions

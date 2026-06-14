@@ -51,7 +51,7 @@ Thus, the two variables affect pump operation are set in New():
 	if(!Adjacent(user, src) && !issilicon(user))
 		return
 
-	if(!allowed(user))
+	if(!check_access(user))
 		return
 
 	show_splash_text(user, "toggled [use_power ? "off" : "on"]", "You toggle \the [src] [use_power ? "off" : "on"].")
@@ -65,7 +65,7 @@ Thus, the two variables affect pump operation are set in New():
 	if(!Adjacent(user, src) && !issilicon(user))
 		return
 
-	if(!allowed(user))
+	if(!check_access(user))
 		return
 
 	target_pressure = max_pressure_setting
@@ -177,6 +177,7 @@ Thus, the two variables affect pump operation are set in New():
 		return 0
 
 	if(signal.data["power"])
+		playsound(src.loc, 'sound/effects/using/switch/lever2.ogg', 50)
 		if(text2num(signal.data["power"]))
 			update_use_power(POWER_USE_IDLE)
 		else
@@ -205,8 +206,8 @@ Thus, the two variables affect pump operation are set in New():
 /obj/machinery/atmospherics/binary/pump/attack_hand(mob/user)
 	if(..())
 		return
-	src.add_fingerprint(user)
-	if(!src.allowed(user))
+	add_fingerprint(user)
+	if(!check_access(user))
 		to_chat(user, SPAN_WARNING("Access denied."))
 		return
 	user.set_machine(src)
@@ -217,6 +218,7 @@ Thus, the two variables affect pump operation are set in New():
 	if((. = ..())) return
 
 	if(href_list["power"])
+		playsound(src.loc, 'sound/effects/using/switch/lever2.ogg', 50)
 		update_use_power(!use_power)
 		. = 1
 
@@ -249,7 +251,7 @@ Thus, the two variables affect pump operation are set in New():
 		return 1
 	playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
 	to_chat(user, SPAN_NOTICE("You begin to unfasten \the [src]..."))
-	if (do_after(user, 40, src))
+	if (do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 		user.visible_message( \
 			SPAN_NOTICE("\The [user] unfastens \the [src]."), \
 			SPAN_NOTICE("You have unfastened \the [src]."), \

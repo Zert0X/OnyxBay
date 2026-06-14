@@ -7,12 +7,12 @@
 	icon_state = "appendix"
 	filling_color = "#e00d34"
 	center_of_mass = "x=16;y=16"
-	bitesize = 3
+	bitesize = 30
 
 /obj/item/reagent_containers/food/organ/Initialize()
 	. = ..()
-	reagents.add_reagent(/datum/reagent/nutriment/protein, rand(3, 5))
-	reagents.add_reagent(/datum/reagent/toxin, rand(1, 3))
+	reagents.add_reagent(/datum/reagent/nutriment/protein, rand(100, 150))
+	reagents.add_reagent(/datum/reagent/toxin, rand(10, 30))
 
 /obj/item/reagent_containers/food/organ/brain
 	name = "brain"

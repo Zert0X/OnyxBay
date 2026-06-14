@@ -1,29 +1,22 @@
-/turf/proc/CanZPass(atom/A, direction)
-	if(z == A.z) //moving FROM this turf
-		return direction == UP //can't go below
-	else
-		if(direction == UP) //on a turf below, trying to enter
-			return 0
-		if(direction == DOWN) //on a turf above, trying to enter
-			return !density
+/turf/proc/CanZPass(atom/A, direction, check_neighbor_canzpass = TRUE)
+	if(direction == UP)
+		if(!HasAbove(z))
+			return FALSE
+		if(check_neighbor_canzpass)
+			var/turf/T = GetAbove(src)
+			if(!T.CanZPass(A, DOWN, FALSE))
+				return FALSE
 
-/turf/simulated/open/CanZPass(atom/A, direction)
-	if(locate(/obj/structure/catwalk, src)||locate(/obj/structure/industrial_lift, src))
-		if(z == A.z)
-			if(direction == DOWN)
-				return 0
-		else if(direction == UP)
-			return 0
-	return 1
+	else if(direction == DOWN)
+		if(!is_open() || !HasBelow(z) || (locate(/obj/structure/catwalk) in src))
+			return FALSE
+		if(check_neighbor_canzpass)
+			var/turf/T = GetBelow(src)
+			if(!T.CanZPass(A, UP, FALSE))
+				return FALSE
 
-/turf/space/CanZPass(atom/A, direction)
-	if(locate(/obj/structure/catwalk, src))
-		if(z == A.z)
-			if(direction == DOWN)
-				return 0
-		else if(direction == UP)
-			return 0
-	return 1
+	// Hate calling Enter() directly, but that's where obstacles are checked currently.
+	return Enter(A, A)
 
 /turf/simulated/open
 	name = "open space"
@@ -69,9 +62,10 @@
 	mover.fall()
 
 // Called when thrown object lands on this turf.
-/turf/simulated/open/hitby(atom/movable/AM, speed)
-	. = ..()
-	AM.fall()
+/turf/simulated/open/hitby(atom/movable/AM, datum/thrownthing/TT)
+	..()
+	if(!QDELETED(AM))
+		AM.fall()
 
 
 // override to make sure nothing is hidden
@@ -101,7 +95,7 @@
 	var/turf/below = GetBelow(src)
 	if(below)
 		var/below_is_open = isopenspace(below)
-		vis_contents += below
+		update_graphic()
 
 		if(!below_is_open)
 			AddOverlays(GLOB.over_OS_darkness)
@@ -109,9 +103,19 @@
 		return 0
 	return PROCESS_KILL
 
+/turf/simulated/open/update_graphic()
+	var/air_graphic = get_air_graphic()
+	if(LAZYLEN(air_graphic))
+		vis_contents = air_graphic
+	else
+		vis_contents = null
+
+	var/turf/below = GetBelow(src)
+	if(below)
+		vis_contents += below
 
 /turf/simulated/open/attackby(obj/item/C, mob/user)
-	if (istype(C, /obj/item/stack/rods))
+	if(istype(C, /obj/item/stack/rods))
 		var/obj/structure/lattice/L = locate(/obj/structure/lattice, src)
 		if(L)
 			return L.attackby(C, user)
@@ -124,7 +128,7 @@
 			SSopen_space.add_turf(src, 1)
 		return
 
-	if (istype(C, /obj/item/stack/tile))
+	if(istype(C, /obj/item/stack/tile))
 		var/obj/structure/lattice/L = locate(/obj/structure/lattice, src)
 		if(L)
 			var/obj/item/stack/tile/floor/S = C
@@ -147,6 +151,26 @@
 		coil.turf_place(src, user)
 		return
 	return
+
+/turf/simulated/open/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
+	if(the_rcd.mode == RCD_TURF && the_rcd.rcd_design_path == /turf/simulated/floor/plating)
+		var/obj/structure/lattice/L = locate(/obj/structure/lattice, src)
+		if(L)
+			return list("delay" = 0, "cost" = 1)
+		else
+			return list("delay" = 0, "cost" = 3)
+
+	return FALSE
+
+/turf/simulated/open/rcd_act(mob/user, obj/item/construction/rcd/the_rcd, list/rcd_data)
+	if(rcd_data["[RCD_DESIGN_MODE]"] == RCD_TURF)
+		ChangeTurf(/turf/simulated/floor/plating)
+		var/obj/structure/lattice/L = locate(/obj/structure/lattice, src)
+		if(L)
+			qdel(L)
+		return TRUE
+
+	return FALSE
 
 //Most things use is_plating to test if there is a cover tile on top (like regular floors)
 /turf/simulated/open/is_plating()

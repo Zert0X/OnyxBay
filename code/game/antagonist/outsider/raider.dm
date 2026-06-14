@@ -31,7 +31,7 @@ GLOBAL_DATUM_INIT(raiders, /datum/antagonist/raider, new)
 		/obj/item/clothing/under/pirate,
 		/obj/item/clothing/under/redcoat,
 		/obj/item/clothing/under/captain_fly,
-		/obj/item/clothing/under/det,
+		/obj/item/clothing/under/rank/det,
 		/obj/item/clothing/under/color/brown,
 		)
 

@@ -9,6 +9,7 @@
 					/obj/item/storage/firstaid/toxin,
 					/obj/item/storage/firstaid/o2,
 					/obj/item/storage/firstaid/adv,
+					/obj/item/storage/firstaid/antirad,
 					/obj/item/reagent_containers/vessel/bottle/chemical/antitoxin,
 					/obj/item/reagent_containers/vessel/bottle/chemical/inaprovaline,
 					/obj/item/reagent_containers/vessel/bottle/chemical/stoxin,
@@ -19,13 +20,13 @@
 
 /decl/hierarchy/supply_pack/medical/somaticgel
 	name = "Somatic gel crate"
-	contains = list(/obj/item/stack/medical/advanced/bruise_pack = 5)
+	contains = list(/obj/item/stack/medical/gel/brute = 5)
 	cost = 10
 	containername = "\improper Somatic gel crate"
 
 /decl/hierarchy/supply_pack/medical/burngel
 	name = "Burn gel crate"
-	contains = list(/obj/item/stack/medical/advanced/ointment = 5)
+	contains = list(/obj/item/stack/medical/gel/burn = 5)
 	cost = 10
 	containername = "\improper Burn gel crate"
 
@@ -54,10 +55,14 @@
 					/obj/item/storage/pill_bottle/kelotane,
 					/obj/item/storage/pill_bottle/spaceacillin,
 					/obj/item/storage/pill_bottle/tramadol,
+					/obj/item/storage/pill_bottle/oxycodone,
 					/obj/item/storage/pill_bottle/antidexafen,
 					/obj/item/storage/pill_bottle/paracetamol,
 					/obj/item/storage/pill_bottle/hyronalin,
-					/obj/item/storage/pill_bottle/glucose)
+					/obj/item/storage/pill_bottle/glucose,
+					/obj/item/storage/pill_bottle/tricordrazine,
+					/obj/item/storage/pill_bottle/ryetalyn,
+					/obj/item/storage/pill_bottle/albumin)
 	name = "Surplus medical drugs"
 	cost = 30
 	containername = "\improper Medical drugs crate"
@@ -81,16 +86,22 @@
 	containername = "\improper Syringe cartridges crate"
 
 /decl/hierarchy/supply_pack/medical/bloodpack
-	name = "Blood pack crate"
+	name = "IV bags crate"
 	contains = list(/obj/item/storage/box/bloodpacks = 3)
 	cost = 10
-	containername = "\improper Blood pack crate"
+	containername = "\improper IV bags crate"
 
 /decl/hierarchy/supply_pack/medical/blood
-	name = "Nanoblood crate"
+	name = "IV bags (nanoblood) crate"
 	contains = list(/obj/item/reagent_containers/ivbag/nanoblood = 4)
 	cost = 15
 	containername = "\improper Nanoblood crate"
+
+/decl/hierarchy/supply_pack/medical/saline
+	name = "IV bags (saline) crate"
+	contains = list(/obj/item/reagent_containers/ivbag/saline = 10)
+	cost = 10
+	containername = "\improper Saline crate"
 
 /decl/hierarchy/supply_pack/medical/bodybag
 	name = "Body bag crate"
@@ -186,9 +197,8 @@
 					/obj/item/clothing/glasses/hud/one_eyed/oneye/medical,
 					/obj/item/clothing/suit/storage/toggle/labcoat,
 					/obj/item/clothing/under/rank/medical/paramedic,
-					/obj/item/clothing/suit/storage/toggle/fr_jacket,
+					/obj/item/clothing/suit/storage/toggle/paramedic,
 					/obj/item/clothing/mask/gas,
-					/obj/item/clothing/under/rank/medical/paramedic,
 					/obj/item/clothing/accessory/stethoscope,
 					/obj/item/storage/firstaid/adv,
 					/obj/item/clothing/shoes/jackboots,
@@ -232,6 +242,7 @@
 					/obj/item/clothing/head/surgery/blue,
 					/obj/item/clothing/head/surgery/green,
 					/obj/item/storage/box/masks,
+					/obj/item/storage/box/compact_shoe_covers,
 					/obj/item/storage/box/gloves)
 	cost = 15
 	containertype = /obj/structure/closet/crate/secure
@@ -270,6 +281,7 @@
 					/obj/item/clothing/suit/storage/toggle/labcoat/virologist,
 					/obj/item/clothing/suit/storage/toggle/labcoat/chemist,
 					/obj/item/storage/box/masks,
+					/obj/item/storage/box/compact_shoe_covers,
 					/obj/item/storage/box/gloves)
 	cost = 15
 	containertype = /obj/structure/closet/crate/secure
@@ -330,7 +342,7 @@
 
 /decl/hierarchy/supply_pack/medical/rig
 	name = "Medical RIG"
-	contains = list(/obj/item/rig/medical)
+	contains = list(/obj/item/rig/medical/equipped)
 	cost = 360
 	containername = "\improper Medical RIG crate"
 	containertype = /obj/structure/closet/crate/secure

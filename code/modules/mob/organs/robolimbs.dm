@@ -18,21 +18,25 @@ var/datum/robolimb/basic_robolimb
 	var/unavailable_at_fab = TRUE                                                    // If set, cannot be fabricated.
 	var/can_eat = FALSE
 	var/has_eyes_icon = TRUE                                                         // If set, will draw eyes overlay.
-	var/can_feel_pain = FALSE
 	var/skintone
 	var/list/species_cannot_use = list()
 	var/list/restricted_to = list()
 	var/list/applies_to_part = list()
+	var/list/default_modules = list()
+	var/brute_mod = 0.9																					/// How resistant this prosthetic type is to brute damage.
+	var/burn_mod = 1.1																					/// How resistant this prosthetic type is to burn damage.
+	var/max_module_size = 4
+	var/list/racial_icons = list(
+		SPECIES_TAJARA = 'icons/mob/human_races/cyberlimbs/unbranded/unbranded_taj.dmi'
+	)
 
 /datum/robolimb/nanotrasen
 	company = "NanoTrasen"
 	desc = "This limb is made from a cheap polymer."
 	unavailable_at_fab = FALSE
-
-/datum/robolimb/nanotrasen/tajaran
-	company = "NanoTrasen - Tajaran"
-	icon = 'icons/mob/human_races/cyberlimbs/unbranded/unbranded_taj.dmi'
-	restricted_to = list(SPECIES_TAJARA)
+	racial_icons = list(
+		SPECIES_TAJARA = 'icons/mob/human_races/cyberlimbs/unbranded/unbranded_taj.dmi'
+	)
 
 /datum/robolimb/nanotrasen/unathi
 	company = "NanoTrasen - Unathi"
@@ -43,27 +47,34 @@ var/datum/robolimb/basic_robolimb
 	company = "Bishop"
 	desc = "This limb has a white polymer casing with blue holo-displays."
 	icon = 'icons/mob/human_races/cyberlimbs/bishop/bishop_main.dmi'
+	racial_icons = list(
+		SPECIES_TAJARA = 'icons/mob/human_races/cyberlimbs/bishop/bishop_taj.dmi'
+	)
 
 /datum/robolimb/hephaestus
 	company = "Hephaestus Industries"
 	desc = "This limb has a militaristic black and green casing with gold stripes."
 	icon = 'icons/mob/human_races/cyberlimbs/hephaestus/hephaestus_main.dmi'
+	racial_icons = list(
+		SPECIES_TAJARA = 'icons/mob/human_races/cyberlimbs/hephaestus/hephaestus_taj.dmi'
+	)
 
 /datum/robolimb/zenghu
 	company = "Zeng-Hu"
 	desc = "This limb has a rubbery fleshtone covering with visible seams."
 	icon = 'icons/mob/human_races/cyberlimbs/zenghu/zenghu_main.dmi'
 	can_eat = TRUE
-
-/datum/robolimb/zenghu/tajaran
-	company = "Zeng-Hu - Tajaran"
-	icon = 'icons/mob/human_races/cyberlimbs/zenghu/zenghu_taj.dmi'
-	restricted_to = list(SPECIES_TAJARA)
+	racial_icons = list(
+		SPECIES_TAJARA = 'icons/mob/human_races/cyberlimbs/zenghu/zenghu_taj.dmi'
+	)
 
 /datum/robolimb/xion
 	company = "Xion"
 	desc = "This limb has a minimalist black and red casing."
 	icon = 'icons/mob/human_races/cyberlimbs/xion/xion_main.dmi'
+	racial_icons = list(
+		SPECIES_TAJARA = 'icons/mob/human_races/cyberlimbs/xion/xion_taj.dmi'
+	)
 
 /datum/robolimb/xion/alt
 	company = "Xion Alt."
@@ -76,11 +87,17 @@ var/datum/robolimb/basic_robolimb
 	desc = "This limb features sleek black and white polymers."
 	icon = 'icons/mob/human_races/cyberlimbs/wardtakahashi/wardtakahashi_main.dmi'
 	can_eat = TRUE
+	racial_icons = list(
+		SPECIES_TAJARA = 'icons/mob/human_races/cyberlimbs/wardtakahashi/wardtakahashi_taj.dmi'
+	)
 
 /datum/robolimb/morpheus
 	company = "Morpheus"
-	desc = "This limb is simple and functional; no effort has been made to make it look human."
+	desc = "This limb is simple and functional; no effort has been made to make it look realistic."
 	icon = 'icons/mob/human_races/cyberlimbs/morpheus/morpheus_main.dmi'
+	racial_icons = list(
+		SPECIES_TAJARA = 'icons/mob/human_races/cyberlimbs/morpheus/morpheus_taj.dmi'
+	)
 
 /datum/robolimb/veymed
 	company = "Vey-Med"

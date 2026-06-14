@@ -19,7 +19,7 @@ GLOBAL_LIST_INIT(contracts_steal_items, list(
 	"a chief engineer's jumpsuit" =                     list(CONTRACT_STEAL_UNDERPANTS, /obj/item/clothing/under/rank/chief_engineer),
 	"a chief medical officer's jumpsuit" =              list(CONTRACT_STEAL_UNDERPANTS, /obj/item/clothing/under/rank/chief_medical_officer),
 	"a head of security's jumpsuit" =                   list(CONTRACT_STEAL_UNDERPANTS, /obj/item/clothing/under/rank/head_of_security),
-	"a head of personnel's jumpsuit" =                  list(CONTRACT_STEAL_UNDERPANTS, /obj/item/clothing/under/rank/head_of_personnel),
+	"a head of provisioning's jumpsuit" =               list(CONTRACT_STEAL_UNDERPANTS, /obj/item/clothing/under/rank/hop),
 	"the hypospray" =                                   list(CONTRACT_STEAL_SCIENCE, /obj/item/reagent_containers/hypospray/vial),
 	"the captain's pinpointer" =                        list(CONTRACT_STEAL_OPERATION, /obj/item/pinpointer),
 	"an ion pistol" =                                   list(CONTRACT_STEAL_MILITARY, /obj/item/gun/energy/ionrifle/small),
@@ -58,6 +58,7 @@ GLOBAL_LIST_INIT(syndicate_factions, list(
 	var/reason
 	var/list/reason_list = list()
 	var/datum/contract_organization/organization
+	var/list/wanted_jobs = list()
 
 /datum/antag_contract/New(datum/contract_organization/contract_organization, reason, datum/mind/target)
 	ASSERT(intent)
@@ -102,6 +103,16 @@ GLOBAL_LIST_INIT(syndicate_factions, list(
 	if(!H?.species)
 		return FALSE
 	return !!(H.species.species_flags & SPECIES_FLAG_NO_ANTAG_TARGET)
+
+/datum/antag_contract/proc/skip_unwanted_job(datum/mind/H)
+	var/datum/job/title = job_master.GetJob(H.assigned_role)
+	if(length(wanted_jobs))
+		if(title in wanted_jobs)
+			return FALSE
+		else
+			return TRUE
+	else
+		return FALSE
 
 /datum/antag_contract/proc/create_contract(new_reason, target)
 	return
@@ -400,6 +411,7 @@ GLOBAL_LIST_INIT(syndicate_factions, list(
 	var/weakref/alternative_target // obj/item
 	var/weakref/H // mob/living/carbon/human
 	var/full_reward_mod = 1.5
+	wanted_jobs = list(/datum/job/captain,/datum/job/hop,/datum/job/rd,/datum/job/chief_engineer,/datum/job/cmo,/datum/job/hos, /datum/job/warden, /datum/job/detective)
 
 /datum/antag_contract/item/assassinate/New(datum/contract_organization/contract_organization, reason, datum/mind/target)
 	organization = contract_organization
@@ -438,7 +450,7 @@ GLOBAL_LIST_INIT(syndicate_factions, list(
 
 			target_real_name = _H.real_name
 			target_mind = candidate_mind
-			if(skip_antag_role() || skip_unwanted_species(_H))
+			if(skip_antag_role() || skip_unwanted_species(_H) || skip_unwanted_job(target_mind))
 				target_mind = null
 				_H = null
 				continue
@@ -464,10 +476,10 @@ GLOBAL_LIST_INIT(syndicate_factions, list(
 	brain = weakref(_H.internal_organs_by_name[BP_BRAIN])
 
 	var/obj/item/organ/_target
-	if(_H.organs_by_name[BP_STACK])
+	if(_H.external_organs_by_name[BP_STACK])
 		_target = _H.internal_organs_by_name[BP_STACK]
 	else
-		_target = _H.organs_by_name[BP_HEAD]
+		_target = _H.external_organs_by_name[BP_HEAD]
 	target = weakref(_target)
 
 	var/datum/gender/T = gender_datums[_H.get_gender()]
@@ -641,6 +653,86 @@ GLOBAL_LIST_INIT(syndicate_factions, list(
 	for(var/area/A in sensor.active_recon_areas_list)
 		if(A in targets)
 			complete(sensor.uplink)
+
+/datum/antag_contract/item/disfigure
+	name = "Disfigure"
+	category = CONTRACT_CATEGORY_IMPLANT
+	reward = 4 // This is how expensive your face is, fellow NT employee
+	intent = CONTRACT_IMPACT_MILITARY
+	var/target_real_name
+	var/weakref/H // mob/living/carbon/human
+	var/mob/living/carbon/human/target
+
+/datum/antag_contract/item/disfigure/New(datum/contract_organization/contract_organization, reason, datum/mind/target)
+	organization = contract_organization
+	create_contract(reason, target)
+	..()
+
+/datum/antag_contract/item/disfigure/generate_antag_reasons()
+	..()
+	reason_list[MODE_TRAITOR] = list("the target has possibly double-crossed us", 2, 5)
+	reason_list[MODE_ERT] = list("the target is very dangerous for the current operations at this object", 4, 85)
+	ban_non_crew_antag()
+
+/datum/antag_contract/item/disfigure/create_contract(new_reason, datum/mind/Ctarget)
+	generate_antag_reasons()
+	if(!new_reason)
+		reason = pick("the target shut down their agent on mission", "the target important to NanoTransen")
+	else
+		reason = new_reason
+
+	var/mob/living/carbon/human/_H
+	if(!Ctarget)
+		var/list/candidates = SSticker.minds.Copy()
+
+		// Don't target the same player twice
+		for(var/datum/antag_contract/item/disfigure/C in GLOB.all_contracts)
+			candidates -= C.target_mind
+
+		while(candidates.len)
+			var/datum/mind/candidate_mind = pick(candidates)
+			candidates -= candidate_mind
+
+			_H = candidate_mind.current
+			H = weakref(_H)
+			target = _H
+			if(!istype(_H) || _H.is_ooc_dead() || !is_station_turf(get_turf(_H)))
+				continue
+
+			target_real_name = _H.real_name
+			target_mind = candidate_mind
+			if(skip_antag_role() || skip_unwanted_species(_H))
+				target_mind = null
+				_H = null
+				continue
+			name = "[name] [target_real_name]"
+			break
+	else
+		target_mind = Ctarget
+		if(!new_reason)
+			skip_antag_role(TRUE)
+		_H = target_mind.current
+		if(!istype(_H))
+			return
+		H = weakref(_H)
+		target = _H
+		target_real_name = _H.real_name
+		name = "[name] [target_real_name]"
+	if(!istype(H))
+		return
+	create_explain_text("disfigure <b>[target_real_name]</b> face and send the photo of them via STD (found in <b>Contracts Equipment</b>) as a proof.")
+
+/datum/antag_contract/item/disfigure/can_place()
+	return ..() && !QDELETED(target_mind) && !QDELETED(target_mind.current)
+
+/datum/antag_contract/item/disfigure/check_contents(list/contents)
+	for(var/obj/item/photo/p in contents)
+		if(target in p.disfigured_mobs)
+			return TRUE
+
+/datum/antag_contract/item/disfigure/on_mob_despawned(datum/mind/M)
+	if(M == target_mind)
+		remove()
 
 #undef CONTRACT_REASON
 #undef CONTRACT_REWARD

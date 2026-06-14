@@ -4,6 +4,7 @@
 
 /obj/item/circuitboard/recharge_station
 	name = T_BOARD("cyborg recharging station")
+	icon_state = "id_mod_purple"
 	build_path = /obj/machinery/recharge_station
 	board_type = "machine"
 	origin_tech = list(TECH_DATA = 3, TECH_ENGINEERING = 3)

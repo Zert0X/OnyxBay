@@ -12,6 +12,10 @@
 	else
 		icon_state = icon_opened
 
+/obj/structure/closet/cabinet/Initialize()
+	. = ..()
+	AddElement(/datum/element/debris, DEBRIS_WOOD, -10, 5)
+
 /obj/structure/closet/cabinet/wizcabinet
 	desc = "Magic will forever be in fashion."
 	icon_state = "wizcabinet_closed"
@@ -57,11 +61,11 @@
 	return list(
 		/obj/item/clothing/glasses/eyepatch,
 		/obj/item/clothing/glasses/sunglasses,
-		/obj/item/clothing/gloves/thick/swat = 2,
+		/obj/item/clothing/gloves/swat = 2,
 		/obj/item/clothing/head/helmet/swat = 2,
 		/obj/item/clothing/mask/gas = 2,
 		/obj/item/clothing/shoes/swat = 2,
-		/obj/item/clothing/suit/space/void/swat = 2,
+		/obj/item/clothing/suit/space/void/deathsquad = 2,
 		/obj/item/clothing/under/syndicate/tacticool = 2)
 
 /obj/structure/closet/thunderdome
@@ -78,7 +82,7 @@
 /obj/structure/closet/thunderdome/tdred/WillContain()
 	return list(
 		/obj/item/clothing/suit/armor/tdome/red = 3,
-		/obj/item/melee/energy/sword/one_hand/red = 3,
+		/obj/item/melee/energy/sword/saber/red = 3,
 		/obj/item/gun/energy/laser = 3,
 		/obj/item/melee/baton = 3,
 		/obj/item/storage/box/flashbangs = 3,
@@ -94,7 +98,7 @@
 /obj/structure/closet/thunderdome/tdgreen/WillContain()
 	return list(
 		/obj/item/clothing/suit/armor/tdome/green = 3,
-		/obj/item/melee/energy/sword/one_hand/green = 3,
+		/obj/item/melee/energy/sword/saber/green = 3,
 		/obj/item/gun/energy/laser = 3,
 		/obj/item/melee/baton = 3,
 		/obj/item/storage/box/flashbangs = 3,

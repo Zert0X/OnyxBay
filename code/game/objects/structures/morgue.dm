@@ -96,7 +96,7 @@
 /obj/structure/morgue/attackby(P as obj, mob/user as mob)
 	if(istype(P, /obj/item/pen))
 		var/t = input(user, "What would you like the label to be?", text("[]", src.name), null)  as text
-		if(user.get_active_hand() != P)
+		if(!user.has_in_hands(P))
 			return
 		if(!in_range(src, usr) && src.loc != user)
 			return
@@ -276,7 +276,7 @@
 /obj/structure/crematorium/attackby(P as obj, mob/user as mob)
 	if(istype(P, /obj/item/pen))
 		var/t = input(user, "What would you like the label to be?", text("[]", src.name), null)  as text
-		if(user.get_active_hand() != P)
+		if(!user.has_in_hands(P))
 			return
 		if(!in_range(src, usr) > 1 && src.loc != user)
 			return
@@ -344,9 +344,9 @@
 							shake_animation(3)
 							playsound(src.loc, 'sound/effects/grillehit.ogg', 45, 1)
 						if(3)
-							playsound(src, 'sound/effects/bang.ogg', 45, 1)
+							playsound(src, GET_SFX(SFX_BANG), 45, 1)
 							if(prob(50))
-								playsound(src, 'sound/effects/bang.ogg', 45, 1)
+								playsound(src, GET_SFX(SFX_BANG), 45, 1)
 								shake_animation()
 							else
 								shake_animation(5)
@@ -443,7 +443,7 @@
 /obj/machinery/button/crematorium/attack_hand(mob/user as mob)
 	if(..())
 		return
-	if(src.allowed(user))
+	if(check_access(user))
 		for(var/obj/structure/crematorium/C in world)
 			if(C.id == id)
 				if(!C.cremating)

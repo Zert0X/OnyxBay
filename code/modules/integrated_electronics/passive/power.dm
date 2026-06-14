@@ -96,7 +96,7 @@
 	activators = list()
 	spawn_flags = IC_SPAWN_DEFAULT|IC_SPAWN_RESEARCH
 	atom_flags = ATOM_FLAG_OPEN_CONTAINER
-	var/volume = 60
+	var/volume = 0.6 LITERS
 	var/list/fuel = list(/datum/reagent/toxin/plasma = 50000, /datum/reagent/fuel = 15000, /datum/reagent/carbon = 10000, /datum/reagent/ethanol = 10000, /datum/reagent/nutriment = 8000)
 	var/lfwb =TRUE
 

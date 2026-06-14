@@ -41,8 +41,8 @@
 	spawn(5)
 		brainchan?.client?.screen.len = null //clear the hud
 
-	reagents.maximum_volume += 5
-	reagents.add_reagent(/datum/reagent/toxin/cyanide/change_toxin, 5)
+	reagents.maximum_volume += 15
+	reagents.add_reagent(/datum/reagent/toxin/cyanide/change_toxin, 15)
 
 
 /obj/item/organ/internal/biostructure/Destroy()
@@ -111,9 +111,9 @@
 		spawn()
 			if(brainchan)
 				if(istype(loc, /obj/item/organ/external) || brainchan.loc == src)
-					grant_verb(brainchan, /mob/living/carbon/brain/proc/transform_into_little_changeling)
+					brainchan.verbs += /mob/living/carbon/brain/proc/transform_into_little_changeling
 				else
-					revoke_verb(brainchan, /mob/living/carbon/brain/proc/headcrab_runaway)
+					brainchan.verbs += /mob/living/carbon/brain/proc/headcrab_runaway
 
 	..()
 
@@ -148,8 +148,7 @@
 	if(ishuman(source))
 		var/mob/living/carbon/human/H = source
 		if(H == owner)
-			H.internal_organs_by_name.Remove(BP_CHANG)
-			H.internal_organs_by_name -= BP_CHANG // Yes this is intended, even after the previous line. Everything will get broken if you remove this.
+			H.internal_organs_by_name -= BP_CHANG
 			H.internal_organs.Remove(src)
 
 			var/obj/item/organ/external/affected = H.get_organ(parent_organ)

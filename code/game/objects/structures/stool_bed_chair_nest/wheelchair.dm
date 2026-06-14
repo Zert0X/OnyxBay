@@ -30,7 +30,7 @@
 	..()
 	ClearOverlays()
 	var/image/O = image(icon = 'icons/obj/furniture.dmi', icon_state = "w_overlay", dir = src.dir)
-	O.layer = ABOVE_HUMAN_LAYER
+	O.layer = DEPTH_OVERLAY_LAYER
 	AddOverlays(O)
 	if(buckled_mob)
 		buckled_mob.set_dir(dir)
@@ -154,7 +154,7 @@
 /obj/structure/bed/chair/wheelchair/MouseDrop_T(atom/movable/dropping, mob/living/user)
 	if(istype(dropping, /obj/structure/disposalconstruct) && !buckled_mob)
 		show_splash_text(user, "attaching...", "You start attaching \the [dropping] to \the [src]...")
-		if(!do_after(user, 10 SECONDS, src, TRUE))
+		if(!do_after(user, 10 SECONDS, src, TRUE, luck_check_type = LUCK_CHECK_COMBAT))
 			return
 
 		if(QDELETED(src) || QDELETED(dropping) || QDELETED(user) || buckled_mob)

@@ -226,7 +226,7 @@
 	target.visible_message(SPAN_WARNING("The markings below [target] glow a bloody red."))
 
 	var/list/mob/living/cultists = get_cultists()
-	if((GLOB.changelings && (target.mind in GLOB.changelings.current_antagonists)) || isalien(target) || istype(target, /mob/living/carbon/human/diona) || istype(target, /mob/living/carbon/human/xenos) || HAS_TRAIT(target, TRAIT_HOLY))
+	if((GLOB.changelings && (target.mind in GLOB.changelings.current_antagonists)) || islarva(target) || istype(target, /mob/living/carbon/human/diona) || istype(target, /mob/living/carbon/human/xenos) || HAS_TRAIT(target, TRAIT_HOLY))
 		to_chat(target, SPAN("changeling", "You feel a slight buzz in your head as a foreign mental force makes futile attempts at invading your mind."))
 		for(var/mob/living/M in cultists)
 			to_chat(M, SPAN_DANGER("You feel a strong mental force blocking your belief from entering their mind.<br>Seems like you won't be able to convert \the [target]..."))
@@ -252,19 +252,19 @@
 				GLOB.cult.add_antagonist(target.mind, ignore_role = TRUE, do_not_equip = TRUE)
 		else // They hesitated, resisted, or can't join, and they are still on the rune - damage them
 			if(target.stat == CONSCIOUS)
-				target.take_overall_damage(10, 0)
+				target.take_overall_damage(10, 0, spread_damage = FALSE)
 				switch(target.getFireLoss())
 					if(0 to 25)
 						to_chat(target, SPAN_DANGER("Your blood boils as you force yourself to resist the corruption invading every corner of your mind."))
 					if(25 to 45)
 						to_chat(target, SPAN_DANGER("Your blood boils and your body burns as the corruption further forces itself into your body and mind."))
-						target.take_overall_damage(3, 5)
+						target.take_overall_damage(3, 5, spread_damage = FALSE)
 					if(45 to 75)
 						to_chat(target, SPAN_DANGER("You begin to hallucinate images of a dark and incomprehensible being and your entire body feels like its engulfed in flame as your mental defenses crumble."))
-						target.take_overall_damage(5, 10)
+						target.take_overall_damage(5, 10, spread_damage = FALSE)
 					if(75 to 100)
 						to_chat(target, SPAN_OCCULT("Your mind turns to ash as the burning flames engulf your very soul and images of an unspeakable horror begin to bombard the last remnants of mental resistance."))
-						target.take_overall_damage(10, 20)
+						target.take_overall_damage(10, 20, spread_damage = FALSE)
 
 /obj/effect/rune/convert/Topic(href, href_list)
 	var/list/mob/living/cultists = get_cultists()
@@ -578,7 +578,7 @@
 		if(casters.len < 3)
 			break
 		//T.turf_animation('icons/effects/effects.dmi', "rune_sac")
-		victim.fire_stacks = max(2, victim.fire_stacks)
+		victim.adjust_fire_stacks(FIRE_STACKS_MAX)
 		victim.IgniteMob()
 		victim.take_organ_damage(2 + casters.len, 2 + casters.len) // This is to speed up the process and also damage mobs that don't take damage from being on fire, e.g. borgs
 		if(ishuman(victim))
@@ -685,7 +685,7 @@
 		if(!charges)
 			return statuses
 	if(charges >= 15)
-		for(var/obj/item/organ/external/E in user.organs)
+		for(var/obj/item/organ/external/E in user.external_organs)
 			if(E && (E.status & ORGAN_BROKEN))
 				E.mend_fracture()
 				statuses += "bones in your [E.name] snap into place"
@@ -718,6 +718,7 @@
 	reagent_state = LIQUID
 	color = "#0050a177"
 	metabolism = REM * 0.1
+	ingest_met = REM // It's MAGICAL, let it work straight from the stomach.
 
 /datum/reagent/hell_water/affect_ingest(mob/living/carbon/M, alien, removed)
 	if(iscultist(M))
@@ -729,8 +730,9 @@
 		M.adjustOxyLoss(-10 * removed)
 		M.heal_organ_damage(5 * removed, 5 * removed)
 		M.adjustToxLoss(-5 * removed)
+		M.adjustInternalLoss(-5 * removed)
 	else
-		M.fire_stacks = max(2, M.fire_stacks)
+		M.adjust_fire_stacks(2)
 		M.IgniteMob()
 
 /obj/effect/rune/emp

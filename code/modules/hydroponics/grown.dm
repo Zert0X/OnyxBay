@@ -42,23 +42,34 @@
 		return
 
 	potency = seed.get_trait(TRAIT_POTENCY)
+
 	if(!reagents)
 		create_reagents(volume)
 	reagents.clear_reagents()
+	reagents.maximum_volume = 10 LITERS
+
 	// Fill the object up with the appropriate reagents.
-	for(var/rid in seed.chems)
-		var/list/reagent_data = seed.chems[rid]
+	for(var/reagent_path in seed.chems)
+		var/list/reagent_data = seed.chems[reagent_path]
 		if(LAZYLEN(reagent_data))
-			var/rtotal = reagent_data[1]
+			// Default volume
+			var/volume_to_add = reagent_data[1]
 			var/list/data = list()
-			if(LAZYACCESS(reagent_data, 2) && potency > 0)
-				rtotal += round(potency/reagent_data[2])
-			if(rid == /datum/reagent/nutriment)
-				LAZYSET(data, seed.seed_name, max(1, rtotal))
-			reagents.add_reagent(rid,max(1,rtotal),data)
+			if(potency > 0)
+				// Additional volume per point of potency
+				if(LAZYACCESS(reagent_data, 2))
+					volume_to_add += round((potency - 1) * reagent_data[2])
+				// Higher potency = more taste, no potency = tasteless
+				if(reagent_path == /datum/reagent/nutriment)
+					// Setting taste data
+					LAZYSET(data, seed.seed_name, (potency - 1) * 0.1)
+			if(volume_to_add)
+				reagents.add_reagent(reagent_path, volume_to_add, data)
+
 	update_desc()
+	recalc_max_volume()
 	if(reagents.total_volume > 0)
-		bitesize = 1 + round(reagents.total_volume / 2, 1)
+		bitesize = min(reagents.total_volume, 30)
 
 /obj/item/reagent_containers/food/grown/proc/update_desc()
 
@@ -142,14 +153,8 @@
 /obj/item/reagent_containers/food/grown/Crossed(mob/living/M)
 	if(seed && seed.get_trait(TRAIT_JUICY) == 2)
 		if(istype(M))
-
-			if(M.buckled)
+			if(!M.can_slip())
 				return
-
-			if(istype(M,/mob/living/carbon/human))
-				var/mob/living/carbon/human/H = M
-				if(H.shoes && H.shoes.item_flags & ITEM_FLAG_NOSLIP)
-					return
 
 			M.stop_pulling()
 			to_chat(M, "<span class='notice'>You slipped on the [name]!</span>")
@@ -166,9 +171,9 @@
 		apply_hit_effect(M, user, def_zone)
 	else return ..()
 
-/obj/item/reagent_containers/food/grown/throw_impact(atom/hit_atom)
-	seed?.thrown_at(src, hit_atom)
+/obj/item/reagent_containers/food/grown/throw_impact(atom/hit_atom, datum/thrownthing/TT)
 	..()
+	seed?.thrown_at(src, hit_atom)
 
 /obj/item/reagent_containers/food/grown/attackby(obj/item/W, mob/user)
 

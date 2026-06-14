@@ -17,11 +17,12 @@
 	hazard_low_pressure = HAZARD_LOW_PRESSURE * 0.8
 	warning_high_pressure = WARNING_HIGH_PRESSURE * 1.2
 	hazard_high_pressure = HAZARD_HIGH_PRESSURE * 1.2
-	blood_volume = 800
+	blood_volume = 8 LITERS
 	num_alternate_languages = 2
 	name_language = null
 	hunger_factor = DEFAULT_HUNGER_FACTOR * 3
 	meat_type = /obj/item/reagent_containers/food/meat/pork
+	remains_type = /obj/item/remains/human
 
 	min_age = 18
 	max_age = 80
@@ -67,5 +68,6 @@
 	if(H.InStasis() || H.is_ic_dead() || isundead(H))
 		return
 	if(H.nutrition < 50)
-		H.adjustToxLoss(2, 0)
+		H.adjustInternalLoss(2.0)
+		H.adjustToxLoss(2.0, TRUE)
 		return

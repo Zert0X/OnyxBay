@@ -4,6 +4,7 @@
 
 /obj/item/circuitboard/resleever
 	name = T_BOARD("neural lace resleever")
+	icon_state = "id_mod_cyan"
 	build_path = /obj/machinery/resleever
 	board_type = "machine"
 	origin_tech = list(TECH_DATA = 3, TECH_BIO = 3)
@@ -14,6 +15,7 @@
 							/obj/item/stock_parts/console_screen = 1)
 /obj/item/circuitboard/bioprinter
 	name = T_BOARD("bioprinter")
+	icon_state = "id_mod_cyan"
 	build_path = /obj/machinery/organ_printer/flesh
 	board_type = "machine"
 	origin_tech = list(TECH_ENGINEERING = 1, TECH_BIO = 3, TECH_DATA = 3)
@@ -25,6 +27,7 @@
 
 /obj/item/circuitboard/roboprinter
 	name = T_BOARD("prosthetic organ fabricator")
+	icon_state = "id_mod_cyan"
 	build_path = /obj/machinery/organ_printer/robot
 	board_type = "machine"
 	origin_tech = list(TECH_ENGINEERING = 3, TECH_DATA = 3)
@@ -35,6 +38,7 @@
 
 /obj/item/circuitboard/cryo_cell
 	name = T_BOARD("cryo chamber")
+	icon_state = "id_mod_cyan"
 	build_path = /obj/machinery/atmospherics/unary/cryo_cell
 	board_type = "machine"
 	origin_tech = list(TECH_ENGINEERING = 1, TECH_BIO = 3, TECH_DATA = 3)
@@ -48,6 +52,7 @@
 
 /obj/item/circuitboard/body_scanner
 	name = T_BOARD("body scanner")
+	icon_state = "id_mod_cyan"
 	build_path = /obj/machinery/bodyscanner
 	board_type = "machine"
 	origin_tech = list(TECH_ENGINEERING = 3, TECH_BIO = 5, TECH_DATA = 5)
@@ -59,6 +64,7 @@
 
 /obj/item/circuitboard/optable
 	name = T_BOARD("operating table")
+	icon_state = "id_mod_cyan"
 	build_path = /obj/machinery/optable
 	board_type = "machine"
 	origin_tech = list(TECH_ENGINEERING = 3, TECH_BIO = 3)
@@ -66,12 +72,14 @@
 
 /obj/item/circuitboard/bodyscanner_console
 	name = T_BOARD("body scanner console")
+	icon_state = "id_mod_cyan"
 	board_type = "machine"
 	build_path = /obj/machinery/body_scanconsole
 	origin_tech = list(TECH_ENGINEERING = 3, TECH_BIO = 5, TECH_DATA = 5)
 
 /obj/item/circuitboard/chemmaster
 	name = T_BOARD("chem Master 3000")
+	icon_state = "id_mod_cyan"
 	board_type = "machine"
 	build_path = /obj/machinery/chem_master
 	req_components = list(
@@ -84,6 +92,7 @@
 
 /obj/item/circuitboard/grinder
 	name = T_BOARD("All-In-One Grinder")
+	icon_state = "id_mod_yellow"
 	board_type = "machine"
 	req_components = list(
 		/obj/item/stock_parts/scanning_module = 1,
@@ -95,6 +104,7 @@
 
 /obj/item/circuitboard/chemical_dispenser
 	name = T_BOARD("chemical dispenser")
+	icon_state = "id_mod_cyan"
 	board_type = "machine"
 	build_path = /obj/machinery/chemical_dispenser
 	req_components = list(
@@ -108,6 +118,7 @@
 // Virology
 /obj/item/circuitboard/centrifuge
 	name = T_BOARD("isolation centrifuge")
+	icon_state = "id_mod_cyan"
 	board_type = "machine"
 	build_path = /obj/machinery/computer/centrifuge
 	req_components = list(
@@ -117,6 +128,7 @@
 
 /obj/item/circuitboard/dishincubator
 	name = T_BOARD("pathogenic incubator")
+	icon_state = "id_mod_cyan"
 	board_type = "machine"
 	build_path = /obj/machinery/disease2/incubator
 	req_components = list(
@@ -128,6 +140,7 @@
 
 /obj/item/circuitboard/isolator
 	name = T_BOARD("pathogenic isolator")
+	icon_state = "id_mod_cyan"
 	board_type = "machine"
 	build_path = /obj/machinery/disease2/isolator
 	req_components = list(
@@ -137,6 +150,7 @@
 
 /obj/item/circuitboard/diseasesplicer
 	name = T_BOARD("disease splicer")
+	icon_state = "id_mod_cyan"
 	board_type = "machine"
 	build_path = /obj/machinery/computer/diseasesplicer
 	req_components = list(
@@ -148,6 +162,7 @@
 
 /obj/item/circuitboard/analyser
 	name = T_BOARD("disease analyser")
+	icon_state = "id_mod_cyan"
 	board_type = "machine"
 	build_path = /obj/machinery/disease2/diseaseanalyser
 	req_components = list(

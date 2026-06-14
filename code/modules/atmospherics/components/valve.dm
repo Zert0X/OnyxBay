@@ -235,9 +235,11 @@
 /obj/machinery/atmospherics/valve/digital/attack_hand(mob/user as mob)
 	if(!powered())
 		return
-	if(!src.allowed(user))
+	if(!check_access(user))
+		playsound(src.loc, 'sound/signals/error32.ogg', 50)
 		to_chat(user, "<span class='warning'>Access denied.</span>")
 		return
+	playsound(src.loc, 'sound/effects/using/switch/lever2.ogg', 50)
 	..()
 
 /obj/machinery/atmospherics/valve/digital/open
@@ -287,7 +289,7 @@
 	var/datum/gas_mixture/env_air = loc.return_air()
 	playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
 	to_chat(user, "<span class='notice'>You begin to unfasten \the [src]...</span>")
-	if (do_after(user, 40, src))
+	if (do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 		user.visible_message( \
 			"<span class='notice'>\The [user] unfastens \the [src].</span>", \
 			"<span class='notice'>You have unfastened \the [src].</span>", \

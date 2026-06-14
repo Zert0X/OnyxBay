@@ -100,6 +100,11 @@
   * * italics - Just copy and paste, sir
   */
 /datum/chatmessage/proc/generate_image(text, atom/target, mob/owner, lifespan, italics = FALSE, size)
+	// Even though we've checked this in the constructor, async calls are really into pulling off the most random shit.
+	if(QDELETED(owner) || !owner.client)
+		qdel(src)
+		return
+
 	// Register client who owns this message
 	owned_by = owner.client
 
@@ -143,7 +148,19 @@
 	// Approximate text height
 	var/static/regex/html_metachars = new(@"&[A-Za-z]{1,7};", "g")
 	var/complete_text = MAPTEXT("<span class='center[size ? " [size]" : ""]' style='color: [tgt_color]'>[text]</span>")
-	var/mheight = WXH_TO_HEIGHT(owned_by.MeasureText(complete_text, null, CHAT_MESSAGE_WIDTH))
+
+	// The weirdest things happen when we ASYNC.
+	if(QDELETED(src))
+		return
+
+	// Apparently, regexes work slow enough to let the client slip away before we reach this point. Luckily, everything below this check seems to be quick enough to not require even more checks. ~ToTh
+	// OR we can even get deleted by this point, nullifying 'owned_by'. I have no fucking idea.
+	if(QDELETED(owner) || !owner.client || !owned_by)
+		qdel(src)
+		return
+
+	var/mheight = owned_by.MeasureText(complete_text, null, CHAT_MESSAGE_WIDTH)
+	mheight = WXH_TO_HEIGHT(mheight)
 	approx_lines = max(1, mheight / CHAT_MESSAGE_APPROX_LHEIGHT)
 
 	// Translate any existing messages upwards, apply exponential decay factors to timers
@@ -170,14 +187,15 @@
 
 	// Build message image
 	message = image(loc = message_loc, layer = CHAT_LAYER + CHAT_LAYER_Z_STEP * current_z_idx++)
-	message.plane = FLOAT_PLANE
-	message.appearance_flags = APPEARANCE_UI_IGNORE_ALPHA | KEEP_APART | TILE_BOUND
+	message.plane = RUNECHAT_PLANE
+	message.appearance_flags = APPEARANCE_UI_IGNORE_ALPHA | KEEP_APART
 	message.alpha = 0
 	message.pixel_y = owner.bound_height * 0.95
 	message.maptext_width = CHAT_MESSAGE_WIDTH
 	message.maptext_height = mheight
 	message.maptext_x = (CHAT_MESSAGE_WIDTH - owner.bound_width) * -0.5
 	message.maptext = complete_text
+	message.mouse_opacity = MOUSE_OPACITY_UNCLICKABLE
 
 	// View the message
 	if(!owned_by.seen_messages)

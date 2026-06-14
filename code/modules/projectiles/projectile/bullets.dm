@@ -9,6 +9,7 @@
 	sharp = 1
 	penetration_modifier = 1.0
 	poisedamage = 5.0
+	space_knockback = TRUE
 	var/mob_passthrough_check = 0
 
 	muzzle_type = /obj/effect/projectile/muzzle/bullet
@@ -192,6 +193,27 @@
 	fire_sound = 'sound/effects/weapons/gun/fire_revolver44.ogg' // Gauss .38 should sound like a badass
 	poisedamage = 12.5
 
+// Damage-wise these are something between 10mm and revolvers
+// Lore-wise, "bullet" version of accelerated particles launched by the accelerator-type weapons
+/obj/item/projectile/bullet/charge
+	name = "bullet" // Not "accelerated chunk of particles" or something like that, since it's too small to notice that it's not a regular bullet
+	icon_state = "blaster"
+	embed = FALSE // Unstable particles just disappear
+	can_ricochet = FALSE // Too unstable to survive ricocheting
+	damage = 35.0
+	armor_penetration = 30
+	poisedamage = 6.0
+
+/obj/item/projectile/bullet/charge/kinetic
+	name = "kinetic bullet"
+	icon_state = "kinetic"
+	embed = FALSE
+	can_ricochet = FALSE
+	damage = 22.5
+	agony = 15
+	penetration_modifier = 0.35
+	poisedamage = 10.0
+
 
 /* shotgun projectiles */
 
@@ -211,6 +233,36 @@
 	penetration_modifier = 0.2
 	can_ricochet = FALSE // Too soft
 	poisedamage = 20.0
+
+// Breaching slug - designed for destroying doors and structures
+/obj/item/projectile/bullet/shotgun/breaching
+	name = "breaching slug"
+	damage = 30 // Reduced damage to living targets
+	armor_penetration = 10
+	embed = FALSE
+	sharp = FALSE
+	penetration_modifier = 0.1
+	poisedamage = 8.0
+
+/obj/item/projectile/bullet/shotgun/breaching/get_structure_damage()
+	return 350 // More than enough to destroy standard doors in one shot (breaching shells ignore the 100 damage cap)
+
+/obj/item/projectile/bullet/shotgun/breaching/on_hit(atom/target, blocked = 0, def_zone = null)
+	// Extra effects when hitting doors or structures
+	if(istype(target, /obj/machinery/door))
+		var/obj/machinery/door/D = target
+		// Breaching rounds destroy doors instantly by setting destroy_hits to 0
+		D.destroy_hits = 0
+		if(istype(D, /obj/machinery/door/blast/shutters))
+			D.visible_message(SPAN("danger", "\The [src] tears through \the [D] with tremendous force!"))
+		else
+			D.visible_message(SPAN("danger", "\The [src] blasts through \the [D], destroying it completely!"))
+		playsound(D, (GET_SFX(SFX_BANG)), 75, 1)
+	else if(istype(target, /turf/simulated/wall))
+		var/turf/simulated/wall/W = target
+		W.visible_message(SPAN("danger", "\The [src] impacts \the [W], creating cracks!"))
+		playsound(W, (GET_SFX(SFX_BANG)), 75, 1)
+	return ..()
 
 //Should do about 80 damage at 1 tile distance (adjacent), and 50 damage at 3 tiles distance.
 //Overall less damage than slugs in exchange for more damage at very close range and more embedding
@@ -239,7 +291,7 @@
 	embed = FALSE // Unstable particles just disappear
 	can_ricochet = FALSE // Too unstable to survive ricocheting
 	damage = 22.5
-	armor_penetration = 15
+	armor_penetration = 5
 	pellets = 5
 	range_step = 3
 	spread_step = 5
@@ -266,7 +318,7 @@
 	armor_penetration = 50
 
 /obj/item/projectile/bullet/rifle/a792
-	damage = 35
+	damage = 50
 	armor_penetration = 50
 
 /obj/item/projectile/bullet/rifle/a145

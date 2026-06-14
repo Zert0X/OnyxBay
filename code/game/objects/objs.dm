@@ -20,6 +20,7 @@
 	var/rad_resist_type = /datum/rad_resist/none
 	hitby_sound = 'sound/effects/metalhit2.ogg'
 	var/turf_height_offset = 0
+	var/climb_delay = 2 SECONDS // Default for everything. Doesn't make the thing climbable on its own, it still requires ATOM_FLAG_CLIMBABLE.
 
 /obj/Initialize()
 	. = ..()
@@ -54,6 +55,11 @@
 	if(isturf(destination))
 		var/turf/T = destination
 		T.update_turf_height()
+
+/obj/hitby(atom/movable/AM, datum/thrownthing/TT)
+	..()
+	if(!anchored)
+		step(src, AM.last_move)
 
 /obj/item/proc/is_used_on(obj/O, mob/user)
 
@@ -199,7 +205,7 @@
 		user.visible_message("\The [user] begins unsecuring \the [src] from the floor.", "You start unsecuring \the [src] from the floor.")
 	else
 		user.visible_message("\The [user] begins securing \the [src] to the floor.", "You start securing \the [src] to the floor.")
-	if(do_after(user, delay, src))
+	if(do_after(user, delay, src, luck_check_type = LUCK_CHECK_ENG))
 		if(!src)
 			return 0
 		to_chat(user, "<span class='notice'>You [anchored? "un" : ""]secured \the [src]!</span>")
@@ -232,3 +238,9 @@
 	pull_slowdown = new_slowdown
 	if(pulledby)
 		pulledby.update_pull_slowdown()
+
+/obj/do_climb(mob/living/user)
+	return ..(user, climb_delay)
+
+/obj/get_mass()
+	return min(2**(w_class-1), 100)

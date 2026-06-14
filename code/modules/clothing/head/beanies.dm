@@ -1,13 +1,13 @@
 /obj/item/clothing/head/beanie
 	name = "beanie"
 	desc = "It's a generic beanie hat."
-	icon_state = "bblack"
-	item_state_slots = list(
-		slot_l_hand_str = "helmet", //probably a placeholder
-		slot_r_hand_str = "helmet",
+	icon_state = "bwhite"
+	item_state_slots = alist(
+		slot_l_hand_str = "beanie",
+		slot_r_hand_str = "beanie",
 		)
 	siemens_coefficient = 0.9
-	armor = list(melee = 5, bullet = 5, laser = 5,energy = 0, bomb = 0, bio = 0)
+	armor_values = alist(melee = 5, bullet = 5, laser = 5,energy = 0, bomb = 0, bio = 0)
 	coverage = 0.8
 
 /obj/item/clothing/head/beanie/red
@@ -17,27 +17,27 @@
 
 /obj/item/clothing/head/beanie/blue
 	name = "blue beanie"
-	desc = "It's a blue beanie hat"
+	desc = "It's a blue beanie hat."
 	icon_state = "bblue"
 
 /obj/item/clothing/head/beanie/green
 	name = "green beanie"
-	desc = "It's a green beanie hat"
+	desc = "It's a green beanie hat."
 	icon_state = "bgreen"
 
 /obj/item/clothing/head/beanie/yellow
-	name = "yellow cap"
-	desc = "It's a yellow beanie hat"
+	name = "yellow beanie"
+	desc = "It's a yellow beanie hat."
 	icon_state = "byellow"
 
 /obj/item/clothing/head/beanie/white
 	name = "white beanie"
-	desc = "It's a white beanie hat"
+	desc = "It's a white beanie hat."
 	icon_state = "bwhite"
 
 /obj/item/clothing/head/beanie/black
 	name = "black beanie"
-	desc = "It's a black beanie hat"
+	desc = "It's a black beanie hat."
 	icon_state = "bblack"
 
 /obj/item/clothing/head/beanie/psyche

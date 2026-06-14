@@ -11,29 +11,26 @@
 	name = "bed"
 	desc = "This is used to lie in, sleep in or strap on."
 	icon = 'icons/obj/furniture.dmi'
-	icon_state = "bed"
+	icon_state = "bed_preview"
+	base_icon_state = "bed"
 	anchored = 1
 	can_buckle = 1
 	buckle_dir = SOUTH
 	buckle_lying = 1
 	buckle_pixel_shift = "x=0;y=3"
 	appearance_flags = DEFAULT_APPEARANCE_FLAGS | LONG_GLIDE
-	var/material/material
-	var/material/padding_material
-	var/base_icon = "bed"
+	var/material/material = null
+	var/material/padding_material = null
 	var/material_alteration = MATERIAL_ALTERATION_ALL
 
-/obj/structure/bed/New(newloc, new_material, new_padding_material)
-	..(newloc)
+/obj/structure/bed/Initialize(mapload, new_material, new_padding_material)
+	. = ..(mapload)
 	color = null
-	if(!new_material)
-		new_material = MATERIAL_STEEL
-	material = get_material_by_name(new_material)
-	if(!istype(material))
-		qdel(src)
-		return
-	if(new_padding_material)
-		padding_material = get_material_by_name(new_padding_material)
+
+	material = get_material_by_name(new_material || material || MATERIAL_STEEL)
+	padding_material = new_padding_material || padding_material
+	if(padding_material)
+		padding_material = get_material_by_name(padding_material)
 	update_icon()
 
 /obj/structure/bed/get_material()
@@ -45,18 +42,18 @@
 	icon_state = ""
 	ClearOverlays()
 	// Base icon.
-	var/cache_key = "[base_icon]-[material.name]"
+	var/cache_key = "[base_icon_state]-[material.name]"
 	if(isnull(stool_cache[cache_key]))
-		var/image/I = image('icons/obj/furniture.dmi', base_icon)
+		var/image/I = image('icons/obj/furniture.dmi', base_icon_state)
 		if(material_alteration & MATERIAL_ALTERATION_COLOR)
 			I.color = material.icon_colour
 		stool_cache[cache_key] = I
 	AddOverlays(stool_cache[cache_key])
 	// Padding overlay.
 	if(padding_material)
-		var/padding_cache_key = "[base_icon]-padding-[padding_material.name]"
+		var/padding_cache_key = "[base_icon_state]-padding-[padding_material.name]"
 		if(isnull(stool_cache[padding_cache_key]))
-			var/image/I =  image(icon, "[base_icon]_padding")
+			var/image/I =  image(icon, "[base_icon_state]_padding")
 			if(material_alteration & MATERIAL_ALTERATION_COLOR)
 				I.color = padding_material.icon_colour
 			stool_cache[padding_cache_key] = I
@@ -149,7 +146,7 @@
 		var/obj/item/grab/G = W
 		var/mob/living/affecting = G.affecting
 		user.visible_message("<span class='notice'>[user] attempts to buckle [affecting] into \the [src]!</span>")
-		if(do_after(user, 20, src))
+		if(do_after(user, 20, src, luck_check_type = LUCK_CHECK_COMBAT))
 			if(user_buckle_mob(affecting, user))
 				qdel(W)
 	else
@@ -195,21 +192,25 @@
 	name = "psychiatrist's couch"
 	desc = "For prime comfort during psychiatric evaluations."
 	icon_state = "psychbed"
-	base_icon = "psychbed"
+	base_icon_state = "psychbed"
 	buckle_pixel_shift = "x=0;y=1"
+	material = MATERIAL_WOOD
+	padding_material = MATERIAL_LEATHER
 
-/obj/structure/bed/psych/New(newloc)
-	..(newloc, MATERIAL_WOOD, MATERIAL_LEATHER)
-
-/obj/structure/bed/padded/New(newloc)
-	..(newloc, MATERIAL_PLASTIC, MATERIAL_COTTON)
+/obj/structure/bed/padded
+	icon_state = "bed_padded_preview"
+	material = MATERIAL_PLASTIC
+	padding_material = MATERIAL_COTTON
 
 /obj/structure/bed/alien
 	name = "resting contraption"
 	desc = "This looks similar to contraptions from earth. Could aliens be stealing our technology?"
+	material = MATERIAL_RESIN
 
-/obj/structure/bed/alien/New(newloc)
-	..(newloc, MATERIAL_RESIN)
+/obj/structure/bed/captain
+	icon_state = "bed_padded_preview"
+	material = MATERIAL_GOLD
+	padding_material = "blue"
 
 /*
  * Roller beds
@@ -306,8 +307,8 @@
 	icon_state = "rollerbed_folded"
 	var/obj/item/roller/held
 
-/obj/item/roller_holder/New()
-	..()
+/obj/item/roller_holder/Initialize()
+	. = ..()
 	held = new /obj/item/roller(src)
 
 /obj/item/roller_holder/attack_self(mob/user)
@@ -400,6 +401,8 @@
 /obj/structure/bed/roller/proc/on_move()
 	if(buckled_bodybag)
 		var/turf/body_bag_turf = get_turf(buckled_bodybag)
+		if(!istype(body_bag_turf))
+			return
 		var/turf/roller_turf = get_turf(src)
 		if(body_bag_turf != roller_turf)
 			if(body_bag_turf.z != roller_turf.z)
@@ -445,12 +448,14 @@
 	desc = "Truly a racing bed."
 	anchored = 0
 	icon_state = "wheelbed"
-	base_icon = "wheelbed"
+	base_icon_state = "wheelbed"
 	buckle_pixel_shift = "x=0;y=3"
 	pull_slowdown = PULL_SLOWDOWN_LIGHT
 
-/obj/structure/bed/wheel/padded/New(newloc)
-	..(newloc, MATERIAL_PLASTIC, MATERIAL_COTTON)
+/obj/structure/bed/wheel/padded
+	material = MATERIAL_PLASTIC
+	padding_material = MATERIAL_COTTON
 
-/obj/structure/bed/wheel/luxury/New(newloc)
-	..(newloc, MATERIAL_GOLD, MATERIAL_CARPET)
+/obj/structure/bed/wheel/luxury
+	material = MATERIAL_GOLD
+	padding_material = MATERIAL_CARPET

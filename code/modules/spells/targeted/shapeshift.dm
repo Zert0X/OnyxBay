@@ -102,6 +102,7 @@
 	possible_transformations = list(
 	/mob/living/simple_animal/lizard,
 	/mob/living/simple_animal/mouse,
+	/mob/living/simple_animal/hamster,
 	/mob/living/simple_animal/corgi,
 	/mob/living/simple_animal/parrot,
 	)
@@ -109,6 +110,7 @@
 	var/list/basic_transformations =  list(
 	/mob/living/simple_animal/lizard,
 	/mob/living/simple_animal/mouse,
+	/mob/living/simple_animal/hamster,
 	/mob/living/simple_animal/corgi,
 	/mob/living/simple_animal/parrot,
 	)

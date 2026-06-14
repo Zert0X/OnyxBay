@@ -27,9 +27,9 @@ GLOBAL_LIST_INIT(text_to_department_flags, list(
 	"Security" = SEC,
 	"Medical" = MED,
 	"Engineering" = ENG,
-	"Supply" = SUP,
+	"Cargo" = SUP,
 	"Exploration" = EXP,
-	"Service" = SRV,
+	"Provisioning" = SRV,
 	"Civilian" = CIV,
 	"Miscellaneous" = MSC
 ))
@@ -40,9 +40,9 @@ GLOBAL_LIST_INIT(department_flags_to_text, list(
 	num2text(SEC) = "Security",
 	num2text(MED) = "Medical",
 	num2text(ENG) = "Engineering",
-	num2text(SUP) = "Supply",
+	num2text(SUP) = "Cargo",
 	num2text(EXP) = "Exploration",
-	num2text(SRV) = "Service",
+	num2text(SRV) = "Provisioning",
 	num2text(CIV) = "Civilian",
 	num2text(MSC) = "Miscellaneous",
 ))
@@ -246,7 +246,7 @@ var/const/record_field_context_universal   = ~record_field_context_none
 		if(EDIT_SHORTTEXT)
 			newval = sanitize(newval)
 		if(EDIT_LONGTEXT)
-			newval = sanitize(replacetext(newval, "\n", "\[br\]"), MAX_PAPER_MESSAGE_LEN)
+			newval = sanitize(replacetext(newval, "\n", "\[br\]"), MAX_BOOK_MESSAGE_LEN)
 	value = newval
 	announce(automatic)
 	return TRUE
@@ -310,7 +310,7 @@ FIELD_LIST("Sex", sex, FALSE, record_genders())
 FIELD_NUM("Age", age, FALSE)
 
 
-FIELD_SHORT_SECURE("Department", department, FALSE, access_hop)
+FIELD_SHORT_SECURE("Department", department, FALSE, access_change_ids)
 FIELD_SHORT("Species",species, FALSE)
 
 

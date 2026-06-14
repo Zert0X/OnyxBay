@@ -221,9 +221,9 @@
 		activate_pin(3)
 		return
 	if(operation_intent == SURGERY_ORGAN_INSERT)
-		E = H.organs_by_name[O.parent_organ]
+		E = H.external_organs_by_name[O.parent_organ]
 	else
-		E = H.organs_by_name[selected_zone]
+		E = H.external_organs_by_name[selected_zone]
 	if(!istype(E))
 		activate_pin(3)
 		return
@@ -319,6 +319,7 @@
 		"tox damage"			= IC_PINTYPE_NUMBER,
 		"oxy damage"			= IC_PINTYPE_NUMBER,
 		"clone damage"			= IC_PINTYPE_NUMBER,
+		"internal damage"		= IC_PINTYPE_NUMBER,
 		"pulse"                 = IC_PINTYPE_NUMBER,
 		"oxygenation level"     = IC_PINTYPE_NUMBER,
 		"pain level"            = IC_PINTYPE_NUMBER,
@@ -352,14 +353,15 @@
 		set_pin_data(IC_OUTPUT, 2, (H.stat == 0))
 		set_pin_data(IC_OUTPUT, 3, damage_to_severity(100 * H.getBruteLoss() / H.maxHealth))
 		set_pin_data(IC_OUTPUT, 4, damage_to_severity(100 * H.getFireLoss() / H.maxHealth))
-		set_pin_data(IC_OUTPUT, 5, damage_to_severity(100 * H.getToxLoss() / H.maxHealth))
+		set_pin_data(IC_OUTPUT, 5, damage_to_severity(H.getToxLoss()))
 		set_pin_data(IC_OUTPUT, 6, damage_to_severity(100 * H.getOxyLoss() / H.maxHealth))
 		set_pin_data(IC_OUTPUT, 7, damage_to_severity(100 * H.getCloneLoss() / H.maxHealth))
-		set_pin_data(IC_OUTPUT, 8, H.get_pulse_as_number())
-		set_pin_data(IC_OUTPUT, 9, H.get_blood_oxygenation())
-		set_pin_data(IC_OUTPUT, 10, damage_to_severity(H.get_shock()))
-		set_pin_data(IC_OUTPUT, 11, H.radiation)
-		set_pin_data(IC_OUTPUT, 12, H.name)
+		set_pin_data(IC_OUTPUT, 8, damage_to_severity(100 * H.getInternalLoss() / H.maxHealth))
+		set_pin_data(IC_OUTPUT, 9, H.get_pulse_as_number())
+		set_pin_data(IC_OUTPUT, 10, H.get_blood_oxygenation())
+		set_pin_data(IC_OUTPUT, 11, damage_to_severity(H.get_shock()))
+		set_pin_data(IC_OUTPUT, 12, H.radiation)
+		set_pin_data(IC_OUTPUT, 13, H.name)
 
 	push_data()
 	activate_pin(2)
@@ -448,11 +450,11 @@
 		"damage"                = IC_PINTYPE_NUMBER,
 		"max damage"            = IC_PINTYPE_NUMBER,
 		"organ owner"           = IC_PINTYPE_REF,
-		"is wounded"            = IC_PINTYPE_BOOLEAN,
+		"surgical incision"     = IC_PINTYPE_BOOLEAN,
 		"is wound clamped"      = IC_PINTYPE_BOOLEAN,
 		"has bones"             = IC_PINTYPE_BOOLEAN,
 		"bones broken"          = IC_PINTYPE_BOOLEAN,
-		"is wound open"         = IC_PINTYPE_BOOLEAN
+		"incision retracted"    = IC_PINTYPE_BOOLEAN
 	)
 	activators = list("scan" = IC_PINTYPE_PULSE_IN, "on scanned" = IC_PINTYPE_PULSE_OUT)
 	spawn_flags = IC_SPAWN_RESEARCH
@@ -470,20 +472,20 @@
 	var/selected_zone = get_pin_data(IC_INPUT, 2)
 	if(!selected_zone)
 		return
-	var/obj/item/organ/external/E = H.organs_by_name[selected_zone]
+	var/obj/item/organ/external/E = H.external_organs_by_name[selected_zone]
 	if(!istype(E)) // invalid input
 		return
 	if(H in view(get_turf(src))) // Like medbot's analyzer it can be used in range..
-		var/datum/wound/cut/wound = E.get_incision()
+		var/is_surgically_open = E.is_surgically_open()
 		set_pin_data(IC_OUTPUT, 1, E.name)
 		set_pin_data(IC_OUTPUT, 2, E.damage)
 		set_pin_data(IC_OUTPUT, 3, E.max_damage)
 		set_pin_data(IC_OUTPUT, 4, weakref(H))
-		set_pin_data(IC_OUTPUT, 5, wound?.is_surgical())
-		set_pin_data(IC_OUTPUT, 6, E.clamped())
-		set_pin_data(IC_OUTPUT, 7, E.encased != null)
-		set_pin_data(IC_OUTPUT, 8, E.open() == SURGERY_ENCASED)
-		set_pin_data(IC_OUTPUT, 9, E.open() == SURGERY_RETRACTED)
+		set_pin_data(IC_OUTPUT, 5, is_surgically_open == SURGERY_OPEN)
+		set_pin_data(IC_OUTPUT, 6, E.clamped)
+		set_pin_data(IC_OUTPUT, 7, !!E.encased)
+		set_pin_data(IC_OUTPUT, 8, (E.status & ORGAN_BROKEN))
+		set_pin_data(IC_OUTPUT, 9, is_surgically_open == SURGERY_RETRACTED)
 
 	push_data()
 	activate_pin(2)
@@ -524,8 +526,11 @@
 		set_pin_data(IC_OUTPUT, 6, H.internal_organs_by_name[BP_KIDNEYS])
 		set_pin_data(IC_OUTPUT, 7, H.internal_organs_by_name[BP_STOMACH])
 		set_pin_data(IC_OUTPUT, 8, H.internal_organs_by_name[BP_APPENDIX])
-		set_pin_data(IC_OUTPUT, 9, H.internal_organs_by_name[BP_CELL])
-		set_pin_data(IC_OUTPUT, 10, H.internal_organs_by_name[BP_STACK])
+		set_pin_data(IC_OUTPUT, 9, H.internal_organs_by_name[BP_TONGUE])
+		set_pin_data(IC_OUTPUT, 10, H.internal_organs_by_name[BP_BLADDER])
+		set_pin_data(IC_OUTPUT, 11, H.internal_organs_by_name[BP_INTESTINES])
+		set_pin_data(IC_OUTPUT, 12, H.internal_organs_by_name[BP_CELL])
+		set_pin_data(IC_OUTPUT, 13, H.internal_organs_by_name[BP_STACK])
 
 	push_data()
 	activate_pin(2)
@@ -555,8 +560,8 @@
 
 	if(istype(target, /obj/item/organfixer))
 		var/obj/item/organfixer/OF = target
-		if(istype(source, /obj/item/stack/medical/advanced/bruise_pack))
-			var/obj/item/stack/medical/advanced/bruise_pack/OF2 = source
+		if(istype(source, /obj/item/stack/medical/gel/brute))
+			var/obj/item/stack/medical/gel/brute/OF2 = source
 			OF.attackby(OF2, src)
 		else if(istype(source, /obj/structure/geltank))
 			var/obj/structure/geltank/G = source
@@ -564,10 +569,10 @@
 		else
 			return
 		set_pin_data(IC_OUTPUT, 1, OF.gel_amt)
-	else if(istype(target, /obj/item/stack/medical/advanced))
-		var/obj/item/stack/medical/advanced/A = target
-		if(istype(source, /obj/item/stack/medical/advanced))
-			var/obj/item/stack/medical/advanced/A2 = source
+	else if(istype(target, /obj/item/stack/medical/gel))
+		var/obj/item/stack/medical/gel/A = target
+		if(istype(source, /obj/item/stack/medical/gel))
+			var/obj/item/stack/medical/gel/A2 = source
 			A2.refill_from_same(A)
 		else if(istype(source, /obj/structure/geltank))
 			var/obj/structure/geltank/G = source

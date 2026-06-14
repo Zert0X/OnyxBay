@@ -4,6 +4,7 @@
 
 /obj/item/circuitboard/bluespacerelay
 	name = T_BOARD("bluespacerelay")
+	icon_state = "id_mod_blue"
 	build_path = /obj/machinery/bluespacerelay
 	board_type = "machine"
 	origin_tech = list(TECH_BLUESPACE = 2, TECH_DATA = 2)

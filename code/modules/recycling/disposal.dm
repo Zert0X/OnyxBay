@@ -78,7 +78,7 @@
 
 			var/obj/item/weldingtool/WT = I
 			to_chat(user, "You start slicing the floorweld off the disposal unit.")
-			if(!WT.use_tool(src, user, delay = 2 SECONDS, amount = 1))
+			if(!WT.use_tool(src, user, delay = 2 SECONDS, amount = 10))
 				return
 
 			if(QDELETED(src) || !user)
@@ -122,7 +122,7 @@
 			var/mob/GM = G.affecting
 			for (var/mob/V in viewers(usr))
 				V.show_message("[usr] starts putting [GM.name] into the disposal.", 3)
-			if(do_after(usr, 20, src))
+			if(do_after(usr, 20, src, luck_check_type = LUCK_CHECK_COMBAT))
 				playsound(src, SFX_DISPOSAL, 75, 0)
 				if(GM.client)
 					GM.client.perspective = EYE_PERSPECTIVE
@@ -213,6 +213,8 @@
 				M.client.eye = src
 
 	AM.forceMove(src)
+	if(ismob(AM))
+		playsound(src.loc, 'sound/effects/using/disposal/person_bin_get.ogg', 40, 1)
 	update_icon()
 	return
 
@@ -289,6 +291,7 @@
 			else if(params["handle"])
 				if(panel_open)
 					return TRUE
+				playsound(src.loc, 'sound/effects/using/switch/lever3.ogg', 50)
 				flush = !flush
 				update_icon()
 			return TRUE
@@ -445,24 +448,17 @@
 		qdel(H)
 
 
-/obj/machinery/disposal/hitby(atom/movable/AM, speed, nomsg = TRUE)
+/obj/machinery/disposal/hitby(atom/movable/AM, datum/thrownthing/TT, nomsg = TRUE)
 	..()
-
-/obj/machinery/disposal/CanPass(atom/movable/mover, turf/target)
-	if(istype(mover,/obj/item) && mover.throwing)
-		var/obj/item/I = mover
-		if(istype(I, /obj/item/projectile))
-			return
-		if(prob(75))
-			I.forceMove(src)
-			for(var/mob/M in viewers(src))
-				M.show_message("\The [I] lands in \the [src].", 3)
-		else
-			for(var/mob/M in viewers(src))
-				M.show_message("\The [I] bounces off of \the [src]'s rim!", 3)
-		return 0
+	if(QDELETED(AM) || !istype(AM, /obj/item))
+		return
+	if(prob((TT.target == src) ? 90 : 25))
+		AM.forceMove(src)
+		for(var/mob/M in viewers(src))
+			M.show_message("\The [AM] lands in \the [src].", 3)
 	else
-		return ..(mover, target)
+		for(var/mob/M in viewers(src))
+			M.show_message("\The [AM] bounces off of \the [src]'s rim!", 3)
 
 // virtual disposal object
 // travels through pipes in lieu of actual items
@@ -538,10 +534,10 @@
 		sleep(1)		// was 1
 		if(!loc) return // check if we got GC'd
 
-		if(hasmob && prob(3))
+		if(hasmob && prob(5))
 			for(var/mob/living/H in src)
-				if(!istype(H,/mob/living/silicon/robot/drone)) //Drones use the mailing code to move through the disposal system,
-					H.take_overall_damage(20, 0, "Blunt Trauma")//horribly maim any living creature jumping down disposals.  c'est la vie
+				if(!istype(H, /mob/living/silicon/robot/drone)) // Drones use the mailing code to move through the disposal system,
+					H.take_overall_damage(80, 0, 0, "Blunt Trauma")// horribly maim any living creature jumping down disposals.  c'est la vie
 
 		var/obj/structure/disposalpipe/curr = loc
 		last = curr
@@ -855,7 +851,7 @@
 		if(isWelder(I))
 			var/obj/item/weldingtool/WT = I
 			to_chat(user, "Slicing the disposal pipe.")
-			if(!WT.use_tool(src, user, delay = 3 SECONDS, amount = 1))
+			if(!WT.use_tool(src, user, delay = 3 SECONDS, amount = 10))
 				return
 
 			if(QDELETED(src) || !user)
@@ -1189,7 +1185,7 @@
 		..()
 
 /obj/machinery/disposal_switch/attack_hand(mob/user)
-	if(!allowed(user))
+	if(!check_access(user))
 		to_chat(user, "<span class='warning'>Access denied.</span>")
 		return
 	on = !on
@@ -1500,7 +1496,7 @@
 	src.add_fingerprint(user, 0, I)
 	if(isWelder(I))
 		var/obj/item/weldingtool/WT = I
-		if(!WT.use_tool(src, user, delay = 2 SECONDS, amount = 1))
+		if(!WT.use_tool(src, user, delay = 2 SECONDS, amount = 10))
 			return
 
 		if(QDELETED(src) || !user)
@@ -1625,7 +1621,7 @@
 		else if(isWelder(I) && mode==1)
 			var/obj/item/weldingtool/WT = I
 			to_chat(user, "You start slicing the floorweld off the disposal outlet.")
-			if(!WT.use_tool(src, user, delay = 2 SECONDS, amount = 1))
+			if(!WT.use_tool(src, user, delay = 2 SECONDS, amount = 10))
 				return
 
 			if(QDELETED(src) || !user)

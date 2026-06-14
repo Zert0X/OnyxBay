@@ -94,6 +94,7 @@ GLOBAL_VAR(station_gravity_generator)
 	var/datum/wires/gravity_generator/wires = null
 	var/obj/machinery/gravity_generator/part/middle = null
 	var/datum/radiation_source/rad_source = null
+	var/datum/sound_token/grav_sound_token = null
 
 	// Wires
 	var/announcer = TRUE                  // if true - notifies about the switching of the state of the generator to the engineering channel
@@ -107,8 +108,11 @@ GLOBAL_VAR(station_gravity_generator)
 	update_icon()
 	add_areas()
 	wires = new(src)
+	if(enabled)
+		start_operating_sound()
 
 /obj/machinery/gravity_generator/main/Destroy()
+	stop_operating_sound()
 	qdel(rad_source)
 	QDEL_NULL(wires)
 	for(var/obj/machinery/gravity_generator/part/P in parts)
@@ -233,7 +237,7 @@ GLOBAL_VAR(station_gravity_generator)
 									SPAN_NOTICE("You begin to add plasteel to the destroyed frame."))
 
 				playsound(loc, 'sound/machines/click.ogg', 75, 1)
-				if(!do_after(user, 15 SECONDS, middle) || PS.amount < 10)
+				if(!do_after(user, 15 SECONDS, middle, luck_check_type = LUCK_CHECK_ENG) || PS.amount < 10)
 					return
 				PS.use(10)
 				health += 250
@@ -251,7 +255,7 @@ GLOBAL_VAR(station_gravity_generator)
 
 				playsound(loc, 'sound/items/Welder2.ogg', 50, 1)
 				var/obj/item/weldingtool/WT = I
-				if(!WT.use_tool(src, user, delay = 15 SECONDS, amount = 5))
+				if(!WT.use_tool(src, user, delay = 15 SECONDS, amount = 50))
 					return
 
 				if(QDELETED(src) || !user || broken_state != GRAV_NEEDS_WELDING)
@@ -271,7 +275,7 @@ GLOBAL_VAR(station_gravity_generator)
 									SPAN_NOTICE("You begin to screw the parts back."))
 
 				playsound(loc, 'sound/items/Ratchet.ogg', 75, 1)
-				if(!do_after(user, 15 SECONDS, middle) || broken_state != GRAV_NEEDS_WRENCH)
+				if(!do_after(user, 15 SECONDS, middle, luck_check_type = LUCK_CHECK_ENG) || broken_state != GRAV_NEEDS_WRENCH)
 					return
 				health += 250
 				user.visible_message(SPAN_NOTICE("[user] screwed the parts back."),
@@ -287,7 +291,7 @@ GLOBAL_VAR(station_gravity_generator)
 									SPAN_NOTICE("You begin to attach the details in the desired order."))
 
 				playsound(loc, 'sound/items/Screwdriver.ogg', 75, 1)
-				if(!do_after(user, 15 SECONDS, middle) || broken_state != GRAV_NEEDS_SCREWDRIVER)
+				if(!do_after(user, 15 SECONDS, middle, luck_check_type = LUCK_CHECK_ENG) || broken_state != GRAV_NEEDS_SCREWDRIVER)
 					return
 				health += max(initial(health), health + 250)
 				user.visible_message(SPAN_NOTICE("[user] attached the details."),
@@ -299,7 +303,7 @@ GLOBAL_VAR(station_gravity_generator)
 				return
 
 	if(isCrowbar(I))
-		if(!do_after(user, 5 SECONDS, middle))
+		if(!do_after(user, 5 SECONDS, middle, luck_check_type = LUCK_CHECK_ENG))
 			return
 		playsound(loc, 'sound/items/Crowbar.ogg', 50, 1)
 		panel_open = !panel_open
@@ -358,6 +362,8 @@ GLOBAL_VAR(station_gravity_generator)
 		if(!can_toggle_breaker || !power_supply || stat & NOPOWER)
 			to_chat(user, SPAN_WARNING("You pressed a button, but it doesn’t seem to respond."))
 			return
+		if(!breaker)
+			playsound(loc, 'sound/effects/gravgen_on.ogg', 75, 1)
 		set_state(breaker ? FALSE : TRUE)
 
 	else if(href_list["eshutoff"])
@@ -369,7 +375,7 @@ GLOBAL_VAR(station_gravity_generator)
 
 		user.visible_message(SPAN_WARNING("[user] starts to press a lot of buttons on \the [src]!"),
                              SPAN_NOTICE("You start to press many buttons on \the [src], as if you know what you are doing."))
-		if(do_after(user, 15 SECONDS, src))
+		if(do_after(user, 15 SECONDS, src, luck_check_type = LUCK_CHECK_ENG))
 			emergency_shutoff()
 
 /obj/machinery/gravity_generator/main/proc/emergency_shutoff()
@@ -385,6 +391,7 @@ GLOBAL_VAR(station_gravity_generator)
 	charging_state = POWER_IDLE
 	update_use_power(POWER_USE_IDLE)
 	visible_message(SPAN_DANGER("\The [src] makes a large whirring noise!"))
+	stop_operating_sound()
 
 	for(var/i = 0, i <= 3, i++)
 		switch(i)
@@ -515,6 +522,12 @@ GLOBAL_VAR(station_gravity_generator)
 					return
 				enabled = TRUE
 				update_gravity_status()
+				start_operating_sound()
+				var/list/station_z = GLOB.using_map.get_levels_with_trait(ZTRAIT_STATION)
+				for(var/mob/M in GLOB.player_list)
+					var/turf/T = get_turf(M)
+					if(T && (T.z in station_z) && !istype(M, /mob/new_player) && !isdeaf(M))
+						sound_to(M, sound('sound/effects/gravgen_global_on.ogg'))
 				playsound(loc, 'sound/effects/alert.ogg', 50, 1)
 				if(announcer)
 					GLOB.global_announcer.autosay("Gravitational Generator has been fully charged. Gravitation is enabled!", "Gravity Generator Alert System")
@@ -527,6 +540,7 @@ GLOBAL_VAR(station_gravity_generator)
 					return
 				enabled = FALSE
 				update_gravity_status()
+				stop_operating_sound()
 				playsound(loc, 'sound/effects/alert.ogg', 50, 1)
 				if(announcer)
 					GLOB.global_announcer.autosay("Alert! Gravitational Generator has been discharged! Gravitation is disabled.", "Gravity Generator Alert System")
@@ -537,6 +551,10 @@ GLOBAL_VAR(station_gravity_generator)
 /obj/machinery/gravity_generator/main/proc/update_gravity_status()
 	shake_everyone()
 	update_connectected_areas_gravity()
+	if(enabled)
+		start_operating_sound()
+	else
+		stop_operating_sound()
 
 /obj/machinery/gravity_generator/main/proc/shake_everyone()
 	for(var/area/A in connected_areas)
@@ -547,6 +565,18 @@ GLOBAL_VAR(station_gravity_generator)
 /obj/machinery/gravity_generator/main/proc/update_connectected_areas_gravity()
 	for(var/area/A in connected_areas)
 		A.gravitychange(enabled ? TRUE : FALSE)
+
+/obj/machinery/gravity_generator/main/proc/start_operating_sound()
+	if(grav_sound_token)
+		return
+	var/sound_id = "\ref[src]_gravgen"
+	grav_sound_token = GLOB.sound_player.PlayLoopingSound(src, sound_id, 'sound/effects/gravgen_operating.ogg', volume = 60, range = 7, falloff = 3)
+
+/obj/machinery/gravity_generator/main/proc/stop_operating_sound()
+	if(!grav_sound_token)
+		return
+	grav_sound_token.Stop()
+	grav_sound_token = null
 
 /obj/machinery/gravity_generator/main/proc/add_areas()
 	var/list/areas = area_repository.get_areas_by_z_level()
@@ -594,3 +624,4 @@ GLOBAL_VAR(station_gravity_generator)
 #undef AREA_STATION
 #undef AREA_SPACE
 #undef AREA_SPECIAL
+

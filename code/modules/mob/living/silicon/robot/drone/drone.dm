@@ -1,7 +1,7 @@
 var/list/mob_hat_cache = list()
 /proc/get_hat_icon(obj/item/hat, offset_x = 0, offset_y = 0)
 	var/t_state = hat.icon_state
-	if(hat.item_state_slots && hat.item_state_slots[slot_head_str])
+	if(hat.item_state_slots?[slot_head_str])
 		t_state = hat.item_state_slots[slot_head_str]
 	else if(hat.item_state)
 		t_state = hat.item_state
@@ -134,7 +134,7 @@ var/list/mob_hat_cache = list()
 
 	..()
 
-	grant_verb(src, /mob/living/proc/hide)
+	verbs += /mob/living/proc/hide
 
 	remove_language(LANGUAGE_ROBOT)
 	add_language(LANGUAGE_ROBOT, FALSE)
@@ -148,7 +148,7 @@ var/list/mob_hat_cache = list()
 		var/datum/robot_component/C = components[V]
 		C.max_damage = 10
 
-	revoke_verb(src, /mob/living/silicon/robot/verb/Namepick)
+	verbs -= /mob/living/silicon/robot/verb/Namepick
 	update_icon()
 
 /mob/living/silicon/robot/drone/init()
@@ -290,7 +290,7 @@ var/list/mob_hat_cache = list()
 
 //DRONE LIFE/DEATH
 //For some goddamn reason robots have this hardcoded. Redefining it for our fragile friends here.
-/mob/living/silicon/robot/drone/updatehealth()
+/mob/living/silicon/robot/drone/update_health()
 	var/previous_health = health
 	if(status_flags & GODMODE)
 		health = 35
@@ -317,10 +317,6 @@ var/list/mob_hat_cache = list()
 	timeofdeath = world.time
 	death() //Possibly redundant, having trouble making death() cooperate.
 	gib()
-
-//DRONE MOVEMENT.
-/mob/living/silicon/robot/drone/slip_chance(prob_slip)
-	return 0
 
 //CONSOLE PROCS
 /mob/living/silicon/robot/drone/proc/law_resync()

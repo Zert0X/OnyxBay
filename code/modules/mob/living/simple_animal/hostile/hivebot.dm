@@ -64,13 +64,14 @@
 	var/spawn_delay = 100
 	var/spawn_time = 0
 
-/mob/living/simple_animal/hostile/hivebot/tele/New()
-	..()
-	var/datum/effect/effect/system/smoke_spread/smoke = new /datum/effect/effect/system/smoke_spread()
-	smoke.set_up(5, 0, src.loc)
-	smoke.start()
-	visible_message("<span class='danger'>\The [src] warps in!</span>")
-	playsound(src.loc, 'sound/effects/EMPulse.ogg', 25, 1)
+/mob/living/simple_animal/hostile/hivebot/tele/Initialize()
+	. = ..()
+	if(.)
+		var/datum/effect/effect/system/smoke_spread/smoke = new /datum/effect/effect/system/smoke_spread()
+		smoke.set_up(5, 0, src.loc)
+		smoke.start()
+		visible_message("<span class='danger'>\The [src] warps in!</span>")
+		playsound(src.loc, 'sound/effects/EMPulse.ogg', 25, 1)
 
 /mob/living/simple_animal/hostile/hivebot/tele/proc/warpbots()
 	while(bot_amt > 0 && bot_type)

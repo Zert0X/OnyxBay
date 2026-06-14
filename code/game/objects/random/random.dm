@@ -135,6 +135,31 @@
 				/obj/random/tool = 5,
 				/obj/item/tape_roll = 2)
 
+/obj/random/computer_hardware
+	name = "random computer hardware"
+	icon_state = "landmark_hardware"
+	spawn_nothing_percentage = 33
+
+/obj/random/computer_hardware/spawn_choices()
+	return list(/obj/item/computer_hardware/ai_slot = 1,
+				/obj/item/computer_hardware/battery_module = 3,
+				/obj/item/computer_hardware/battery_module/advanced = 1,
+				/obj/item/computer_hardware/battery_module/micro = 2,
+				/obj/item/computer_hardware/battery_module/nano = 4,
+				/obj/item/computer_hardware/card_slot = 1,
+				/obj/item/computer_hardware/hard_drive = 2,
+				/obj/item/computer_hardware/hard_drive/advanced = 1,
+				/obj/item/computer_hardware/hard_drive/micro = 2,
+				/obj/item/computer_hardware/hard_drive/small = 3,
+				/obj/item/computer_hardware/hard_drive/portable = 4,
+				/obj/item/computer_hardware/nano_printer = 1,
+				/obj/item/computer_hardware/network_card = 1,
+				/obj/item/computer_hardware/processor_unit = 2,
+				/obj/item/computer_hardware/processor_unit/small = 3,
+				/obj/item/computer_hardware/tesla_link = 1,
+				/obj/item/modular_computer/tablet = 2,
+				/obj/item/modular_computer/laptop = 2)
+
 /obj/random/medical
 	name = "random medical equipment"
 	desc = "This is a random medical item."
@@ -165,12 +190,12 @@
 	spawn_nothing_percentage = 25
 
 /obj/random/medical/lite/spawn_choices()
-	return list(/obj/item/stack/medical/bruise_pack = 4,
+	return list(/obj/item/stack/medical/bandage = 4,
 				/obj/item/stack/medical/ointment = 4,
 				/obj/item/storage/pill_bottle/antidexafen = 2,
 				/obj/item/storage/pill_bottle/paracetamol = 2,
-				/obj/item/stack/medical/advanced/bruise_pack = 2,
-				/obj/item/stack/medical/advanced/ointment = 2,
+				/obj/item/stack/medical/gel/brute = 2,
+				/obj/item/stack/medical/gel/burn = 2,
 				/obj/item/stack/medical/splint = 1,
 				/obj/item/bodybag/cryobag = 1,
 				/obj/item/storage/pill_bottle/kelotane = 2,
@@ -189,7 +214,37 @@
 				/obj/item/storage/firstaid/adv = 3,
 				/obj/item/storage/firstaid/combat = 1,
 				/obj/item/storage/firstaid = 6,
-				/obj/item/storage/firstaid/fire = 6)
+				/obj/item/storage/firstaid/fire = 6,
+				/obj/item/storage/firstaid/antirad = 2)
+
+/obj/random/pill
+	name = "random pill"
+	icon_state = "landmark_pill"
+	spawn_nothing_percentage = 50
+
+/obj/random/pill/spawn_choices()
+	return list(/obj/item/reagent_containers/pill/albumin = 4,
+				/obj/item/reagent_containers/pill/bicaridine = 3,
+				/obj/item/reagent_containers/pill/dermaline = 3,
+				/obj/item/reagent_containers/pill/dexalin_plus = 3,
+				/obj/item/reagent_containers/pill/dylovene = 4,
+				/obj/item/reagent_containers/pill/hyronalin = 2,
+				/obj/item/reagent_containers/pill/inaprovaline = 2,
+				/obj/item/reagent_containers/pill/noexcutite = 2,
+				/obj/item/reagent_containers/pill/paracetamol = 4,
+				/obj/item/reagent_containers/pill/happy = 5,
+				/obj/item/reagent_containers/pill/zoom = 5,
+				/obj/item/reagent_containers/pill/peridaxon = 1,
+				/obj/item/reagent_containers/pill/spaceacillin = 3,
+				/obj/item/reagent_containers/pill/tricordrazine = 4,
+				/obj/item/reagent_containers/pill/citalopram = 4,
+				/obj/item/reagent_containers/pill/methylphenidate = 3,
+				/obj/item/reagent_containers/pill/paroxetine = 2,
+				/obj/item/reagent_containers/pill/antidexafen = 4,
+				/obj/item/reagent_containers/pill/oxycodone = 1,
+				/obj/item/reagent_containers/pill/tramadol = 2,
+				/obj/item/reagent_containers/pill/alkysine = 1,
+				/obj/item/reagent_containers/pill/imidazoline = 1)
 
 /obj/random/contraband
 	name = "random illegal item"
@@ -451,7 +506,236 @@
 				/obj/structure/closet/wardrobe/white = 3,
 				/obj/structure/closet/wardrobe/orange = 3,
 				/obj/structure/closet/crate/secure/loot = 1,
-				/obj/structure/closet/secure_closet/freezer/kitchen = 3)
+				/obj/structure/closet/secure_closet/freezer/kitchen = 3,
+				/obj/structure/closet/maintenance/prefilled = 5,
+				/obj/structure/closet/maintenance/closet/prefilled = 4,
+				/obj/structure/closet/maintenance/medical/prefilled = 3,
+				/obj/structure/closet/maintenance/medicalalt/prefilled = 3,
+				/obj/structure/closet/maintenance/fridge/prefilled = 3,
+				/obj/structure/closet/maintenance/cargo/prefilled = 2,
+				/obj/structure/closet/maintenance/security/prefilled = 1,
+				/obj/structure/closet/maintenance/science/prefilled = 2,
+				/obj/structure/closet/maintenance/hydro/prefilled = 2,
+				/obj/structure/closet/maintenance/engineering/prefilled = 2,
+				/obj/structure/closet/maintenance/bio/prefilled = 2,
+				/obj/structure/closet/maintenance/nanotrasen/prefilled = 1)
+
+/obj/random/closet/maint
+	name = "random maintenance closet trash"
+	icon_state = "landmark_maint"
+	spawn_nothing_percentage = 50
+
+/obj/random/closet/maint/spawn_choices()
+	return list(/obj/random/junk = 10,
+				/obj/random/cash = 5,
+				/obj/random/maintenance/clean = 5,
+				/obj/random/music_tape = 1)
+
+/obj/random/closet/maint/closet
+	name = "random maintenance better closet trash"
+	icon_state = "landmark_maint_closet"
+
+/obj/random/closet/maint/closet/spawn_choices()
+	return list(/obj/random/junk = 10,
+				/obj/random/tech_supply= 7,
+				/obj/random/drinkbottle = 7,
+				/obj/random/cash = 5,
+				/obj/random/snack = 3,
+				/obj/random/maintenance/clean = 3)
+
+/obj/random/closet/maint/medical
+	name = "random maintenance medical trash"
+	icon_state = "landmark_maint_med"
+
+/obj/random/closet/maint/medical/spawn_choices()
+	return list(/obj/random/junk = 10,
+				/obj/item/clothing/mask/surgical = 7,
+				/obj/item/clothing/suit/surgicalapron = 7,
+				/obj/item/clothing/under/rank/medical/scrubs/blue = 7,
+				/obj/item/clothing/gloves/latex/nitrile = 7,
+				/obj/random/pill = 5,
+				/obj/item/storage/box/syringes = 5,
+				/obj/item/storage/box/autoinjectors = 5,
+				/obj/item/clothing/accessory/armband/med = 3,
+				/obj/item/clothing/accessory/storage/white_vest/alt = 3,
+				/obj/item/clothing/accessory/storage/white_vest = 3,
+				/obj/random/firstaid = 3,
+				/obj/item/scalpel = 1,
+				/obj/item/circular_saw = 1,
+				/obj/item/bonesetter = 1,
+				/obj/item/bonegel = 1,
+				/obj/item/FixOVein = 1,
+				/obj/item/cautery = 1,
+				/obj/item/hemostat = 1)
+
+/obj/random/closet/maint/medicalalt
+	name = "random maintenance medical lite trash"
+	icon_state = "landmark_maint_medalt"
+
+/obj/random/closet/maint/medicalalt/spawn_choices()
+	return list(/obj/random/junk = 10,
+				/obj/random/medical/lite = 7,
+				/obj/random/pill = 5,
+				/obj/item/reagent_containers/hypospray/autoinjector/pain = 1,
+				/obj/item/reagent_containers/hypospray/autoinjector/dexalinp = 1,
+				/obj/item/reagent_containers/hypospray/autoinjector/dermaline = 1,
+				/obj/item/reagent_containers/hypospray/autoinjector/bicaridine = 1)
+
+/obj/random/closet/maint/fridge
+	name = "random maintenance fridge trash"
+	icon_state = "landmark_maint_fridge"
+
+/obj/random/closet/maint/fridge/spawn_choices()
+	return list(/obj/random/snack = 10,
+				/obj/random/drinkbottle = 7,
+				/obj/random/junk = 5,
+				/obj/item/reagent_containers/food/meat/monkey = 5,
+				/obj/item/reagent_containers/food/sausage = 5,
+				/obj/item/reagent_containers/food/fries = 5,
+				/obj/item/reagent_containers/food/friedegg = 5,
+				/obj/item/reagent_containers/food/cheeseburrito = 5,
+				/obj/item/reagent_containers/food/packaged/hematogen = 5,
+				/obj/item/reagent_containers/food/sliceable/meatbread = 3,
+				/obj/item/material/knife/butch/kitchen = 1,
+				/obj/item/reagent_containers/food/meat/human = 1)
+
+/obj/random/closet/maint/cargo
+	name = "random maintenance cargo trash"
+	icon_state = "landmark_maint_cargo"
+
+/obj/random/closet/maint/cargo/spawn_choices()
+	return list(/obj/random/junk = 10,
+				/obj/item/storage/box = 7,
+				/obj/random/cash = 5,
+				/obj/random/smokes = 5,
+				/obj/item/clothing/gloves/thick = 5,
+				/obj/item/storage/backpack/dufflebag = 5,
+				/obj/item/clothing/accessory/armband/cargo = 3,
+				/obj/item/stamp = 3,
+				/obj/item/tape_roll = 3,
+				/obj/item/packageWrap = 3,
+				/obj/item/hand_labeler = 3,
+				/obj/item/circuitboard/arcade/orion_trail = 2,
+				/obj/item/circuitboard/arcade/battle = 2,
+				/obj/item/material/twohanded/baseballbat/metal = 1)
+
+/obj/random/closet/maint/security
+	name = "random maintenance security trash"
+	icon_state = "landmark_maint_sec"
+
+/obj/random/closet/maint/security/spawn_choices()
+	return list(/obj/random/junk = 50,
+				/obj/random/cash = 25,
+				/obj/item/storage/secure/briefcase = 25,
+				/obj/item/storage/box/security = 20,
+				/obj/item/device/flashlight/flare = 20,
+				/obj/item/device/flashlight/maglight = 15,
+				/obj/item/cell/device/high = 15,
+				/obj/item/melee/classic_baton = 10,
+				/obj/item/clothing/accessory/storage/black_vest = 10,
+				/obj/item/clothing/accessory/storage/black_vest/alt = 10,
+				/obj/item/device/taperecorder = 10,
+				/obj/item/clothing/accessory/armband = 5,
+				/obj/item/grenade/smokebomb = 5,
+				/obj/item/clothing/glasses/sunglasses = 5,
+				/obj/item/clothing/shoes/jackboots = 3,
+				/obj/item/clothing/head/helmet = 2,
+				/obj/item/clothing/suit/armor/vest = 2,
+				/obj/item/storage/secure/briefcase/money = 1)
+
+/obj/random/closet/maint/science
+	name = "random maintenance science trash"
+	icon_state = "landmark_maint_science"
+
+/obj/random/closet/maint/science/spawn_choices()
+	return list(/obj/random/junk = 30,
+				/obj/random/computer_hardware = 25,
+				/obj/item/stack/material/glass/ten = 10,
+				/obj/item/stack/material/steel/ten = 10,
+				/obj/item/rcd_upgrade/anti_interrupt = 7,
+				/obj/item/rcd_upgrade/cooling = 7,
+				/obj/item/rcd_upgrade/frames = 7,
+				/obj/item/rcd_upgrade/furnishing = 7,
+				/obj/item/rcd_upgrade/simple_circuits = 7,
+				/obj/item/clothing/glasses/hud/standard/science = 5,
+				/obj/item/cell/infinite = 1)
+
+/obj/random/closet/maint/hydro
+	name = "random maintenance hydro trash"
+	icon_state = "landmark_maint_hydro"
+
+/obj/random/closet/maint/hydro/spawn_choices()
+	return list(/obj/random/junk = 10,
+				/obj/random/pottedplant = 6,
+				/obj/item/storage/plants = 6,
+				/obj/item/clothing/gloves/thick/botany = 5,
+				/obj/item/device/analyzer/plant_analyzer = 5,
+				/obj/item/material/hatchet = 4,
+				/obj/item/material/minihoe = 4,
+				/obj/item/clothing/accessory/armband/hydro = 3,
+				/obj/item/reagent_containers/vessel/plastic/eznutrient = 3,
+				/obj/item/reagent_containers/vessel/plastic/robustharvest = 3,
+				/obj/item/reagent_containers/vessel/plastic/left4zed = 3,
+				/obj/structure/flora/pottedplant/dead = 1,
+				/obj/item/seeds/random = 1)
+
+/obj/random/closet/maint/engineering
+	name = "random maintenance engineering trash"
+	icon_state = "landmark_maint_eng"
+
+/obj/random/closet/maint/engineering/spawn_choices()
+	return list(/obj/random/junk = 10,
+				/obj/random/tool = 8,
+				/obj/item/clothing/mask/gas = 7,
+				/obj/item/device/flashlight/upgraded = 6,
+				/obj/item/clothing/gloves/insulated/cheap = 6,
+				/obj/item/clothing/accessory/storage/brown_vest = 5,
+				/obj/item/clothing/accessory/storage/brown_vest/alt = 5,
+				/obj/item/clothing/accessory/armband/engine = 3,
+				/obj/random/toolbox = 3,
+				/obj/item/device/multitool = 3,
+				/obj/item/clothing/gloves/insulated = 1,
+				/obj/item/clothing/shoes/magboots = 1)
+
+/obj/random/closet/maint/bio
+	name = "random maintenance bio trash"
+	icon_state = "landmark_maint_bio"
+
+/obj/random/closet/maint/bio/spawn_choices()
+	return list(/obj/random/junk = 10,
+				/obj/item/reagent_containers/vessel/beaker/vial = 7,
+				/obj/item/clothing/head/bio_hood/general = 5,
+				/obj/item/clothing/suit/bio_suit/general = 5,
+				/obj/item/clothing/mask/gas/clear = 4,
+				/obj/item/tank/emergency/oxygen/double = 4,
+				/obj/item/tank/emergency/oxygen/engi = 4,
+				/obj/item/storage/box/masks = 3,
+				/obj/item/storage/box/compact_shoe_covers,
+				/obj/item/storage/box/gloves = 3,
+				/obj/item/storage/box/syringes = 3,
+				/obj/item/clothing/glasses/hud/standard/medical = 2,
+				/obj/item/reagent_containers/vessel/bottle/chemical/spaceacillin = 2,
+				/obj/item/virusdish/random = 1)
+
+/obj/random/closet/maint/nanotrasen
+	name = "random maintenance nanotrasen closet trash"
+	icon_state = "landmark_maint_nanotrasen"
+
+/obj/random/closet/maint/nanotrasen/spawn_choices()
+	return list(/obj/random/junk = 10,
+				/obj/random/cash = 8,
+				/obj/item/clothing/head/soft/sec/corp/guard = 7,
+				/obj/item/clothing/under/track_pants/trackpantswhite = 7,
+				/obj/item/clothing/gloves/white = 7,
+				/obj/item/clothing/shoes/white = 7,
+				/obj/item/storage/backpack/nanotrasen = 6,
+				/obj/item/storage/briefcase = 6,
+				/obj/item/device/radio/headset = 6,
+				/obj/item/book/wiki/chain_of_command = 4,
+				/obj/item/book/wiki/nt_regs = 4,
+				/obj/item/clothing/accessory/armband/whitered = 3,
+				/obj/item/clothing/accessory/holster/thigh = 2,
+				/obj/item/clothing/suit/armor/pcarrier/light/cheap = 1)
 
 /obj/random/coin
 	name = "random coin"
@@ -745,6 +1029,7 @@
 				/obj/item/storage/box/syringes = 3,
 				/obj/item/storage/box/gloves = 3,
 				/obj/item/storage/box/masks = 3,
+				/obj/item/storage/box/compact_shoe_covers,
 				/obj/item/storage/box/large = 2,
 				/obj/item/storage/box/glowsticks = 3,
 				/obj/item/storage/wallet = 1,
@@ -890,6 +1175,7 @@
 				/obj/item/clothing/head/welding = 2,
 				/obj/item/clothing/head/cardborg = 1,
 				/obj/item/clothing/head/cowboy_hat = 1,
+				/obj/item/clothing/head/panama = 1,
 				/obj/item/clothing/head/nursehat = 1,
 				/obj/item/clothing/head/syndicatefake = 1,
 				/obj/item/clothing/head/wizard/fake = 1,
@@ -1244,6 +1530,18 @@ var/list/multi_point_spawns
 	icon_state = "landmark_bookrev"
 	id = "Veridical Chronicles of NanoTrasen"
 	item_path = /obj/item/book/rev
+
+/obj/random_multi/single_item/autolathe
+	name = "multi point - Circuit board (autolathe)"
+	icon_state = "landmark_autolathe"
+	id = "Circuit board (autolathe)"
+	item_path = /obj/item/circuitboard/autolathe
+
+/obj/random_multi/single_item/rocky
+	name = "multi point - Rocky"
+	icon_state = "landmark_rocky"
+	id = "Rocky"
+	item_path = /obj/structure/rocky
 
 // Broken items, or stuff that could be picked up.
 /obj/random/junk

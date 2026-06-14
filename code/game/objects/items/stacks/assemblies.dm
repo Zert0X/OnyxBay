@@ -27,7 +27,7 @@
 	if(isWelder(W))
 		var/obj/item/weldingtool/WT = W
 
-		if(!WT.use_tool(src, user, amount = 1))
+		if(!WT.use_tool(src, user, amount = 10))
 			return
 
 		var/obj/item/stack/material/steel/new_item
@@ -41,7 +41,7 @@
 			M.show_message(SPAN_NOTICE("[src] is shaped into metal by [user.name] with the weldingtool."), 3, SPAN_NOTICE("You hear welding."), 2)
 		var/obj/item/stack/gassembly/R = src
 		src = null
-		var/replace = (user.get_inactive_hand()==R)
+		var/replace = user.has_in_passive_hand(R)
 		R.use(1)
 		if (!R && replace)
 			user.pick_or_drop(new_item)
@@ -57,7 +57,7 @@
 				SPAN_NOTICE("You begin assembling \the [singular_name]."))
 		in_use = 1
 
-		if (!do_after(usr, 25))
+		if (!do_after(usr, 25, src, luck_check_type = LUCK_CHECK_ENG))
 			in_use = 0
 			return
 
@@ -89,7 +89,7 @@
 				SPAN_NOTICE("You begin assembling \the [singular_name]."))
 		in_use = 1
 
-		if (!do_after(usr, 40))
+		if (!do_after(usr, 40, src, luck_check_type = LUCK_CHECK_ENG))
 			in_use = 0
 			return
 

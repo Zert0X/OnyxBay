@@ -7,7 +7,7 @@
 	var/mob/living/carbon/human/attached
 	var/mode = 1 // 1 is injecting, 0 is taking blood.
 	var/obj/item/reagent_containers/beaker
-	var/list/transfer_amounts = list(REM, 1, 2)
+	var/list/transfer_amounts = list(REM, 1, 2, 3, 5, 10)
 	var/transfer_amount = 1
 
 /obj/structure/iv_drip/verb/set_APTFT()
@@ -15,7 +15,7 @@
 	set category = "Object"
 	set src in range(1)
 	if(!istype(usr, /mob/living))
-		to_chat(usr, "<span class='warning'>You can't do that.</span>")
+		to_chat(usr, SPAN_WARNING("You can't do that."))
 		return
 	var/N = input("Amount per transfer from this:","[src]") as null|anything in transfer_amounts
 	if(N)
@@ -140,13 +140,16 @@
 	if(Adjacent(user))
 		attack_hand(user)
 
+/obj/structure/iv_drip/AltClick(mob/user)
+	return set_APTFT()
+
 /obj/structure/iv_drip/verb/toggle_mode()
 	set category = "Object"
 	set name = "Toggle IV Mode"
 	set src in view(1)
 
 	if(!istype(usr, /mob/living))
-		to_chat(usr, "<span class='warning'>You can't do that.</span>")
+		to_chat(usr, SPAN_WARNING("You can't do that."))
 		return
 
 	if(usr.incapacitated())
@@ -161,15 +164,17 @@
 	if(get_dist(src, user) > 2)
 		return
 
-	. += "The IV drip is [mode ? "injecting" : "taking blood"]."
-	. += "It is set to transfer [transfer_amount]u of chemicals per cycle."
+	if(mode)
+		. += "The IV drip is set to inject [transfer_amount] ml of chemicals per second."
+	else
+		. += "The IV drip is set to siphon [transfer_amount] ml of blood per second."
 
 	if(beaker)
 		if(beaker.reagents && beaker.reagents.total_volume)
-			. += "<span class='notice'>Attached is \a [beaker] with [beaker.reagents.total_volume] units of liquid.</span>"
+			. += SPAN_NOTICE("Attached is \a [beaker] with [beaker.reagents.total_volume] ml of chemicals.")
 		else
-			. += "<span class='notice'>Attached is an empty [beaker].</span>"
+			. += SPAN_NOTICE("Attached is an empty [beaker].")
 	else
-		. += "<span class='notice'>No chemicals are attached.</span>"
+		. += SPAN_NOTICE("No chemicals are attached.")
 
-	. += "<span class='notice'>[attached ? attached : "No one"] is hooked up to it.</span>"
+	. += SPAN_NOTICE("[attached ? attached : "No one"] is hooked up to it.")

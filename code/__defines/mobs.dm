@@ -1,3 +1,7 @@
+
+//
+#define REALISTIC_METABOLISM 0
+
 // /mob/var/stat things.
 #define CONSCIOUS   0
 #define UNCONSCIOUS 1
@@ -20,6 +24,8 @@
 // Grab Types
 #define GRAB_NORMAL			"normal"
 #define GRAB_QUICKCHOKE     "choke"
+#define GRAB_NORM_AGGRESSIVE_GRACE (2 SECONDS)
+#define GRAB_RESIST_CD (1 SECOND)
 
 // Grab levels.
 #define NORM_PASSIVE    "normal passive"
@@ -195,44 +201,49 @@
 #define INCAPACITATION_DEFAULT (INCAPACITATION_RESTRAINED|INCAPACITATION_BUCKLED_FULLY|INCAPACITATION_DISABLED)
 #define INCAPACITATION_ALL (~INCAPACITATION_NONE)
 
-// Organs.
-#define BP_MOUTH    "mouth"
-#define BP_EYES     "eyes"
-#define BP_HEART    "heart"
-#define BP_LUNGS    "lungs"
-#define BP_TRACH	"tracheae"
-#define BP_BRAIN    "brain"
-#define BP_LIVER    "liver"
-#define BP_KIDNEYS  "kidneys"
-#define BP_STOMACH  "stomach"
-#define BP_APPENDIX "appendix"
-#define BP_CELL     "cell"
-#define BP_HIVE     "hive node"
-#define BP_NUTRIENT "nutrient vessel"
-#define BP_ACID     "acid gland"
-#define BP_EGG      "egg sac"
-#define BP_RESIN    "resin spinner"
-#define BP_STRATA   "neural strata"
-#define BP_RESPONSE "response node"
-#define BP_GBLADDER "gas bladder"
-#define BP_POLYP    "polyp segment"
-#define BP_ANCHOR   "anchoring ligament"
-#define BP_PLASMA   "plasma vessel"
-#define BP_CHANG    "biostructure"
-#define BP_CANCER   "cancer"
-#define BP_EMBRYO   "alien embryo"
-#define BP_GANGLION "spinal ganglion"
-#define BP_ADAMANTINE_RESONATOR "adamantine resonator"
-#define BP_ADAMANTINE_VOCAL_CORDS "adamantine vocal cords"
-#define BP_METROID 	"metroid jelly vessel"
+// Normal Organs.
+#define BP_MOUTH      "mouth"
+#define BP_EYES       "eyes"
+#define BP_HEART      "heart"
+#define BP_LUNGS      "lungs"
+#define BP_TRACH      "tracheae"
+#define BP_BRAIN      "brain"
+#define BP_LIVER      "liver"
+#define BP_KIDNEYS    "kidneys"
+#define BP_STOMACH    "stomach"
+#define BP_APPENDIX   "appendix"
+#define BP_TONGUE     "tongue"
+#define BP_BLADDER    "bladder"
+#define BP_INTESTINES "intestines"
 
-#define BP_INTERNAL_ORGANS list(BP_BRAIN, BP_HEART, BP_EYES, BP_LUNGS, BP_LIVER, BP_KIDNEYS)
+// Weird Organs.
+#define BP_HIVE       "hive node"
+#define BP_NUTRIENT   "nutrient vessel"
+#define BP_ACID       "acid gland"
+#define BP_EGG        "egg sac"
+#define BP_RESIN      "resin spinner"
+#define BP_STRATA     "neural strata"
+#define BP_RESPONSE   "response node"
+#define BP_GBLADDER   "gas bladder"
+#define BP_POLYP      "polyp segment"
+#define BP_ANCHOR     "anchoring ligament"
+#define BP_PLASMA     "plasma vessel"
+#define BP_CHANG      "biostructure"
+#define BP_CANCER     "cancer"
+#define BP_EMBRYO     "alien embryo"
+#define BP_GANGLION   "spinal ganglion"
+#define BP_METROID    "metroid jelly vessel"
+#define BP_ADAMANTINE_RESONATOR   "adamantine resonator"
+#define BP_ADAMANTINE_VOCAL_CORDS "adamantine vocal cords"
+
+#define BP_INTERNAL_ORGANS list(BP_BRAIN, BP_HEART, BP_EYES, BP_LUNGS, BP_LIVER, BP_KIDNEYS, BP_TONGUE, BP_INTESTINES, BP_BLADDER)
 
 // Robo Organs.
-#define BP_POSIBRAIN	"posibrain"
-#define BP_VOICE		"vocal synthesiser"
-#define BP_STACK		"stack"
-#define BP_OPTICS		"optics"
+#define BP_CELL       "cell"
+#define BP_POSIBRAIN  "posibrain"
+#define BP_VOICE      "vocal synthesiser"
+#define BP_STACK      "stack"
+#define BP_OPTICS     "optics"
 
 // Limbs.
 #define BP_L_FOOT "l_foot"
@@ -278,6 +289,13 @@ GLOBAL_LIST_INIT(organ_tag_to_name, list(
 #define TASTE_NORMAL 1 //anything below 15%
 #define TASTE_DULL 0.5 //anything below 30%
 #define TASTE_NUMB 0.1 //anything below 150%
+
+// Humanoid coagulation (blood clotting)
+#define COAGULATION_NONE   0
+#define COAGULATION_WEAK   0.5
+#define COAGULATION_NORMAL 1.0
+#define COAGULATION_STRONG 2.0
+#define COAGULATION_FORCED 99999
 
 //Used by show_message() and emotes
 #define VISIBLE_MESSAGE 1
@@ -389,10 +407,32 @@ GLOBAL_LIST_INIT(organ_tag_to_name, list(
 #define STOMACH_FULLNESS_MEDIUM     250
 #define STOMACH_FULLNESS_HIGH       425
 #define STOMACH_FULLNESS_SUPER_HIGH 550
+#define STOMACH_FULLNESS_CAP        800
 
-#define STOMACH_CAPACITY_LOW    0.75 // Slim people
-#define STOMACH_CAPACITY_NORMAL 1.0  // Normal human beings
-#define STOMACH_CAPACITY_HIGH   1.45 // Spherical boiz
+// Slim people
+#define STOMACH_CAPACITY_LOW    0.75
+ // Normal human beings
+#define STOMACH_CAPACITY_NORMAL 1.0
+// Spherical boiz
+#define STOMACH_CAPACITY_HIGH   1.45
+
+#define HYDRATION_NONE 0
+#define HYDRATION_LOW 200
+#define HYDRATION_NORMAL 500
+#define HYDRATION_HIGH 900
+#define HYDRATION_SUPER 1400
+#define HYDRATION_LIMIT 2000
+
+#define MOUTH_CAPACITY 60
+
+#define TOXLOSS_NONE     0
+#define TOXLOSS_CASUAL   5
+#define TOXLOSS_MILD     25
+#define TOXLOSS_SEVERE   50
+#define TOXLOSS_CRITICAL 75
+#define TOXLOSS_LETHAL   100
+#define TOXLOSS_SOFTCAP  125
+#define TOXLOSS_HARDCAP  150
 
 #define HUMAN_POWER_NONE    "None"
 #define HUMAN_POWER_SPIT    "Spit"
@@ -434,3 +474,54 @@ GLOBAL_LIST_INIT(organ_tag_to_name, list(
 		if(HUMAN_HEIGHT_LARGE) return "Tall"
 		if(HUMAN_HEIGHT_HUGE) return "Towering"
 	return "Unusual"
+
+// Human Overlays Indexes
+#define HO_L_HAND_LOW_LAYER         1
+#define HO_R_HAND_LOW_LAYER         2
+#define HO_BODY_LAYER               3
+#define HO_MUTATIONS_LAYER          4
+#define HO_SKIN_LAYER               5
+#define HO_DAMAGE_LAYER             6
+#define HO_SURGERY_LAYER            7
+#define HO_UNDERWEAR_LAYER          8
+#define HO_UNDERWEAR_PLUS_LAYER     9
+#define HO_UNIFORM_LAYER           10
+#define HO_BANDAGE_LAYER           11
+#define HO_ID_LAYER                12
+#define HO_SHOES_LAYER             13
+#define HO_GLOVES_LAYER            14
+#define HO_BELT_LAYER              15
+#define HO_UNDERWEAR_UNIFORM_LAYER 16
+#define HO_SUIT_LAYER              17
+#define HO_TAIL_LAYER              18
+#define HO_FACIAL_HAIR_LAYER       19
+#define HO_FACEMASK_ALT_LAYER      20
+#define HO_GLASSES_LAYER           21
+#define HO_BELT_LAYER_ALT          22
+#define HO_SUIT_STORE_LAYER        23
+#define HO_BACK_LAYER              24
+#define HO_DEFORM_LAYER            25
+#define HO_HAIR_LAYER              26
+#define HO_GOGGLES_LAYER           27
+#define HO_EARS_LAYER              28
+#define HO_FACEMASK_LAYER          29
+#define HO_HEAD_LAYER              30
+#define HO_COLLAR_LAYER            31
+#define HO_UNDERWEAR_SUIT_LAYER    32
+#define HO_HANDCUFF_LAYER          33
+#define HO_L_HAND_LAYER            34
+#define HO_R_HAND_LAYER            35
+#define HO_FIRE_LAYER              36
+#define HO_MODIFIER_EFFECTS_LAYER  37
+#define HO_TARGETED_LAYER          38
+#define HO_TOTAL_LAYERS            39
+
+#define MOB_ANIM_ATTACK "attack"
+#define MOB_ANIM_FLOATING "floating"
+#define MOB_ANIM_HEIGHT_OFFSET "height_offset"
+#define MOB_ANIM_GRAB "grab"
+#define MOB_ANIM_TWITCH "twitch"
+#define MOB_ANIM_TWITCH_V "twitch_violently"
+#define MOB_ANIM_TREMBLE "tremble"
+#define MOB_ANIM_SHIVER "shiver"
+#define MOB_ANIM_SWAY "sway"

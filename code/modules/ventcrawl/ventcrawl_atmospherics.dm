@@ -6,9 +6,8 @@
 		M.dropInto(loc)
 	if(pipe_image)
 		for(var/mob/living/M in GLOB.player_list)
-			if(M.client)
-				M.client.images -= pipe_image
-				M.pipes_shown -= pipe_image
+			M.remove_client_image(pipe_image)
+			M.pipes_shown -= pipe_image
 		pipe_image = null
 	return ..()
 
@@ -22,6 +21,7 @@
 		return
 	var/datum/movement_handler/mob/delay/delay = user.GetMovementHandler(/datum/movement_handler/mob/delay)
 	if(delay && delay.MayMove(user, FALSE) == MOVEMENT_PROCEED) // Yes, this DOES look fucked up. It shouldn't be used this way. But screw it this whole ventcrawl thing is a mess so who the fuck cares
+		direction = ((direction) & -(direction)) // Only cardinals allowed.
 		ventcrawl_to(user, findConnecting(direction), direction) // TODO: Make a fucking handler for this piece of VG shit
 		user.setMoveCooldown(user.movement_delay())
 

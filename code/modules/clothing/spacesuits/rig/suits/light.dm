@@ -4,8 +4,8 @@
 	desc = "A lighter, less armoured rig suit."
 	icon_state = "ninja_rig"
 	suit_type = "light suit"
-	allowed = list(/obj/item/gun,/obj/item/ammo_magazine,/obj/item/ammo_casing,/obj/item/melee/baton,/obj/item/handcuffs,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/cell)
-	armor = list(melee = 50, bullet = 15, laser = 50, energy = 10, bomb = 25, bio = 0)
+	allowed = list(/obj/item/gun,/obj/item/ammo_magazine,/obj/item/ammo_casing,/obj/item/melee/baton,/obj/item/handcuffs,/obj/item/tank,/obj/item/device/suit_cooling_unit,/obj/item/cell, /obj/item/flag)
+	armor_values = alist(melee = 50, bullet = 15, laser = 50, energy = 10, bomb = 25, bio = 0)
 	siemens_coefficient = 0.4
 	emp_protection = 10
 	online_slowdown = 0
@@ -67,17 +67,23 @@
 
 /obj/item/clothing/shoes/lightrig/hacker
 	siemens_coefficient = 0.2
-	item_flags = ITEM_FLAG_NOSLIP //All the other rigs have magboots anyways, hopefully gives the hacker suit something more going for it.
+	item_flags = ITEM_FLAG_NOSLIP | ITEM_FLAG_MAGNETISED //All the other rigs have magboots anyways, hopefully gives the hacker suit something more going for it.
 
 /obj/item/clothing/gloves/lightrig/hacker
 	siemens_coefficient = 0
+
+/obj/item/rig/light/hacker/empty
+	initial_modules = list(
+		/obj/item/rig_module/ai_container,
+		/obj/item/rig_module/cooling_unit,
+		)
 
 /obj/item/rig/light/ninja
 	name = "ominous suit control module"
 	desc = "A unique, vaccum-proof suit of nano-enhanced armor designed specifically for assassins."
 	suit_type = "ominous"
 	icon_state = "ninja_rig"
-	armor = list(melee = 50, bullet = 35, laser = 40, energy = 70, bomb = 25, bio = 100)
+	armor_values = alist(melee = 50, bullet = 35, laser = 40, energy = 70, bomb = 25, bio = 100)
 	siemens_coefficient = 0.2 //heavy powersuit level shock protection
 	emp_protection = 40 //change this to 30 if too high.
 	online_slowdown = 0
@@ -117,7 +123,7 @@
 			input = "\improper [input]"
 		SetName(input)
 		to_chat(M, "Suit naming succesful!")
-		remove_verb(loc, /obj/item/rig/light/ninja/verb/rename_suit)
+		verbs -= /obj/item/rig/light/ninja/verb/rename_suit
 		return 1
 
 
@@ -132,7 +138,7 @@
 	if(src && input && !M.incapacitated() && in_range(M,src))
 		desc = input
 		to_chat(M, "Suit description succesful!")
-		remove_verb(loc, /obj/item/rig/light/ninja/verb/rename_suit)
+		verbs -= /obj/item/rig/light/ninja/verb/rename_suit
 		return 1
 
 /obj/item/clothing/gloves/rig/light/ninja

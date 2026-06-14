@@ -124,8 +124,6 @@
 	if(active)
 		new_character.key = key		//now transfer the key to link the client to our new body
 
-	new_character.client?.init_verbs()
-
 	return TRUE
 
 /datum/mind/proc/store_memory(new_text)
@@ -377,7 +375,7 @@
 		switch(href_list["implant"])
 			if("remove")
 				for(var/obj/item/implant/loyalty/I in H.contents)
-					for(var/obj/item/organ/external/organs in H.organs)
+					for(var/obj/item/organ/external/organs in H.external_organs)
 						if(I in organs.implants)
 							qdel(I)
 							break
@@ -548,7 +546,7 @@
 	..()
 	mind.assigned_role = "metroid"
 
-/mob/living/carbon/alien/larva/mind_initialize()
+/mob/living/carbon/larva/xenomorph/mind_initialize()
 	..()
 	mind.special_role = "Xenomorph"
 

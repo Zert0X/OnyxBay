@@ -29,11 +29,11 @@
 		..(user)
 
 /obj/item/clothing/accessory/storage/MouseDrop(obj/over_object as obj)
-	if (has_suit && hold)
-		return
+	if(has_suit && hold)
+		return FALSE
 
 	if(hold && hold.handle_mousedrop(usr, over_object))
-		..(over_object)
+		return ..(over_object)
 
 /obj/item/clothing/accessory/storage/attackby(obj/item/W as obj, mob/user as mob)
 	if(hold)
@@ -162,10 +162,11 @@
 		/obj/item/clothing/mask/smokable,
 		/obj/item/screwdriver,
 		/obj/item/device/multitool,
-		/obj/item/magnetic_ammo,
+		/obj/item/rcd_ammo/magnetic_ammo,
 		/obj/item/ammo_magazine,
 		/obj/item/net_shell,
-		/obj/item/reagent_containers/vessel/beaker/vial
+		/obj/item/reagent_containers/vessel/beaker/vial,
+		/obj/item/ammo_casing/grenade
 	)
 
 /obj/item/clothing/accessory/storage/bandolier/safari/New()

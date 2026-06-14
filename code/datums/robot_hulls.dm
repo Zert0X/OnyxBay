@@ -1,12 +1,40 @@
-/datum/robot_hull
-	var/icon = 'icons/mob/robots.dmi'
-	var/icon_state = "robot"
-	var/footstep_sound = SFX_FOOTSTEP_ROBOT_SPIDER
+/// Utility proc that allows easy overriding of hull vars during instantiation.
+/proc/create_hull_with_overrides(list/overrides)
+	var/datum/robot_hull/new_hull = new
 
-/datum/robot_hull/New(icon, icon_state, footstep_sound)
-	src.icon = icon ? icon : initial(src.icon)
-	src.icon_state = icon_state ? icon_state : initial(src.icon_state)
-	src.footstep_sound = footstep_sound ? footstep_sound : initial(src.footstep_sound)
+	for (var/list/override as anything in overrides)
+		if (override in new_hull.vars)
+			new_hull.vars[override] = overrides[override]
+		else
+			util_crash_with("Attempted to override inexistent `[override]` var during hull creation!")
+
+	return new_hull
+
+/datum/robot_hull
+	// Bitfield used in multiple places to enable or disable certain hull features.
+	var/hull_flags = ROBOT_HULL_FLAG_HAS_EYES | ROBOT_HULL_FLAG_HAS_PANEL | ROBOT_HULL_FLAG_HAS_FOOTSTEPS
+	// Path to the file containing the `icon_state`.
+	var/icon = 'icons/mob/silicon/robot.dmi'
+	// String used as the `icon_state` for the robot.
+	var/icon_state = "robot"
+	/// Sound played on every robot movement.
+	var/footstep_sound = SFX_FOOTSTEP_ROBOT_SPIDER
+	/// List of custom emote typepaths assoicated with this hull.
+	var/list/default_emotes
+	/// Prefix used during panel `icon_state` generation. Cannot be used from the start due to some robots having unique panels.
+	VAR_PROTECTED/panel_icon_state_prefix = ROBOT_HULL_PANEL_DEFAULT
+
+/datum/robot_hull/proc/is_panel_custom()
+	return panel_icon_state_prefix == ROBOT_HULL_PANEL_CUSTOM
+
+/datum/robot_hull/proc/get_panel_icon()
+	return is_panel_custom() ? icon : ROBOT_HULL_PANEL_ICON
+
+/datum/robot_hull/proc/get_panel_icon_state(wires = FALSE, cell = FALSE)
+	var/icon_state_prefix = is_panel_custom() ? icon_state : panel_icon_state_prefix
+	var/icon_state_postfix = wires ? "+w" : cell ? "+c" : "-c"
+
+	return "[icon_state_prefix]-openpanel [icon_state_postfix]"
 
 /datum/robot_hull/spider
 	footstep_sound = SFX_FOOTSTEP_ROBOT_SPIDER
@@ -106,7 +134,7 @@
 
 /datum/robot_hull/truck
 	// TODO: Add truck sound
-	footstep_sound = null
+	hull_flags = parent_type::hull_flags && (~ROBOT_HULL_FLAG_HAS_FOOTSTEPS)
 
 /datum/robot_hull/truck/mopgearrex
 	icon_state = "mopgearrex"
@@ -121,7 +149,7 @@
 	icon_state = "engiborg+tread"
 
 /datum/robot_hull/flying
-	footstep_sound = null
+	hull_flags = parent_type::hull_flags && (~ROBOT_HULL_FLAG_HAS_FOOTSTEPS)
 
 /datum/robot_hull/flying/drone_standard
 	icon_state = "drone-standard"
@@ -181,8 +209,35 @@
 	icon_state = "eyebot-engineering"
 
 /datum/robot_hull/drone
+	hull_flags = parent_type::hull_flags && (~ROBOT_HULL_FLAG_HAS_PANEL)
 	icon_state = "repairbot"
 	footstep_sound = SFX_FOOTSTEP_ROBOT_SPIDER
 
 /datum/robot_hull/drone/construction
 	icon_state = "constructiondrone"
+
+/datum/robot_hull/sphere
+	hull_flags = parent_type::hull_flags | ROBOT_HULL_FLAG_TILTABLE
+	footstep_sound = SFX_FOOTSTEP_ROBOT_UNICYCLE
+
+/datum/robot_hull/sphere/kerfur_standart
+	icon_state = "kerfur-standard"
+	default_emotes = list(
+		/datum/emote/synth/meow,
+	)
+
+/datum/robot_hull/sphere/kerfur_engineer
+	parent_type = /datum/robot_hull/sphere/kerfur_standart
+	icon_state = "kerfur-engineer"
+
+/datum/robot_hull/sphere/kerfur_security
+	parent_type = /datum/robot_hull/sphere/kerfur_standart
+	icon_state = "kerfur-security"
+
+/datum/robot_hull/sphere/kerfur_service
+	parent_type = /datum/robot_hull/sphere/kerfur_standart
+	icon_state = "kerfur-service"
+
+/datum/robot_hull/sphere/kerfur_science
+	parent_type = /datum/robot_hull/sphere/kerfur_standart
+	icon_state = "kerfur-science"

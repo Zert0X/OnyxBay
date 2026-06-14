@@ -63,6 +63,9 @@
 /obj/structure/window/GetExplosionBlock()
 	return reinf && (state == 5) ? real_explosion_block : 0
 
+/obj/structure/window/add_debris_element()
+	AddElement(/datum/element/debris, DEBRIS_GLASS, -10, 5)
+
 /obj/structure/window/proc/take_damage(damage = 0,  sound_effect = 1)
 	var/initialhealth = health
 
@@ -108,9 +111,9 @@
 		visible_message("[src] shatters!")
 
 	if(!(atom_flags & ATOM_FLAG_HOLOGRAM))
-		cast_new(shardtype, is_full_window ? 4 : 1, loc)
+		cast_new(shardtype, (is_full_window ? 4 : 1), loc)
 		if(reinf)
-			cast_new(/obj/item/stack/rods, is_full_window ? 4 : 1, loc)
+			cast_new(/obj/item/stack/rods, (is_full_window ? 4 : 1), loc)
 
 	qdel(src)
 	return
@@ -186,7 +189,7 @@
 	return 1
 
 
-/obj/structure/window/hitby(atom/movable/AM, speed, nomsg)
+/obj/structure/window/hitby(atom/movable/AM, datum/thrownthing/TT, nomsg)
 	..()
 	var/tforce = 0
 	if(ismob(AM)) // All mobs have a multiplier and a size according to mob_defines.dm
@@ -296,7 +299,7 @@
 			P.state = state
 			qdel(src)
 	else
-		user.setClickCooldown(W.update_attack_cooldown())
+		W.set_cooldown()
 		user.do_attack_animation(src)
 		if((W.damtype == BRUTE || W.damtype == BURN) && W.force >= 3)
 			visible_message(SPAN("danger", "[src] has been hit by [user] with [W]."))
@@ -333,8 +336,8 @@
 	updateSilicate()
 	update_nearby_tiles(need_rebuild=1)
 
-/obj/structure/window/New(Loc, start_dir=null, constructed=0)
-	..()
+/obj/structure/window/Initialize(mapload, start_dir = null, constructed = 0)
+	. = ..(mapload)
 
 	//player-constructed windows
 	if (constructed)
@@ -349,9 +352,6 @@
 	health = maxhealth
 
 	ini_dir = dir
-
-	update_nearby_tiles(need_rebuild=1)
-	update_nearby_icons()
 
 
 /obj/structure/window/Destroy()
@@ -387,11 +387,11 @@
 	//A little cludge here, since I don't know how it will work with slim windows. Most likely VERY wrong.
 	//this way it will only update full-tile ones
 	ClearOverlays()
-	layer = FULL_WINDOW_LAYER
 	if(!is_full_window)
-		layer = SIDE_WINDOW_LAYER
+		layer = (dir == 1) ? SIDE_WINDOW_LAYER : SIDE_WINDOW_SIDES_LAYER
 		icon_state = "[basestate]"
 		return
+	layer = FULL_WINDOW_LAYER
 	var/list/dirs = list()
 	if(anchored)
 		for(var/obj/structure/window/W in orange(src,1))
@@ -477,22 +477,18 @@
 	damage_per_fire_tick = 2.0
 	glasstype = /obj/item/stack/material/glass/reinforced
 
-
-/obj/structure/window/New(Loc, constructed=0)
-	..()
-
-	//player-constructed windows
-	if (constructed)
-		state = 0
-
-/obj/structure/window/Initialize()
+/obj/structure/window/Initialize(mapload, constructed = 0)
 	. = ..()
-	layer = is_full_window ? FULL_WINDOW_LAYER : SIDE_WINDOW_LAYER
+	if(constructed)
+		state = 0
 	// windows only block while reinforced and fulltile, so we'll use the proc
 	real_explosion_block = explosion_block
-	explosion_block = EXPLOSION_BLOCK_PROC
+
+	update_nearby_tiles(need_rebuild=1)
+	update_nearby_icons()
 
 	AddElement(/datum/element/simple_rotation)
+	add_debris_element()
 
 /obj/structure/window/reinforced/full
 	dir = 5
@@ -593,7 +589,7 @@
 /obj/structure/window/reinforced/polarized/attackby(obj/item/W as obj, mob/user as mob)
 	if(isMultitool(W))
 		var/t = sanitizeSafe(input(user, "Enter the ID for the window.", src.name, null), MAX_NAME_LEN)
-		if (user.get_active_hand() != W)
+		if(!user.has_in_hands(W))
 			return
 		if (!in_range(src, user) && src.loc != user)
 			return
@@ -622,6 +618,7 @@
 	return
 
 /obj/structure/window/reinforced/crescent/hitby()
+	SHOULD_CALL_PARENT(FALSE)
 	return
 
 /obj/structure/window/reinforced/crescent/take_damage()

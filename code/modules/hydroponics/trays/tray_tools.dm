@@ -4,6 +4,11 @@
 	name = "plant clippers"
 	desc = "A tool used to take samples from plants."
 
+	icon = 'icons/obj/hydroponics_items.dmi'
+	icon_state = "plantclippers"
+	item_state = "plantclippers"
+	randicon = FALSE
+
 /obj/item/device/analyzer/plant_analyzer
 	name = "plant analyzer"
 	desc = "A hand-held botanical scanner used to analyze plants."

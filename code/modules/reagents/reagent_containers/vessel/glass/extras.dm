@@ -25,7 +25,7 @@
 		return ..()
 
 /obj/item/reagent_containers/vessel/glass/attack_hand(mob/user as mob)
-	if(src != user.get_inactive_hand())
+	if(!user.has_in_passive_hand(src))
 		return ..()
 
 	if(!extras.len)
@@ -57,7 +57,7 @@
 /obj/item/glass_extra/cocktail_stick
 	name = "stick"
 	desc = "This goes in a glass."
-	glass_addition = "cocktail_stick"
+	glass_addition = "stick"
 	glass_desc = "There is a stick in the glass."
 	icon_state = "cocktail_stick"
 

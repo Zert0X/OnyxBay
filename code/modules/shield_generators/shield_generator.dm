@@ -260,6 +260,12 @@
 			return
 		running = SHIELD_RUNNING
 		regenerate_field()
+		playsound(loc, 'sound/machines/shield_enable.ogg', 50, 1)
+		var/list/station_z = GLOB.using_map.get_levels_with_trait(ZTRAIT_STATION)
+		for(var/mob/M in GLOB.player_list)
+			var/turf/T = get_turf(M)
+			if(T && (T.z in station_z) && !istype(M, /mob/new_player) && !isdeaf(M))
+				sound_to(M, sound('sound/machines/shield_enable_global.ogg', volume = 50))
 		return TOPIC_REFRESH
 
 	// Instantly drops the shield, but causes a cooldown before it may be started again. Also carries a risk of EMP at high charge.

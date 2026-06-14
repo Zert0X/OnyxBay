@@ -3,8 +3,11 @@
 	name = "tin can"
 	desc = "It opens, but never closes."
 	matter = list(MATERIAL_STEEL = 500)
-	volume = 45 //just over one and a half cups
-	amount_per_transfer_from_this = 5
+
+	volume = 0.330 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;60;100;150;330"
+
 	atom_flags = 0 //starts closed
 	lid_type = /datum/vessel_lid/can
 	icon = 'icons/obj/reagent_containers/cans.dmi'

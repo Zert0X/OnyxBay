@@ -101,7 +101,7 @@
 /datum/disease2/effect/adaptation_damage/activate(mob/living/carbon/human/mob)
 	if(..())
 		return
-	for(var/obj/item/organ/external/E in mob.organs)
+	for(var/obj/item/organ/external/E in mob.external_organs)
 		var/dmg = E.get_damage()
 		if(dmg > 8*multiplier)
 			parent_disease.cure()
@@ -186,7 +186,7 @@
 /datum/disease2/effect/toxins/activate(mob/living/carbon/human/mob)
 	if(..())
 		return
-	mob.adjustToxLoss((2*multiplier))
+	mob.adjustToxLoss(multiplier)
 
 
 
@@ -219,7 +219,7 @@
 /datum/disease2/effect/killertoxins/activate(mob/living/carbon/human/mob)
 	if(..())
 		return
-	mob.adjustToxLoss(15*multiplier)
+	mob.adjustToxLoss(2.5 * multiplier)
 
 
 
@@ -231,7 +231,7 @@
 /datum/disease2/effect/deaf/activate(mob/living/carbon/human/mob)
 	if(..())
 		return
-	mob.ear_deaf += 20
+	mob.setEarDamage(null, 20)
 
 
 

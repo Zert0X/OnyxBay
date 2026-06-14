@@ -1,6 +1,6 @@
 /obj/item/implant/death_alarm
 	name = "death alarm implant"
-	desc = "An alarm which monitors host vital signs and transmits a radio message upon death."
+	desc = "An implant which monitors its host's vital signs and transmits a radio message upon death."
 	origin_tech = list(TECH_MATERIAL = 1, TECH_BIO = 2, TECH_DATA = 1)
 	known = 1
 	var/mobname = "Will Robinson"
@@ -43,14 +43,14 @@
 		location = t?.name
 	var/death_message
 	if(!cause || !location)
-		death_message = "A message from [name] has been received. [mobname] has died-zzzzt in-in-in..."
+		death_message = "[mobname] has died-zzzzt in-in-in..."
 	else
-		var/additional_info = " The neural lace signature not found in the body."
+		var/additional_info = " No neural lace signature detected in the body."
 		var/mob/living/carbon/human/H = imp_in
 		var/obj/item/organ/internal/stack/S = H?.internal_organs_by_name[BP_STACK]
 		if(istype(S))
-			additional_info = " The neural lace signature found in the body."
-		death_message = "A message from [name] has been received. [mobname] has died in [location]![additional_info]"
+			additional_info = " A neural lace signature has been detected in the body!"
+		death_message = "[mobname] has died in [location]![additional_info]"
 	set_next_think(0)
 
 	for(var/channel in list("Security", "Medical", "Command"))

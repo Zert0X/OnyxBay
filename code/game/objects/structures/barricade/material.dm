@@ -7,6 +7,7 @@
 
 	atom_flags = ATOM_FLAG_CLIMBABLE
 	turf_height_offset = 3 // It looks so shitty I dunno what offset to use. 3 will go for now I guess. ~ TobyThorne
+	climb_delay = 5 SECONDS // Matching the old delay. RIP fatties.
 
 	/// Reference to a material datum this object was made from.
 	var/material/material
@@ -23,7 +24,13 @@
 		return INITIALIZE_HINT_QDEL
 
 	_apply_material(material)
+	add_debris_element()
 
+/obj/structure/barricade/material/add_debris_element()
+	if(material.name == MATERIAL_WOOD)
+		AddElement(/datum/element/debris, DEBRIS_WOOD, -10, 5)
+	else
+		AddElement(/datum/element/debris, DEBRIS_SPARKS, -15, 8, 1)
 
 /obj/structure/barricade/material/proc/_apply_material(material/new_material)
 	material = new_material
@@ -58,7 +65,7 @@
 
 /obj/structure/barricade/material/proc/_deconstruct(mob/user)
 	show_splash_text(user, "starting deconstruction.", "You begin deconstructing <b>\the [src]</b>!")
-	if(do_after(user, 20, src))
+	if(do_after(user, 20, src, luck_check_type = LUCK_CHECK_ENG))
 		show_splash_text(user, "barricade deconstucted.", "You deconstruct <b>\the [src]</b>!")
 		playsound(loc, 'sound/items/Deconstruct.ogg', 50, 1)
 
@@ -77,7 +84,7 @@
 		return
 
 	show_splash_text(user, "starting repair.", "You begin to repair <b>\the [src]</b>.")
-	if(do_after(user, 20, src) && damage != 0)
+	if(do_after(user, 20, src, luck_check_type = LUCK_CHECK_ENG) && damage != 0)
 		if(S.use(1))
 			damage = 0
 

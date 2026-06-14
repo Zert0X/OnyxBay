@@ -12,12 +12,13 @@
 
 			if(ishuman(toucher))
 				var/mob/living/carbon/human/H = toucher
-				for(var/obj/item/organ/external/affecting in H.organs)
+				for(var/obj/item/organ/external/affecting in H.external_organs)
 					if(affecting && istype(affecting))
 						affecting.heal_damage(25 * weakness, 25 * weakness)
 				//H:heal_organ_damage(25, 25)
-				H.vessel.add_reagent(/datum/reagent/blood,5)
+				H.vessel.add_reagent(/datum/reagent/blood, 50)
 				H.add_nutrition(50 * weakness)
+				H.add_hydration(20 * weakness)
 				H.adjustBrainLoss(-25 * weakness)
 				H.radiation -= min(H.radiation, 25 * weakness)
 				H.bodytemperature = initial(H.bodytemperature)
@@ -45,7 +46,7 @@
 				C.adjustToxLoss(-1 * weakness)
 				C.adjustOxyLoss(-1 * weakness)
 				C.adjustBrainLoss(-1 * weakness)
-				C.updatehealth()
+				C.update_health()
 
 /datum/artifact_effect/heal/DoEffectPulse()
 	//todo: check over this properly
@@ -60,4 +61,4 @@
 				C.adjustToxLoss(-5 * weakness)
 				C.adjustOxyLoss(-5 * weakness)
 				C.adjustBrainLoss(-5 * weakness)
-				C.updatehealth()
+				C.update_health()

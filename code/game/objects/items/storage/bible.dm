@@ -42,7 +42,7 @@
 				to_chat(user, SPAN("notice", "You bless \the [target]."))
 				var/water2holy = target.reagents.get_reagent_amount(/datum/reagent/water)
 				target.reagents.del_reagent(/datum/reagent/water)
-				target.reagents.add_reagent(/datum/reagent/water/holywater,water2holy)
+				target.reagents.add_reagent(/datum/reagent/water/holywater, water2holy)
 
 /obj/item/storage/bible/attackby(obj/item/W, mob/user)
 	if(src.use_sound)

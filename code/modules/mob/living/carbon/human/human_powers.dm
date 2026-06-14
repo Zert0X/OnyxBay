@@ -259,7 +259,7 @@
 			return
 		if(prob(75))
 			to_chat(H, "<span class='warning'>Your nose begins to bleed...</span>")
-			H.drip(1)
+			H.drip(5)
 
 /mob/living/carbon/human/proc/regurgitate()
 	set name = "Regurgitate"
@@ -308,14 +308,14 @@
 /mob/living/carbon/human/proc/diona_split_into_nymphs(number_of_resulting_nymphs)
 	var/turf/T = get_turf(src)
 
-	var/mob/living/carbon/alien/diona/S = new(T)
+	var/mob/living/carbon/larva/diona/S = new(T)
 	S.set_dir(dir)
 	transfer_languages(src, S)
 
 	var/nymphs = 1
-	var/mob/living/carbon/alien/diona/L = S
+	var/mob/living/carbon/larva/diona/L = S
 
-	for(var/mob/living/carbon/alien/diona/D in src)
+	for(var/mob/living/carbon/larva/diona/D in src)
 		nymphs++
 		D.forceMove(T)
 		transfer_languages(src, D, WHITELISTED|RESTRICTED)
@@ -326,7 +326,7 @@
 
 	if(nymphs < number_of_resulting_nymphs)
 		for(var/i in nymphs to (number_of_resulting_nymphs - 1))
-			var/mob/living/carbon/alien/diona/M = new(T)
+			var/mob/living/carbon/larva/diona/M = new(T)
 			transfer_languages(src, M, WHITELISTED|RESTRICTED)
 			M.set_dir(pick(NORTH, SOUTH, EAST, WEST))
 			L.set_next_nymph(M)
@@ -375,8 +375,8 @@
 
 	var/turf/T = get_turf(src)
 	var/obj/effect/effect/water/chempuff/chem = new(T)
-	chem.create_reagents(10)
-	chem.reagents.add_reagent(/datum/reagent/toxin/zombie, 2)
+	chem.create_reagents(100)
+	chem.reagents.add_reagent(/datum/reagent/toxin/zombie, 20)
 	chem.set_up(get_step(T, dir), 2, 10)
 	playsound(T, 'sound/hallucinations/wail.ogg', 20, 1)
 

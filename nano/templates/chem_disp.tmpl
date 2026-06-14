@@ -12,12 +12,17 @@ Used In File(s): \code\modules\reagents\Chemistry-Machinery.dm
 		{{:helper.link('20', 'gear', {'amount' : 20}, (data.amount == 20) ? 'selected' : null)}}
 		{{:helper.link('30', 'gear', {'amount' : 30}, (data.amount == 30) ? 'selected' : null)}}
 		{{:helper.link('40', 'gear', {'amount' : 40}, (data.amount == 40) ? 'selected' : null)}}
+		{{:helper.link('50', 'gear', {'amount' : 50}, (data.amount == 50) ? 'selected' : null)}}
+		{{:helper.link('75', 'gear', {'amount' : 75}, (data.amount == 75) ? 'selected' : null)}}
+		{{:helper.link('100', 'gear', {'amount' : 100}, (data.amount == 100) ? 'selected' : null)}}
 		<br/><br/>
+		{{:helper.link('---', '', {'amount' : data.amount-100})}}
 		{{:helper.link('--', '', {'amount' : data.amount-10})}}
 		{{:helper.link('-', '', {'amount' : data.amount-1})}}
 		<div style="float: left; width: 80px; text-align: center;">{{:data.amount}}</div>
 		{{:helper.link('+', '', {'amount' : data.amount+1})}}
 		{{:helper.link('++', '', {'amount' : data.amount+10})}}
+		{{:helper.link('+++', '', {'amount' : data.amount+100})}}
 	</div>
 </div>
 <div class="item">&nbsp;</div>

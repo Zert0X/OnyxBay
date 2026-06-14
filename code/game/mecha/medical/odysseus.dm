@@ -6,7 +6,7 @@
 	base_color = "#FFFFFF"
 	step_in = 2
 	max_temperature = 15000
-	health = 120
+	health = 250
 	wreckage = /obj/effect/decal/mecha_wreckage/odysseus
 	internal_damage_threshold = 35
 	deflect_chance = 15
@@ -112,12 +112,6 @@
 				holder.icon_state = "hudxeno"
 			else if(foundVirus)
 				holder.icon_state = "hudill"
-			else if(patient.has_brain_worms())
-				var/mob/living/simple_animal/borer/B = patient.has_brain_worms()
-				if(B.controlling)
-					holder.icon_state = "hudbrainworm"
-				else
-					holder.icon_state = "hudhealthy"
 			else
 				holder.icon_state = "hudhealthy"
 

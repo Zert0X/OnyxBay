@@ -4,6 +4,7 @@
 
 /obj/item/circuitboard/air_management
 	name = T_BOARD("atmosphere monitoring console")
+	icon_state = "id_mod_orange"
 	build_path = /obj/machinery/computer/general_air_control
 	var/console_name
 	var/frequency = 1439

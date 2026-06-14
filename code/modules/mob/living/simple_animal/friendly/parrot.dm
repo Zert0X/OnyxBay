@@ -104,12 +104,10 @@
 
 	parrot_sleep_dur = parrot_sleep_max //In case someone decides to change the max without changing the duration var
 
-	grant_verb(src, list(
-		/mob/living/simple_animal/parrot/proc/steal_from_ground,
-		/mob/living/simple_animal/parrot/proc/steal_from_mob,
-		/mob/living/simple_animal/parrot/verb/drop_held_item_player,
-		/mob/living/simple_animal/parrot/proc/perch_player,
-	))
+	verbs.Add(/mob/living/simple_animal/parrot/proc/steal_from_ground, \
+			  /mob/living/simple_animal/parrot/proc/steal_from_mob, \
+			  /mob/living/simple_animal/parrot/verb/drop_held_item_player, \
+			  /mob/living/simple_animal/parrot/proc/perch_player)
 
 /mob/living/simple_animal/parrot/Destroy()
 	drop_held_item()
@@ -126,10 +124,9 @@
 	walk(src, 0)
 	..(gibbed, deathmessage, show_dead_message)
 
-/mob/living/simple_animal/parrot/get_status_tab_items()
+/mob/living/simple_animal/parrot/Stat()
 	. = ..()
-
-	. += "Held Item: [held_item]"
+	stat("Held Item", held_item)
 
 // These two are used often AF, it's easier to handle them this way than resolve weakrefs everywhere.
 /mob/living/simple_animal/parrot/proc/set_interest(atom/movable/AM)
@@ -431,7 +428,7 @@
 		//Wander around aimlessly. This will help keep the loops from searches down
 		//and possibly move the mob into a new are in view of something they can use
 		if(prob(90))
-			SelfMove(pick(GLOB.cardinal))
+			SelfMove(pick(GLOB.alldirs))
 			return
 
 		if(!held_item && !parrot_perch) //If we've got nothing to do.. look for something to do.
@@ -753,10 +750,10 @@
 	desc = "Poly the Parrot. An expert on quantum cracker theory."
 
 /mob/living/simple_animal/parrot/Poly/Initialize()
+	. = ..()
 	ears = new /obj/item/device/radio/headset/headset_eng(src)
 	available_channels = list(":e")
 	speak = GLOB.poly_phrases
-	..()
 
 /mob/living/simple_animal/parrot/say(message)
 

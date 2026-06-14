@@ -13,7 +13,8 @@
 		/obj/item/lipstick,
 		/obj/item/haircomb,
 		/obj/item/mirror,
-		/obj/item/clothing/accessory/locket,
+		/obj/item/underwear/neck/locket,
+		/obj/item/underwear/neck/cross,
 		/obj/item/clothing/head/hairflower,
 		/obj/item/device/flashlight/pen,
 		/obj/item/device/flashlight/metroid,
@@ -73,9 +74,9 @@
 /obj/item/storage/wallet/on_update_icon()
 	ClearOverlays()
 	if(front_id)
-		var/tiny_state = "id-generic"
-		if(("id-"+front_id.icon_state) in icon_states(icon))
-			tiny_state = "id-"+front_id.icon_state
+		var/tiny_state = "card_id"
+		if((front_id.icon_state) in icon_states(icon))
+			tiny_state = front_id.icon_state
 		var/image/tiny_image = new /image(icon, icon_state = tiny_state)
 		tiny_image.appearance_flags = DEFAULT_APPEARANCE_FLAGS | RESET_COLOR
 		AddOverlays(tiny_image)

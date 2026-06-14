@@ -1,5 +1,5 @@
 /obj/item/gun/projectile/pistol
-	fire_delay = 5.5
+	fire_delay = 0.55 SECONDS
 	origin_tech = list(TECH_COMBAT = 2, TECH_MATERIAL = 2)
 	load_method = MAGAZINE
 	fire_sound = 'sound/effects/weapons/gun/fire_45.ogg'
@@ -58,7 +58,7 @@
 	desc = "The WT45 - a mass produced kinetic sidearm well-known in films and entertainment programming for being the daily carry choice issued to officers of the Sol Central Government Defense Forces. Uses .45 rounds."
 	icon_state = "usp"
 	accuracy = 0.35
-	fire_delay = 6.5
+	fire_delay = 0.65 SECONDS
 
 /obj/item/gun/projectile/pistol/colt/officer/on_update_icon()
 	..()
@@ -89,7 +89,7 @@
 	desc = "The VP78 pistol is a common and reliable sidearm, used by security forces and colonial marshalls all over the world. This one has a sweet wooden grip, among other modifications. Uses .45 rounds."
 	icon_state = "VP78wood"
 	accuracy = 0.35
-	fire_delay = 4.5
+	fire_delay = 0.45 SECONDS
 
 /obj/item/gun/projectile/pistol/vp78/wood/on_update_icon()
 	..()
@@ -105,7 +105,7 @@
 	magazine_type = /obj/item/ammo_magazine/c45m
 	auto_eject = 1
 	auto_eject_sound = 'sound/effects/weapons/misc/smg_empty_alarm.ogg'
-	fire_delay = 6.5
+	fire_delay = 0.65 SECONDS
 
 /obj/item/gun/projectile/pistol/vp78/tactical/on_update_icon()
 	..()
@@ -118,6 +118,7 @@
 	name = "silenced pistol"
 	desc = "A handgun with an integral silencer. Uses .45 rounds."
 	icon_state = "silenced_pistol"
+	item_state = "silenced_pistol"
 	w_class = ITEM_SIZE_NORMAL
 	caliber = ".45"
 	silenced = 1
@@ -129,6 +130,13 @@
 	magazine_type = /obj/item/ammo_magazine/c45m
 	allowed_magazines = /obj/item/ammo_magazine/c45m
 
+/obj/item/gun/projectile/pistol/silenced/on_update_icon()
+	..()
+	if(ammo_magazine && ammo_magazine.stored_ammo.len)
+		icon_state = "silenced_pistol"
+	else
+		icon_state = "silenced_pistol-e"
+
 /obj/item/gun/projectile/pistol/magnum_pistol
 	name = ".50 magnum pistol"
 	desc = "The HelTek Magnus, a robust terran handgun that uses .50 AE ammo."
@@ -139,7 +147,7 @@
 	mod_reach = 0.65
 	mod_handy = 1.0
 	caliber = ".50"
-	fire_delay = 12
+	fire_delay = 1.2 SECONDS
 	screen_shake = 2
 	magazine_type = /obj/item/ammo_magazine/a50
 	allowed_magazines = /obj/item/ammo_magazine/a50
@@ -164,7 +172,7 @@
 	origin_tech = list(TECH_COMBAT = 3)
 	ammo_type = /obj/item/ammo_casing/a75
 	magazine_type = /obj/item/ammo_magazine/a75
-	fire_delay = 25
+	fire_delay = 2.5 SECONDS
 	auto_eject = 1
 	auto_eject_sound = 'sound/effects/weapons/misc/smg_empty_alarm.ogg'
 	fire_sound = 'sound/effects/weapons/gun/fire3.ogg'
@@ -182,7 +190,6 @@
 	icon_state = "det-m9"
 	w_class = ITEM_SIZE_NORMAL
 	caliber = "9mm"
-	fire_delay = 1
 	mod_weight = 0.65
 	mod_reach = 0.5
 	mod_handy = 1.0
@@ -206,7 +213,6 @@
 	w_class = ITEM_SIZE_SMALL
 	caliber = "9mm"
 	silenced = 0
-	fire_delay = 1
 	fire_sound = 'sound/effects/weapons/gun/fire_9mm2.ogg'
 	mod_weight = 0.65
 	mod_reach = 0.5
@@ -220,23 +226,19 @@
 	magazine_type = /obj/item/ammo_magazine/mc9mm/flash
 
 /obj/item/gun/projectile/pistol/holdout/attack_hand(mob/user as mob)
-	if(user.get_inactive_hand() == src)
-		if(silenced)
-			if(user.l_hand != src && user.r_hand != src)
-				..()
-				return
-			to_chat(user, "<span class='notice'>You unscrew [silenced] from [src].</span>")
-			user.pick_or_drop(silenced, loc)
-			silenced = initial(silenced)
-			w_class = initial(w_class)
-			fire_sound = 'sound/effects/weapons/gun/fire_9mm2.ogg'
-			update_icon()
-			return
+	if(silenced && user.has_in_passive_hand(src))
+		to_chat(user, "<span class='notice'>You unscrew [silenced] from [src].</span>")
+		user.pick_or_drop(silenced, loc)
+		silenced = initial(silenced)
+		w_class = initial(w_class)
+		fire_sound = 'sound/effects/weapons/gun/fire_9mm2.ogg'
+		update_icon()
+		return
 	..()
 
 /obj/item/gun/projectile/pistol/holdout/attackby(obj/item/I as obj, mob/user as mob)
 	if(istype(I, /obj/item/silencer))
-		if(user.l_hand != src && user.r_hand != src)	//if we're not in his hands
+		if(!user.has_in_hands(src))
 			to_chat(user, "<span class='notice'>You'll need [src] in your hands to do that.</span>")
 			return
 		if(!user.drop(I, src))
@@ -267,7 +269,7 @@
 
 /obj/item/gun/projectile/pirate
 	name = "zip gun"
-	desc = "Little more than a barrel, handle, and firing mechanism, cheap makeshift firearms like this one are not uncommon in frontier systems."
+	desc = "Little more than a barrel, handle, and firing mechanism, cheap makeshift firearms like this one are not uncommon in frontier systems. Fires 12g. Looks too loose to fire powerful cartridges."
 	icon_state = "zipgun"
 	item_state = "sawnshotgun"
 	handle_casings = CYCLE_CASINGS //player has to take the old casing out manually before reloading
@@ -276,23 +278,26 @@
 	mod_reach = 1.0
 	mod_handy = 1.0
 	max_shells = 1 //literally just a barrel
+	caliber = "12g"
 	fire_sound = 'sound/effects/weapons/gun/fire6.ogg'
-
 	has_safety = FALSE
 
-	var/global/list/ammo_types = list(
-		/obj/item/ammo_casing/a357              = ".357",
-		/obj/item/ammo_casing/a762              = "7.62mm",
-		/obj/item/ammo_casing/a556              = "5.56mm"
-		)
+/obj/item/gun/projectile/pirate/Fire(atom/target, atom/movable/firer, clickparams, pointblank, reflex, target_zone)
+	if(!loaded.len)
+		return ..()
+	//ambatublou
+	var/obj/item/ammo_casing/shotgun/slug = src.loaded[1]
+	var/slug_spent = slug.is_spent
+	. = ..()
+	if(slug.type == /obj/item/ammo_casing/shotgun && !slug_spent)
+		show_splash_text_to_viewers("BOOM! <b>\The [src]</b> explodes due to a powerful cartridge!")
+		explosion(src, -1, -1, 2, 5)
+		qdel(src)
 
 /obj/item/gun/projectile/pirate/Initialize()
 	. = ..()
-	ammo_type = pick(ammo_types)
-	desc += " Uses [ammo_types[ammo_type]] rounds."
-
-	var/obj/item/ammo_casing/ammo = ammo_type
-	caliber = initial(ammo.caliber)
+	//no spawning with ammo after assemble
+	ammo_type = /obj/item/ammo_casing/shotgun
 
 // Zip gun construction.
 /obj/item/zipgunframe

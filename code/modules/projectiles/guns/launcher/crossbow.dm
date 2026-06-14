@@ -6,7 +6,7 @@
 	icon = 'icons/obj/weapons.dmi'
 	icon_state = "bolt"
 	item_state = "bolt"
-	throwforce = 8
+	throwforce = 10.0
 	w_class = ITEM_SIZE_NORMAL
 	sharp = 1
 	edge = 0
@@ -21,12 +21,12 @@
 /obj/item/arrow/pre_launched()
 	..()
 	throw_spin = FALSE
-	icon = 'icons/obj/projectiles.dmi'
+	icon_state = "[initial(icon_state)]-f"
 
 /obj/item/arrow/post_launched()
 	..()
 	throw_spin = TRUE
-	icon = 'icons/obj/weapons.dmi'
+	icon_state = initial(icon_state)
 
 /obj/item/spike
 	name = "alloy spike"
@@ -46,12 +46,12 @@
 /obj/item/spike/pre_launched()
 	..()
 	throw_spin = FALSE
-	icon = 'icons/obj/projectiles.dmi'
+	icon_state = "[initial(icon_state)]-f"
 
 /obj/item/spike/post_launched()
 	..()
 	throw_spin = TRUE
-	icon = 'icons/obj/weapons.dmi'
+	icon_state = initial(icon_state)
 
 /obj/item/arrow/quill
 	name = "vox quill"
@@ -93,13 +93,12 @@
 
 	var/obj/item/bolt
 	var/tension = 0                         // Current draw on the bow.
-	var/max_tension = 5                     // Highest possible tension.
-	var/force_multiplier = 2                // Multiplier of release force.
+	var/max_tension = 4                     // Highest possible tension.
 	var/obj/item/cell/cell = null    // Used for firing superheated rods.
 	var/current_user                        // Used to check if the crossbow has changed hands since being drawn.
 
 /obj/item/gun/launcher/crossbow/update_release_force()
-	release_force = tension * force_multiplier
+	release_force = max(1, tension)
 
 /obj/item/gun/launcher/crossbow/consume_next_projectile(mob/user=null)
 	if(tension <= 0)
@@ -142,7 +141,7 @@
 	tension = 1
 
 	while(bolt && tension && loc == current_user)
-		if(!do_after(user, 25, src)) //crossbow strings don't just magically pull back on their own.
+		if(!do_after(user, 25, src, luck_check_type = LUCK_CHECK_COMBAT)) //crossbow strings don't just magically pull back on their own.
 			user.visible_message("[usr] stops drawing and relaxes the string of [src].","<span class='warning'>You stop drawing back and relax the string of [src].</span>")
 			tension = 0
 			update_icon()
@@ -271,7 +270,7 @@
 	else if(isWelder(W))
 		if(buildstate == 1)
 			var/obj/item/weldingtool/WT = W
-			if(!WT.use_tool(src, user, amount = 1))
+			if(!WT.use_tool(src, user, amount = 10))
 				return
 
 			to_chat(user, "<span class='notice'>You weld the rods into place.</span>")

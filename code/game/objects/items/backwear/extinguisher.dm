@@ -9,7 +9,7 @@
 	gear_detachable = FALSE
 	gear = /obj/item/extinguisher/linked
 	atom_flags = null
-	initial_capacity = 5000
+	initial_capacity = 30 LITERS
 	initial_reagent_types = list(/datum/reagent/water/firefoam = 1)
 	origin_tech = list(TECH_ENGINEERING = 2)
 	matter = list(MATERIAL_STEEL = 1500, MATERIAL_GLASS = 500)
@@ -27,7 +27,7 @@
 			return
 		O.reagents.remove_any(amount)
 		reagents.add_reagent(/datum/reagent/water/firefoam, amount)
-		to_chat(user, SPAN("notice", "You crack the cap off the top of your [src] and fill it with [amount] units of the contents of \the [O]."))
+		to_chat(user, SPAN("notice", "You crack the cap off the top of your [src] and fill it with [amount] ml of the contents of \the [O]."))
 		playsound(src.loc, 'sound/effects/refill.ogg', 50, 1, -6)
 		return
 
@@ -45,7 +45,8 @@
 	mod_reach = 0.6
 	armor_penetration = 20
 	w_class = ITEM_SIZE_NORMAL
-	spray_amount = 120
+	spray_amount = 1 LITER
+	spray_cooldown = 1 SECOND
 	max_volume = 0
 	safety = 0
 	external_source = TRUE
@@ -77,7 +78,7 @@
 	if(user.a_intent == I_HELP)
 		if(!base_unit)
 			return
-		if(world.time < last_use + 20) // We still catch help intent to not randomly attack people
+		if(world.time < last_use + spray_cooldown) // We still catch help intent to not randomly attack people
 			return
 		if(!base_unit.reagents.total_volume)
 			to_chat(user, SPAN("notice", "\The [base_unit] is empty."))
@@ -97,7 +98,7 @@
 	if(!base_unit.reagents.total_volume)
 		to_chat(usr, SPAN("notice", "\The [src] is empty."))
 		return
-	if(world.time < last_use + 20)
+	if(world.time < last_use + 1 SECOND)
 		return
 	last_use = world.time
 	playsound(src.loc, 'sound/effects/extinguish.ogg', 75, 1, -3)

@@ -8,16 +8,16 @@
 	overdose = REAGENTS_OVERDOSE * 0.5
 	scannable = TRUE
 	metabolism = REM * 0.5
-	ingest_met = REM * 0.25
-	absorbability = 0.25
+	digest_met = REM * 0.25
+	digest_absorbability = 0.25
 	excretion = 0.25
 	flags = IGNORE_MOB_SIZE
 
 	var/pain_power = 200 // Magnitide of painkilling effect
-	var/effective_dose = 0.5 // How many units it need to process to reach max power
+	var/effective_dose = 0.5 // How many ml it need to process to reach max power
 	var/soft_overdose = 7.5 // Determines when it starts causing negative effects w/out actually causing OD
 	var/tolerance_threshold = 7.5 // Having more than this value in chem_traces will reduce effectiveness
-	var/tolerance_mult = 0.1 // Percentage of effect weakening by each unit over tolerance_threshold
+	var/tolerance_mult = 0.1 // Percentage of effect weakening by each ml over tolerance_threshold
 
 /datum/reagent/painkiller/affect_blood(mob/living/carbon/M, alien, removed, affecting_dose)
 	var/effectiveness = removed / metabolism
@@ -27,7 +27,7 @@
 /datum/reagent/painkiller/overdose(mob/living/carbon/M, alien)
 	..()
 	M.hallucination(120, 30)
-	M.druggy = max(M.druggy, 10)
+	M.make_drugged(10)
 	M.add_chemical_effect(CE_PAINKILLER, pain_power * 0.5) // extra painkilling for extra trouble
 	M.add_chemical_effect(CE_BREATHLOSS, 0.6) // Have trouble breathing, need more air
 
@@ -37,6 +37,9 @@
 	if(M.chem_traces[type] > tolerance_threshold)
 		effectiveness *= clamp(1.0 - ((M.chem_traces[type] - tolerance_threshold) * tolerance_mult), 0, 1)
 	M.add_chemical_effect(CE_PAINKILLER, pain_power * effectiveness)
+
+/datum/reagent/painkiller/add_user_effects(mob/living/carbon/M)
+	M.apply_opioid_effects()
 
 /datum/reagent/painkiller/proc/handle_painkiller_overdose(mob/living/carbon/M, affecting_dose)
 	if(M.chem_doses[type] > soft_overdose)
@@ -74,14 +77,17 @@
 	overdose = REAGENTS_OVERDOSE
 	scannable = TRUE
 	metabolism = REM * 0.5
-	ingest_met = REM * 0.25
-	absorbability = 1.0 // real-life tramadol bioavailability is surprisingly high, hitting almost 100%
+	digest_met = REM * 0.25
+	digest_absorbability = 1.0 // real-life tramadol bioavailability is surprisingly high, hitting almost 100%
 
 	pain_power = 100
 	effective_dose = 2.5
 	soft_overdose = 15
 	tolerance_threshold = 15.0
 	tolerance_mult = 0.05
+
+/datum/reagent/painkiller/tramadol/add_user_effects(mob/living/carbon/M)
+	return
 
 /datum/reagent/painkiller/tramadol/affect_blood(mob/living/carbon/M, alien, removed, affecting_dose)
 	..()
@@ -114,8 +120,8 @@
 		M.add_chemical_effect(CE_SLOWDOWN, 1)
 		M.add_chemical_effect(CE_TOXIN, 1)
 
-/datum/reagent/painkiller/tramadol/oxycodone/affect_ingest(mob/living/carbon/M, alien, removed, affecting_dose)
-	var/effectiveness = removed / ingest_met
+/datum/reagent/painkiller/tramadol/oxycodone/affect_digest(mob/living/carbon/M, alien, removed, affecting_dose)
+	var/effectiveness = removed / digest_met
 	handle_painkiller_effect(M, affecting_dose, effectiveness)
 	handle_painkiller_overdose(M, affecting_dose)
 	var/boozed = isboozed(M)
@@ -135,7 +141,7 @@
 	reagent_state = SOLID
 	data = 0
 	metabolism = REM * 0.5
-	ingest_met = REM * 0.25
+	digest_met = REM * 0.25
 
 	pain_power = 150
 	effective_dose = 2.5
@@ -164,7 +170,7 @@
 	var/whole_volume = (volume + M.chem_traces[type]) // side effects are more robust (dose-wise) than in the case of *legal* painkillers usage
 	if(whole_volume > soft_overdose)
 		M.add_chemical_effect(CE_SLOWDOWN, 1)
-		M.druggy = max(M.druggy, 10)
+		M.make_drugged(10)
 		if(prob(1))
 			M.slurring = max(M.slurring, 10)
 	if(whole_volume > (overdose+soft_overdose)/2)
@@ -205,7 +211,7 @@
 		M.hallucination(30, 30)
 		M.eye_blurry = max(M.eye_blurry, 10)
 		M.drowsyness = max(M.drowsyness, 5)
-		M.druggy = max(M.druggy, 10)
+		M.make_drugged(10)
 		M.add_chemical_effect(CE_SLOWDOWN, 2)
 		if(prob(5))
 			M.slurring = max(M.slurring, 20)
@@ -228,9 +234,9 @@
 	overdose = 60
 	scannable = 1
 	metabolism = REM * 0.2
-	ingest_met = 0
+	digest_met = 0
 	flags = IGNORE_MOB_SIZE
-	absorbability = 0.8 // Actually, it's a real-life value
+	digest_absorbability = 0.8 // Actually, it's a real-life value
 	excretion = 0.75
 
 	pain_power = 35
@@ -240,6 +246,9 @@
 	tolerance_mult = 0.05
 
 /datum/reagent/painkiller/paracetamol/overdose(mob/living/carbon/M, alien)
-	M.add_chemical_effect(CE_TOXIN, 1)
-	M.druggy = max(M.druggy, 2)
+	M.add_chemical_effect(CE_TOXIN, 5)
+	M.make_drugged(2)
 	M.add_chemical_effect(CE_PAINKILLER, 10)
+
+/datum/reagent/painkiller/paracetamol/add_user_effects(mob/living/carbon/M)
+	return

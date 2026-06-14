@@ -25,9 +25,11 @@
 
 /obj/item/clothing/accessory/holochip/on_attached(obj/item/clothing/S, mob/user)
 	. = ..()
-	var/datum/component/holomarker/toggleable/transmitting/H = get_component(/datum/component/holomarker/toggleable/transmitting)
-	H.on_attached(S)
-	register_signal(S, SIGNAL_ITEM_UNEQUIPPED, nameof(.proc/deactivate))
+	if(.)
+		var/datum/component/holomarker/toggleable/transmitting/H = get_component(/datum/component/holomarker/toggleable/transmitting)
+		H.on_attached(S)
+		register_signal(S, SIGNAL_ITEM_UNEQUIPPED, nameof(.proc/deactivate))
+	return .
 
 /obj/item/clothing/accessory/holochip/on_removed(mob/user)
 	var/datum/component/holomarker/toggleable/transmitting/H = get_component(/datum/component/holomarker/toggleable/transmitting)

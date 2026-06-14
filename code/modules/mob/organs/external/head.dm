@@ -4,8 +4,8 @@
 	icon_name = "head"
 	name = "head"
 	slot_flags = SLOT_BELT
-	max_damage = 75
-	min_broken_damage = 40
+	max_damage = 80
+	min_broken_damage = 45
 	w_class = ITEM_SIZE_NORMAL
 	body_part = HEAD
 	parent_organ = BP_CHEST
@@ -16,7 +16,9 @@
 	cavity_name = "cranial"
 	limb_flags = ORGAN_FLAG_CAN_AMPUTATE | ORGAN_FLAG_GENDERED_ICON | ORGAN_FLAG_HEALS_OVERKILL | ORGAN_FLAG_CAN_BREAK
 
-	internal_organs_size = 3
+	internal_organs_size = 4 // Brain = 2, eyes = 1, tongue = 1
+
+	max_module_size = 3
 
 	var/can_intake_reagents = 1
 
@@ -24,22 +26,23 @@
 
 	var/forehead_graffiti
 	var/graffiti_style
+	var/list/forehead_stamps = list()
 
 	var/skull_path = /obj/item/skull
 
-/obj/item/organ/external/head/droplimb(clean, disintegrate = DROPLIMB_EDGE, ignore_children, silent)
+/obj/item/organ/external/head/droplimb(clean, disintegrate = DROPLIMB_EDGE, ignore_children, silent, drop_modules = FALSE)
 	if(BP_IS_ROBOTIC(src) && disintegrate == DROPLIMB_BURN)
 		var/obj/item/organ/internal/cerebrum/mmi/MMI = owner.internal_organs_by_name[BP_BRAIN]
 		if(istype(MMI))
-			MMI.visible_message(SPAN_DANGER("You see a bright flash as you get catapulted out of your body. You feel disoriented, which must be normal since you're just a brain in a can."), SPAN_NOTICE("[owner]'s head ejects an MMI!"))
+			MMI.visible_message(SPAN_NOTICE("[owner]'s head ejects an MMI!"), SPAN_DANGER("You see a bright flash as you get catapulted out of your body. You feel disoriented, which must be normal since you're just a brain in a can."))
 			MMI.removed()
-	return ..()
+	return ..(clean, disintegrate, ignore_children, silent, drop_modules)
 
 /obj/item/organ/external/head/organ_eaten(mob/user)
 	. = ..()
 	var/obj/item/skull/SK = new /obj/item/skull(get_turf(src))
 	if(!isturf(loc))
-		user.put_in_active_hand(SK)
+		user.put_in_clicking_hand(SK)
 
 /obj/item/organ/external/head/examine(mob/user, infix)
 	. = ..()
@@ -81,6 +84,38 @@
 			if(owner)
 				log_and_message_admins("has written something on [owner]'s ([owner.ckey]) head: \"[graffiti]\".", penman)
 
+/obj/item/organ/external/head/proc/apply_stamp(stamp_name, stamper)
+	if(!owner)
+		return
+
+	if(owner.wear_mask || owner.head)
+		to_chat(stamper, SPAN("notice", "[owner]'s forehead is covered up."))
+		return
+
+	if(!forehead_stamps)
+		forehead_stamps = list()
+
+	if(!(stamp_name in forehead_stamps))
+		forehead_stamps += stamp_name
+		if(owner == stamper)
+			owner.visible_message(SPAN("notice", "[stamper] stamps own forehead with \"[stamp_name]\"!"), SPAN("notice", "You stamp your forehead with \"[stamp_name]\"!"))
+		else
+			owner.visible_message(SPAN("notice", "[stamper] stamps [owner]'s forehead with \"[stamp_name]\"!"), SPAN("warning", "[stamper] stamped your forehead with \"[stamp_name]\"!"))
+
+/mob/living/carbon/human/proc/wash_forehead()
+	var/obj/item/organ/external/head/head = get_organ(BP_HEAD)
+	if(head && head.forehead_stamps && head.forehead_stamps.len > 0)
+		head.forehead_stamps.Cut()
+
+/mob/living/carbon/human/examine(mob/user, infix)
+	. = ..()
+	var/obj/item/organ/external/head/head = get_organ(BP_HEAD)
+	if(istype(head) && head.forehead_stamps && head.forehead_stamps.len > 0)
+		var/gender_pronoun = src.gender == "male" ? "He" : "She"
+		var/posessive_pronoun = src.gender == "male" ? "his" : "her"
+		for(var/stamp in head.forehead_stamps)
+			. += SPAN_NOTICE("[gender_pronoun] has a [stamp] stamped on [posessive_pronoun] forehead!")
+
 /obj/item/organ/external/head/get_agony_multiplier()
 	return (owner && owner.headcheck(organ_tag)) ? 1.50 : 1
 
@@ -92,11 +127,13 @@
 	. = ..(company, skip_prosthetics, 1)
 	has_lips = FALSE
 
-/obj/item/organ/external/head/take_external_damage(brute, burn, damage_flags, used_weapon = null)
+/obj/item/organ/external/head/take_external_damage(brute, burn, damage_flags = 0, used_weapon = null)
 	. = ..()
-	if ((brute_dam > 40) && prob(50))
+	if(!. || (damage_flags & DAM_CLEAN) || (species && (species.species_flags & SPECIES_FLAG_NO_MINOR_CUT))) // Disfigured xenomorphs and golems are cringeworthy.
+		return
+	if(brute >= 5.0 && brute_ratio >= 1.0)
 		disfigure("brute")
-	if (burn_dam > 40)
+	if(burn && burn_ratio >= 1.0)
 		disfigure("burn")
 
 /obj/item/organ/external/head/get_icon_key()
@@ -111,7 +148,7 @@
 		var/has_eyes_overlay = S.has_eyes_icon
 		if(BP_IS_ROBOTIC(src)) // Robolimbs don't always have eye icon.
 			var/datum/robolimb/R = GLOB.all_robolimbs[model]
-			has_eyes_overlay = R.has_eyes_icon
+			has_eyes_overlay = R?.has_eyes_icon
 		if(has_eyes_overlay)
 			var/obj/item/organ/internal/eyes/eyes = owner.internal_organs_by_name[S.vision_organ ? S.vision_organ : BP_EYES]
 			if(!ishuman(loc))
@@ -131,7 +168,7 @@
 		var/has_eyes_overlay = S.has_eyes_icon
 		if(BP_IS_ROBOTIC(src)) // Robolimbs don't always have eye icon.
 			var/datum/robolimb/R = GLOB.all_robolimbs[model]
-			has_eyes_overlay = R.has_eyes_icon
+			has_eyes_overlay = R?.has_eyes_icon
 
 		var/datum/body_build/BB = owner.body_build
 		if(has_eyes_overlay)

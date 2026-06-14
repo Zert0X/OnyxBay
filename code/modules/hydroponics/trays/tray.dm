@@ -1,11 +1,11 @@
 /obj/machinery/portable_atmospherics/hydroponics
 	name = "hydroponics tray"
-	icon = 'icons/obj/hydroponics_machines.dmi'
+	icon = 'icons/obj/machines/hydrotray.dmi'
 	icon_state = "hydrotray4"
 	density = 1
 	anchored = 1
 	atom_flags = ATOM_FLAG_OPEN_CONTAINER
-	volume = 100
+	volume = 2.5 LITERS
 
 	var/mechanical = 1         // Set to 0 to stop it from drawing the alert lights.
 	var/vertical_shift = 0     // As we want plants to grow from the visual center of soil trays
@@ -87,22 +87,23 @@
 		/datum/reagent/adminordrazine = -5
 		)
 	var/global/list/water_reagents = list(
-		/datum/reagent/water =            1,
-		/datum/reagent/adminordrazine =   1,
-		/datum/reagent/drink/milk =       0.9,
-		/datum/reagent/ethanol/beer =     0.7,
-		/datum/reagent/hydrazine =       -2,
+		/datum/reagent/water =            0.1,
+		/datum/reagent/adminordrazine =   1.0,
+		/datum/reagent/drink/milk =       0.09,
+		/datum/reagent/ethanol/beer =     0.07,
+		/datum/reagent/hydrazine =       -2.0,
 		/datum/reagent/phosphorus =      -0.5,
-		/datum/reagent/water =            1,
-		/datum/reagent/drink/sodawater =  1,
+		/datum/reagent/drink/sodawater =  0.1,
+		/datum/reagent/drink/tonic =      0.1
 		)
 
 	// Beneficial reagents also have values for modifying health, yield_mod and mutation_mod (in that order).
 	var/global/list/beneficial_reagents = list(
-		/datum/reagent/ethanol/beer =                    list( -0.05, 0,   0  ),
+		/datum/reagent/ethanol/beer =                    list( -0.01, 0,   0  ),
 		/datum/reagent/hydrazine =                       list( -2,    0,   0  ),
 		/datum/reagent/phosphorus =                      list( -0.75, 0,   0  ),
-		/datum/reagent/drink/sodawater =                 list(  0.1,  0,   0  ),
+		/datum/reagent/drink/sodawater =                 list(  0.01, 0,   0  ),
+		/datum/reagent/drink/tonic =                     list(  0.01, 0,   0  ),
 		/datum/reagent/acid =                            list( -1,    0,   0  ),
 		/datum/reagent/acid/hydrochloric =               list( -1,    0,   0  ),
 		/datum/reagent/acid/polyacid =                   list( -2,    0,   0  ),
@@ -145,8 +146,8 @@
 
 /obj/machinery/portable_atmospherics/hydroponics/attack_generic(mob/user)
 	// Why did I ever think this was a good idea. TODO: move this onto the nymph mob.
-	if(istype(user,/mob/living/carbon/alien/diona))
-		var/mob/living/carbon/alien/diona/nymph = user
+	if(istype(user,/mob/living/carbon/larva/diona))
+		var/mob/living/carbon/larva/diona/nymph = user
 
 		if(nymph.is_ooc_dead() || nymph.paralysis || nymph.weakened || nymph.stunned || nymph.restrained())
 			return
@@ -167,9 +168,9 @@
 /obj/machinery/portable_atmospherics/hydroponics/Initialize()
 	. = ..()
 	temp_chem_holder = new()
-	temp_chem_holder.create_reagents(10)
+	temp_chem_holder.create_reagents(100)
 	temp_chem_holder.atom_flags |= ATOM_FLAG_OPEN_CONTAINER
-	create_reagents(200)
+	create_reagents(2 LITERS)
 	if(mechanical)
 		connect()
 	update_icon()

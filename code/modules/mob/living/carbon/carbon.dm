@@ -1,11 +1,11 @@
 /mob/living/carbon/New()
 	//setup reagent holders
 	if(!bloodstr)
-		bloodstr = new /datum/reagents/metabolism(120, src, CHEM_BLOOD)
+		bloodstr = new /datum/reagents/metabolism(1.2 LITERS, src, CHEM_BLOOD)
 	if(!reagents)
 		reagents = bloodstr
 	if(!touching)
-		touching = new /datum/reagents/metabolism(1000, src, CHEM_TOUCH)
+		touching = new /datum/reagents/metabolism(10.0 LITERS, src, CHEM_TOUCH)
 
 	if (!default_language && species_language)
 		default_language = all_languages[species_language]
@@ -23,11 +23,11 @@
 	// We assume that, in case of gib, organs and whatever have already done their business escaping the body,
 	// so it's safe to just clean whatever left for reasons.
 	QDEL_NULL_LIST(internal_organs)
-	QDEL_NULL_LIST(organs)
+	QDEL_NULL_LIST(external_organs)
 	QDEL_NULL_LIST(stomach_contents)
 	QDEL_NULL_LIST(hallucinations)
 
-	QDEL_LIST_ASSOC(organs_by_name)
+	QDEL_LIST_ASSOC(external_organs_by_name)
 	QDEL_LIST_ASSOC(internal_organs_by_name)
 	stasis_sources.Cut()
 	if(loc)
@@ -44,7 +44,8 @@
 	var/datum/reagents/R = get_ingested_reagents()
 	if(istype(R))
 		R.clear_reagents()
-	set_nutrition(300)
+	set_nutrition(STOMACH_FULLNESS_HIGH)
+	set_hydration(HYDRATION_HIGH)
 	..()
 
 /mob/living/carbon/Move(newloc, direct)
@@ -52,17 +53,20 @@
 	if(!.)
 		return
 
-	if(nutrition && stat != 2)
-		remove_nutrition(min(nutrition, DEFAULT_HUNGER_FACTOR / 10))
-		if(m_intent == M_RUN)
-			remove_nutrition(min(nutrition, DEFAULT_HUNGER_FACTOR / 10))
+	if(!stat)
+		if(nutrition)
+			if(m_intent == M_RUN)
+				remove_nutrition(DEFAULT_HUNGER_FACTOR / 5)
+			else
+				remove_nutrition(DEFAULT_HUNGER_FACTOR / 10)
+		if(hydration)
+			if(m_intent == M_RUN)
+				remove_hydration(DEFAULT_THIRST_FACTOR / 5)
+			else
+				remove_hydration(DEFAULT_THIRST_FACTOR / 10)
 
-	if((MUTATION_FAT in mutations) && m_intent == M_RUN && bodytemperature <= 360)
+	if(m_intent == M_RUN && bodytemperature <= 360 && (MUTATION_FAT in mutations))
 		bodytemperature += 2
-
-	// Moving around increases germ_level faster
-	if(germ_level < GERM_LEVEL_MOVE_CAP && prob(8))
-		germ_level++
 
 /mob/living/carbon/relaymove(mob/living/user, direction)
 	if((user in src.stomach_contents) && istype(user))
@@ -76,9 +80,9 @@
 		if(istype(src, /mob/living/carbon/human))
 			var/mob/living/carbon/human/H = src
 			var/obj/item/organ/external/organ = H.get_organ(BP_GROIN)
-			if (istype(organ))
-				organ.take_external_damage(dmg, 0)
-			H.updatehealth()
+			if(istype(organ))
+				organ.take_blunt_damage(dmg, "intra-abdominal movement")
+			H.update_health()
 		else
 			take_organ_damage(dmg)
 		user.visible_message("<span class='danger'>[user] attacks [src]'s stomach wall!</span>")
@@ -101,17 +105,13 @@
 	..()
 
 /mob/living/carbon/attack_hand(mob/M)
-	if(!istype(M, /mob/living/carbon)) return
-	if (ishuman(M))
+	if(!iscarbon(M))
+		return TRUE
+	if(ishuman(M))
 		var/mob/living/carbon/human/H = M
-		var/obj/item/organ/external/temp = H.organs_by_name[BP_R_HAND]
-		if (H.hand)
-			temp = H.organs_by_name[BP_L_HAND]
-		if(temp && !temp.is_usable())
-			to_chat(H, "<span class='warning'>You can't use your [temp.name]</span>")
-			return
-
-	return
+		if(!H.is_hand_usable())
+			return FALSE
+	return TRUE
 
 /mob/living/carbon/attack_ghost(mob/observer/ghost/user)
 	if(HAS_TRAIT(src, TRAIT_GHOSTATTACKABLE)) //Used for wizard's spell "No remorse" which allows ghosts to attack target
@@ -181,9 +181,9 @@
 	return
 
 /mob/living/carbon/swap_hand()
-	src.hand = !( src.hand )
+	active_hand = !active_hand
 	if(hud_used.l_hand_hud_object && hud_used.r_hand_hud_object)
-		if(hand)	//This being 1 means the left hand is in use
+		if(active_hand == ACTIVE_HAND_LEFT)
 			hud_used.l_hand_hud_object.icon_state = "l_hand_active"
 			hud_used.r_hand_hud_object.icon_state = "r_hand_inactive"
 		else
@@ -197,38 +197,38 @@
 		selhand = lowertext(selhand)
 
 		if(selhand == "right" || selhand == "r")
-			selhand = 0
+			selhand = ACTIVE_HAND_RIGHT
 		if(selhand == "left" || selhand == "l")
-			selhand = 1
+			selhand = ACTIVE_HAND_LEFT
 
-	if(selhand != src.hand)
+	if(selhand != active_hand)
 		swap_hand()
 
 /mob/living/carbon/proc/help_shake_act(mob/living/carbon/M)
 	if(!is_asystole() || isundead(src))
 		if (on_fire)
 			playsound(src.loc, 'sound/weapons/thudswoosh.ogg', 50, 1, -1)
-			if (M.on_fire)
+			if(M.on_fire)
 				M.visible_message(SPAN("warning", "[M] tries to pat out [src]'s flames, but to no avail!"),
 								  SPAN("warning", "You try to pat out [src]'s flames, but to no avail! Put yourself out first!"))
 			else
 				M.visible_message(SPAN("warning", "[M] tries to pat out [src]'s flames!"),
 								  SPAN("warning", "You try to pat out [src]'s flames! Hot!"))
 				if(do_mob(M, src, 15))
-					src.fire_stacks -= 0.5
-					if (prob(10) && (M.fire_stacks <= 0))
-						M.fire_stacks += 1
+					var/fire_stacks_to_extinguish = min(((M.fire_stacks < 0) ? -30 :-15), src.fire_stacks) // Less effective than stop, drop, and roll - also accounting for the fact that it takes half as long
+					var/fire_level_sqr = src.get_fire_level()**2
+
+					src.adjust_fire_stacks(fire_stacks_to_extinguish, TRUE)
+					if(prob(5 * fire_level_sqr)) // 5% -> 20% -> 45%
+						M.adjust_fire_stacks(10 * fire_level_sqr)
 					M.IgniteMob()
-					if (M.on_fire)
+
+					if(M.on_fire)
 						M.visible_message(SPAN("danger", "The fire spreads from [src] to [M]!"),
 										  SPAN("danger", "The fire spreads to you as well!"))
-					else
-						src.fire_stacks -= 0.5 //Less effective than stop, drop, and roll - also accounting for the fact that it takes half as long.
-						if (src.fire_stacks <= 0)
-							M.visible_message(SPAN("warning", "[M] successfully pats out [src]'s flames."),
-											  SPAN("warning", "You successfully pat out [src]'s flames."))
-							src.ExtinguishMob()
-							src.fire_stacks = 0
+					else if(!src.on_fire)
+						M.visible_message(SPAN("warning", "[M] successfully pats out [src]'s flames."),
+										  SPAN("warning", "You successfully pat out [src]'s flames."))
 		else
 			var/t_him = "it"
 			if (src.gender == MALE)
@@ -247,8 +247,8 @@
 								  SPAN("notice", "You shake [src], but they do not respond... Maybe they have S.S.D?"))
 			else if(lying || src.sleeping)
 				src.sleeping = max(0,src.sleeping-5)
-				if(src.sleeping == 0)
-					src.resting = 0
+				if(!sleeping)
+					set_resting(FALSE)
 				M.visible_message(SPAN("notice", "[M] shakes [src] trying to wake [t_him] up!"), \
 								  SPAN("notice", "You shake [src] trying to wake [t_him] up!"))
 			else
@@ -258,11 +258,17 @@
 				else
 					M.visible_message(SPAN("notice", "[M] hugs [src] to make [t_him] feel better!"), \
 									  SPAN("notice", "You hug [src] to make [t_him] feel better!"))
-				if(M.fire_stacks >= (src.fire_stacks + 3))
-					src.fire_stacks += 1
-					M.fire_stacks -= 1
-				if(M.on_fire)
-					src.IgniteMob()
+
+				var/fire_level = M.get_fire_level()
+				if(fire_level < 0 && M.fire_stacks <= (src.fire_stacks - 10))
+					src.adjust_fire_stacks(-5)
+					M.adjust_fire_stacks(5)
+				else if(fire_level > 0)
+					if(M.fire_stacks >= (src.fire_stacks + 10))
+						src.adjust_fire_stacks(5 * fire_level)
+						M.adjust_fire_stacks(-5)
+					if(M.on_fire)
+						src.IgniteMob()
 
 			if(!is_ic_dead())
 				AdjustParalysis(-3)
@@ -309,7 +315,7 @@
 	if(target.type == /atom/movable/screen)
 		return
 
-	var/atom/movable/item = get_active_hand()
+	var/atom/movable/item = get_clicking_hand()
 
 	if(!item)
 		return
@@ -354,9 +360,10 @@
 
 	if(!lastarea)
 		lastarea = get_area(loc)
-	if((istype(loc, /turf/space)) || (lastarea.has_gravity == FALSE))
-		inertia_dir = get_dir(target, src)
-		step(src, inertia_dir) // they're in space, move em in the opposite direction
+	if(can_slip(magboots_only = TRUE))
+		var/direction = get_dir(target, src)
+		step(src, direction)
+		space_drift(direction)
 
 	item.throw_at(target, throw_range, item.throw_speed, src)
 
@@ -402,27 +409,20 @@
 
 /mob/living/carbon/Bump(atom/movable/AM, yes)
 	if(now_pushing || !yes)
-		return
-	..()
-	if(istype(AM, /mob/living/carbon) && prob(10))
-		src.spread_disease_to(AM, "Contact")
+		return FALSE
+	. = ..()
+	if(. && istype(AM, /mob/living/carbon) && prob(10))
+		spread_disease_to(AM, "Contact")
 
 /mob/living/carbon/slip(slipped_on, stun_duration = 8)
-	var/area/A = get_area(src)
-	if(!A.has_gravity())
-		return 0
-	if(HAS_TRAIT(src, TRAIT_NOSLIP))
-		return 0
-	if(buckled)
-		return 0
-	if(weakened)
-		return 0
+	if(!can_slip())
+		return FALSE
 	stop_pulling()
 	to_chat(src, SPAN("warning", "You slipped on [slipped_on]!"))
 	playsound(src.loc, 'sound/misc/slip.ogg', 50, 1, -3)
 	Stun(Ceiling(stun_duration/3)) // At least 1 second of actual stun
 	Weaken(stun_duration)
-	return 1
+	return TRUE
 
 /mob/living/carbon/slip_on_obj(obj/slipped_on, stun_duration = 8, slip_dist = 0)
 	if(!slipped_on)
@@ -437,7 +437,7 @@
 	return 0
 
 /mob/living/carbon/proc/add_chemical_effect(effect, magnitude = 1)
-	if(effect in chem_effects)
+	if(chem_effects[effect])
 		chem_effects[effect] += magnitude
 	else
 		chem_effects[effect] = magnitude
@@ -446,7 +446,7 @@
 		update_chem_slowdown(effect)
 
 /mob/living/carbon/proc/add_up_to_chemical_effect(effect, magnitude = 1)
-	if(effect in chem_effects)
+	if(chem_effects[effect])
 		chem_effects[effect] = max(magnitude, chem_effects[effect])
 	else
 		chem_effects[effect] = magnitude
@@ -564,11 +564,14 @@
 /mob/living/carbon/proc/get_ingested_reagents()
 	return reagents
 
+/mob/living/carbon/proc/get_digested_reagents()
+	return reagents
+
 /mob/living/carbon/rejuvenate(ignore_prosthetic_prefs = FALSE)
 	. = ..()
 
 	// And restore all organs...
-	for(var/obj/item/organ/O in organs)
+	for(var/obj/item/organ/O in external_organs)
 		O.rejuvenate(ignore_prosthetic_prefs)
 
 /mob/living/carbon/proc/set_species()

@@ -14,7 +14,7 @@ var/list/mining_floors = list()
 	name = "rock"
 	icon = 'icons/turf/walls.dmi'
 	icon_state = "rock"
-	initial_gas = null
+	initial_gas = /decl/initial_gas_mix/empty
 	opacity = 1
 	density = 1
 	blocks_air = 1
@@ -53,11 +53,15 @@ var/list/mining_floors = list()
 		mining_walls["[src.z]"] = list()
 	mining_walls["[src.z]"] += src
 	update_icon()
+	add_debris_element()
 
 /turf/simulated/mineral/Destroy()
 	if (mining_walls["[src.z]"])
 		mining_walls["[src.z]"] -= src
 	return ..()
+
+/turf/simulated/mineral/add_debris_element()
+	AddElement(/datum/element/debris, DEBRIS_ROCK, -10, 5, 1)
 
 /turf/simulated/mineral/can_build_cable()
 	return !density
@@ -129,9 +133,9 @@ var/list/mining_floors = list()
 	. = ..()
 	if(istype(AM,/mob/living/carbon/human))
 		var/mob/living/carbon/human/H = AM
-		if((istype(H.l_hand, /obj/item/pickaxe/drill)) && (!H.hand))
+		if((istype(H.l_hand, /obj/item/pickaxe/drill)) && H.active_hand == ACTIVE_HAND_RIGHT)
 			attackby(H.l_hand, H)
-		else if((istype(H.r_hand, /obj/item/pickaxe/drill)) && H.hand)
+		else if((istype(H.r_hand, /obj/item/pickaxe/drill)) && H.active_hand == ACTIVE_HAND_LEFT)
 			attackby(H.r_hand, H)
 
 	else if(istype(AM,/mob/living/silicon/robot))
@@ -472,7 +476,7 @@ var/list/mining_floors = list()
 	name = "rock"
 	icon = 'icons/turf/walls.dmi'
 	icon_state = "rock"
-	initial_gas = list("oxygen" = MOLES_O2STANDARD, "nitrogen" = MOLES_N2STANDARD)
+	initial_gas = /decl/initial_gas_mix/air
 	opacity = 1
 	density = 1
 	blocks_air = 1
@@ -530,7 +534,7 @@ var/list/mining_floors = list()
 	name = "rock"
 	icon = 'icons/turf/walls.dmi'
 	icon_state = "rock"
-	initial_gas = list("oxygen" = MOLES_O2STANDARD, "nitrogen" = MOLES_N2STANDARD)
+	initial_gas = /decl/initial_gas_mix/air
 	opacity = 1
 	density = 1
 	blocks_air = 1
@@ -552,7 +556,7 @@ var/list/mining_floors = list()
 	base_icon_state = "asteroid"
 
 	initial_flooring = null
-	initial_gas = null
+	initial_gas = /decl/initial_gas_mix/empty
 	temperature = TCMB
 	var/dug = 0       //0 = has not yet been dug, 1 = has already been dug
 	var/overlay_detail
@@ -708,9 +712,50 @@ var/list/mining_floors = list()
 							ore.Move(OB)
 
 /turf/simulated/floor/asteroid/air
-	initial_gas = list("oxygen" = MOLES_O2STANDARD, "nitrogen" = MOLES_N2STANDARD)
+	initial_gas = /decl/initial_gas_mix/air
 
 // Contains extra CO2 for better breathing.
 /turf/simulated/floor/asteroid/air/prison
-	initial_gas = list("oxygen" = 1.05 * MOLES_O2STANDARD, "nitrogen" = 1.05 * MOLES_N2STANDARD, "carbon_dioxide" = MOLES_CELLSTANDARD * 0.1)
+	initial_gas = /decl/initial_gas_mix/air/asteroid
 	temperature = 30 CELSIUS
+
+/turf/simulated/floor/asteroid/swamp_dirt
+	name = "sand"
+	desc = "Gritty and unpleasant."
+	icon = 'icons/turf/flooring/swamp.dmi'
+	icon_state = "dirt"
+	base_name = "dirt"
+	base_desc = "Gritty and unpleasant."
+	base_icon = 'icons/turf/flooring/swamp.dmi'
+	base_icon_state = "dirt"
+
+	footstep_sound = SFX_FOOTSTEP_GRASS
+	temperature = 30 CELSIUS
+	initial_gas = /decl/initial_gas_mix/air/asteroid
+
+/turf/simulated/floor/asteroid/swamp_dirt/Initialize()
+	. = ..()
+	if(prob(25))
+		set_light(0.25, 1, 2.5, 1.5, "#dbbfbf")
+
+/turf/simulated/mineral/swamp
+	name = "rock"
+	icon = 'icons/turf/walls.dmi'
+	icon_state = "swamp_rock"
+	temperature = 0 CELSIUS
+	mined_turf = /turf/simulated/floor/asteroid/swamp_dirt
+
+/turf/unsimulated/swamp_bedrock
+	name = "rock"
+	icon = 'icons/turf/walls.dmi'
+	icon_state = "swamp_rock"
+
+/turf/simulated/floor/asteroid/swamp
+	name = "water"
+	desc = "Smells awfully."
+	icon = 'icons/turf/flooring/swamp.dmi'
+	temperature = 30 CELSIUS
+	icon_state = "swamp"
+	footstep_sound = SFX_FOOTSTEP_WATER
+	temperature = 30 CELSIUS
+	initial_gas = /decl/initial_gas_mix/air/asteroid

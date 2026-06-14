@@ -212,6 +212,11 @@
 	icon_state = "colabottle"
 	item_state = "colabottle"
 	center_of_mass = "x=16;y=6"
+
+	volume = 0.5 LITER
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;60;100;150;250;300;500"
+
 	startswith = list(/datum/reagent/drink/space_cola)
 	rag_underlay = "rag_big"
 
@@ -221,6 +226,11 @@
 	icon_state = "space-up_bottle"
 	item_state = "space-up_bottle"
 	center_of_mass = "x=16;y=6"
+
+	volume = 0.5 LITER
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;60;100;150;250;300;500"
+
 	startswith = list(/datum/reagent/drink/space_up)
 	rag_underlay = "rag_big"
 
@@ -230,6 +240,11 @@
 	icon_state = "space_mountain_wind_bottle"
 	item_state = "space_mountain_wind_bottle"
 	center_of_mass = "x=16;y=6"
+
+	volume = 0.5 LITER
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;60;100;150;250;300;500"
+
 	startswith = list(/datum/reagent/drink/spacemountainwind)
 	rag_underlay = "rag_big"
 
@@ -281,7 +296,7 @@
 	icon_state = "beer"
 	item_state = "beer"
 	center_of_mass = "x=16;y=12"
-	startswith = list(/datum/reagent/ethanol/beer = 45)
+	startswith = list(/datum/reagent/ethanol/beer = 300)
 
 /obj/item/reagent_containers/vessel/bottle/small/ale
 	name = "\improper Magm-Ale"
@@ -289,7 +304,7 @@
 	icon_state = "alebottle"
 	item_state = "alebottle"
 	center_of_mass = "x=16;y=10"
-	startswith = list(/datum/reagent/ethanol/ale = 45)
+	startswith = list(/datum/reagent/ethanol/ale = 300)
 
 /obj/item/reagent_containers/vessel/bottle/small/darkbeer
 	name = "Dark Space Beer"
@@ -297,4 +312,4 @@
 	icon_state = "darkbeer"
 	item_state = "darkbeer"
 	center_of_mass = "x=16;y=12"
-	startswith = list(/datum/reagent/ethanol/beer/dark = 45)
+	startswith = list(/datum/reagent/ethanol/beer/dark = 300)

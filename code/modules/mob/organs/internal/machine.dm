@@ -8,17 +8,22 @@
 	parent_organ = BP_CHEST
 	vital = 1
 	override_species_icon = TRUE
+	start_robotized = TRUE
 	var/open
 	var/obj/item/cell/cell = /obj/item/cell/high
 	//at 0.8 completely depleted after 60ish minutes of constant walking or 130 minutes of standing still
 	var/servo_cost = 0.8
 
 
-/obj/item/organ/internal/cell/New()
-	robotize()
+/obj/item/organ/internal/cell/Initialize()
+	. = ..()
 	if(ispath(cell))
 		cell = new cell(src)
-	..()
+
+/obj/item/organ/internal/cell/Destroy()
+	if(istype(cell))
+		QDEL_NULL(cell)
+	return ..()
 
 /obj/item/organ/internal/cell/proc/percent()
 	if(!cell)
@@ -96,7 +101,7 @@
 	..()
 	// This is very ghetto way of rebooting an FBP. TODO better way.
 	// It's time to do it. This code doesn't allow to resurrect a organic human this way.
-	if(owner && owner.is_ic_dead() && BP_IS_ROBOTIC(owner.organs_by_name[parent_organ]))
+	if(owner && owner.is_ic_dead() && BP_IS_ROBOTIC(owner.external_organs_by_name[parent_organ]))
 		owner.set_stat(CONSCIOUS)
 		owner.visible_message(SPAN_DANGER("\The [owner] twitches visibly!"))
 

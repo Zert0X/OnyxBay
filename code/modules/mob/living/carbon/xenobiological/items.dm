@@ -226,7 +226,7 @@
 		/obj/item/stack/material/wood = SPECIES_GOLEM_WOOD,
 		/obj/item/stack/telecrystal/bluespace_crystal = SPECIES_GOLEM_BLUESPACE,
 		/obj/item/device/soulstone = SPECIES_GOLEM_CULT,
-		/obj/item/stack/medical/bruise_pack = SPECIES_GOLEM_CLOTH,
+		/obj/item/stack/medical/bandage = SPECIES_GOLEM_CLOTH,
 		/obj/item/stack/material/cloth = SPECIES_GOLEM_CLOTH,
 		/obj/item/stack/material/plastic = SPECIES_GOLEM_PLASTIC,
 		/obj/item/stack/material/cardboard = SPECIES_GOLEM_CARDBOARD,
@@ -367,7 +367,7 @@
 		if(reagentselect == "Metroid Jelly")
 			reagentselect = /datum/reagent/metroidjelly
 
-		metroid_extract.reagents?.set_next_think_ctx("delayed_add_reagents", world.time + rand(1.5 SECONDS, 6 SECONDS), reagentselect, 5)
+		metroid_extract.reagents?.try_add_think_ctx("delayed_add_reagents", CALLBACK(src, nameof(/datum/reagents.proc/_delayed_add_reagents)), world.time + rand(1.5 SECONDS, 6 SECONDS), reagentselect, 50)
 		var/steps = rand(1, 4)
 		for(var/step in 1 to steps)
 			step_away(src, loc)

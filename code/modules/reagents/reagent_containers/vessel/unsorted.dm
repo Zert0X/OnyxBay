@@ -7,9 +7,11 @@
 	w_class = ITEM_SIZE_HUGE
 	force = 14
 	throwforce = 10
-	amount_per_transfer_from_this = 20
-	possible_transfer_amounts = null
-	volume = 150
+
+	volume = 1.5 LITERS
+	amount_per_transfer_from_this = 50
+	possible_transfer_amounts = "50;100;150;250;300;500;1500"
+
 	atom_flags = ATOM_FLAG_OPEN_CONTAINER
 	obj_flags = OBJ_FLAG_CONDUCTIBLE
 	lid_type = null
@@ -29,9 +31,11 @@
 	mod_handy = 0.75
 	matter = list(MATERIAL_STEEL = 4000)
 	w_class = ITEM_SIZE_NORMAL
-	amount_per_transfer_from_this = 20
-	possible_transfer_amounts = "10;20;30;60;120;150;180"
-	volume = 180
+
+	volume = 3 LITERS
+	amount_per_transfer_from_this = 50
+	possible_transfer_amounts = "50;100;150;250;300;500;1500;3000"
+
 	atom_flags = ATOM_FLAG_OPEN_CONTAINER
 	unacidable = FALSE
 	lid_type = null
@@ -41,6 +45,18 @@
 
 /obj/item/reagent_containers/vessel/bucket/full
 	startswith = list(/datum/reagent/water)
+
+/obj/item/reagent_containers/vessel/bucket/watercan
+	name = "watercan"
+	desc = "Medium-sized vessel made specifically for watering plants the most efficent way possible. Or not..."
+
+	icon = 'icons/obj/reagent_containers/vessels.dmi'
+	icon_state = "watercan"
+
+	possible_transfer_amounts = "30;50;100;150;250;300;500;1500;3000"
+
+	filling_states = "100"
+	base_icon = "watercan"
 
 /obj/item/reagent_containers/vessel/bucket/attackby(obj/D, mob/user)
 	if(isprox(D))
@@ -61,7 +77,7 @@
 		if(reagents.total_volume < 1)
 			show_splash_text(user, "no water!", SPAN("warning", "\The [src] is empty!"))
 		else
-			reagents.trans_to_obj(D, 5)
+			reagents.trans_to_obj(D, 50)
 			show_splash_text(user, "you wet the mop!", SPAN("notice", "You wet \the [D] in \the [src]."))
 			playsound(loc, 'sound/effects/slosh.ogg', 25, 1)
 		return
@@ -111,8 +127,13 @@
 	desc = "Careful, the beverage you're about to enjoy is extremely hot."
 	icon_state = "coffee"
 	item_state = "coffee"
+
+	volume = 0.2 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;100;150;200"
+
 	center_of_mass = "x=15;y=10"
-	startswith = list(/datum/reagent/caffeine/coffee = 30)
+	startswith = list(/datum/reagent/caffeine/coffee = 150)
 	lid_type = null
 	unacidable = FALSE
 
@@ -121,9 +142,12 @@
 	desc = "A regular takeaway cup with handy lid."
 	icon_state = "takeaway_cup"
 	item_state = "takeaway_cup"
-	volume = 30
 	filling_states = "50;65;80;100"
-	possible_transfer_amounts = "5;10;15;30"
+
+	volume = 0.3 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;100;150;300"
+
 	center_of_mass = "x=17;y=12"
 	pickup_sound = 'sound/effects/using/bottles/papercup.ogg'
 	lid_type = /datum/vessel_lid/takeaway
@@ -160,7 +184,12 @@
 	filling_states = "100"
 	base_name = "cup"
 	base_icon = "teacup"
-	startswith = list(/datum/reagent/drink/tea = 30)
+
+	volume = 0.2 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;100;150;200"
+
+	startswith = list(/datum/reagent/drink/tea = 150)
 	lid_type = null
 	unacidable = FALSE
 
@@ -170,7 +199,12 @@
 	icon_state = "coffee"
 	item_state = "coffee"
 	center_of_mass = "x=15;y=10"
-	startswith = list(/datum/reagent/drink/ice = 30)
+
+	volume = 0.2 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;100;150;200"
+
+	startswith = list(/datum/reagent/drink/ice = 150)
 	lid_type = null
 	unacidable = FALSE
 
@@ -180,28 +214,43 @@
 	icon_state = "hot_coco"
 	item_state = "coffee"
 	center_of_mass = "x=15;y=13"
-	startswith = list(/datum/reagent/drink/hot_coco = 30)
+
+	volume = 0.2 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;100;150;200"
+
+	startswith = list(/datum/reagent/drink/hot_coco = 150)
 	lid_type = null
 	unacidable = FALSE
 
 /obj/item/reagent_containers/vessel/dry_ramen
 	name = "cup ramen"
 	gender = PLURAL
-	desc = "Just add 10u water, self heats! A taste that reminds you of your school years."
+	desc = "Just add 250ml water, self heats! A taste that reminds you of your school years."
 	icon_state = "ramen"
 	item_state = "ramen"
 	center_of_mass = "x=16;y=11"
-	startswith = list(/datum/reagent/drink/dry_ramen = 30)
+
+	volume = 0.3 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;100;150;200;300"
+
+	startswith = list(/datum/reagent/drink/dry_ramen = 50)
 	lid_type = /datum/vessel_lid/paper
 	unacidable = FALSE
 
 /obj/item/reagent_containers/vessel/chickensoup
 	name = "cup of chicken soup"
-	desc = "Just add 10u water, self heats! Keep yourself warm!"
+	desc = "Just add 250ml water, self heats! Keep yourself warm!"
 	icon_state = "chickensoup"
 	item_state = "ramen"
 	center_of_mass = "x=16;y=11"
-	startswith = list(/datum/reagent/drink/chicken_powder = 30)
+
+	volume = 0.3 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;100;150;200;350"
+
+	startswith = list(/datum/reagent/drink/chicken_powder = 50)
 	lid_type = /datum/vessel_lid/paper
 	unacidable = FALSE
 
@@ -211,7 +260,12 @@
 	icon_state = "water_cup"
 	item_state = "water_cup"
 	possible_transfer_amounts = null
-	volume = 10
+
+	volume = 0.125 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;100;125"
+
+
 	matter = list(MATERIAL_CARDBOARD = 100)
 	center_of_mass = "x=16;y=12"
 	filling_states = "50;100"
@@ -227,9 +281,11 @@
 	icon_state = "shaker"
 	item_state = "shaker"
 	base_icon_state = "shaker"
-	amount_per_transfer_from_this = 10
-	possible_transfer_amounts = "5;10;15;25;30;60" //Professional bartender should be able to transfer as much as needed
-	volume = 120
+
+	volume = 0.6 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "5;10;15;25;30;50;60;100;150;250;300;600" // Professional bartender should be able to transfer as much as needed
+
 	center_of_mass = "x=17;y=10"
 	lid_type = /datum/vessel_lid/cap
 	override_lid_state = LID_CLOSED
@@ -237,6 +293,9 @@
 	can_flip = TRUE
 	atom_flags = ATOM_FLAG_NO_REACT
 	var/shaking = FALSE
+
+/obj/item/reagent_containers/vessel/shaker/get_storage_cost()
+	return ..() * 1.5
 
 /obj/item/reagent_containers/vessel/shaker/attack_hand(mob/user)
 	if(!iscarbon(user))
@@ -301,64 +360,69 @@
 	desc = "A bluespace metal shaker to mix drinks in. If you shake it too hard, a singularity will appear."
 	icon_state = "bluespaceshaker"
 	base_icon_state = "bluespaceshaker"
-	volume = 360
 
-/obj/item/reagent_containers/vessel/shaker/MouseDrop(obj/over_object, mob/user = usr) // Braindead copypasta from obj/item/storage
-	if(!canremove)
-		return
-
-	if(iscarbon(user) || isrobot(user))
-		if(!(istype(over_object, /atom/movable/screen)))
-			return ..()
-
-		if(loc != user)
-			return
-
-		add_fingerprint(user)
-		switch(over_object.name)
-			if(BP_R_HAND)
-				if(user.drop(src))
-					user.put_in_r_hand(src)
-			if(BP_L_HAND)
-				if(user.drop(src))
-					user.put_in_l_hand(src)
+	volume = 1.5 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "5;10;25;30;50;60;100;150;200;300;600;1000;1500"
 
 /obj/item/reagent_containers/vessel/teapot
 	name = "teapot"
 	desc = "An elegant teapot. It simply oozes class."
 	icon_state = "teapot"
 	item_state = "teapot"
-	amount_per_transfer_from_this = 10
-	volume = 120
+
+	volume = 0.6 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;60;100;150;250;300;600"
+
 	center_of_mass = "x=17;y=7"
 	lid_type = null
+
+/obj/item/reagent_containers/vessel/teapot/get_storage_cost()
+	return ..() * 1.5
 
 /obj/item/reagent_containers/vessel/pitcher
 	name = "pitcher"
 	desc = "Everyone's best friend in the morning."
 	icon_state = "pitcher"
-	volume = 120
-	amount_per_transfer_from_this = 10
+
+	volume = 0.6 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "10;15;25;30;50;60;100;150;250;300;600"
+
 	center_of_mass = "x=16;y=9"
 	filling_states = "15;30;50;70;85;100"
 	lid_type = null
 	precise_measurement = TRUE
 
+/obj/item/reagent_containers/vessel/pitcher/get_storage_cost()
+	return ..() * 1.5
+
 /obj/item/reagent_containers/vessel/coffeepot
 	name = "coffeepot"
 	desc = "A large pot for dispensing that ambrosia of corporate life known to mortals only as coffee. Contains 4 standard cups."
 	icon_state = "coffeepot"
-	volume = 120
-	amount_per_transfer_from_this = 10
+
+	volume = 0.6 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "10;15;25;30;50;60;100;150;250;300;600"
+
 	center_of_mass = "x=16;y=9"
 	filling_states = "1;30;60;100"
 	lid_type = null
 	precise_measurement = TRUE
 
+/obj/item/reagent_containers/vessel/coffeepot/get_storage_cost()
+	return ..() * 1.5
+
 /obj/item/reagent_containers/vessel/coffeepot/bluespace
 	name = "bluespace coffeepot"
 	desc = "The most advanced coffeepot the eggheads could cook up: sleek design; graduated lines; connection to a pocket dimension for coffee containment; yep, it's got it all. Contains 8 standard cups."
-	volume = 240
+
+	volume = 1.5 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "5;10;25;30;50;60;100;150;200;300;600;1000;1500"
+
 	icon_state = "coffeepot_bluespace"
 
 /obj/item/reagent_containers/vessel/skullgoblet
@@ -367,7 +431,11 @@
 	icon_state = "skullcup"
 	item_state = "skullmask"
 	w_class = ITEM_SIZE_NORMAL
-	volume = 50
+
+	volume = 0.45 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;60;100;150;300;450"
+
 	atom_flags = ATOM_FLAG_OPEN_CONTAINER
 	obj_flags = OBJ_FLAG_CONDUCTIBLE
 	lid_type = null
@@ -384,10 +452,13 @@
 	desc = "Big enough to contain enough protein to get perfectly swole. Don't mind the bits."
 	icon_state = "fitness-cup_black"
 	base_icon = "fitness-cup"
-	volume = 100
+
+	volume = 0.6 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "10;15;25;30;50;60;100;150;250;300;600"
+
 	matter = list(MATERIAL_PLASTIC = 2000)
 	filling_states = "1;20;30;40;50;60;70;80;90;100"
-	possible_transfer_amounts = "5;10;15;25"
 	lid_type = null
 	precise_measurement = TRUE
 	unacidable = FALSE
@@ -407,7 +478,7 @@
 
 /obj/item/reagent_containers/vessel/fitnessflask/proteinshake/Initialize()
 	. = ..()
-	reagents.add_reagent(/datum/reagent/nutriment, 30)
-	reagents.add_reagent(/datum/reagent/iron, 10)
-	reagents.add_reagent(/datum/reagent/nutriment/protein, 15)
-	reagents.add_reagent(/datum/reagent/water, 45)
+	reagents.add_reagent(/datum/reagent/nutriment, 200)
+	reagents.add_reagent(/datum/reagent/iron, 50)
+	reagents.add_reagent(/datum/reagent/nutriment/protein, 150)
+	reagents.add_reagent(/datum/reagent/water, 150)

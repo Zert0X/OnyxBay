@@ -71,6 +71,9 @@
 /area/bridge/meeting_room/cafe
 	name = "\improper Heads of Staff Cafeteria"
 
+/area/bridge/storage
+	name = "\improper Bridge Storage"
+
 // Shuttles
 
 /area/shuttle/constructionsite
@@ -90,6 +93,7 @@
 /area/shuttle/mining/outpost
 	icon_state = "shuttle"
 	base_turf = /turf/simulated/floor/asteroid
+	area_flags = AREA_FLAG_UNIQUE_AREA
 
 /area/shuttle/mining/station
 	icon_state = "shuttle2"
@@ -114,21 +118,21 @@
 
 /area/shuttle/deathsquad/centcom
 	name = "Deathsquad Shuttle"
-	area_flags = AREA_FLAG_RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED | AREA_FLAG_UNIQUE_AREA
 
 /area/shuttle/deathsquad/transit
 	name = "Deathsquad Shuttle Internim"
-	area_flags = AREA_FLAG_RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED | AREA_FLAG_UNIQUE_AREA
 
 /area/shuttle/deathsquad/station
 	name = "Deathsquad Shuttle Station"
 
 /area/shuttle/administration
-	area_flags = AREA_FLAG_RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED | AREA_FLAG_UNIQUE_AREA
 
 /area/shuttle/syndicate_elite
 	name = "\improper Syndicate Elite Shuttle"
-	area_flags = AREA_FLAG_RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED | AREA_FLAG_UNIQUE_AREA
 
 /area/shuttle/transport/centcom
 	icon_state = "shuttle"
@@ -164,7 +168,7 @@
 
 /area/shuttle/escape
 	name = "\improper Emergency Shuttle"
-	area_flags = AREA_FLAG_RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED | AREA_FLAG_UNIQUE_AREA
 
 /area/shuttle/escape/station
 	name = "\improper Emergency Shuttle Station"
@@ -176,7 +180,7 @@
 
 /area/shuttle/escape_pod1
 	name = "\improper Escape Pod One"
-	area_flags = AREA_FLAG_RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED | AREA_FLAG_UNIQUE_AREA
 
 /area/shuttle/escape_pod1/station
 	icon_state = "shuttle2"
@@ -187,7 +191,7 @@
 
 /area/shuttle/escape_pod2
 	name = "\improper Escape Pod Two"
-	area_flags = AREA_FLAG_RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED | AREA_FLAG_UNIQUE_AREA
 
 /area/shuttle/escape_pod2/station
 	icon_state = "shuttle2"
@@ -198,7 +202,7 @@
 
 /area/shuttle/escape_pod3
 	name = "\improper Escape Pod Three"
-	area_flags = AREA_FLAG_RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED | AREA_FLAG_UNIQUE_AREA
 
 /area/shuttle/escape_pod3/station
 	icon_state = "shuttle2"
@@ -209,7 +213,7 @@
 
 /area/shuttle/escape_pod5 // Pod 4 was lost to meteors
 	name = "\improper Escape Pod Five"
-	area_flags = AREA_FLAG_RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED | AREA_FLAG_UNIQUE_AREA
 
 /area/shuttle/escape_pod5/station
 	icon_state = "shuttle2"
@@ -260,7 +264,7 @@
 	icon_state = "yellow"
 	requires_power = 0
 	dynamic_lighting = 1
-	area_flags = AREA_FLAG_RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED | AREA_FLAG_UNIQUE_AREA
 
 /area/rescue_base/base
 	name = "\improper Barracks"
@@ -309,7 +313,7 @@
 /area/creaker
 	name = "\improper Mining Ship 'Creaker'"
 	icon_state = "yellow"
-	area_flags = AREA_FLAG_RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED | AREA_FLAG_UNIQUE_AREA
 
 /area/creaker/station
 	name = "\improper Mining Ship 'Creaker'"
@@ -334,7 +338,7 @@
 	name = "\improper Independant Station"
 	icon_state = "yellow"
 	requires_power = 0
-	area_flags = AREA_FLAG_RAD_SHIELDED
+	area_flags = AREA_FLAG_RAD_SHIELDED | AREA_FLAG_UNIQUE_AREA
 
 /area/syndicate_station/start
 	name = "\improper Syndicate Forward Operating Base"
@@ -534,6 +538,10 @@
 /area/maintenance/ghetto_casino
 	name = "\improper Ghetto Casino"
 	icon_state = "ghettocasino"
+
+/area/maintenance/ghetto_fight_club
+	name = "\improper Abandoned Fight Club"
+	icon_state = "ghettofightclub"
 
 /area/maintenance/ghetto_syndie
 	name = "\improper Ghetto Syndie"
@@ -1080,6 +1088,9 @@
 	name = "\improper Command - Captain's Office"
 	icon_state = "captain"
 	sound_env = MEDIUM_SOFTFLOOR
+
+/area/crew_quarters/captain/quarters
+	name = "\improper Command - Captain's Quarters"
 
 // Crew
 
@@ -1996,6 +2007,7 @@
 /area/outpost/main_outpost/dock
 	name = "Outpost Dock"
 	icon_state = "bluenew"
+	area_flags = AREA_FLAG_UNIQUE_AREA
 
 /area/outpost/main_outpost/dock/security
 	name = "Outpost Security Dock"
@@ -2111,6 +2123,10 @@
 /area/outpost/research
 	icon_state = "outpost_research"
 
+/area/outpost/research/hor
+	name = "Research Outpost - RD's Office"
+	icon_state = "Sleep"
+
 /area/outpost/research/hallway
 	name = "Research Outpost Hallway"
 
@@ -2161,6 +2177,17 @@
 
 /area/outpost/research/disposal
 	name = "Research Outpost Waste Disposal"
+
+/area/outpost/research/atmospherics
+	name = "Research Outpost Atmospherics"
+
+/area/outpost/research/breakroom
+	name = "Research Outpost Break Room"
+
+/area/outpost/research/engine
+	name = "Research Outpost Engine"
+	icon_state = "engine"
+	sound_env = LARGE_ENCLOSED
 
 /area/outpost/research/brainstorm
 	name = "Research Outpost Brainstorm Room"

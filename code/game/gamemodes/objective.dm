@@ -418,14 +418,14 @@ var/global/list/all_objectives = list()
 			return 0
 
 		var/mob/living/carbon/human/H = target.current
-		for(var/obj/item/organ/external/E in H.organs)
+		for(var/obj/item/organ/external/E in H.external_organs)
 			if(E.status & ORGAN_BROKEN)
 				return 1
 		for(var/limb_tag in H.species.has_limbs) //todo check prefs for robotic limbs and amputations.
 			var/list/organ_data = H.species.has_limbs[limb_tag]
 			var/limb_type = organ_data["path"]
 			var/found
-			for(var/obj/item/organ/external/E in H.organs)
+			for(var/obj/item/organ/external/E in H.external_organs)
 				if(limb_type == E.type)
 					found = 1
 					break
@@ -536,7 +536,7 @@ var/global/list/all_objectives = list()
 		"a chief engineer's jumpsuit" = /obj/item/clothing/under/rank/chief_engineer,
 		"a chief medical officer's jumpsuit" = /obj/item/clothing/under/rank/chief_medical_officer,
 		"a head of security's jumpsuit" = /obj/item/clothing/under/rank/head_of_security,
-		"a head of personnel's jumpsuit" = /obj/item/clothing/under/rank/head_of_personnel,
+		"a head of provisioning's jumpsuit" = /obj/item/clothing/under/rank/hop,
 		"the hypospray" = /obj/item/reagent_containers/hypospray,
 		"the captain's pinpointer" = /obj/item/pinpointer,
 		"an ablative armor vest" = /obj/item/clothing/suit/armor/laserproof,
@@ -670,7 +670,7 @@ var/global/list/all_objectives = list()
 			continue
 		captured_amount += worth
 
-	for(var/mob/living/carbon/alien/larva/M in A)//Larva are important for research.
+	for(var/mob/living/carbon/larva/xenomorph/M in A)//Larva are important for research.
 		if(M.stat==DEAD)
 			captured_amount+=0.5
 			continue

@@ -4,8 +4,8 @@
 	name = "head"
 	icon = 'icons/obj/clothing/hats.dmi'
 	item_icons = list(
-		slot_l_hand_str = 'icons/mob/onmob/items/lefthand_hats.dmi',
-		slot_r_hand_str = 'icons/mob/onmob/items/righthand_hats.dmi',
+		slot_l_hand_str = 'icons/inv_slots/hats/hand_l_default.dmi',
+		slot_r_hand_str = 'icons/inv_slots/hats/hand_r_default.dmi',
 		)
 	body_parts_covered = HEAD
 	slot_flags = SLOT_HEAD
@@ -37,6 +37,10 @@
 	var/cache_key = "[light_overlay]_[species_name]"
 	if(on && light_overlay_cache[cache_key] && slot == slot_head_str)
 		ret.AddOverlays(light_overlay_cache[cache_key])
+	if(item_state_slots?[slot])
+		ret.icon_state = item_state_slots[slot]
+	else
+		ret.icon_state = icon_state
 	return ret
 
 /obj/item/clothing/head/attack_self(mob/user)
@@ -44,6 +48,7 @@
 		if(!isturf(user.loc))
 			to_chat(user, "You cannot turn the light on while in this [user.loc]")
 			return
+		playsound(src, 'sound/effects/flashlight2.ogg', 75, FALSE)
 		on = !on
 		to_chat(user, "You [on ? "enable" : "disable"] the helmet light.")
 		update_flashlight(user)
@@ -79,8 +84,8 @@
 		else
 			D.wear_hat(src)
 			success = 1
-	else if(istype(user, /mob/living/carbon/alien/diona))
-		var/mob/living/carbon/alien/diona/D = user
+	else if(istype(user, /mob/living/carbon/larva/diona))
+		var/mob/living/carbon/larva/diona/D = user
 		if(D.hat)
 			success = 2
 		else

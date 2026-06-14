@@ -41,7 +41,7 @@ GLOBAL_DATUM_INIT(deathsquad, /datum/antagonist/deathsquad, new)
 		player.equip_to_slot_or_del(new /obj/item/clothing/under/color/green(player), slot_w_uniform)
 
 	player.equip_to_slot_or_del(new /obj/item/clothing/shoes/swat(player), slot_shoes)
-	player.equip_to_slot_or_del(new /obj/item/clothing/gloves/thick/swat(player), slot_gloves)
+	player.equip_to_slot_or_del(new /obj/item/clothing/gloves/swat(player), slot_gloves)
 	player.equip_to_slot_or_del(new /obj/item/clothing/glasses/hud/shades/thermal/sunshield(player), slot_glasses)
 	player.equip_to_slot_or_del(new /obj/item/clothing/mask/gas/swat(player), slot_wear_mask)
 	if(player.mind == leader)
@@ -54,15 +54,15 @@ GLOBAL_DATUM_INIT(deathsquad, /datum/antagonist/deathsquad, new)
 	player.equip_to_slot_or_del(new /obj/item/storage/backpack/security(player), slot_back)
 	player.equip_to_slot_or_del(new /obj/item/ammo_magazine/c50(player), slot_in_backpack)
 	player.equip_to_slot_or_del(new /obj/item/ammo_magazine/c50(player), slot_in_backpack)
-	player.equip_to_slot_or_del(new /obj/item/melee/energy/sword/one_hand(player), slot_l_hand)
-	player.equip_to_slot_or_del(new /obj/item/clothing/suit/space/void/swat(player), slot_wear_suit)
+	player.equip_to_slot_or_del(new /obj/item/melee/energy/sword/saber/red(player), slot_l_hand)
+	player.equip_to_slot_or_del(new /obj/item/clothing/suit/space/void/deathsquad(player), slot_wear_suit)
 	player.equip_to_slot_or_del(new /obj/item/clothing/head/helmet/space/deathsquad(player), slot_head)
 	player.implant_loyalty(player)
 
 	var/obj/item/card/id/id = create_id("Death Commando", player)
 	if(id)
 		id.access |= get_all_station_access()
-		id.icon_state = "centcom"
+		id.icon_state = "card_centcom"
 	create_radio(DTH_FREQ, player)
 
 /datum/antagonist/deathsquad/update_antag_mob(datum/mind/player)

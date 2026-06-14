@@ -9,14 +9,14 @@
 	species_restricted = null
 	siemens_coefficient = 0.3
 
-	armor = list(melee = 55, bullet = 20, laser = 20, energy = 35, bomb = 25, bio = 70)
+	armor_values = alist(melee = 55, bullet = 20, laser = 20, energy = 35, bomb = 25, bio = 70)
 
 	drop_sound = SFX_DROP_BOOTS
 	pickup_sound = SFX_PICKUP_BOOTS
 
 /obj/item/clothing/shoes/galoshes/Initialize()
 	. = ..()
-	slowdown_per_slot[slot_shoes] = 1
+	A_LAZYSET(slowdown_per_slot, slot_shoes, 1)
 
 /obj/item/clothing/shoes/jackboots
 	name = "jackboots"
@@ -24,9 +24,10 @@
 	icon_state = "jackboots"
 	item_state_slots = null
 	force = 3
-	armor = list(melee = 70, bullet = 70, laser = 60, energy = 25, bomb = 20, bio = 30)
+	armor_values = alist(melee = 70, bullet = 70, laser = 60, energy = 25, bomb = 20, bio = 30)
 	siemens_coefficient = 0.5
 	can_hold_knife = 1
+	trimmed_variant = /obj/item/clothing/shoes/jackboots/unathi
 	cold_protection = FEET
 	min_cold_protection_temperature = HELMET_MIN_COLD_PROTECTION_TEMPERATURE
 
@@ -36,11 +37,11 @@
 /obj/item/clothing/shoes/jackboots/tactical
 	name = "tactical jackboots"
 	desc = "Tall synthleather boots with an artificial shine. These ones seem to be reinforced with some sort of plating."
-	armor = list(melee = 80, bullet = 80, laser = 70, energy = 25, bomb = 50, bio = 30)
+	armor_values = alist(melee = 80, bullet = 80, laser = 70, energy = 25, bomb = 50, bio = 30)
 	siemens_coefficient = 0.4
 
 /obj/item/clothing/shoes/jackboots/unathi
-	name = "toe-less jackboots"
+	name = "toeless jackboots"
 	desc = "Modified pair of jackboots, particularly comfortable for those species whose toes hold claws."
 	item_state = "digiboots"
 	siemens_coefficient = 0.7
@@ -51,20 +52,21 @@
 	name = "workboots"
 	desc = "A pair of steel-toed work boots designed for use in industrial settings. Safety first."
 	icon_state = "workboots"
-	armor = list(melee = 80, bullet = 40, laser = 50, energy = 25, bomb = 40, bio = 0)
+	armor_values = alist(melee = 80, bullet = 40, laser = 50, energy = 25, bomb = 40, bio = 0)
 	siemens_coefficient = 0.4
 	can_hold_knife = 1
+	trimmed_variant = /obj/item/clothing/shoes/workboots/toeless
 
 	drop_sound = SFX_DROP_BOOTS
 	pickup_sound = SFX_PICKUP_BOOTS
 
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "jackboots",
 		slot_r_hand_str = "jackboots",
 		)
 
 /obj/item/clothing/shoes/workboots/toeless
-	name = "toe-less workboots"
+	name = "toeless workboots"
 	desc = "A pair of toeless work boots designed for use in industrial settings. Modified for species whose toes have claws."
 	icon_state = "workbootstoeless"
 	siemens_coefficient = 0.6

@@ -116,7 +116,7 @@
 
 /decl/hierarchy/supply_pack/security/rig
 	name = "Armor - Security RIG"
-	contains = list(/obj/item/rig/security)
+	contains = list(/obj/item/rig/security/equipped)
 	cost = 480
 	containername = "\improper Security RIG crate"
 	containertype = /obj/structure/closet/crate/secure
@@ -141,6 +141,22 @@
 	containername = "\improper Non-lethal energy weapons crate"
 	access = access_security
 
+/decl/hierarchy/supply_pack/security/charge_pistol
+	name = "Weapons - Charge pistols"
+	contains = list(/obj/item/gun/charge/pistol = 2)
+	cost = 40
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper Charge pistols crate"
+	access = access_security
+
+/decl/hierarchy/supply_pack/security/charge_carbine
+	name = "Weapons - Charge carbines"
+	contains = list(/obj/item/gun/charge = 2)
+	cost = 50
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper Charge carbines crate"
+	access = access_security
+
 /decl/hierarchy/supply_pack/security/egun
 	name = "Weapons - Energy sidearms"
 	contains = list(/obj/item/gun/energy/egun = 4)
@@ -153,7 +169,7 @@
 /decl/hierarchy/supply_pack/security/laser
 	name = "Weapons - Laser carbines"
 	contains = list(/obj/item/gun/energy/laser = 2)
-	cost = 40
+	cost = 50
 	containertype = /obj/structure/closet/crate/secure/weapon
 	containername = "\improper Laser carbines crate"
 	access = access_armory
@@ -186,6 +202,16 @@
 	containertype = /obj/structure/closet/crate/secure/weapon
 	containername = "\improper Ballistic sidearms crate"
 	access = access_armory
+	security_level = SUPPLY_SECURITY_ELEVATED
+
+/decl/hierarchy/supply_pack/security/accelerator
+	name = "Weapons - Accelerator crate"
+	contains = list(/obj/item/gun/energy/accelerator = 2,
+					/obj/item/gun/energy/accelerator/pistol = 2)
+	cost = 60
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper Accelerator weapons crate"
+	access = access_security
 	security_level = SUPPLY_SECURITY_ELEVATED
 
 /decl/hierarchy/supply_pack/security/shotgun
@@ -221,6 +247,22 @@
 	cost = 30
 	containertype = /obj/structure/closet/crate/secure/weapon
 	containername = "\improper Flashbang crate"
+	access = access_security
+
+/decl/hierarchy/supply_pack/security/stingbangs
+	name = "Weapons - Stingbang grenades"
+	contains = list(/obj/item/storage/box/stingbangs = 2)
+	cost = 40
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper Stingbang grenades crate"
+	access = access_security
+
+/decl/hierarchy/supply_pack/security/grenade_shells_stingbang
+	name = "Ammunition - 40mm stingbang shells"
+	contains = list(/obj/item/storage/box/grenade_shells_stingbang = 2)
+	cost = 30
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper 40mm stingbang shells crate"
 	access = access_security
 
 /decl/hierarchy/supply_pack/security/teargas
@@ -349,6 +391,40 @@
 	containername = "\improper .38 CHEM ammunition crate"
 	access = access_forensics_lockers
 
+/decl/hierarchy/supply_pack/security/charge_stun
+	name = "Ammunition - Charge Magazines (Stun)"
+	contains = list(/obj/item/cell/ammo/charge/stun = 2)
+	cost = 30
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper stun charge magazines crate"
+	access = access_security
+
+/decl/hierarchy/supply_pack/security/charge_kinetic
+	name = "Ammunition - Charge Magazines (Kinetic)"
+	contains = list(/obj/item/cell/ammo/charge/kinetic = 2)
+	cost = 35
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper kinetic charge magazines crate"
+	access = access_security
+
+/decl/hierarchy/supply_pack/security/charge_blaster
+	name = "Ammunition - Charge Magazines (Blaster)"
+	contains = list(/obj/item/cell/ammo/charge/blaster = 2)
+	cost = 40
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper blaster charge magazines crate"
+	access = access_security
+	security_level = SUPPLY_SECURITY_ELEVATED
+
+/decl/hierarchy/supply_pack/security/charge_accelerator
+	name = "Ammunition - Charge Magazines (Accelerator)"
+	contains = list(/obj/item/cell/ammo/charge/accelerator = 2)
+	cost = 40
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper accelerator charge magazines crate"
+	access = access_security
+	security_level = SUPPLY_SECURITY_ELEVATED
+
 /decl/hierarchy/supply_pack/security/forensics //Not access-restricted so PIs can use it.
 	name = "Forensics - Auxiliary tools"
 	contains = list(/obj/item/forensics/sample_kit,
@@ -414,15 +490,78 @@
 					/obj/item/gun/projectile/bolt_action/mauser = 2,
 					/obj/item/ammo_magazine/c792 = 4
 					)
-	cost = 40
+	cost = 100
 	containertype = /obj/structure/closet/crate/secure
 	containername = "\improper Surplus Firearms"
 	access = access_security
+	security_level = SUPPLY_SECURITY_ELEVATED
 
 /decl/hierarchy/supply_pack/security/surplusammo
 	name = "Misc - Surplus ammo"
 	contains = list(/obj/item/ammo_magazine/c792 = 8)
-	cost = 10
+	cost = 20
 	containertype = /obj/structure/closet/crate/secure
 	containername = "\improper Surplus Ammo"
 	access = access_security
+	security_level = SUPPLY_SECURITY_ELEVATED
+
+/decl/hierarchy/supply_pack/security/grenade_launcher
+	name = "Weapons - Grenade launcher"
+	contains = list(/obj/item/gun/projectile/grenade_launcher = 1)
+	cost = 40
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper MGL crate"
+	access = access_security
+	security_level = SUPPLY_SECURITY_ELEVATED
+
+/decl/hierarchy/supply_pack/security/revolver_grenade_launcher
+	name = "Weapons - MGL"
+	contains = list(/obj/item/gun/projectile/revolver/grenade_launcher = 1)
+	cost = 100
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper MGL crate"
+	access = access_security
+	security_level = SUPPLY_SECURITY_ELEVATED
+
+/decl/hierarchy/supply_pack/security/grenade_shells
+	name = "Ammunition - 40mm spare shells"
+	contains = list(/obj/item/storage/box/grenade_shells = 2)
+	cost = 15
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper 40mm spare shells crate"
+	access = access_security
+
+/decl/hierarchy/supply_pack/security/grenade_shells_rubber
+	name = "Ammunition - 40mm rubber shells"
+	contains = list(/obj/item/storage/box/grenade_shells_rubber = 2)
+	cost = 25
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper 40mm rubber shells crate"
+	access = access_security
+
+/decl/hierarchy/supply_pack/security/grenade_shells_emp
+	name = "Ammunition - 40mm EMP shells"
+	contains = list(/obj/item/storage/box/grenade_shells_emp = 2)
+	cost = 40
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper 40mm EMP shells crate"
+	access = access_security
+	security_level = SUPPLY_SECURITY_ELEVATED
+
+/decl/hierarchy/supply_pack/security/grenade_shells_frag
+	name = "Weapons - 40mm FRAG shells"
+	contains = list(/obj/item/storage/box/grenade_shells_frag = 2)
+	cost = 100
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper 40mm FRAG shells crate"
+	access = access_armory
+	security_level = SUPPLY_SECURITY_HIGH
+
+/decl/hierarchy/supply_pack/security/grenade_shells_he
+	name = "Weapons - 40mm HE shells"
+	contains = list(/obj/item/storage/box/grenade_shells_he = 2)
+	cost = 125
+	containertype = /obj/structure/closet/crate/secure/weapon
+	containername = "\improper 40mm HE shells crate"
+	access = access_armory
+	security_level = SUPPLY_SECURITY_HIGH

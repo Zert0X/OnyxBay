@@ -72,7 +72,7 @@
 			to_chat(src, SPAN("danger", "[msg]"))
 			return
 
-	if(config.general.second_topic_limit && href_list["window_id"] != "statbrowser")
+	if(config.general.second_topic_limit)
 		var/second = round(world.time, 10)
 		if(!topiclimiter)
 			topiclimiter = new(LIMITER_SIZE)
@@ -84,15 +84,22 @@
 			to_chat(src, SPAN("danger", "Your previous action was ignored because you've done too many in a second."))
 			return
 
+	if(href_list["type"] == "cacheReloaded")
+		if(!check_rights(R_ADMIN) && usr.client.tgui_cache_reloaded)
+			return TRUE
+		// Mark as reloaded
+		usr.client.tgui_cache_reloaded = TRUE
+		// Notify windows
+		var/list/windows = usr.client.tgui_windows
+		for(var/window_id in windows)
+			var/datum/tgui_window/window = windows[window_id]
+			if (window.status == TGUI_WINDOW_READY)
+				window.reinitialize()
+
+		return TRUE
+
 	// Logs all hrefs
 	log_href("[src] (usr:[usr]) || [hsrc ? "[hsrc] " : ""][href]")
-
-	// Tgui Topic middleware
-	if(tgui_Topic(href_list))
-		return
-
-	if(href_list["reload_statbrowser"])
-		stat_panel.reinitialize()
 
 	// ask BYOND client to stop spamming us with assert arrival confirmations (see byond bug ID:2256651)
 	if(asset_cache_job && (asset_cache_job in completed_asset_jobs))
@@ -166,6 +173,9 @@
 	//CONNECT//
 	///////////
 /client/New(TopicData)
+	if(byond_version >= 516)
+		winset(src, "", "browser-options=byondstorage")
+
 	TopicData = null							// Prevent calls to client.Topic from connect
 
 	if(!(connection in list("seeker", "web")))					// Invalid connection type.
@@ -180,10 +190,6 @@
 	GLOB.clients += src
 	GLOB.ckey_directory[ckey] = src
 
-	// Instantiate tgui stat panel
-	stat_panel = new(src, "statbrowser")
-	stat_panel.subscribe(src, nameof(.proc/on_stat_panel_message))
-
 	// Instantiate tgui panel
 	tgui_panel = new(src)
 
@@ -192,11 +198,18 @@
 	if(admin_datum)
 		if(admin_datum in GLOB.deadmined_list)
 			deadmin_holder = admin_datum
-			grant_verb(src, /client/proc/readmin_self)
+			src.verbs |= /client/proc/readmin_self
 		else
 			holder = admin_datum
 			GLOB.admins += src
 		admin_datum.owner = src
+	else if(config.admin.promote_localhost)
+		var/static/localhost_addresses = list("127.0.0.1", "::1")
+
+		if(isnull(address) || (address in localhost_addresses))
+			var/datum/admins/A = new /datum/admins("Host", R_ALL, ckey)
+
+			A.associate(src)
 
 	else if((config.multiaccount.panic_bunker != 0) && (get_player_age(ckey) < config.multiaccount.panic_bunker))
 		var/player_age = get_player_age(ckey)
@@ -214,6 +227,9 @@
 
 	// Load EAMS data
 	SSeams.CollectDataForClient(src)
+
+	var/age = get_player_age(ckey)
+	message_staff("[src] ([age < 10 ? "<font color='#ff0000'>[age]</font>" : age]) has connected.")
 
 	setup_preferences()
 	view_size = new(src, get_screen_size(TRUE))
@@ -261,16 +277,8 @@
 	if(prefs && !istype(mob, world.mob))
 		prefs.apply_post_login_preferences(src)
 
-	turf_examine = new(src)
-
-	settings = new(src)
-
-	stat_panel.initialize(
-		inline_html = file("html/statbrowser/statbrowser.html"),
-		inline_css = file("html/statbrowser/statbrowser.css"),
-		inline_js = file("html/statbrowser/statbrowser.js")
-	)
-	add_think_ctx("check_panel_loaded", CALLBACK(src, nameof(.proc/check_panel_loaded)), world.time + 30 SECONDS)
+	if(SSinput.initialized)
+		set_macros()
 
 	if(config.general.player_limit && is_player_rejected_by_player_limit(usr, ckey))
 		if(config.multiaccount.panic_server_address && TopicData != "redirect")
@@ -285,6 +293,7 @@
 		qdel(src)
 		return
 
+	load_luck()
 	//////////////
 	//DISCONNECT//
 	//////////////
@@ -329,7 +338,6 @@
 	return FALSE
 
 /client/proc/log_client_to_db()
-
 	if(IsGuestKey(src.key))
 		return
 
@@ -391,6 +399,19 @@
 	var/seconds = inactivity/10
 	return "[round(seconds / 60)] minute\s, [seconds % 60] second\s"
 
+// Byond seemingly calls stat, each tick.
+// Calling things each tick can get expensive real quick.
+// So we slow this down a little.
+// See: http://www.byond.com/docs/ref/info.html#/client/proc/Stat
+/client/Stat()
+	if(!usr)
+		return
+	// Add always-visible stat panel calls here, to define a consistent display order.
+	statpanel("Status")
+
+	. = ..()
+	stoplag(1)
+
 // send resources to the client. It's here in its own proc so we can move it around easiliy if need be
 /client/proc/send_resources()
 
@@ -418,6 +439,8 @@
 		'html/images/stamp_images/stamp-cargo.png',
 		'html/images/stamp_images/stamp-intaff.png',
 		'html/images/stamp_images/stamp-ward.png',
+		'html/images/stamp_images/stamp-ntd.png',
+		'html/images/stamp_images/stamp-merchant.png',
 		'html/search.js',
 		'html/panels.css',
 		'html/spacemag.css',
@@ -465,52 +488,24 @@
 	if(prefs)
 		prefs.open_setup_window(usr)
 
-/client/proc/check_panel_loaded()
-	if(stat_panel.is_ready())
+/client/verb/set_fps()
+	set name = "Set FPS"
+	set category = "OOC"
+
+	if(!prefs)
 		return
 
-	to_chat(src, SPAN_DANGER(FONT_HUGE("Statpanel failed to load, click <a href='?src=[ref(src)];reload_statbrowser=1'>here</a> to reload the panel.")))
+	var/version_message
+	if(byond_version < 511)
+		version_message = "\nYou need to be using byond version 511 or later to take advantage of this feature, your version of [byond_version] is too low"
+	if(world.byond_version < 511)
+		version_message += "\nThis server does not currently support client side fps. You can set now for when it does."
 
-/// Compiles a full list of verbs and sends it to the stat panel browser.
-/client/proc/init_verbs()
-	var/list/verblist = list()
-	var/list/verbstoprocess = verbs.Copy()
-
-	if(mob)
-		verbstoprocess += mob.verbs
-		for(var/atom/movable/thing as anything in mob.contents)
-			verbstoprocess += thing.verbs
-
-	panel_tabs.Cut() // panel_tabs get reset in init_verbs on JS side anyway
-
-	for(var/procpath/verb_to_init as anything in verbstoprocess)
-		if(!verb_to_init)
-			continue
-		if(verb_to_init.hidden)
-			continue
-		if(!istext(verb_to_init.category))
-			continue
-		panel_tabs |= verb_to_init.category
-		verblist[++verblist.len] = list(verb_to_init.category, verb_to_init.name)
-
-	stat_panel.send_message("init_verbs", list(panel_tabs = panel_tabs, verblist = verblist))
-
-/**
- * Handles incoming messages from the stat-panel TGUI.
- */
-/client/proc/on_stat_panel_message(type, list/payload, list/href_list)
-	switch(type)
-		if("Update-Verbs")
-			init_verbs()
-		if("Remove-Tabs")
-			panel_tabs -= payload["tab"]
-		if("Send-Tabs")
-			panel_tabs |= payload["tab"]
-		if("Reset-Tabs")
-			panel_tabs = list()
-		if("Set-Tab")
-			stat_tab = payload["tab"]
-			SSstatpanels.immediate_send_stat_data(src)
+	var/new_fps = input("Choose your desired fps.[version_message]\n(0 = default value ([config.general.client_fps]) < RECOMMENDED\n -1 = synced with server (currently:[world.fps]))", "Global Preference") as num|null
+	if(isnum(new_fps))
+		prefs.clientfps = Clamp(new_fps ? new_fps : config.general.client_fps, CLIENT_MIN_FPS, CLIENT_MAX_FPS)
+		apply_fps(prefs.clientfps)
+		SScharacter_setup.queue_preferences_save(prefs)
 
 /client/proc/apply_fps(client_fps)
 	if(world.byond_version >= 511 && byond_version >= 511 && client_fps >= CLIENT_MIN_FPS && client_fps <= CLIENT_MAX_FPS)
@@ -543,11 +538,11 @@
 
 		winset(src, "input_alt", "is-visible=true;is-disabled=false;is-default=true")
 		winset(src, "saybutton_alt", "is-visible=true;is-disabled=false;is-default=true")
-		winset(src, "hotkey_toggle_alt", "is-visible=true;is-disabled=false;is-default=true")
 
 		winset(src, "input", "is-visible=false;is-disabled=true;is-default=false")
 		winset(src, "saybutton", "is-visible=false;is-disabled=true;is-default=false")
-		winset(src, "hotkey_toggle", "is-visible=false;is-disabled=true;is-default=false")
+
+		winset(src, null, "default.Tab.command=\".winset \\\"input_alt.focus=true ? mapwindow.map.focus=true : input_alt.focus=true\\\"\"")
 
 	else if(alternate && new_position == GLOB.PREF_MODERN)
 		var/list/game_size = splittext(winget(src, "mainvsplit", "size"), "x")
@@ -565,11 +560,11 @@
 
 		winset(src, "input_alt", "is-visible=false;is-disabled=true;is-default=false")
 		winset(src, "saybutton_alt", "is-visible=false;is-disabled=true;is-default=false")
-		winset(src, "hotkey_toggle_alt", "is-visible=false;is-disabled=true;is-default=false")
 
 		winset(src, "input", "is-visible=true;is-disabled=false;is-default=true")
 		winset(src, "saybutton", "is-visible=true;is-disabled=false;is-default=true")
-		winset(src, "hotkey_toggle", "is-visible=true;is-disabled=false;is-default=true")
+
+		winset(src, null, "default.Tab.command=\".winset \\\"input.focus=true ? mapwindow.map.focus=true : input.focus=true\\\"\"")
 
 #undef VERTICAL_INPUT_MARGIN
 
@@ -688,20 +683,251 @@
 	 */
 	mob?.reload_fullscreen()
 
+/client/Click(atom/A, location, control, params)
+	if(!mouse_down_last_time) // No multiple clicks per physical click (used by the Precision Assist and guns' instant shooting)
+		return 0
+
+	if(mouse_click_last_time == world.time) // No multiple clicks during a single tick (prevents things like autoclickers)
+		return 0
+
+	mouse_down_last_time = 0
+	mouse_click_last_time = world.time
+
+	// See code/modules/admin/callproc/callproc.dm
+	if(holder && holder.callproc && holder.callproc.waiting_for_click)
+		if(alert("Do you want to select \the [A] as the [length(holder.callproc.arguments)+1]\th argument?",, "Yes", "No") == "Yes")
+			holder.callproc.arguments += A
+
+		holder.callproc.waiting_for_click = 0
+		verbs -= /client/proc/cancel_callproc_select
+		holder.callproc.do_args()
+	else
+		return ..()
+
 /client/MouseDrag(src_object, over_object, src_location, over_location, src_control, over_control, params)
 	. = ..()
-	var/mob/living/M = mob
-	if(istype(M))
+	if(isliving(mob))
+		var/mob/living/M = mob
 		M.OnMouseDrag(src_object, over_object, src_location, over_location, src_control, over_control, params)
 
 /client/MouseUp(object, location, control, params)
+	if(isliving(mob))
+		var/mob/living/M = mob
+		if(M.OnMouseUp(object, location, control, params))
+			mouse_down_atom = null
+			mouse_down_last_time = 0
+			return
+
 	. = ..()
-	var/mob/living/M = mob
-	if(istype(M))
-		M.OnMouseUp(object, location, control, params)
+
+	// We simulate a normal click if:
+	// A - We release the mouse button over the same object we pressed it over;
+	// B - We release the mouse button over another object during the "opportunity window";
+	// The troublesome thing is, BYOND normally calls a regular Click() AFTER MouseUp(), so
+	// we have to prevent it by forbidding multiple clicks during a single tick. On one hand, it's
+	// not even a bad thing, and might prevent things like autoclickers from working normally.
+	// On the other, it might break something unexpectedly. ~NoSieve
+	if(object == mouse_down_atom || (object != mouse_down_atom && mouse_down_last_time + mouse_click_opportunity_window >= world.time))
+		Click(object, location, control, params)
+
+	mouse_down_atom = null
 
 /client/MouseDown(object, location, control, params)
+	mouse_down_last_time = world.time
+
+	if(isliving(mob))
+		var/mob/living/M = mob
+		if(M.OnMouseDown(object, location, control, params))
+			mouse_down_atom = null
+			return
+
 	. = ..()
-	var/mob/living/M = mob
-	if(istype(M) && !M.in_throw_mode)
-		M.OnMouseDown(object, location, control, params)
+
+	mouse_down_atom = object
+
+/client/proc/get_luck_for_type(luck_type)
+	switch(luck_type)
+		if(LUCK_CHECK_GENERAL)
+			return luck_general
+
+		if(LUCK_CHECK_COMBAT)
+			return luck_combat
+
+		if(LUCK_CHECK_ENG)
+			return luck_eng
+
+		if(LUCK_CHECK_MED)
+			return luck_med
+
+		if(LUCK_CHECK_RND)
+			return luck_rnd
+
+/client/proc/load_luck()
+	if(!establish_db_connection())
+		error("Ban database connection failure.")
+		log_misc("Ban database connection failure.")
+		return
+
+	var/DBQuery/query = sql_query({"
+			SELECT
+				luck_level,
+				luck_type
+			FROM
+				erro_ban
+			WHERE
+				(ckey = $ckeytext)
+				AND
+				(
+					bantype = 'LUCK_PERMABAN'
+					OR
+					bantype = 'LUCK_TEMPBAN'
+				)
+				AND
+				isnull(unbanned)
+				[isnull(config.general.server_id) ? "" : " AND server_id = $server_id"]
+			"}, dbcon, list(ckeytext = src.ckey, server_id = config.general.server_id))
+
+	while(query.NextRow())
+		var/luck_level =  text2num(query.item[1])
+		var/luck_type = query.item[2]
+		switch(luck_type)
+			if(LUCK_CHECK_GENERAL)
+				luck_general =luck_level
+			if(LUCK_CHECK_COMBAT)
+				luck_combat = luck_level
+			if(LUCK_CHECK_ENG)
+				luck_eng = luck_level
+			if(LUCK_CHECK_MED)
+				luck_med = luck_level
+			if(LUCK_CHECK_RND)
+				luck_rnd = luck_level
+
+
+
+/client/proc/write_luck(lucktype, luck_level, duration=-1, admin, reason)
+	if(!establish_db_connection())
+		error("Ban database connection failure.")
+		log_misc("Ban database connection failure.")
+		return
+
+	var/datum/admins/admin_datum = admin
+	var/bantype = BANTYPE_PERMA_LUCKBAN
+	if(duration!=-1)
+		bantype = BANTYPE_TEMP_LUCKBAN
+
+	admin_datum.DB_ban_record(bantype,src.mob,duration,reason,null,TRUE,src.ckey,null,src.computer_id,luck_level,lucktype)
+	load_luck()
+
+/client/proc/update_luck()
+	if(!establish_db_connection())
+		error("Ban database connection failure.")
+		log_misc("Ban database connection failure.")
+		return
+
+	var/DBQuery/query = sql_query({"
+			SELECT
+				id,
+				duration,
+				rounds
+			FROM
+				erro_ban
+			WHERE
+				(ckey = $ckeytext)
+				AND
+				bantype = 'LUCK_TEMPBAN'
+				AND
+				isnull(unbanned)
+				[isnull(config.general.server_id) ? "" : " AND server_id = $server_id"]
+			"}, dbcon, list(ckeytext = src.ckey, server_id = config.general.server_id))
+
+	while(query.NextRow())
+		var/id = text2num(query.item[1])
+		var/duration = text2num(query.item[2])
+		var/isRounds = text2num(query.item[3])
+		if(!isRounds)
+			return
+		if(duration>1)
+			sql_query({"
+				UPDATE
+					erro_ban
+				SET
+					duration = $duration
+				WHERE
+					id = $id
+					AND
+					ckey = $ckeytext
+					AND
+					bantype = 'LUCK_TEMPBAN'
+					AND
+					isnull(unbanned)
+					[isnull(config.general.server_id) ? "" : " AND server_id = $server_id"]
+				"}, dbcon, list(id = id, duration = duration-1, ckeytext = src.ckey, server_id = config.general.server_id))
+		else
+			sql_query({"
+				UPDATE
+					erro_ban
+				SET
+					unbanned = 1,
+					unbanned_reason = 'Expired',
+					unbanned_datetime = Now()
+				WHERE
+					id = $id
+					AND
+					ckey = $ckeytext
+					AND
+					bantype = 'LUCK_TEMPBAN'
+					AND
+					isnull(unbanned)
+					[isnull(config.general.server_id) ? "" : " AND server_id = $server_id"]
+				"}, dbcon, list(id = id, ckeytext = src.ckey, server_id = config.general.server_id))
+
+/**
+ * Updates the keybinds for special keys
+ *
+ * Handles adding macros for the keys that need it
+ * And adding movement keys to the clients movement_keys list
+ * At the time of writing this, communication(OOC, Say, IC) require macros
+ * Arguments:
+ * * direct_prefs - the preference we're going to get keybinds from
+ */
+/client/proc/update_special_keybinds(datum/preferences/direct_prefs)
+	var/datum/preferences/D = prefs || direct_prefs
+	if(!D?.key_bindings)
+		return
+	movement_keys = list()
+	var/list/communication_hotkeys = list()
+	for(var/key in D.key_bindings)
+		for(var/kb_name in D.key_bindings[key])
+			switch(kb_name)
+				if("North")
+					movement_keys[key] = NORTH
+				if("East")
+					movement_keys[key] = EAST
+				if("West")
+					movement_keys[key] = WEST
+				if("South")
+					movement_keys[key] = SOUTH
+				if("admin_help")
+					communication_hotkeys += key
+					winset(src, "default-\ref[key]", "parent=default;name=[key];command=adminhelp")
+				if("OOC")
+					communication_hotkeys += key
+					winset(src, "default-\ref[key]", "parent=default;name=[key];command=ooc")
+
+	// winget() does not work for F1 and F2
+	for(var/key in communication_hotkeys)
+		if(!(key in list("F1","F2")) && !winget(src, "default-\ref[key]", "command"))
+			to_chat(src, "You probably entered the game with a different keyboard layout.\n<a href='?src=\ref[src];reset_macros=1'>Please switch to the English layout and click here to fix the communication hotkeys.</a>")
+			break
+
+/client/verb/fix_rightclick()
+	set name = "Fix Rightclick"
+	set desc = "Use if your RMB is stuck in the clicking mode."
+	set category = "OOC"
+
+	if(ishuman(mob))
+		var/mob/living/carbon/human/H = mob
+		H.toggle_twohanded_mode(FALSE, TRUE)
+	else
+		winset(src, "mapwindow.rightclickblocker", "is-visible=false")
+		winset(src, "mapwindow.map", "right-click=false")

@@ -13,6 +13,7 @@
 	obj_flags = OBJ_FLAG_ANCHOR_BLOCKS_ROTATION
 	req_access = list(access_engine_equip)
 	rad_resist_type = /datum/rad_resist/none
+	pull_slowdown = PULL_SLOWDOWN_HEAVY // The barrel must be made of the immovable rod if it withstands so that much
 
 	var/id = null
 
@@ -98,6 +99,12 @@
 /obj/machinery/power/emitter/emp_act(severity)
 	return 1
 
+/obj/machinery/power/emitter/proc/toggle_lock(mob/user)
+	if(emagged) // For cases when we are doing it remotely
+		return
+	locked = !locked
+	to_chat(user, "The controls are now [locked ? "locked." : "unlocked."]")
+
 /obj/machinery/power/emitter/Process()
 	if(stat & (BROKEN))
 		return
@@ -181,7 +188,7 @@
 				user.visible_message("[user.name] starts to weld [src] to the floor.", \
 						"You start to weld [src] to the floor.", \
 						"You hear welding")
-				if(WT.use_tool(src, user, delay = 2 SECONDS, amount = 1))
+				if(WT.use_tool(src, user, delay = 2 SECONDS, amount = 10))
 					if(QDELETED(src) || !user)
 						return
 
@@ -192,7 +199,7 @@
 				user.visible_message("[user.name] starts to cut [src] free from the floor.", \
 						"You start to cut [src] free from the floor.", \
 						"You hear welding")
-				if(WT.use_tool(src, user, delay = 2 SECONDS, amount = 1))
+				if(WT.use_tool(src, user, delay = 2 SECONDS, amount = 10))
 					if(QDELETED(src) || !user)
 						return
 
@@ -201,13 +208,12 @@
 					disconnect_from_network()
 		return
 
-	if(istype(W, /obj/item/card/id) || istype(W, /obj/item/device/pda))
+	if(W?.get_id_card())
 		if(emagged)
 			to_chat(user, "<span class='warning'>The lock seems to be broken.</span>")
 			return
-		if(allowed(user))
-			locked = !locked
-			to_chat(user, "The controls are now [locked ? "locked." : "unlocked."]")
+		if(check_access(W))
+			toggle_lock(user)
 		else
 			to_chat(user, "<span class='warning'>Access denied.</span>")
 		return

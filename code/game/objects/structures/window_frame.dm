@@ -199,6 +199,8 @@
 		/mob/living/bot,
 		/mob/living/carbon/metroid,
 		/mob/living/simple_animal/mouse,
+		/mob/living/simple_animal/lizard,
+		/mob/living/simple_animal/hamster,
 		/mob/living/silicon/robot/drone
 		)
 
@@ -219,6 +221,11 @@
 	explosion_block = EXPLOSION_BLOCK_PROC
 	update_nearby_tiles(need_rebuild = TRUE)
 	update_nearby_icons()
+	add_debris_element()
+
+/obj/structure/window_frame/add_debris_element()
+	AddElement(/datum/element/debris, DEBRIS_GLASS, -10, 5)
+
 
 /obj/structure/window_frame/GetExplosionBlock()
 	. += outer_pane?.explosion_block
@@ -567,7 +574,7 @@
 		if(W.item_flags & ITEM_FLAG_NO_BLUDGEON)
 			return
 
-		user.setClickCooldown(W.update_attack_cooldown())
+		W.set_cooldown()
 		user.do_attack_animation(src)
 		if(affected)
 			if((W.damtype == BRUTE || W.damtype == BURN) && W.force >= 3)
@@ -613,7 +620,7 @@
 				to_chat(user, SPAN("warning", "\The [WINDOW] interferes with your attempts to place a windowpane."))
 				return
 			to_chat(user, SPAN("notice", "You start placing the [is_inner ? "inner " : ""]windowpane into \the [src]."))
-			if(do_after(user, 20, src))
+			if(do_after(user, 20, src, luck_check_type = LUCK_CHECK_ENG))
 				for(var/obj/structure/window/WINDOW in loc) // checking this for a 2nd time to check if a window was made while we were waiting.
 					to_chat(user, SPAN("warning", "\The [WINDOW] interferes with your attempts to place a windowpane."))
 					return
@@ -646,7 +653,7 @@
 		var/old_state = affected.state
 		if(isScrewdriver(W) && affected.state >= 1)
 			to_chat(user, (affected.state == 1 ? SPAN("notice", "You begin fastening \the [affected.name] to the frame.") : SPAN("notice", "You begin unfastening \the [affected.name] from the frame.")))
-			if(!do_after(user, 10, src))
+			if(!do_after(user, 10, src, luck_check_type = LUCK_CHECK_ENG))
 				return
 			if(QDELETED(affected) || affected.state != old_state)
 				return
@@ -658,7 +665,7 @@
 
 		if(isCrowbar(W) && affected.state <= 1)
 			to_chat(user, (affected.state == 0 ? SPAN("notice", "You begin prying \the [affected.name] into the frame.") : SPAN("notice", "You begin prying \the [affected.name] out of the frame.")))
-			if(!do_after(user, 10, src))
+			if(!do_after(user, 10, src, luck_check_type = LUCK_CHECK_ENG))
 				return
 			if(QDELETED(affected) || affected.state != old_state)
 				return
@@ -670,7 +677,7 @@
 
 		if(isWrench(W) && affected.state == 0)
 			to_chat(user, SPAN("notice", "You begin dismantling \the [affected.name] from \the [src]."))
-			if(!do_after(user, 15, src))
+			if(!do_after(user, 15, src, luck_check_type = LUCK_CHECK_ENG))
 				return
 			if(QDELETED(affected) || affected.state != old_state)
 				return
@@ -720,7 +727,7 @@
 			if(FRAME_NORMAL)
 				to_chat(user, SPAN("notice", "You begin reinforcing the frame."))
 				add_fingerprint(user)
-				if(!do_after(user, 10, src))
+				if(!do_after(user, 10, src, luck_check_type = LUCK_CHECK_ENG))
 					return
 				if(frame_state != FRAME_NORMAL)
 					return
@@ -732,7 +739,7 @@
 			if(FRAME_REINFORCED)
 				to_chat(user, SPAN("notice", "You begin constructing a grille."))
 				add_fingerprint(user)
-				if(!do_after(user, 10, src))
+				if(!do_after(user, 10, src, luck_check_type = LUCK_CHECK_ENG))
 					return
 				if(frame_state != FRAME_REINFORCED)
 					return
@@ -749,7 +756,7 @@
 			var/old_state = frame_state
 			to_chat(user, SPAN("notice", "You begin wiring \the [src]."))
 			add_fingerprint(user)
-			if(!do_after(user, 20, src))
+			if(!do_after(user, 20, src, luck_check_type = LUCK_CHECK_ENG))
 				return
 			if(frame_state != old_state)
 				return
@@ -850,8 +857,8 @@
 
 	return FALSE
 
-/obj/structure/window_frame/hitby(atom/movable/AM, speed, nomsg)
-	..(AM, speed, TRUE)
+/obj/structure/window_frame/hitby(atom/movable/AM, datum/thrownthing/TT, nomsg = TRUE)
+	..()
 	var/tforce = 0
 	if(ismob(AM)) // All mobs have a multiplier and a size according to mob_defines.dm
 		var/mob/I = AM
@@ -950,6 +957,19 @@
 		health -= damage
 		healthcheck()
 
+/obj/structure/window_frame/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
+	if(the_rcd.mode == RCD_DECONSTRUCT)
+		return list("delay" = 2 SECONDS, "cost" = 5)
+
+	return FALSE
+
+/obj/structure/window_frame/rcd_act(mob/user, obj/item/construction/rcd/the_rcd, list/rcd_data)
+	if(rcd_data["[RCD_DESIGN_MODE]"] == RCD_DECONSTRUCT)
+		qdel_self()
+		return TRUE
+
+	return FALSE
+
 /obj/structure/window_frame/proc/toggle_tint()
 	if(frame_state != FRAME_ELECTRIC && frame_state != FRAME_RELECTRIC)
 		return
@@ -1019,6 +1039,12 @@
 	pane_melee_mult = 0.9
 
 	rad_resist_type = /datum/rad_resist/none
+
+/obj/structure/window_frame/reinforced/rcd_vals(mob/user, obj/item/construction/rcd/the_rcd)
+	if(the_rcd.mode == RCD_DECONSTRUCT)
+		return list("delay" = 3 SECONDS, "cost" = 10)
+
+	return FALSE
 
 // Pretty much the same as the old grille, but smarter.
 /obj/structure/window_frame/grille
@@ -1278,6 +1304,7 @@
 	return
 
 /obj/structure/window_frame/indestructible/hitby()
+	SHOULD_CALL_PARENT(FALSE)
 	return
 
 

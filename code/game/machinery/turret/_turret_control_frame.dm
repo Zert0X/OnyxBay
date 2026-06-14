@@ -82,7 +82,7 @@
 			if(isWelder(I))
 				var/obj/item/weldingtool/WT = I
 
-				if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 5))
+				if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 50))
 					return FALSE
 
 				if(QDELETED(src) || !user)
@@ -121,6 +121,7 @@
 
 /obj/item/circuitboard/turret_control_panel
 	name = "circuitboard (sentry turret)"
+	icon_state = "id_mod_red"
 	board_type = "machine"
 	origin_tech = list(TECH_DATA = 4, TECH_ENGINEERING = 4)
 

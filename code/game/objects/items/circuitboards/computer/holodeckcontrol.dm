@@ -4,6 +4,7 @@
 
 /obj/item/circuitboard/holodeckcontrol
 	name = T_BOARD("holodeck control console")
+	icon_state = "id_mod_yellow"
 	build_path = /obj/machinery/computer/holodeck
 	origin_tech = list(TECH_DATA = 2, TECH_BLUESPACE = 2)
 

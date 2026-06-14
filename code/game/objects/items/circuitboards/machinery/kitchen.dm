@@ -4,6 +4,7 @@
 
 /obj/item/circuitboard/gibber
 	name = T_BOARD("Gibber")
+	icon_state = "id_mod_yellow"
 	board_type = "machine"
 	req_components = list(
 		/obj/item/stock_parts/micro_laser = 1,
@@ -14,6 +15,7 @@
 
 /obj/item/circuitboard/industrial_gibber
 	name = T_BOARD("Industrial Gibber")
+	icon_state = "id_mod_purple"
 	board_type = "machine"
 	req_components = list(
 		/obj/item/stock_parts/micro_laser = 1,
@@ -25,6 +27,7 @@
 
 /obj/item/circuitboard/coffeemaker
 	name = T_BOARD("Coffeemaker")
+	icon_state = "id_mod_yellow"
 	board_type = "machine"
 	build_path = /obj/machinery/coffeemaker
 	origin_tech = list(TECH_ENGINEERING = 2, TECH_POWER = 1)

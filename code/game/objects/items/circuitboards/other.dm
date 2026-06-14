@@ -6,5 +6,6 @@
 
 /obj/item/circuitboard/aicore
 	name = T_BOARD("AI core")
+	icon_state = "id_mod_blue"
 	origin_tech = list(TECH_DATA = 4, TECH_BIO = 2)
 	board_type = "other"

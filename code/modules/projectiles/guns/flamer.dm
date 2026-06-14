@@ -30,6 +30,7 @@
 	var/last_fired = 0
 	fire_delay = 35
 	has_safety = FALSE
+	space_recoil = TRUE
 
 /obj/item/gun/flamer/Destroy()
 	QDEL_NULL(fuel_tank)
@@ -52,7 +53,7 @@
 
 	if(gauge)
 		if(fuel_tank)
-			. += "The fuel tank contains [round(get_fuel())]/[fuel_tank.max_fuel] units of fuel."
+			. += "The fuel tank contains [round(get_fuel())]/[fuel_tank.max_fuel] ml of fuel."
 		else
 			. += SPAN_WARNING("There's no fuel tank in [src]!")
 
@@ -94,7 +95,7 @@
 	remove_fuel_tank(usr)
 
 /obj/item/gun/flamer/attack_hand(mob/user)
-	if(user.get_inactive_hand() == src)
+	if(user.has_in_hands(src))
 		remove_fuel_tank(user)
 		return
 	. = ..()

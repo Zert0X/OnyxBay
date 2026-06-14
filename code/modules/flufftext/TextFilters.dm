@@ -203,3 +203,40 @@ english_only - whether to use traditional english letters only (for use in NanoU
 				letter = "Ф"
 		new_phrase += letter
 	return html_encode(new_phrase)
+
+// Mostly caused by tongue bruising, combines weakened lisping and burring.
+/proc/bruisedspeech(phrase)
+	phrase = html_decode(phrase)
+	var/list/hissing = list("ж", "ч", "ш", "щ")
+	var/new_phrase = ""
+	for(var/i = 1, i <= length_char(phrase), i++)
+		var/letter = copytext_char(phrase, i, i + 1)
+		if(prob(50))
+			new_phrase += letter
+			continue
+		if(letter == "р")
+			letter = pick("л", "pл", "'л", "p'л")
+		else if(letter == "Р")
+			letter = pick("Л", "Pл", "'Л", "P'л")
+		else if(lowertext(letter) in hissing)
+			if(lowertext(letter) == letter)
+				letter = "ф"
+			else
+				letter = "Ф"
+		new_phrase += letter
+	return html_encode(new_phrase)
+
+// Mostly caused by missing/broken tongues. Removes most consonants.
+/proc/mutespeech(phrase, severity = 100)
+	phrase = html_decode(phrase)
+	var/list/consonants = list(
+		"б", "в", "г", "д", "ж", "з", "й", "к", "л", "м", "н", "п", "р", "с", "т", "ф", "х", "ц", "ч", "ш", "щ",
+		"b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "x", "z", "w", "y"
+		)
+	var/new_phrase = ""
+	for(var/i = 1, i <= length_char(phrase), i++)
+		var/letter = copytext_char(phrase, i, i + 1)
+		if(prob(severity) && (lowertext(letter) in consonants))
+			continue
+		new_phrase += letter
+	return html_encode(new_phrase)

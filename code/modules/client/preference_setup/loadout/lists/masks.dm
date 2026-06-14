@@ -9,7 +9,7 @@
 	cost = 2
 
 /datum/gear/mask/scarf
-	display_name ="neck scarf"
+	display_name = "neck scarf"
 	path = /obj/item/clothing/mask/bluescarf
 
 /datum/gear/mask/scarf/New()
@@ -24,6 +24,23 @@
 	scarfs["stripped green scarf"] = /obj/item/clothing/mask/sgreenscarf
 	scarfs["stipped red scarf"] = /obj/item/clothing/mask/sredscarf
 	gear_tweaks += new /datum/gear_tweak/path(scarfs)
+
+/datum/gear/mask/scarf_color
+	display_name = "scarf, colour select"
+	path = /obj/item/clothing/mask/scarf_c
+	flags = GEAR_HAS_COLOR_SELECTION
+
+/datum/gear/mask/scarf_color/New()
+	..()
+	var/scarf_colorable = list()
+	scarf_colorable += /obj/item/clothing/mask/scarf_c
+	scarf_colorable += /obj/item/clothing/mask/scarf_c/neck
+	scarf_colorable += /obj/item/clothing/mask/scarf_c/soft
+	scarf_colorable += /obj/item/clothing/mask/scarf_c/thick
+	scarf_colorable += /obj/item/clothing/mask/scarf_c/torn
+	scarf_colorable += /obj/item/clothing/mask/scarf_c/smock
+	scarf_colorable += /obj/item/clothing/mask/scarf_c/neckerchief
+	gear_tweaks += new /datum/gear_tweak/path/specified_types_list(scarf_colorable)
 
 //
 // Donator's shop

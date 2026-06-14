@@ -33,7 +33,7 @@
 
 /obj/machinery/microwave/Initialize()
 	. = ..()
-	create_reagents(100)
+	create_reagents(1 LITER)
 	if (!available_recipes)
 		available_recipes = new
 		for (var/type in (typesof(/datum/recipe)-/datum/recipe))
@@ -65,7 +65,7 @@
 				SPAN("notice", "\The [user] starts to fix part of the microwave."), \
 				SPAN("notice", "You start to fix part of the microwave.") \
 			)
-			if (do_after(user, 20, src))
+			if (do_after(user, 20, src, luck_check_type = LUCK_CHECK_ENG))
 				user.visible_message( \
 					SPAN("notice", "\The [user] fixes part of the microwave."), \
 					SPAN("notice", "You have fixed part of the microwave.") \
@@ -76,7 +76,7 @@
 				SPAN("notice", "\The [user] starts to fix part of the microwave."), \
 				SPAN("notice", "You start to fix part of the microwave.") \
 			)
-			if (do_after(user, 20, src))
+			if (do_after(user, 20, src, luck_check_type = LUCK_CHECK_ENG))
 				user.visible_message( \
 					SPAN("notice", "\The [user] fixes the microwave."), \
 					SPAN("notice", "You have fixed the microwave.") \
@@ -94,7 +94,7 @@
 				SPAN("notice", "\The [user] starts to clean the microwave."), \
 				SPAN("notice", "You start to clean the microwave.") \
 			)
-			if (do_after(user, 20, src))
+			if (do_after(user, 20, src, luck_check_type = LUCK_CHECK_ENG))
 				user.visible_message( \
 					SPAN("notice", "\The [user] has cleaned the microwave."), \
 					SPAN("notice", "You have cleaned the microwave.") \
@@ -119,7 +119,7 @@
 			SPAN("notice", "\The [user] begins [src.anchored ? "unsecuring" : "securing"] the microwave."), \
 			SPAN("notice", "You attempt to [src.anchored ? "unsecure" : "secure"] the microwave.")
 			)
-		if(do_after(user,20, src))
+		if(do_after(user,20, src, luck_check_type = LUCK_CHECK_ENG))
 			src.anchored = !src.anchored
 			user.visible_message( \
 			SPAN("notice", "\The [user] [src.anchored ? "secures" : "unsecures"] the microwave."), \
@@ -238,7 +238,7 @@
 				display_name = "Hotsauce"
 			if(R.type == /datum/reagent/frostoil)
 				display_name = "Coldsauce"
-			dat += "<B>[display_name]:</B> [R.volume] unit\s"
+			dat += "<B>[display_name]:</B> [R.volume] ml"
 
 		if(!length(items_counts) && !length(reagents.reagent_list))
 			dat += "<B>The microwave is empty</B>"
@@ -265,9 +265,9 @@
 		stop()
 		return
 
-	var/datum/recipe/recipe = select_recipe(available_recipes,src)
-	var/obj/cooked
-	if (!recipe)
+	var/list/recipe_data = select_recipe(available_recipes, src)
+	var/list/cooked
+	if(!islist(recipe_data))
 		dirty += 1
 		if (prob(max(10, dirty * 5)))
 			if (!wzhzhzh(4))
@@ -277,7 +277,8 @@
 			wzhzhzh(4)
 			muck_finish()
 			cooked = fail()
-			cooked.dropInto(loc)
+			for(var/obj/item/I in cooked)
+				I.dropInto(loc)
 			return
 		else if (has_extra_item())
 			if (!wzhzhzh(4))
@@ -285,7 +286,8 @@
 				return
 			broke()
 			cooked = fail()
-			cooked.dropInto(loc)
+			for(var/obj/item/I in cooked)
+				I.dropInto(loc)
 			return
 		else
 			if (!wzhzhzh(10))
@@ -293,9 +295,11 @@
 				return
 			stop()
 			cooked = fail()
-			cooked.dropInto(loc)
+			for(var/obj/item/I in cooked)
+				I.dropInto(loc)
 			return
 	else
+		var/datum/recipe/recipe = recipe_data[1]
 		var/halftime = round(recipe.time / 20)
 		if (!wzhzhzh(halftime))
 			abort()
@@ -303,12 +307,14 @@
 		if (!wzhzhzh(halftime))
 			abort()
 			cooked = fail()
-			cooked.dropInto(loc)
+			for(var/obj/item/I in cooked)
+				I.dropInto(loc)
 			return
-		cooked = recipe.make_food(src)
+		cooked = recipe.make_food(src, recipe_data[2])
 		stop()
 		if(cooked)
-			cooked.dropInto(loc)
+			for(var/obj/item/I in cooked)
+				I.dropInto(loc)
 		return
 
 /obj/machinery/microwave/proc/wzhzhzh(seconds as num) // Whoever named this proc is fucking literally Satan. ~ Z
@@ -396,8 +402,8 @@
 	src.reagents.clear_reagents()
 	var/obj/item/reagent_containers/food/badrecipe/ffuu = new(src)
 	ffuu.reagents.add_reagent(/datum/reagent/carbon, amount)
-	ffuu.reagents.add_reagent(/datum/reagent/toxin, amount/10)
-	return ffuu
+	ffuu.reagents.add_reagent(/datum/reagent/toxin, amount / 100)
+	return list(ffuu)
 
 /obj/machinery/microwave/Topic(href, href_list)
 	if(..())

@@ -88,7 +88,7 @@ var/bomb_set
 				if(isWelder(O))
 					var/obj/item/weldingtool/WT = O
 					user.visible_message("[user] starts cutting loose the anchoring bolt covers on [src].", "You start cutting loose the anchoring bolt covers with [O]...")
-					if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 5))
+					if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 50))
 						return FALSE
 
 					if(QDELETED(src) || !user )
@@ -102,7 +102,7 @@ var/bomb_set
 				if(isCrowbar(O))
 					user.visible_message("[user] starts forcing open the bolt covers on [src].", "You start forcing open the anchoring bolt covers with [O]...")
 
-					if(do_after(user, 15, src))
+					if(do_after(user, 15, src, luck_check_type = LUCK_CHECK_ENG) && !QDELETED(src))
 						if(!src || !user) return
 						user.visible_message("\The [user] forces open the bolt covers on \the [src].", "You force open the bolt covers.")
 						removal_stage = 2
@@ -112,7 +112,7 @@ var/bomb_set
 				if(isWelder(O))
 					var/obj/item/weldingtool/WT = O
 					user.visible_message("[user] starts cutting apart the anchoring system sealant on [src].", "You start cutting apart the anchoring system's sealant with [O]...")
-					if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 5))
+					if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 50))
 						return FALSE
 
 					if(QDELETED(src) || !user)
@@ -125,7 +125,7 @@ var/bomb_set
 			if(3)
 				if(isWrench(O))
 					user.visible_message("[user] begins unwrenching the anchoring bolts on [src].", "You begin unwrenching the anchoring bolts...")
-					if(do_after(user, 50, src))
+					if(do_after(user, 50, src, luck_check_type = LUCK_CHECK_ENG) && !QDELETED(src))
 						if(!src || !user) return
 						user.visible_message("[user] unwrenches the anchoring bolts on [src].", "You unwrench the anchoring bolts.")
 						removal_stage = 4
@@ -134,7 +134,7 @@ var/bomb_set
 			if(4)
 				if(isCrowbar(O))
 					user.visible_message("[user] begins lifting [src] off of the anchors.", "You begin lifting the device off the anchors...")
-					if(do_after(user, 80, src))
+					if(do_after(user, 80, src, luck_check_type = LUCK_CHECK_ENG) && !QDELETED(src))
 						if(!src || !user) return
 						user.visible_message("\The [user] crowbars \the [src] off of the anchors. It can now be moved.", "You jam the crowbar under the nuclear device and lift it off its anchors. You can now move it!")
 						anchored = 0
@@ -468,7 +468,10 @@ var/bomb_set
 
 	var/announced = 0
 	var/time_to_explosion = 0
-	var/self_destruct_cutoff = 60 //Seconds
+	var/self_destruct_cutoff = 60 SECONDS
+	var/countdown_sound = 'sound/machines/nuke_countdown.ogg'
+	var/countdown_volume = 50
+	var/countdown_channel = SOUND_CHANNEL_NUKE
 
 /obj/machinery/nuclearbomb/station/Initialize()
 	. = ..()
@@ -510,6 +513,7 @@ var/bomb_set
 
 /obj/machinery/nuclearbomb/station/start_bomb()
 	visible_message(SPAN("warning", "Warning! The self-destruct sequence override will be disabled [self_destruct_cutoff] seconds before detonation."))
+	play_countdown_sound(sound(countdown_sound, repeat = 1, wait = 0, volume = countdown_volume, channel = countdown_channel))
 	return ..()
 
 /obj/machinery/nuclearbomb/station/check_cutoff()
@@ -519,6 +523,7 @@ var/bomb_set
 	..()
 
 /obj/machinery/nuclearbomb/station/Destroy()
+	play_countdown_sound(sound(null, channel = countdown_channel))
 	flash_tiles.Cut()
 	return ..()
 
@@ -549,6 +554,18 @@ var/bomb_set
 /obj/machinery/nuclearbomb/station/secure_device()
 	..()
 	announced = 0
+	play_countdown_sound(sound(null, channel = countdown_channel))
+
+/obj/machinery/nuclearbomb/station/explode()
+	play_countdown_sound(sound(null, channel = countdown_channel))
+	..()
+
+/obj/machinery/nuclearbomb/station/proc/play_countdown_sound(sound/S)
+	var/list/station_z = GLOB.using_map.get_levels_with_trait(ZTRAIT_STATION)
+	for(var/mob/M in GLOB.player_list)
+		var/turf/T = get_turf(M)
+		if(T && (T.z in station_z) && !istype(M, /mob/new_player) && !isdeaf(M))
+			sound_to(M, S)
 
 /obj/machinery/nuclearbomb/station/on_update_icon()
 	var/target_icon_state

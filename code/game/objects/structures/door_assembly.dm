@@ -81,11 +81,17 @@
 	glass_type = "/glass_external"
 	airlock_type = "/external"
 
+/obj/structure/door_assembly/door_assembly_civil
+	base_icon_state = "int"
+	base_name = "Airlock"
+	glass_type = "/glass_civil"
+	airlock_type = ""
+
 /obj/structure/door_assembly/door_assembly_mai
 	base_icon_state = "mai"
 	base_name = "Maintenance Airlock"
+	glass_type = "/glass_maintenance"
 	airlock_type = "/maintenance"
-	glass = -1
 
 /obj/structure/door_assembly/door_assembly_fre
 	base_icon_state = "fre"
@@ -163,7 +169,7 @@
 			user.visible_message("[user] dissassembles the airlock assembly.", "You start to dissassemble the airlock assembly.")
 
 
-		if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 5))
+		if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 50))
 			return
 
 		if(QDELETED(src) || !user)
@@ -191,7 +197,7 @@
 		else
 			user.visible_message("[user] begins securing the airlock assembly to the floor.", "You starts securing the airlock assembly to the floor.")
 
-		if(do_after(user, 40,src))
+		if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 			if(!src) return
 			to_chat(user, "<span class='notice'>You [anchored? "un" : ""]secured the airlock assembly!</span>")
 			anchored = !anchored
@@ -212,7 +218,7 @@
 		playsound(src.loc, 'sound/items/Wirecutter.ogg', 100, 1)
 		user.visible_message("[user] cuts the wires from the airlock assembly.", "You start to cut the wires from airlock assembly.")
 
-		if(do_after(user, 40,src))
+		if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 			if(!src) return
 			to_chat(user, "<span class='notice'>You cut the airlock wires.!</span>")
 			new /obj/item/stack/cable_coil(src.loc, 1)
@@ -223,7 +229,7 @@
 		playsound(src.loc, 'sound/items/Screwdriver.ogg', 100, 1)
 		user.visible_message("[user] installs the electronics into the airlock assembly.", "You start to install electronics into the airlock assembly.")
 
-		if(do_after(user, 40, src))
+		if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 			if(!src)
 				return
 			if(!user.drop(W, src))
@@ -244,7 +250,7 @@
 		playsound(src.loc, 'sound/items/Crowbar.ogg', 100, 1)
 		user.visible_message("\The [user] starts removing the electronics from the airlock assembly.", "You start removing the electronics from the airlock assembly.")
 
-		if(do_after(user, 40,src))
+		if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 			if(!src) return
 			to_chat(user, "<span class='notice'>You removed the airlock electronics!</span>")
 			src.state = 1
@@ -261,7 +267,7 @@
 				if(material_name == MATERIAL_REINFORCED_GLASS)
 					playsound(src.loc, 'sound/items/Crowbar.ogg', 100, 1)
 					user.visible_message("[user] adds [S.name] to the airlock assembly.", "You start to install [S.name] into the airlock assembly.")
-					if(do_after(user, 40,src) && !glass)
+					if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG) && !glass)
 						if (S.use(1))
 							to_chat(user, "<span class='notice'>You installed reinforced glass windows into the airlock assembly.</span>")
 							glass = 1
@@ -273,7 +279,7 @@
 					if(S.get_amount() >= 2)
 						playsound(src.loc, 'sound/items/Crowbar.ogg', 100, 1)
 						user.visible_message("[user] adds [S.name] to the airlock assembly.", "You start to install [S.name] into the airlock assembly.")
-						if(do_after(user, 40,src) && !glass)
+						if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG) && !glass)
 							if (S.use(2))
 								to_chat(user, "<span class='notice'>You installed [material_display_name(material_name)] plating into the airlock assembly.</span>")
 								glass = material_name
@@ -282,7 +288,7 @@
 		playsound(src.loc, 'sound/items/Screwdriver.ogg', 100, 1)
 		to_chat(user, "<span class='notice'>Now finishing the airlock.</span>")
 
-		if(do_after(user, 40,src))
+		if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 			if(QDELETED(src))
 				return
 

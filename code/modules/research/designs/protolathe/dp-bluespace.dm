@@ -39,7 +39,7 @@
 
 /datum/design/item/bluespace/bluespace_shaker
 	name = "Bluespace Shaker"
-	desc = "A newly-developed high-capacity shaker, powered by experimental bluespace technology. Can hold up to 360 units."
+	desc = "A newly-developed high-capacity shaker, powered by experimental bluespace technology. Can hold up to 1.5 L."
 	id = "bluespaceshaker"
 	req_tech = list(TECH_BLUESPACE = 4, TECH_MATERIAL = 6)
 	materials = list(MATERIAL_DIAMOND = 250, MATERIAL_STEEL = 5000, MATERIAL_GLASS = 500, MATERIAL_URANIUM = 200)

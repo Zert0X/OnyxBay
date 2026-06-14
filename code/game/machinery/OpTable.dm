@@ -8,6 +8,7 @@
 
 	density = 1
 	anchored = 1.0
+	turf_height_offset = 2
 	idle_power_usage = 1 WATTS
 	active_power_usage = 5 WATTS
 	var/strapped = 0.0
@@ -119,10 +120,13 @@
 	return FALSE
 
 /obj/machinery/optable/MouseDrop_T(obj/O, mob/user)
-	if((!istype(O, /obj/item) || user.get_active_hand() != O) || !user.drop(O))
+	if((!istype(O, /obj/item) || !user.has_in_hands(O)) || !user.drop(O))
 		return
 
 	if(O.loc != loc)
+		if(!Adjacent(O))
+			to_chat(user, SPAN("warning", "\The [O] is too far away."))
+			return
 		step(O, get_dir(O, src))
 
 /obj/machinery/optable/verb/remove_clothes()
@@ -157,7 +161,8 @@
 	busy = TRUE
 	usr.visible_message(SPAN_DANGER("[usr] begins to undress [patient] on the table with the built-in tool."),
 						SPAN_NOTICE("You begin to undress [patient] on the table with the built-in tool."))
-	if(do_after(usr, time_to_strip, patient))
+	playsound(loc, 'sound/machines/surg_table_undress.ogg', 50, 1)
+	if(do_after(usr, time_to_strip, patient, luck_check_type = LUCK_CHECK_MED) && !QDELETED(src))
 		if(!patient)
 			busy = FALSE
 			return
@@ -173,7 +178,11 @@
 
 	busy = FALSE
 
-/obj/machinery/optable/proc/take_victim_ref(mob/living/carbon/C, mob/living/carbon/user as mob)
+/obj/machinery/optable/proc/take_victim_ref(mob/living/carbon/C, mob/living/carbon/user)
+	if(!Adjacent(C))
+		to_chat(user, SPAN("warning", "\The [C] is too far away."))
+		return FALSE
+
 	if(C == user)
 		user.visible_message("[user] climbs on \the [src].","You climb on \the [src].")
 	else
@@ -183,13 +192,19 @@
 		C.client.perspective = EYE_PERSPECTIVE
 		C.client.eye = src
 
-	C.resting = TRUE
+	C.set_resting(TRUE)
 	C.dropInto(loc)
+	C.set_dir(SOUTH)
 	add_fingerprint(user)
 
 	if(ishuman(C))
 		victim_ref = weakref(C)
 		START_PROCESSING(SSmachines, src)
+
+	if(C.pulledby)
+		C.pulledby.stop_pulling()
+
+	return TRUE
 
 /obj/machinery/optable/MouseDrop_T(mob/target, mob/user)
 	var/mob/living/M = user
@@ -220,8 +235,8 @@
 	if(istype(W, /obj/item/grab))
 		var/obj/item/grab/G = W
 		if(iscarbon(G.affecting) && check_table(G.affecting))
-			take_victim_ref(G.affecting, usr)
-			qdel(W)
+			if(take_victim_ref(G.affecting, usr))
+				qdel(W)
 
 /obj/machinery/optable/proc/check_table(mob/living/carbon/patient)
 	var/mob/living/carbon/human/occupant = victim_ref?.resolve()

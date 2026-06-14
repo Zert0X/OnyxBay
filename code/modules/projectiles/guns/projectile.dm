@@ -11,8 +11,10 @@
 	origin_tech = list(TECH_COMBAT = 2, TECH_MATERIAL = 2)
 	w_class = ITEM_SIZE_NORMAL
 	matter = list(MATERIAL_STEEL = 1000)
-	screen_shake = 1
-	combustion = 1
+	screen_shake = TRUE
+	combustion = TRUE
+	has_smoke_particles = TRUE
+	space_recoil = TRUE
 
 	var/caliber = "357"		//determines which casings will fit
 	var/handle_casings = EJECT_CASINGS	//determines how spent casings should be handled
@@ -183,7 +185,7 @@
 /obj/item/gun/projectile/proc/unload_ammo(atom/movable/unloader, allow_dump = TRUE, dump_loc = null)
 	if(is_jammed)
 		unloader.visible_message("<b>[unloader]</b> begins to unjam [src].", "You clear the jam and unload [src]")
-		if(!do_after(unloader, 4, src))
+		if(!do_after(unloader, 4, src, luck_check_type = LUCK_CHECK_COMBAT))
 			return
 
 		is_jammed = 0
@@ -244,7 +246,7 @@
 		unload_ammo(user)
 
 /obj/item/gun/projectile/attack_hand(mob/user as mob)
-	if(user.get_inactive_hand() == src)
+	if(user.has_in_passive_hand(src))
 		unload_ammo(user, allow_dump=0)
 	else
 		return ..()

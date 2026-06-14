@@ -72,4 +72,4 @@
 		if(ismanipulator(P))
 			man_rating += P.rating
 			time -= 2 * man_rating
-			a_honey = 0.1 * man_rating
+			a_honey = 0.15 * man_rating

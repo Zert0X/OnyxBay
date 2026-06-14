@@ -32,6 +32,14 @@
 	allowed_roles = ARMED_ROLES
 	cost = 1
 
+/datum/gear/security/gloves
+	display_name = "security gloves"
+	path = /obj/item/clothing/gloves/security
+	flags = GEAR_HAS_SUBTYPE_SELECTION
+	slot = slot_gloves
+	allowed_roles = SECURITY_ROLES //Security only. No freebies for captains, HoPs or merchants.
+	cost = 2
+
 /datum/gear/security/kneepads
 	display_name = "kneepads"
 	path = /obj/item/clothing/accessory/kneepads

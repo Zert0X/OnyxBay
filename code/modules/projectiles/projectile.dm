@@ -53,6 +53,7 @@
 	var/penetration_modifier = 0.2 //How much internal damage this projectile can deal, as a multiplier.
 	var/tasing = 0 //Whether or not it will stun the target once they reach the pain limit
 	var/poisedamage = 0 //Kinda self-decriptive
+	var/space_knockback = FALSE //whether or not it will knock things back in space
 
 
 	// effect types to be used
@@ -157,6 +158,17 @@
 		if(T)
 			T.hotspot_expose(700, 5)
 
+	if(space_knockback && ismovable(A))
+		var/atom/movable/AM = A
+		if(!AM.anchored && !AM.has_gravity())
+			if(ismob(AM))
+				var/mob/M = AM
+				if(!M.can_slip(magboots_only = TRUE))
+					return
+			var/old_dir = AM.dir
+			step(AM, get_dir(firer, AM))
+			AM.set_dir(old_dir)
+
 //Checks if the projectile is eligible for embedding. Not that it necessarily will.
 /obj/item/projectile/proc/can_embed()
 	//embed must be enabled and damage type must be brute
@@ -183,20 +195,6 @@
 		direct_target = target
 	preparePixelProjectile(target, firer? firer : get_turf(src), params, forced_spread)
 	return fire(Angle_override, direct_target)
-
-//sets the click point of the projectile using mouse input params
-/obj/item/projectile/proc/set_clickpoint(params)
-	var/list/mouse_control = params2list(params)
-	if(mouse_control["icon-x"])
-		p_x = text2num(mouse_control["icon-x"])
-	if(mouse_control["icon-y"])
-		p_y = text2num(mouse_control["icon-y"])
-
-	//randomize clickpoint a bit based on dispersion
-	if(dispersion)
-		var/radius = round((dispersion*0.443)*world.icon_size*0.8) //0.443 = sqrt(pi)/4 = 2a, where a is the side length of a square that shares the same area as a circle with diameter = dispersion
-		p_x = between(0, p_x + rand(-radius, radius), world.icon_size)
-		p_y = between(0, p_y + rand(-radius, radius), world.icon_size)
 
 //Used to change the direction of the projectile in flight.
 /obj/item/projectile/proc/redirect(new_x, new_y, atom/starting_loc, mob/new_firer=null, is_ricochet = FALSE)
@@ -561,6 +559,14 @@
 		hitscan_last = loc
 	if(can_hit_target(original, permutated))
 		Bump(original, TRUE)
+	else if(impact_on_original && (loc == original || loc == original.loc ) && loc != null)
+		on_impact(loc)
+		if(!QDELETED(src))
+			set_density(0)
+			set_invisibility(101)
+			qdel(src)
+		return
+
 	check_distance_left()
 
 //Returns true if the target atom is on our current turf and above the right layer
@@ -745,3 +751,6 @@
 
 /obj/item/projectile/proc/update_effect(obj/effect/projectile/effect)
 	return
+
+/obj/item/projectile/is_space_movement_permitted(allow_movement = FALSE)
+	return SPACE_MOVE_PERMITTED // Bullets don't drift in space

@@ -96,6 +96,7 @@
 	..()
 	var/informalhats = list()
 	informalhats["cowboy hat"] = /obj/item/clothing/head/cowboy_hat
+	informalhats["panama"] = /obj/item/clothing/head/panama
 	informalhats["ushanka"] = /obj/item/clothing/head/ushanka
 	informalhats["TCC ushanka"] = /obj/item/clothing/head/ushanka/tcc
 	gear_tweaks += new /datum/gear_tweak/path(informalhats)
@@ -127,6 +128,38 @@
 
 /datum/gear/head/surgical/custom
 	display_name = "surgical cap, colour select"
+	flags = GEAR_HAS_COLOR_SELECTION
+
+/datum/gear/head/garland
+	display_name = "garland selection"
+	path = /obj/item/clothing/head
+
+/datum/gear/head/garland/New()
+	..()
+	var/garland = list()
+	garland["floral garland"] = /obj/item/clothing/head/garland
+	garland["sunflower crown"] = /obj/item/clothing/head/garland/sunflower
+	garland["poppy crown"] = /obj/item/clothing/head/garland/poppy
+	garland["lily crown"] = /obj/item/clothing/head/garland/lily
+	garland["flower crown, red, yellow & white"] = /obj/item/clothing/head/garland/rainbowbunch/ryw
+	garland["flower crown, blue, yellow, green & white"] = /obj/item/clothing/head/garland/rainbowbunch/bygw
+	garland["flower crown, red, blue, purple & pink"] = /obj/item/clothing/head/garland/rainbowbunch/rbpp
+	garland["flower crown, yellow, green & white"] = /obj/item/clothing/head/garland/rainbowbunch/ygw
+	gear_tweaks += new /datum/gear_tweak/path(garland)
+
+/datum/gear/head/beanie
+	display_name = "beanie selection"
+	path = /obj/item/clothing/head
+
+/datum/gear/head/beanie/New()
+	..()
+	var/list/beanies = typesof(/obj/item/clothing/head/beanie)
+	beanies.Remove(/obj/item/clothing/head/beanie, /obj/item/clothing/head/beanie/psyche)
+	gear_tweaks += new /datum/gear_tweak/path/specified_types_list(beanies)
+
+/datum/gear/head/beanie_custom
+	display_name = "beanie, colour select"
+	path = /obj/item/clothing/head/beanie
 	flags = GEAR_HAS_COLOR_SELECTION
 
 //
@@ -213,8 +246,25 @@
 	path = /obj/item/clothing/head/pumpkinhead
 	price = 12
 
+/datum/gear/head/yurihead
+	display_name = "yuri helmet"
+	path = /obj/item/clothing/head/yuri
+	price = 10
+
 /datum/gear/head/capcap_alt
 	display_name = "captain's cap"
 	path = /obj/item/clothing/head/caphat/cap/capcap_alt
 	price = 10
 	allowed_roles = list(/datum/job/captain)
+
+/datum/gear/head/captain_alt
+	display_name = "old captain's hat"
+	path = /obj/item/clothing/head/caphat/alt
+	price = 10
+	allowed_roles = list(/datum/job/captain)
+
+/datum/gear/head/witchhunter
+	display_name = "witchunter hat"
+	path = /obj/item/clothing/head/witchunter_hat
+	price = 10
+	allowed_roles = list(/datum/job/chaplain)

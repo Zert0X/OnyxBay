@@ -1,14 +1,21 @@
-#define DEFAULT_HUNGER_FACTOR 0.09 // Factor of how fast mob nutrition decreases
+// Factor of how fast mob nutrition decreases
+#define DEFAULT_HUNGER_FACTOR 0.075
+#define DEFAULT_THIRST_FACTOR 0.1
 
-#define REM 0.2 // Means 'Reagent Effect Multiplier'. This is how many units of reagent are consumed per tick
+#define METABOLISM_FALLBACK -1
+#define METABOLISM_NONE      0
+// Means 'Reagent Effect Multiplier'. This is how many units of reagent are consumed per tick
+#define REM 0.2
 
 #define CHEM_TOUCH 1
 #define CHEM_INGEST 2
 #define CHEM_BLOOD 3
+#define CHEM_DIGEST 4
 
 #define MINIMUM_CHEMICAL_VOLUME 0.01
 
-#define REAGENTS_PER_MATERIAL_SHEET 20
+// 200ml per sheet
+#define REAGENTS_PER_MATERIAL_SHEET 200
 
 #define SOLID 1
 #define LIQUID 2
@@ -16,7 +23,7 @@
 
 #define REAGENTS_OVERDOSE 30
 
-#define CHEM_SYNTH_ENERGY 500 // How much energy does it take to synthesize 1 unit of chemical, in Joules.
+#define CHEM_SYNTH_ENERGY 50 // How much energy does it take to synthesize 1 unit of chemical, in Joules.
 
 // Some on_mob_life() procs check for alien races.
 #define IS_DIONA   1
@@ -43,11 +50,15 @@
 #define CE_ANTIVIRAL     "antiviral"    // Anti-virus effect.
 #define CE_TOXIN         "toxins"       // Generic toxins, stops autoheal.
 #define CE_BREATHLOSS    "breathloss"   // Breathing depression, makes you need more air
-#define CE_MIND    		 "mindbending"  // Stabilizes or wrecks mind. Used for hallucinations
-#define CE_CRYO 	     "cryogenic"    // Prevents damage from being frozen
-#define CE_BLOCKAGE	     "blockage"     // Gets in the way of blood circulation, higher the worse
+#define CE_MIND          "mindbending"  // Stabilizes or wrecks mind. Used for hallucinations
+#define CE_CRYO          "cryogenic"    // Prevents damage from being frozen
+#define CE_BLOCKAGE      "blockage"     // Gets in the way of blood circulation, higher the worse
 #define	CE_VOICELOSS     "whispers"     // Lowers the subject's voice to a whisper
 #define CE_SEDATE        "sedate"       // Applies sedation effects, i.e. paralysis, inability to use items, etc.
+#define CE_TOXBLOCK      "toxblock"     // (Mostly) prevents internal organs from being damaged by toxLoss.
+#define CE_NOVOMIT       "novomit"      // Prevents vomiting.
+#define CE_BRUTE_REGEN   "bruteregen"   // Speeds up brute damage regeneration.
+#define CE_BURN_REGEN    "burnregen"    // Speeds up burn damage regeneration.
 
 //reagent flags
 #define IGNORE_MOB_SIZE 0x1

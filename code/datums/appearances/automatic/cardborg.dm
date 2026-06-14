@@ -34,9 +34,9 @@
 	var/decl/cardborg_appearance/ca = appearances[H.back.type]
 	if(!ca) ca = appearances[/obj/item/storage/backpack]
 
-	var/image/I = image(icon = 'icons/mob/robots.dmi', icon_state = ca.icon_state, loc = H)
+	var/image/I = image(icon = 'icons/mob/silicon/robot.dmi', icon_state = ca.icon_state, loc = H)
 	I.override = 1
-	I.AddOverlays(image(icon = 'icons/mob/robots.dmi', icon_state = "eyes-[ca.icon_state]")) //gotta look realistic
+	I.AddOverlays(image(icon = 'icons/mob/silicon/robot.dmi', icon_state = "eyes-[ca.icon_state]")) //gotta look realistic
 	return I
 
 /decl/appearance_handler/cardborg/proc/init_appearances()

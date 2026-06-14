@@ -11,6 +11,7 @@ var/global/list/obj/item/device/pda/PDAs = list()
 	item_state = "electronic"
 	w_class = ITEM_SIZE_SMALL
 	slot_flags = SLOT_ID | SLOT_BELT
+	item_state_slots = alist(slot_wear_id_str = "id")
 
 	//Main variables
 	var/owner = null
@@ -369,7 +370,7 @@ var/global/list/obj/item/device/pda/PDAs = list()
 	var/mob/M = usr
 	if((!istype(over_object, /atom/movable/screen)) && can_use())
 		return attack_self(M)
-	return
+	return ..()
 
 /obj/item/device/pda/get_examine_line(examine_distance = 10)
 	var/visible_name = examine_distance < 3 ? name : initial(name)
@@ -1206,12 +1207,12 @@ var/global/list/obj/item/device/pda/PDAs = list()
 			remove_id()
 			return 1
 		else
-			var/obj/item/I = user.get_active_hand()
+			var/obj/item/I = user.get_clicking_hand()
 			if(istype(I, /obj/item/card/id) && user.drop(I, src))
 				id = I
 			return 1
 	else
-		var/obj/item/card/I = user.get_active_hand()
+		var/obj/item/card/I = user.get_clicking_hand()
 		if (istype(I, /obj/item/card/id) && I:registered_name && user.drop(I, src))
 			var/obj/old_id = id
 			id = I

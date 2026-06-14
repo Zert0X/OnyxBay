@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { useBackend } from "../backend";
 import { Button, ColorBox, Divider, Stack } from "../components";
 import { GameIcon } from "../components/GameIcon";
@@ -135,7 +134,7 @@ export const FloorPainter = (props: any, context: any) => {
   const selectedDecal = decals.find((d) => d.path === settings.decal);
 
   return (
-    <Window width={300} height={340}>
+    <Window width={380} height={390}>
       <Window.Content>
         <Stack width="100%" justify="space-between">
           <Stack.Item>{directionButtons(context)}</Stack.Item>

@@ -34,6 +34,12 @@
 				organ_name = BP_KIDNEYS
 			if(BP_STOMACH)
 				organ_name = BP_STOMACH
+			if(BP_TONGUE)
+				organ_name = BP_TONGUE
+			if(BP_INTESTINES)
+				organ_name = BP_INTESTINES
+			if(BP_BLADDER)
+				organ_name = BP_BLADDER
 			if(BP_CHEST)
 				organ_name = "upper body"
 			if(BP_GROIN)

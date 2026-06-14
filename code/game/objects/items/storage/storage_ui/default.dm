@@ -192,8 +192,10 @@
 
 //This proc determins the size of the inventory to be displayed. Please touch it only if you know what you're doing.
 /datum/storage_ui/default/proc/slot_orient_objs()
-	click_border_start.Cut()
-	click_border_end.Cut()
+	click_border["x"]["start"].Cut()
+	click_border["x"]["end"].Cut()
+	click_border["y"]["start"].Cut()
+	click_border["y"]["end"].Cut()
 
 	var/adjusted_contents = storage.contents.len
 	var/row_num = 0
@@ -212,8 +214,12 @@
 		O.screen_loc = "[cx]:16,[cy]:16"
 		O.maptext = ""
 		O.hud_layerise()
-		click_border_start += (cx - 4) * 32
-		click_border_end += (cx - 4) * 32 + 32
+
+		click_border["x"]["start"] += (cx - 4) * WORLD_ICON_SIZE
+		click_border["x"]["end"] += (cx - 4) * WORLD_ICON_SIZE + WORLD_ICON_SIZE
+
+		click_border["y"]["start"] += (cy - 2) * WORLD_ICON_SIZE
+		click_border["y"]["end"] += (cy - 2) * WORLD_ICON_SIZE + WORLD_ICON_SIZE
 
 		cx++
 		if (cx > (4+cols))
@@ -229,8 +235,11 @@
 	var/stored_cap_width = 4 //length of sprite for start and end of the box representing the stored item
 	var/storage_width = min( round( 224 * storage.max_storage_space/baseline_max_storage_space ,1) ,284) //length of sprite for the box representing total storage space
 
-	click_border_start.Cut()
-	click_border_end.Cut()
+	click_border["x"]["start"].Cut()
+	click_border["x"]["end"].Cut()
+	click_border["y"]["start"].Cut()
+	click_border["y"]["end"].Cut()
+
 	storage_start.ClearOverlays()
 
 	storage_continue.SetTransform(scale_x = (storage_width - storage_cap_width * 2 + 3) / 32)
@@ -246,8 +255,11 @@
 		startpoint = endpoint + 1
 		endpoint += storage_width * O.get_storage_cost()/storage.max_storage_space
 
-		click_border_start.Add(startpoint)
-		click_border_end.Add(endpoint)
+		click_border["x"]["start"].Add(startpoint)
+		click_border["x"]["end"].Add(endpoint)
+
+		click_border["y"]["start"].Add(0)
+		click_border["y"]["end"].Add(WORLD_ICON_SIZE)
 
 		stored_start.SetTransform(offset_x = startpoint)
 		stored_end.SetTransform(offset_x = endpoint - stored_cap_width)

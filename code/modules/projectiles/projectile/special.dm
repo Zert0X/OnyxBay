@@ -39,6 +39,7 @@
 	check_armour = "bullet"
 	sharp = 1
 	edge = 1
+	space_knockback = TRUE
 
 /obj/item/projectile/bullet/gyro/on_hit(atom/target, blocked = 0)
 	explosion(target, -1, 0, 2)
@@ -73,6 +74,7 @@
 	check_armour = "bullet"
 	blockable = FALSE
 	poisedamage = 255 // slammy jammy
+	space_knockback = TRUE
 
 /obj/item/projectile/meteor/Bump(atom/A, forced = FALSE)
 	if(A == firer)
@@ -176,7 +178,7 @@
 	muzzle_type = /obj/effect/projectile/muzzle/bullet
 
 /obj/item/projectile/energy/laser
-	name = "laser bolt"
+	name = "energy blast"
 	icon_state = "ibeam"
 	damage = 30
 	agony = 10
@@ -193,7 +195,7 @@
 	projectile_brightness_color = COLOR_RED_LIGHT
 
 /obj/item/projectile/energy/laser/small // Pistol level
-	name = "small laser bolt"
+	name = "small energy blast"
 	icon_state = "laser_small"
 	damage = 27.5
 	armor_penetration = 0
@@ -213,7 +215,7 @@
 	armor_penetration = 10
 
 /obj/item/projectile/energy/laser/greater // Advanced laser rifle or something
-	name = "large laser bolt"
+	name = "large energy blast"
 	icon_state = "laser_greater"
 	damage = 55
 	agony = 15
@@ -222,7 +224,7 @@
 	projectile_outer_range = 1.75
 
 /obj/item/projectile/energy/laser/heavy // Cannon level
-	name = "heavy laser bolt"
+	name = "heavy energy blast"
 	icon_state = "laser_heavy"
 	damage = 70
 	agony = 20
@@ -349,6 +351,10 @@
 	parent = loc
 	return ..()
 
+/obj/item/projectile/portal/Destroy()
+	parent = null
+	return ..()
+
 /obj/item/projectile/portal/on_impact(atom/A)
 	if(!istype(parent, /obj/item/gun/portalgun))
 		return
@@ -359,3 +365,70 @@
 		if(!ismob(firer))
 			firer = shot_from
 		P.open_portal(setting,loc,A,firer)
+
+/obj/item/projectile/grenade
+	name = "grenade"
+	icon_state = "40mm"
+	fire_sound = 'sound/effects/weapons/misc/bloop.ogg'
+	damage_type = BRUTE
+	nodamage = 0
+	damage = 25
+	agony = 20
+	embed = 0
+	sharp = 0
+	penetration_modifier = 0.2
+	poisedamage = 20.0
+	check_armour = "melee"
+	impact_on_original = TRUE
+	space_knockback = TRUE
+
+/obj/item/projectile/grenade/on_impact(atom/A)
+	if(isfloor(A))
+		visible_message(SPAN("warning", "\The [src] bumps against \the [A]!"))
+
+/obj/item/projectile/grenade/rubber
+	name = "rubber grenade"
+	damage = 20
+	agony = 70
+	poisedamage = 27.5
+	impact_on_original = FALSE // No boomies, keep flying
+
+/obj/item/projectile/grenade/he/on_impact(atom/A)
+	explosion(A, -1, 2, 4)
+	return TRUE
+
+/obj/item/projectile/grenade/hep/on_impact(atom/A)
+	explosion(A, 0, 3, 4)
+	return TRUE
+
+/obj/item/projectile/grenade/loaded
+	var/obj/item/grenade/grenade
+
+/obj/item/projectile/grenade/loaded/Destroy()
+	if(!QDELETED(grenade))
+		QDEL_NULL(grenade)
+	return ..()
+
+/obj/item/projectile/grenade/loaded/proc/set_grenade(obj/item/grenade/G)
+	if(QDELETED(G))
+		return
+
+	G.forceMove(src)
+	grenade = G
+
+/obj/item/projectile/grenade/loaded/on_impact(atom/A)
+	if(!grenade)
+		return TRUE
+
+	if(istype(grenade, /obj/item/grenade/chem_grenade))
+		var/obj/item/grenade/chem_grenade/CG = grenade
+		CG.stage = 2
+
+	if(!QDELETED(grenade.safety_pin))
+		qdel(grenade.safety_pin)
+		grenade.safety_pin = null
+
+	grenade.forceMove(get_turf(A))
+	grenade.detonate()
+	grenade = null
+	return TRUE

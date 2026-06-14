@@ -21,6 +21,7 @@ var/list/admin_datums = list()
 	var/datum/follow_panel/follow_panel = new()
 	var/datum/events_panel/events_panel = new()
 	var/list/events_windows = list()
+	var/datum/bloom_edit/debug_bloom
 
 /datum/admins/proc/marked_datum()
 	if(marked_datum_weak)
@@ -111,11 +112,15 @@ NOTE: It checks usr by default. Supply the "user" argument if you wish to check 
 		//qdel(holder)
 	return 1
 
-/mob/get_status_tab_items()
+/mob/Stat()
 	. = ..()
 
-	if(client?.is_stealthed())
-		. += "Stealth: Engaged [client.holder.stealthy_ == STEALTH_AUTO ? "(Auto)" : "(Manual)"]"
+	if(!client)
+		return
+
+	var/stealth_status = client.is_stealthed()
+	if(stealth_status && statpanel("Status"))
+		stat("Stealth", "Engaged [client.holder.stealthy_ == STEALTH_AUTO ? "(Auto)" : "(Manual)"]")
 
 /client/proc/is_stealthed()
 	if(!holder)

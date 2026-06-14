@@ -53,7 +53,7 @@
 	w_class = ITEM_SIZE_TINY
 
 /obj/item/toy/water_balloon/New()
-	create_reagents(10)
+	create_reagents(100)
 	..()
 
 /obj/item/toy/water_balloon/attack(mob/living/carbon/human/M, mob/user)
@@ -62,7 +62,7 @@
 /obj/item/toy/water_balloon/afterattack(atom/A, mob/user, proximity)
 	if(!proximity) return
 	if(istype(A, /obj/structure/reagent_dispensers) && Adjacent(A))
-		A.reagents.trans_to_obj(src, 10)
+		A.reagents.trans_to_obj(src, 100)
 		to_chat(user, "<span class='notice'>You fill the balloon with the contents of [A].</span>")
 		src.desc = "A translucent balloon with some form of liquid sloshing around in it."
 		src.update_icon()
@@ -82,22 +82,21 @@
 				else
 					src.desc = "A translucent balloon with some form of liquid sloshing around in it."
 					to_chat(user, "<span class='notice'>You fill the balloon with the contents of [O].</span>")
-					O.reagents.trans_to_obj(src, 10)
+					O.reagents.trans_to_obj(src, 100)
 					w_class = ITEM_SIZE_SMALL
 	src.update_icon()
 	return
 
-/obj/item/toy/water_balloon/throw_impact(atom/hit_atom)
+/obj/item/toy/water_balloon/throw_impact(atom/hit_atom, datum/thrownthing/TT)
+	..()
 	if(src.reagents.total_volume >= 1)
 		src.visible_message("<span class='warning'>\The [src] bursts!</span>","You hear a pop and a splash.")
 		src.reagents.touch_turf(get_turf(hit_atom))
 		for(var/atom/A in get_turf(hit_atom))
 			src.reagents.touch(A)
-		src.icon_state = "burst"
-		spawn(5)
-			if(src)
-				qdel(src)
-	return
+		if(!QDELETED(src))
+			icon_state = "burst"
+			QDEL_IN(src, 5)
 
 /obj/item/toy/water_balloon/on_update_icon()
 	if(src.reagents.total_volume >= 1)
@@ -269,8 +268,8 @@
 	slot_flags = SLOT_EARS
 
 /obj/effect/foam_dart_dummy
-	name = ""
-	desc = ""
+	name = "foam dart dummy"
+	desc = "foam dart dummy: A simple target to practice your dart shooting skills."
 	icon = 'icons/obj/toy.dmi'
 	icon_state = "null"
 	anchored = 1
@@ -339,15 +338,15 @@
 	icon_state = "snappop"
 	w_class = ITEM_SIZE_TINY
 
-	throw_impact(atom/hit_atom)
-		..()
-		var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
-		s.set_up(3, 1, src)
-		s.start()
-		new /obj/effect/decal/cleanable/ash(src.loc)
-		src.visible_message("<span class='warning'>The [src.name] explodes!</span>","<span class='warning'>You hear a snap!</span>")
-		playsound(src, 'sound/effects/snap.ogg', 50, 1)
-		qdel(src)
+/obj/item/toy/snappop/throw_impact(atom/hit_atom, datum/thrownthing/TT)
+	..()
+	var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
+	s.set_up(3, 1, src)
+	s.start()
+	new /obj/effect/decal/cleanable/ash(src.loc)
+	src.visible_message("<span class='warning'>The [src.name] explodes!</span>","<span class='warning'>You hear a snap!</span>")
+	playsound(src, 'sound/effects/snap.ogg', 50, 1)
+	qdel(src)
 
 /obj/item/toy/snappop/Crossed(H as mob|obj)
 	if((ishuman(H))) //i guess carp and shit shouldn't set them off
@@ -564,9 +563,14 @@
 	desc = "A \"Space Life\" brand Geneticist action figure, which was recently dicontinued."
 	icon_state = "geneticist"
 
-/obj/item/toy/figure/hop
+/obj/item/toy/figure/hr
 	name = "Head of Personel action figure"
-	desc = "A \"Space Life\" brand Head of Personel action figure."
+	desc = "A \"Space Life\" brand Head of Personel action figure. Wait, who's that?"
+	icon_state = "hr"
+
+/obj/item/toy/figure/hop
+	name = "Head of Provisioning action figure"
+	desc = "A \"Space Life\" brand Head of Provisioning action figure."
 	icon_state = "hop"
 
 /obj/item/toy/figure/hos
@@ -959,15 +963,18 @@
 /obj/item/toy/chubbyskeleton/proc/badtime(mob/user)
 	dodgecount++
 	if(dodgecount < 4)
-		user.visible_message("<span class='warning'>[src] dodges [user]'s attack!</span>")
+		user.visible_message(SPAN_WARNING("[src] dodges [user]'s attack!"))
 		speak(pick("welp.","what? you think i'm just gonna stand there and take it? ","all right.","our reports showed a massive bluespace anomaly.","that sent chills down my SPINE."))
 	else if(dodgecount == 4)
 		icon_state = "badtime"
-		user.visible_message("<span class='warning'>[src] dodges [user]'s attack!</span>")
+		user.visible_message(SPAN_WARNING("[src] dodges [user]'s attack!"))
 		speak(pick("do you wanna have a bad time?","you are REALLY not going to like what happens next."))
 	else
 		icon_state = "heya"
 		dodgecount = 0
+		if(!config.misc.meme_content)
+			speak("aaand you'd be dunked on by now but the big shots told me to stop dunking on people. lucks for you.")
+			return
 		speak(pick("geeettttttt dunked on!!!","told ya."))
 		if(istype(user, /mob/living/carbon/human))
 			var/mob/living/carbon/human/H = user
@@ -1033,20 +1040,7 @@
 	oink(user, "squeezes")
 
 /obj/item/toy/pig/attack_hand(mob/user)
+	if(user.a_intent == I_GRAB || !isturf(loc))
+		return ..()
 	oink(user, pick("presses", "squeezes", "squashes", "champs", "pinches"))
-
-/obj/item/toy/pig/MouseDrop(mob/user)
-	if(!CanMouseDrop(src, usr))
-		return
-	if(user == usr && (user.contents.Find(src) || in_range(src, user)))
-		if(ishuman(user) && !user.get_active_hand())
-			var/mob/living/carbon/human/H = user
-			var/obj/item/organ/external/temp = H.organs_by_name[BP_R_HAND]
-			if(H.hand)
-				temp = H.organs_by_name[BP_L_HAND]
-			if(temp && !temp.is_usable())
-				to_chat(user, SPAN("warning", "You try to pick up \the [src] with your [temp.name], but cannot!"))
-				return
-			if(user.pick_or_drop(src, loc))
-				to_chat(user, SPAN("notice", "You pick up \the [src]."))
-	return
+	return TRUE

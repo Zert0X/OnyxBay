@@ -20,7 +20,14 @@
 #define CRITICAL_TEMPERATURE 5000	//K
 #define CHARGING_FACTOR 0.05
 #define DAMAGE_RATE_LIMIT 4.5		//damage rate cap at power = 300, scales linearly with power
+#define RADIATION_RELEASE 100 KILO ELECTRONVOLT	//Higher == more radiation released by the SM
 
+// Experimental randomized supermatter
+#define DELTA_THERMAL_RELEASE_MODIFIER 6000
+#define DELTA_POWER_FACTOR 0.2
+#define DELTA_DECAY_FACTOR 100
+#define DELTA_CRITICAL_TEMPERATURE 2600
+#define DELTA_CHARGING_FACTOR 0.03
 
 // Base variants are applied to everyone on the same Z level
 // Range variants are applied on per-range basis: numbers here are on point blank, it scales with the map size (assumes square shaped Z levels)
@@ -46,11 +53,19 @@
 	icon_state = "darkmatter"
 	base_icon_state = "darkmatter"
 
+	atom_flags = ATOM_FLAG_UNPUSHABLE
 	density = 1
 	anchored = 0
 	light_outer_range = 4
 
 	layer = ABOVE_OBJ_LAYER
+
+	var/current_thermal_release_modifier = THERMAL_RELEASE_MODIFIER
+	var/current_radiation_release_modifier = 1
+	var/current_power_factor = POWER_FACTOR
+	var/current_decay_factor = DECAY_FACTOR
+	var/current_critical_temperature = CRITICAL_TEMPERATURE
+	var/current_charging_factor = CHARGING_FACTOR
 
 	var/gasefficency = 0.25
 	var/damage = 0
@@ -105,12 +120,14 @@
 	var/aw_EPR = FALSE
 
 	var/datum/radiation_source/rad_source = null
+	var/datum/sound_token/ambient_sound_token = null
 
 	is_poi = TRUE
 
 /obj/machinery/power/supermatter/Initialize()
 	. = ..()
 	uid = gl_uid++
+	ambient_sound_token = GLOB.sound_player.PlayLoopingSound(src, "\ref[src]_supermatter_ambient", 'sound/machines/supermatter_ambient.ogg', volume = 60, range = 8, falloff = 2)
 
 /obj/machinery/power/supermatter/proc/handle_admin_warnings()
 	if(disable_adminwarn)
@@ -138,8 +155,6 @@
 	if(status >= min_status)
 		if(!current_state)
 			log_and_message_admins(message)
-			if(send_to_irc)
-				send2adminirc(message)
 		return TRUE
 	else
 		return FALSE
@@ -170,10 +185,10 @@
 	if(get_integrity() < 50)
 		return SUPERMATTER_DANGER
 
-	if((get_integrity() < 100) || (air.temperature > CRITICAL_TEMPERATURE))
+	if((get_integrity() < 100) || (air.temperature > current_critical_temperature))
 		return SUPERMATTER_WARNING
 
-	if(air.temperature > (CRITICAL_TEMPERATURE * 0.8))
+	if(air.temperature > (current_critical_temperature * 0.8))
 		return SUPERMATTER_NOTIFY
 
 	if(power > 5)
@@ -197,6 +212,11 @@
 		return
 
 	var/list/affected_z = GetConnectedZlevels(TS.z)
+	var/sound/boom_sound = sound('sound/effects/explosions/global_supermatter_boom.ogg', volume = 100)
+	for(var/mob/M in GLOB.player_list)
+		var/turf/T = get_turf(M)
+		if(T && (T.z in affected_z) && !istype(M, /mob/new_player) && !isdeaf(M))
+			sound_to(M, boom_sound)
 
 	// Effect 1: Radiation, weakening to all mobs on Z level
 	for(var/z in affected_z)
@@ -345,13 +365,13 @@
 		removed = env.remove(gasefficency * env.total_moles)	//Remove gas from surrounding area
 
 	if(!env || !removed || !removed.total_moles)
-		damage += max((power - 15*POWER_FACTOR)/10, 0)
+		damage += max((power - 15*current_power_factor)/10, 0)
 	else if (grav_pulling) //If supermatter is detonating, remove all air from the zone
 		env.remove(env.total_moles)
 	else
 		damage_archived = damage
 
-		damage = max(0, damage + between(-DAMAGE_RATE_LIMIT, (removed.temperature - CRITICAL_TEMPERATURE) / 150, damage_inc_limit))
+		damage = max(0, damage + between(-DAMAGE_RATE_LIMIT, (removed.temperature - current_critical_temperature) / 150, damage_inc_limit))
 
 		//Ok, 100% oxygen atmosphere = best reaction
 		//Maxes out at 100% oxygen pressure
@@ -369,7 +389,7 @@
 			equilibrium_power = 250
 			icon_state = base_icon_state
 
-		temp_factor = ( (equilibrium_power/DECAY_FACTOR)**3 )/800
+		temp_factor = ( (equilibrium_power/current_decay_factor)**3 )/800
 		power = max( (removed.temperature * temp_factor) * oxygen + power, 0)
 
 		var/device_energy = power * REACTION_POWER_MODIFIER
@@ -379,7 +399,7 @@
 		removed.adjust_multi("plasma", max(device_energy / PLASMA_RELEASE_MODIFIER, 0), \
 		                     "oxygen", max(CONV_KELVIN_CELSIUS(device_energy + removed.temperature) / OXYGEN_RELEASE_MODIFIER, 0))
 
-		var/thermal_power = THERMAL_RELEASE_MODIFIER * device_energy
+		var/thermal_power = current_thermal_release_modifier * device_energy
 		if (debug)
 			var/heat_capacity_new = removed.heat_capacity()
 			visible_message("[src]: Releasing [round(thermal_power)] W.")
@@ -390,6 +410,21 @@
 
 		env.merge(removed)
 
+	check_meson()
+
+	if(power > 0)
+		if(rad_source == null)
+			rad_source = SSradiation.radiate(src, new /datum/radiation/preset/supermatter)
+
+		rad_source.info.energy = power * RADIATION_RELEASE * current_radiation_release_modifier
+	else
+		qdel(rad_source)
+
+	power -= (power/current_decay_factor)**3		//energy losses due to radiation
+	handle_admin_warnings()
+
+	return 1
+/obj/machinery/power/supermatter/proc/check_meson()
 	for(var/mob/living/carbon/human/H in view(src, min(7, round(sqrt(power/6))))) // If they can see it without mesons on.  Bad on them.
 		var/obj/item/organ/internal/eyes/E = H.internal_organs_by_name[BP_EYES]
 		if(E && !BP_IS_ROBOTIC(E)) //Synthetics eyes stop evil hallucination rays
@@ -403,20 +438,11 @@
 			var/effect = max(0, min(200, power * config_hallucination_power * sqrt(1 / max(1, get_dist(H, src)))))
 			H.adjust_hallucination(effect, 0.25 * effect)
 
-	if(power > 0)
-		if(rad_source == null)
-			rad_source = SSradiation.radiate(src, new /datum/radiation/preset/supermatter)
-
-		rad_source.info.energy = power * (100 KILO ELECTRONVOLT)
-	else
-		qdel(rad_source)
-
-	power -= (power/DECAY_FACTOR)**3		//energy losses due to radiation
-	handle_admin_warnings()
-
-	return 1
-
 /obj/machinery/power/supermatter/Destroy()
+	if(ambient_sound_token)
+		ambient_sound_token.Stop()
+		ambient_sound_token = null
+
 	qdel(rad_source)
 
 	. = ..()
@@ -430,7 +456,7 @@
 
 	var/proj_damage = Proj.get_structure_damage()
 	if(istype(Proj, /obj/item/projectile/beam))
-		power += proj_damage * config_bullet_energy	* CHARGING_FACTOR / POWER_FACTOR
+		power += proj_damage * config_bullet_energy	* current_charging_factor / current_power_factor
 	else
 		damage += proj_damage * config_bullet_energy
 	return 0
@@ -494,9 +520,19 @@
 
 	user.rad_act(new /datum/radiation_source(new /datum/radiation/preset/supermatter(4), src))
 
-/obj/machinery/power/supermatter/Bumped(atom/AM)
+/obj/machinery/power/supermatter/supermatter_act()
+	qdel_self()
+	return TRUE
+
+/obj/machinery/power/supermatter/throw_impact(atom/hit_atom, datum/thrownthing/TT)
+	..()
+	if(hit_atom.density)
+		Consume(hit_atom)
+
+/obj/machinery/power/supermatter/Bumped(atom/movable/AM)
 	if(istype(AM, /obj/effect))
 		return
+
 	if(isliving(AM))
 		AM.visible_message("<span class=\"warning\">\The [AM] slams into \the [src] inducing a resonance... \his body starts to glow and catch flame before flashing into ash.</span>",\
 		"<span class=\"danger\">You slam into \the [src] as your ears are filled with unearthly ringing. Your last thought is \"Oh, fuck.\"</span>",\
@@ -507,14 +543,25 @@
 
 	Consume(AM)
 
-/obj/machinery/power/supermatter/proc/Consume(mob/living/user)
-	if(istype(user))
-		user.dust()
-		power += 200
-	else
-		qdel(user)
+#define SUPERMATTER_MIN_THROW_DIST 1
+#define SUPERMATTER_MAX_THROW_DIST 3
 
-	power += 200
+/obj/machinery/power/supermatter/proc/Consume(atom/victim)
+	if (istype(victim, /obj/machinery/power/supermatter))
+		var/obj/machinery/power/supermatter/supermatter_victim = victim
+		if (config.misc.meme_content)
+			supermatter_victim.throw_at(get_edge_target_turf(supermatter_victim, get_dir(src, supermatter_victim)), rand(SUPERMATTER_MIN_THROW_DIST, SUPERMATTER_MAX_THROW_DIST), TRUE)
+			supermatter_victim.visible_message(SPAN_WARNING("\The [supermatter_victim] briefly lights up and instantly starts flying in the opposite direction."))
+		else
+			power += supermatter_victim.power
+
+	if (!victim.supermatter_act())
+		return
+
+	if (ismob(victim))
+		power += 400
+	else
+		power += 200
 
 	//Some poor sod got eaten, go ahead and irradiate people nearby.
 	for(var/mob/living/l in range(10))
@@ -526,6 +573,11 @@
 
 	var/datum/radiation_source/temp_src = SSradiation.radiate(src, new /datum/radiation/preset/supermatter(10))
 	temp_src.schedule_decay(20 SECONDS)
+
+	playsound(src, GET_SFX(SFX_SUPERMATTER), 100)
+
+#undef SUPERMATTER_MIN_THROW_DIST
+#undef SUPERMATTER_MAX_THROW_DIST
 
 /proc/supermatter_pull(atom/target, pull_range = 255, pull_power = STAGE_FIVE)
 	var/list/movable_atoms = list()
@@ -569,6 +621,110 @@
 /obj/machinery/power/supermatter/shard/announce_warning() //Shards don't get announcements
 	return
 
+/obj/machinery/power/supermatter/random
+	name = "Unstable Supermatter"
+	desc = "A strangely translucent and iridescent crystal. This is a unstable supermatter crystal brought to you for testing purposes. <span class='danger'>You get headaches just from looking at it.</span>"
+
+	var/collapse_chance = 25	//Chance of collapsing into a singularity instead of exploding
+
+/obj/machinery/power/supermatter/random/Initialize()
+	. = ..()
+	current_thermal_release_modifier = rand(THERMAL_RELEASE_MODIFIER - DELTA_THERMAL_RELEASE_MODIFIER, THERMAL_RELEASE_MODIFIER + DELTA_THERMAL_RELEASE_MODIFIER)
+	current_radiation_release_modifier = rand(7, 12)/10
+	current_power_factor = rand(10*(POWER_FACTOR - DELTA_POWER_FACTOR), 10*(POWER_FACTOR + DELTA_POWER_FACTOR)) / 10
+	current_decay_factor = rand(DECAY_FACTOR - DELTA_DECAY_FACTOR, DECAY_FACTOR + DELTA_DECAY_FACTOR)
+	current_critical_temperature = rand(CRITICAL_TEMPERATURE - DELTA_CRITICAL_TEMPERATURE, CRITICAL_TEMPERATURE + DELTA_CRITICAL_TEMPERATURE)
+	current_charging_factor = rand(100*(CHARGING_FACTOR - DELTA_CHARGING_FACTOR), 100*(CHARGING_FACTOR + DELTA_CHARGING_FACTOR)) / 100
+	// Spawn the supermatter paper in the same tile as the supermatter
+	var/obj/item/paper/supermatter_paper/P = new /obj/item/paper/supermatter_paper()
+	P.loc = src.loc
+	P.fill_research_paper(src)
+
+/obj/machinery/power/supermatter/random/explode(stored_power)
+	if(prob(collapse_chance))
+		var/turf/TS = get_turf(src)
+		var/given_energy = Clamp(power, 200, 49000)
+		qdel(src)
+		new /obj/singularity/(TS, given_energy)
+		GLOB.global_announcer.autosay("WARNING: SUPERMATTER CRYSTAL COLLAPSED INTO A SINGULARITY!", "Supermatter Monitor")
+		return
+
+	. = ..()
+
+// Paper that loosely describes the randomized supermatter and its properties
+/obj/item/paper/supermatter_paper
+	name = "Unstable Supermatter Research Paper"
+	info = ""
+
+/obj/item/paper/supermatter_paper/proc/fill_research_paper(obj/machinery/power/supermatter/random/S)
+	if(!istype(S, /obj/machinery/power/supermatter/random))
+		return
+	var/obj/machinery/power/supermatter/random/SM = S
+	info = "<b>Unstable Supermatter Research Paper</b><br><br>"
+	// Generate a random name for the supermatter
+	info += "<b>Supermatter ID:</b> [pick(GLOB.golem_names)] [pick(GLOB.greek_letters)] <br>"
+
+	info += "<b>Thermal Release:</b> "
+	if(SM.current_thermal_release_modifier < 8000)
+		info += "Low<br>"
+	else if(SM.current_thermal_release_modifier < 12000)
+		info += "Medium<br>"
+	else if(SM.current_thermal_release_modifier < 16000)
+		info += "High<br>"
+	else
+		info += "Extreme<br>"
+
+	info += "<b>Radiation Release:</b> "
+	if(SM.current_radiation_release_modifier < 0.9)
+		info += "Low<br>"
+	else if(SM.current_radiation_release_modifier < 1)
+		info += "Medium<br>"
+	else if(SM.current_radiation_release_modifier < 1.1)
+		info += "High<br>"
+	else
+		info += "Extreme<br>"
+
+	info += "<b>Resistance to destabilization:</b> "
+	if(SM.current_power_factor < 0.9)
+		info += "Low<br>"
+	else if(SM.current_power_factor < 1.0)
+		info += "Medium<br>"
+	else if(SM.current_power_factor < 1.1)
+		info += "High<br>"
+	else
+		info += "Extreme<br>"
+
+	info += "<b>Decay Factor:</b> "
+	if(SM.current_decay_factor < 650)
+		info += "Extreme<br>"
+	else if(SM.current_decay_factor < 700)
+		info += "High<br>"
+	else if(SM.current_decay_factor < 750)
+		info += "Medium<br>"
+	else
+		info += "Low<br>"
+
+	info += "<b>Critical Temperature:</b> "
+	if(SM.current_critical_temperature < 4000)
+		info += "Low<br>"
+	else if(SM.current_critical_temperature < 5500)
+		info += "Medium<br>"
+	else if(SM.current_critical_temperature < 7000)
+		info += "High<br>"
+	else
+		info += "Extreme High<br>"
+
+	info += "<b>Charging Efficiency:</b> "
+	if(SM.current_charging_factor < 0.03)
+		info += "Low<br>"
+	else if(SM.current_charging_factor < 0.05)
+		info += "Medium<br>"
+	else if(SM.current_charging_factor < 0.07)
+		info += "High<br>"
+	else
+		info += "Extreme<br>"
+	info += "<br><br><b>Note: Unstable supermatter is highly volatile and has a chance of collapsing into a singularity instead of exploding. This is a rare event, but it can happen if the supermatter is not handled properly.</b>"
+	icon_state = "paper_words"
 
 #undef NITROGEN_RETARDATION_FACTOR
 #undef THERMAL_RELEASE_MODIFIER
@@ -588,3 +744,9 @@
 #undef DETONATION_SHUTDOWN_RNG_FACTOR
 #undef DETONATION_SOLAR_BREAK_CHANCE
 #undef WARNING_DELAY
+#undef RADIATION_RELEASE
+#undef DELTA_THERMAL_RELEASE_MODIFIER
+#undef DELTA_POWER_FACTOR
+#undef DELTA_DECAY_FACTOR
+#undef DELTA_CRITICAL_TEMPERATURE
+#undef DELTA_CHARGING_FACTOR

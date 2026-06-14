@@ -207,7 +207,7 @@
 /obj/item/honey_frame/filled
 	name = "filled beehive frame"
 	desc = "A frame for the beehive that the bees have filled with honeycombs."
-	honey = 20
+	honey = 50
 
 /obj/item/honey_frame/filled/New()
 	..()

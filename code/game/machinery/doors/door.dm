@@ -5,7 +5,7 @@
 	name = "Door"
 	desc = "It opens and closes."
 	icon = 'icons/obj/doors/doorint.dmi'
-	icon_state = "door1"
+	icon_state = "door_closed"
 	anchored = 1
 	opacity = 1
 	density = 1
@@ -18,7 +18,7 @@
 
 	var/visible = 1
 	var/p_open = 0
-	var/operating = 0
+	var/operating = DOOR_IDLE
 	var/autoclose = 0
 	var/glass = 0
 	var/normalspeed = 1
@@ -37,9 +37,12 @@
 	var/tryingToLock = FALSE // for autoclosing
 	// turf animation
 	var/atom/movable/fake_overlay/c_animation = null
-	/// Determines whether this door already has thinkg_close context running or not
-	var/thinking_about_closing = FALSE
 	rad_resist_type = /datum/rad_resist/door
+
+	// Don't mess with these unless you absolutely know what you're doing.
+	var/anim_time_1 = 3
+	var/anim_time_2 = 7
+	var/anim_time_3 = 0
 
 /datum/rad_resist/door
 	alpha_particle_resist = 350 MEGA ELECTRONVOLT
@@ -109,38 +112,51 @@
 	return TRUE
 
 /obj/machinery/door/Bumped(atom/AM)
-	if(p_open || operating) return
-	if(ismob(AM))
-		var/mob/M = AM
-		if(world.time - M.last_bumped <= 10) return	//Can bump-open one airlock per second. This is to prevent shock spam.
-		M.last_bumped = world.time
-		if(!M.restrained() && (!issmall(M) || ishuman(M)))
-			bumpopen(M)
+	if(p_open || operating)
 		return
 
 	if(istype(AM, /mob/living/bot))
 		var/mob/living/bot/bot = AM
 		if(src.check_access(bot.botcard))
 			if(density)
-				open()
+				INVOKE_ASYNC(src, nameof(.proc/open))
+		return
+
+	if(ismob(AM))
+		var/mob/M = AM
+		if(world.time - M.last_bumped <= 1 SECOND)
+			return	//Can bump-open one airlock per second. This is to prevent shock spam.
+		M.last_bumped = world.time
+		if(!M.restrained() && (!issmall(M) || ishuman(M)))
+			bumpopen(M)
 		return
 
 	if(istype(AM, /obj/mecha))
 		var/obj/mecha/mecha = AM
 		if(density)
-			if(mecha.occupant && (src.allowed(mecha.occupant) || src.check_access_list(mecha.operation_req_access)))
-				open()
+			if(check_access(mecha.occupant) || check_access_list(mecha.operation_req_access))
+				INVOKE_ASYNC(src, nameof(.proc/open))
 			else
 				do_animate("deny")
 		return
+
 	if(istype(AM, /obj/structure/bed/chair/wheelchair))
 		var/obj/structure/bed/chair/wheelchair/wheel = AM
 		if(density)
-			if(wheel.pulling && (src.allowed(wheel.pulling)))
-				open()
+			if(check_access(wheel.pulling))
+				INVOKE_ASYNC(src, nameof(.proc/open))
 			else
 				do_animate("deny")
 		return
+
+	if(isobj(AM) && density)
+		var/obj/O = AM
+		if(O.w_class >= ITEM_SIZE_NORMAL || O.get_id_card())
+			if(check_access(AM))
+				INVOKE_ASYNC(src, nameof(.proc/open))
+			else
+				do_animate("deny")
+
 	return
 
 
@@ -156,22 +172,27 @@
 
 
 /obj/machinery/door/proc/bumpopen(mob/user)
-	if(operating)	return
+	if(operating)
+		return
 	if(user.last_airflow > world.time - vsc.airflow_delay) //Fakkit
 		return
-	src.add_fingerprint(user)
+	add_fingerprint(user)
 	if(density)
-		if(allowed(user))	open()
-		else				do_animate("deny")
+		if(check_access(user))
+			INVOKE_ASYNC(src, nameof(.proc/open))
+		else
+			do_animate("deny")
 	return
 
 /obj/machinery/door/bullet_act(obj/item/projectile/Proj)
 	..()
 
 	var/damage = Proj.get_structure_damage()
+	var/is_breaching = istype(Proj, /obj/item/projectile/bullet/shotgun/breaching)
 
 	// Emitter Blasts - these will eventually completely destroy the door, given enough time.
-	if(damage > 90)
+	// Breaching shells don't trigger this - they just deal direct damage
+	if(damage > 90 && !is_breaching)
 		destroy_hits--
 		if(destroy_hits <= 0)
 			visible_message("<span class='danger'>\The [src.name] disintegrates!</span>")
@@ -185,17 +206,22 @@
 
 	if(damage)
 		//cap projectile damage so that there's still a minimum number of hits required to break the door
-		take_damage(min(damage, 100))
+		if(is_breaching)
+			take_damage(damage)
+		else
+			take_damage(min(damage, 100))
 
 
-/obj/machinery/door/hitby(atom/movable/AM, speed = 1, nomsg = FALSE)
+/obj/machinery/door/hitby(atom/movable/AM, datum/thrownthing/TT)
 	..()
 	var/tforce = 0
 	if(ismob(AM))
-		tforce = 15 * (speed/5)
+		tforce = 3 * TT.speed
 	else
-		tforce = AM:throwforce * (speed/5)
+		tforce = AM:throwforce * (TT.speed/THROWFORCE_SPEED_DIVISOR)
 	take_damage(tforce)
+
+	Bumped(AM) // A bit hacky, but it works wonders.
 	return
 
 /obj/machinery/door/attack_ai(mob/user)
@@ -205,8 +231,8 @@
 	return src.attackby(user, user)
 
 /obj/machinery/door/attack_tk(mob/user)
-	if(requiresID() && !allowed(null))
-		return
+	if(requiresID() && !check_access())
+		return FALSE
 	..()
 
 /obj/machinery/door/attackby(obj/item/I, mob/user)
@@ -253,7 +279,7 @@
 		var/obj/item/weldingtool/WT = I
 
 		to_chat(user, SPAN_NOTICE("You start to fix dents and weld \the [repairing] into place."))
-		if(!WT.use_tool(src, user, delay = 5 * repairing.amount, amount = 5))
+		if(!WT.use_tool(src, user, delay = 5 * repairing.amount, amount = 50))
 			return
 
 		if(QDELETED(src) || !user)
@@ -277,7 +303,7 @@
 	if(isobj(I) && density && user.a_intent == I_HURT && !(istype(I, /obj/item/card) || istype(I, /obj/item/device/pda)))
 		if(I.damtype == BRUTE || I.damtype == BURN)
 			user.do_attack_animation(src)
-			user.setClickCooldown(I.update_attack_cooldown())
+			I.set_cooldown()
 			if(I.force <= 0)
 				user.visible_message(SPAN("notice", "\The [user] smacks \the [src] with \the [I] with no visible effect."))
 				playsound(loc, hitsound, 10, 1)
@@ -295,8 +321,11 @@
 
 	if(src.operating) return
 
-	if(allowed(user) && operable())
-		density ? open() : close()
+	if(check_access(user) && operable())
+		if(density)
+			INVOKE_ASYNC(src, nameof(.proc/open))
+		else
+			INVOKE_ASYNC(src, nameof(.proc/close))
 		return
 
 	if(src.density)
@@ -307,8 +336,8 @@
 	if(density && operable())
 		do_animate("spark")
 		sleep(6)
-		open()
-		operating = -1
+		INVOKE_ASYNC(src, nameof(.proc/open))
+		operating = DOOR_FAILURE
 		return 1
 
 /obj/machinery/door/proc/take_damage(damage)
@@ -395,29 +424,40 @@
 	var/wait = normalspeed ? 150 : 5
 	if(!can_open(forced))
 		return FALSE
-	operating = TRUE
+	operating = DOOR_OPENING
+	update_icon()
 
 	do_animate("opening")
 	icon_state = "door0"
 	set_opacity(FALSE)
 	if(filler)
 		filler.set_opacity(opacity)
-	sleep(3)
+
+	if(anim_time_1)
+		sleep(anim_time_1)
+
 	set_density(FALSE)
 	update_nearby_tiles()
 	atom_flags &= ~ATOM_FLAG_FULLTILE_OBJECT
-	sleep(7)
-	layer = open_layer
+
+	if(anim_time_2)
+		sleep(anim_time_2)
+
 	explosion_resistance = 0
-	update_icon()
+	layer = open_layer
 	set_opacity(FALSE)
 	if(filler)
 		filler.set_opacity(opacity)
-	operating = FALSE
+	operating = DOOR_IDLE
+	update_icon()
 
-	if(autoclose && !thinking_about_closing)
-		thinking_about_closing = TRUE
+	if(anim_time_3)
+		sleep(anim_time_3)
+
+	if(autoclose)
 		set_next_think_ctx("close_context", world.time + wait)
+	else
+		set_next_think_ctx("close_context", 0)
 
 	return TRUE
 
@@ -429,25 +469,34 @@
 			set_next_think_ctx("close_context", world.time + wait)
 		return FALSE
 
-	thinking_about_closing = FALSE
-	operating = TRUE
+	operating = DOOR_CLOSING
+	update_icon()
 
 	do_animate("closing")
-	sleep(3)
+
+	if(anim_time_1)
+		sleep(anim_time_1)
+
 	set_density(TRUE)
 	explosion_resistance = initial(explosion_resistance)
 	layer = closed_layer
 	update_nearby_tiles()
 	atom_flags |= ATOM_FLAG_FULLTILE_OBJECT
-	sleep(7)
-	update_icon()
+
+	if(anim_time_2)
+		sleep(anim_time_2)
+
 	if(visible && !glass)
 		set_opacity(TRUE) //caaaaarn!
 		if(filler)
 			filler.set_opacity(opacity)
-	operating = FALSE
-
+	operating = DOOR_IDLE
+	update_icon()
 	shove_everything(shove_mobs = push_mobs, min_w_class = ITEM_SIZE_NORMAL) // Door shields cheesy meta must be gone.
+
+	if(anim_time_3)
+		sleep(anim_time_3)
+
 
 	//I shall not add a check every x ticks if a door has closed over some fire.
 	var/obj/fire/fire = locate() in loc
@@ -458,10 +507,10 @@
 /obj/machinery/door/proc/requiresID()
 	return 1
 
-/obj/machinery/door/allowed(mob/M)
+/obj/machinery/door/check_access()
 	if(!requiresID())
 		return ..(null) //don't care who they are or what they have, act as if they're NOTHING
-	return ..(M)
+	return ..()
 
 /obj/machinery/door/update_nearby_tiles(need_rebuild)
 	. = ..()

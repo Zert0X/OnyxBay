@@ -7,7 +7,7 @@
 	w_class = ITEM_SIZE_LARGE
 	slot_flags = null
 	force = 5
-	fire_delay = 1
+	fire_delay = 0.3 SECONDS
 	ammo_type = /obj/item/ammo_casing/magic/bloodchill
 	fire_sound = 'sound/effects/attackblob.ogg'
 	handle_casings = CLEAR_CASINGS
@@ -24,9 +24,9 @@
 		return FALSE
 	charge_timer = 0
 	var/mob/living/carbon/human/M = loc
-	if(istype(M) && M.get_blood_volume_abs() >= 20)
+	if(istype(M) && M.get_blood_volume_abs() >= 200)
 		charges++
-		M.remove_blood(20)
+		M.remove_blood(200)
 	if(charges == 1)
 		loaded += new ammo_type(src)
 		consume_next_projectile()

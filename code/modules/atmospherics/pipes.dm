@@ -115,7 +115,7 @@
 	var/datum/gas_mixture/env_air = loc.return_air()
 	playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
 	to_chat(user, "<span class='notice'>You begin to unfasten \the [src]...</span>")
-	if (do_after(user, 40, src))
+	if (do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 		if(clamp)
 			to_chat(user, SPAN("warning", "You must remove \the [clamp] first."))
 			return TRUE
@@ -248,7 +248,7 @@
 /obj/machinery/atmospherics/pipe/simple/proc/burst()
 	ASSERT(parent)
 	src.visible_message("<span class='danger'>\The [src] bursts!</span>");
-	playsound(src.loc, 'sound/effects/bang.ogg', 25, 1)
+	playsound(src.loc, GET_SFX(SFX_BANG), 25, 1)
 	var/datum/effect/effect/system/smoke_spread/smoke = new
 	smoke.set_up(1,0, src.loc, 0)
 	smoke.start()
@@ -1191,8 +1191,8 @@
 	air_temporary = new
 	air_temporary.volume = volume
 	air_temporary.temperature = 20 CELSIUS
-	air_temporary.adjust_multi("oxygen",  (start_pressure*O2STANDARD)*(air_temporary.volume)/(R_IDEAL_GAS_EQUATION*air_temporary.temperature), \
-	                           "nitrogen",(start_pressure*N2STANDARD)*(air_temporary.volume)/(R_IDEAL_GAS_EQUATION*air_temporary.temperature))
+	air_temporary.adjust_multi("oxygen",  (start_pressure*O2_STANDARD)*(air_temporary.volume)/(R_IDEAL_GAS_EQUATION*air_temporary.temperature), \
+	                           "nitrogen",(start_pressure*N2_STANDARD)*(air_temporary.volume)/(R_IDEAL_GAS_EQUATION*air_temporary.temperature))
 	icon_state = "air"
 
 /obj/machinery/atmospherics/pipe/tank/oxygen

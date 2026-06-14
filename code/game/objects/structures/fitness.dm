@@ -16,13 +16,16 @@
 		return
 	if(user.nutrition < 20)
 		to_chat(user, "<span class='warning'>You need more energy to use the punching bag. Go eat something.</span>")
+	else if(user.hydration <= HYDRATION_NONE)
+		to_chat(user, SPAN("warning", "You can barely move. Go drink some water."))
 	else
 		if(user.a_intent == I_HURT)
 			user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 			flick("[icon_state]_hit", src)
 			playsound(src.loc, 'sound/effects/woodhit.ogg', 25, 1, -1)
 			user.do_attack_animation(src)
-			user.remove_nutrition(5)
+			user.remove_nutrition(3.5)
+			user.remove_hydration(10.0)
 			to_chat(user, "<span class='warning'>You [pick(hit_message)] \the [src].</span>")
 
 /obj/structure/fitness/weightlifter
@@ -47,6 +50,9 @@
 	if(user.nutrition < 50)
 		to_chat(user, "<span class='warning'>You need more energy to lift weights. Go eat something.</span>")
 		return
+	if(user.hydration <= HYDRATION_NONE)
+		to_chat(user, SPAN("warning", "You can barely move. Go drink some water."))
+		return
 	if(being_used)
 		to_chat(user, "<span class='warning'>The weight machine is already in use by somebody else.</span>")
 		return
@@ -64,7 +70,8 @@
 
 		if(do_after(user, usetime))
 			playsound(src.loc, 'sound/effects/weightdrop.ogg', 25, 1)
-			user.remove_nutrition(weight * 10)
+			user.remove_nutrition(weight * 5.0)
+			user.remove_hydration(7.5 * weight)
 			if((MUTATION_HULK in user.mutations) || (MUTATION_STRONG in user.mutations))
 				to_chat(user, SPAN("notice", "You shred the weights without barely noticing it."))
 			else

@@ -3,51 +3,65 @@
 ****************************************************/
 /obj/item/organ/internal
 	food_organ_type = /obj/item/reagent_containers/food/organ
-	throwforce = 0.1 // Enough to upset you, not enough to crack your ribcage open
-	var/dead_icon // Icon to use when the organ has died.
+	throwforce = 0.1                // Enough to upset you, not enough to crack your ribcage open
+	var/dead_icon                   // Icon to use when the organ has died.
 	var/surface_accessible = FALSE
-	var/relative_size = 25   // Relative size of the organ. Roughly % of space they take in the target projection :D
+	var/relative_size = 25          // Relative size of the organ. Roughly % of space they take in the target projection :D
 	var/list/will_assist_languages = list()
 	var/list/datum/language/assists_languages = list()
-	var/min_bruised_damage = 10       // Damage before considered bruised
-	var/foreign = FALSE 			  // foreign organs shouldn't be removed or recreated on revive
+	var/min_bruised_damage = 0        // Damage before considered bruised
+	var/foreign = FALSE               // foreign organs shouldn't be removed or recreated on revive
 	var/override_species_icon = FALSE // Should we ignore species-specific icons?
 	/// Should this organs icon changed to prosthetic?
 	var/override_organic_icon = TRUE
 	/// Should this organ be hidden on scanners?
 	var/hidden = FALSE
+	var/autoheal_value = 0.1
+	var/traumatic_damage_multiplier = 1.0 // Multiplier for incoming traumatic (getting hit/shot) damage.
 
-/obj/item/organ/internal/New(mob/living/carbon/holder)
-	if(max_damage)
+/obj/item/organ/internal/Initialize()
+	. = ..()
+
+	if(!min_bruised_damage)
 		min_bruised_damage = Floor(max_damage / 4)
 
-	..(holder)
+	if(owner)
+		var/obj/item/organ/external/E = owner.get_organ(parent_organ)
+		if(!E)
+			CRASH("[src] spawned in [owner] without a parent organ: [parent_organ].")
+			return INITIALIZE_HINT_QDEL
 
-	if(istype(holder))
-		holder.internal_organs |= src
-
-		var/mob/living/carbon/human/H = holder
-		if(istype(H))
-			var/obj/item/organ/external/E = H.get_organ(parent_organ)
-			if(!E)
-				CRASH("[src] spawned in [holder] without a parent organ: [parent_organ].")
-			E.internal_organs |= src
-			E.cavity_max_w_class = max(E.cavity_max_w_class, w_class)
+		E.internal_organs |= src
+		E.cavity_max_w_class = max(E.cavity_max_w_class, w_class)
+		owner.internal_organs |= src
 
 		handle_foreign()
+
+		if(owner.snowflake_organs)
+			apply_snowflake(owner.snowflake_organs)
 
 	update_icon()
 
 /obj/item/organ/internal/Destroy()
 	if(owner)
-		owner.internal_organs.Remove(src)
-		owner.internal_organs_by_name.Remove(organ_tag)
+		owner.internal_organs -= src
 		owner.internal_organs_by_name -= organ_tag
-		while(null in owner.internal_organs)
-			owner.internal_organs -= null
-		var/obj/item/organ/external/E = owner.organs_by_name[parent_organ]
-		if(istype(E)) E.internal_organs -= src
+		var/obj/item/organ/external/E = owner.external_organs_by_name[parent_organ]
+		if(istype(E))
+			E.internal_organs -= src
 	return ..()
+
+/obj/item/organ/internal/think()
+	..()
+
+	if(!owner)
+		return
+
+	if(isundead(owner))
+		return
+
+	if(damage)
+		autoheal()
 
 /obj/item/organ/internal/set_dna(datum/dna/new_dna)
 	..()
@@ -59,56 +73,59 @@
 /obj/item/organ/proc/cut_away(mob/living/user)
 	var/obj/item/organ/external/parent = owner.get_organ(parent_organ)
 	if(istype(parent)) //TODO ensure that we don't have to check this.
-		removed(user, 0)
-		parent.implants += src
+		removed(user, FALSE, TRUE)
 
 /obj/item/organ/internal/removed(mob/living/user, drop_organ = TRUE, detach = TRUE)
 	if(owner)
-		owner.internal_organs_by_name.Remove(organ_tag)
 		owner.internal_organs_by_name -= organ_tag
-		owner.internal_organs_by_name -= null
 		owner.internal_organs -= src
 
-		if(detach)
-			var/obj/item/organ/external/affected = owner.get_organ(parent_organ)
-			if(affected)
-				affected.internal_organs -= src
-				status |= ORGAN_CUT_AWAY
+	if(detach)
+		var/obj/item/organ/external/affected = owner?.get_organ(parent_organ)
+		if(istype(affected))
+			affected.internal_organs -= src
+			status |= ORGAN_CUT_AWAY
+			if(!drop_organ)
+				affected.implants |= src
 	..()
 
 /obj/item/organ/internal/replaced(mob/living/carbon/human/target, obj/item/organ/external/affected)
 
 	if(!istype(target))
-		return 0
+		return FALSE
 
 	if(status & ORGAN_CUT_AWAY)
-		return 0 //organs don't work very well in the body when they aren't properly attached
+		return FALSE //organs don't work very well in the body when they aren't properly attached
 
 	// robotic organs emulate behavior of the equivalent flesh organ of the species
 	if(BP_IS_ROBOTIC(src) || !species)
 		species = target.species
 
-	..()
+	. = ..()
+	if(!.)
+		return FALSE
 
 	set_next_think(0)
 	target.internal_organs |= src
 	affected.internal_organs |= src
 	target.internal_organs_by_name[organ_tag] = src
-	return 1
+	return TRUE
 
 /obj/item/organ/internal/die()
-	..()
+	. = ..()
+	if(!.)
+		return FALSE
 	if((status & ORGAN_DEAD) && dead_icon)
 		icon_state = dead_icon
+	return TRUE
 
 /obj/item/organ/internal/remove_rejuv()
 	if(owner)
 		owner.internal_organs -= src
-		owner.internal_organs_by_name.Remove(organ_tag)
 		owner.internal_organs_by_name -= organ_tag
 		while(null in owner.internal_organs)
 			owner.internal_organs -= null
-		var/obj/item/organ/external/E = owner.organs_by_name[parent_organ]
+		var/obj/item/organ/external/E = owner.external_organs_by_name[parent_organ]
 		if(istype(E)) E.internal_organs -= src
 	..()
 
@@ -116,7 +133,10 @@
 	return ..() && !is_broken()
 
 /obj/item/organ/internal/robotize()
-	..()
+	. = ..()
+	if(!.)
+		return FALSE
+
 	min_bruised_damage += 5
 	min_broken_damage += 10
 
@@ -124,6 +144,7 @@
 
 	if(override_organic_icon)
 		icon = 'icons/mob/human_races/organs/cyber.dmi'
+	return TRUE
 
 /obj/item/organ/internal/proc/getToxLoss()
 	if(BP_IS_ROBOTIC(src))
@@ -142,9 +163,12 @@
 /obj/item/organ/internal/take_general_damage(amount, silent = FALSE)
 	take_internal_damage(amount, silent)
 
-/obj/item/organ/internal/proc/take_internal_damage(amount, silent = FALSE)
+/obj/item/organ/internal/proc/take_internal_damage(amount, silent = FALSE, is_traumatic = FALSE)
 	if(owner?.status_flags & GODMODE)
 		return 0
+	if(is_traumatic)
+		amount *= traumatic_damage_multiplier
+
 	if(BP_IS_ROBOTIC(src))
 		damage = between(0, src.damage + (amount * 0.8), max_damage)
 	else
@@ -161,6 +185,31 @@
 					degree = " a bit"
 				owner.custom_pain("Something inside your [parent.name] hurts[degree].", amount, affecting = parent)
 
+// Slowly heals towards 0 damage if not bruised, or towards min_bruised_damage if already bruised.
+/obj/item/organ/internal/proc/autoheal()
+	if(!damage)
+		return
+
+	if(BP_IS_ROBOTIC(src))
+		return // Flesh is superior.
+
+	if(status & ORGAN_DEAD)
+		return
+
+	if(damage >= max_damage)
+		return
+
+	var/heal_value = autoheal_value * owner.coagulation
+
+	if(damage >= min_broken_damage)
+		damage = max(min_broken_damage, damage - heal_value)
+	else if(damage >= min_bruised_damage)
+		damage = max(min_bruised_damage, damage - heal_value)
+	else
+		damage = max(0, damage - heal_value)
+
+	return
+
 /obj/item/organ/internal/emp_act(severity)
 	if(owner?.status_flags & GODMODE)
 		return 0
@@ -176,4 +225,21 @@
 
 // Things we should do if we are a foreign organ. Used only by lings' biostructures for now.
 /obj/item/organ/internal/proc/handle_foreign()
+	return
+
+/obj/item/organ/internal/handle_rejection()
+	. = ..()
+	if(!.)
+		return
+
+	if(rejecting % 5 == 0) //Only fire every five rejection ticks.
+		switch(rejecting)
+			if(51 to 200)
+				take_internal_damage(rand(1, 5))
+			if(201 to 500)
+				take_internal_damage(rand(5, 10))
+			if(501 to INFINITY)
+				take_internal_damage(rand(10, 15))
+				if(prob(rejecting / 500))
+					die()
 	return

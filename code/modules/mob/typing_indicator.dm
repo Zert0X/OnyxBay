@@ -31,7 +31,11 @@
 	remove_all_indicators()
 	..()
 
-// TO-DO: move on to TGUI say, it's just better. - N
+/client/proc/open_saywindow()
+	// I know it looks weird, believe me I do. But this is the way.
+	if(winget(src, "saywindow", "is-visible") == "false")
+		winset(src, null, "saywindow.is-visible=true;saywindow-input.focus=true")
+
 /client/proc/close_saywindow(return_content = FALSE)
 	winset(src, null, "saywindow.is-visible=false;mapwindow.map.focus=true")
 	if (return_content)
@@ -81,6 +85,7 @@
 			stop_typing()
 			return
 
+	if(client) // Apparently it can get lost since the last check because winget() sleeps the proc as it checks the client's skin state.
 		var/focus = winget(src, ":input", "focus")
 		if(cmptext(focus, "false"))
 			var/text = winget(src, ":input", "text")

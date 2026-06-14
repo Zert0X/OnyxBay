@@ -213,6 +213,18 @@
 		O.throw_at(dest, 5)
 
 /obj/effect/meteor/proc/meteor_effect()
+	var/static/list/hit_sounds = list(
+		'sound/effects/explosions/meteor_hit.ogg',
+		'sound/effects/explosions/meteor_hit2.ogg',
+		'sound/effects/explosions/meteor_hit3.ogg',
+		'sound/effects/explosions/meteor_hit4.ogg',
+		'sound/effects/explosions/meteor_hit5.ogg'
+	)
+	var/sound/meteor_sound = sound(pick(hit_sounds), volume = 20)
+	for(var/mob/M in GLOB.player_list)
+		var/turf/T = get_turf(M)
+		if(T && T.z == src.z && !istype(M, /mob/new_player) && !isdeaf(M))
+			sound_to(M, meteor_sound)
 	if(heavy)
 		for(var/mob/M in GLOB.player_list)
 			var/turf/T = get_turf(M)
@@ -280,8 +292,8 @@
 	..()
 	explosion(src.loc, 0, 0, 4, 3, 0)
 	var/obj/effect/decal/cleanable/greenglow/glow = new(get_turf(src))
-	glow.create_reagents(30)
-	glow.reagents.add_reagent(/datum/reagent/uranium, 30)
+	glow.create_reagents(300)
+	glow.reagents.add_reagent(/datum/reagent/uranium, 300)
 
 /obj/effect/meteor/golden
 	name = "golden meteor"

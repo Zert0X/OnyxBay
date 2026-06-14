@@ -4,6 +4,7 @@
 
 /obj/item/circuitboard/telecomms
 	board_type = "machine"
+	icon_state = "id_mod_blue"
 
 /obj/item/circuitboard/telecomms/receiver
 	name = T_BOARD("subspace receiver")

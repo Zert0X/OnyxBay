@@ -23,7 +23,7 @@
 	var/pillsprite = "1"
 	var/client/has_sprites = list()
 	var/max_pill_count = 20
-	var/capacity = 120
+	var/capacity = 3.0 LITERS
 	component_types = list(
 		/obj/item/circuitboard/chemmaster,
 		/obj/item/device/healthanalyzer,
@@ -31,7 +31,7 @@
 		/obj/item/stock_parts/manipulator = 4,
 		/obj/item/stock_parts/console_screen,
 	)
-	atom_flags = ATOM_FLAG_OPEN_CONTAINER
+	atom_flags = ATOM_FLAG_OPEN_CONTAINER | ATOM_FLAG_NO_REACT
 	var/matter_amount_per_sheet = SHEET_MATERIAL_AMOUNT
 	var/matter_type = MATERIAL_GLASS
 	var/matter_storage = SHEET_MATERIAL_AMOUNT * 25
@@ -80,6 +80,10 @@
 			if (prob(50))
 				qdel(src)
 				return
+
+/obj/machinery/chem_master/AltClick(mob/user)
+	if(grab_container(user, &beaker))
+		reagents.clear_reagents()
 
 /obj/machinery/chem_master/attackby(obj/item/W, mob/user)
 	if(default_deconstruction_screwdriver(user, W))
@@ -176,6 +180,14 @@
 					useramount = Clamp(useramount, 0, capacity)
 					src.Topic(href, list("amount" = "[useramount]", "add" = href_list["addcustom"]), state)
 
+		else if (href_list["decompile"])
+			var/datum/reagent/their_reagent = locate(href_list["decompile"]) in R.reagent_list
+			if(their_reagent)
+				if(their_reagent.decompile_into(reagents))
+					playsound(loc, 'sound/signals/ping13.ogg', 50, 1, -3)
+				else
+					playsound(loc, 'sound/signals/error31.ogg', 50, 1, -3)
+
 		else if (href_list["remove"])
 			if(href_list["amount"])
 				var/datum/reagent/my_reagents = locate(href_list["remove"]) in reagents.reagent_list
@@ -247,17 +259,17 @@
 				create_bottle(usr)
 			else
 				var/obj/item/reagent_containers/vessel/condiment/P = new /obj/item/reagent_containers/vessel/condiment(src.loc)
-				reagents.trans_to_obj(P, 50)
+				reagents.trans_to_obj(P, 300)
 
 		else if(href_list["createbottle_small"])
 			if(!spend_material(1000, usr))
 				return
-			create_bottle(usr, 30, "small")
+			create_bottle(usr, 100, "small")
 
 		else if(href_list["createbottle_big"])
 			if(!spend_material(3000, usr))
 				return
-			create_bottle(usr, 90, "big")
+			create_bottle(usr, 500, "big")
 
 		else if(href_list["change_pill"])
 			#define MAX_PILL_SPRITE 25 //max icon state of the pill sprites
@@ -294,7 +306,7 @@
 	src.updateUsrDialog()
 	return
 
-/obj/machinery/chem_master/proc/create_bottle(mob/user = null, reagent_amount = 60, bottle_type = null)
+/obj/machinery/chem_master/proc/create_bottle(mob/user = null, reagent_amount = 250, bottle_type = null)
 	var/bottle_name
 	if(user)
 		bottle_name = sanitizeSafe(input(user, "Name:", "Name your bottle!", reagents.get_master_reagent_name()), MAX_NAME_LEN)
@@ -356,18 +368,21 @@
 		else
 			dat += "Add to buffer:<BR>"
 			for(var/datum/reagent/G in R.reagent_list)
-				dat += "[G.name] , [G.volume] Units - "
+				dat += "[G.name] , [G.volume] ml - "
 				dat += "<A href='?src=\ref[src];analyze=1;desc=[G.description];name=[G.name]'>(Analyze)</A> "
+				dat += "<A href='?src=\ref[src];decompile=\ref[G]'>(Decompile)</A>"
 				dat += "<A href='?src=\ref[src];add=\ref[G];amount=1'>(1)</A> "
 				dat += "<A href='?src=\ref[src];add=\ref[G];amount=5'>(5)</A> "
 				dat += "<A href='?src=\ref[src];add=\ref[G];amount=10'>(10)</A> "
+				dat += "<A href='?src=\ref[src];add=\ref[G];amount=50'>(50)</A> "
+				dat += "<A href='?src=\ref[src];add=\ref[G];amount=100'>(100)</A> "
 				dat += "<A href='?src=\ref[src];add=\ref[G];amount=[G.volume]'>(All)</A> "
 				dat += "<A href='?src=\ref[src];addcustom=\ref[G]'>(Custom)</A><BR>"
 
 		dat += "<HR>Transfer to <A href='?src=\ref[src];toggle=1'>[(!mode ? "disposal" : "beaker")]:</A><BR>"
 		if(reagents.total_volume)
 			for(var/datum/reagent/N in reagents.reagent_list)
-				dat += "[N.name] , [N.volume] Units - "
+				dat += "[N.name] , [N.volume] ml - "
 				dat += "<A href='?src=\ref[src];analyze=1;desc=[N.description];name=[N.name]'>(Analyze)</A> "
 				dat += "<A href='?src=\ref[src];remove=\ref[N];amount=1'>(1)</A> "
 				dat += "<A href='?src=\ref[src];remove=\ref[N];amount=5'>(5)</A> "
@@ -378,14 +393,14 @@
 			dat += "Empty<BR>"
 		dat += "<HR>Stored glass amount: [matter_storage]/[matter_storage_max]<BR>"
 		if(!condi)
-			dat += "<HR><BR><A href='?src=\ref[src];createpill=1'>Create pill (30 units max)</A><a href=\"?src=\ref[src]&change_pill=1\"><img src=\"pill[pillsprite].png\" /></a><BR>"
+			dat += "<HR><BR><A href='?src=\ref[src];createpill=1'>Create pill (30 ml max)</A><a href=\"?src=\ref[src]&change_pill=1\"><img src=\"pill[pillsprite].png\" /></a><BR>"
 			dat += "<A href='?src=\ref[src];createpill_multiple=1'>Create multiple pills</A><BR>"
-			dat +=  "<A href='?src=\ref[src];createbottle_small=1'>Create small bottle  | 30 units max | Glass: 1000</A><BR>"
-			dat +=        "<A href='?src=\ref[src];createbottle=1'>Create normal bottle | 60 units max | Glass: 2000</A><BR>"
-			dat +=    "<A href='?src=\ref[src];createbottle_big=1'>Create big bottle    | 90 units max | Glass: 3000</A>"
+			dat +=  "<A href='?src=\ref[src];createbottle_small=1'>Create small bottle  | 100 ml max | Glass: 1000</A><BR>"
+			dat +=        "<A href='?src=\ref[src];createbottle=1'>Create normal bottle | 250 ml max | Glass: 2000</A><BR>"
+			dat +=    "<A href='?src=\ref[src];createbottle_big=1'>Create big bottle    | 500 ml max | Glass: 3000</A>"
 		else
-			dat += "<A href='?src=\ref[src];createbottle=1'>Create bottle | 50 units max | Glass: 2000</A><BR>"
-			dat += "<A href='?src=\ref[src];condiment_pack=1'>Create condiment pack | 10 units max | Glass: 50</A>"
+			dat += "<A href='?src=\ref[src];createbottle=1'>Create bottle | 300 ml max | Glass: 2000</A><BR>"
+			dat += "<A href='?src=\ref[src];condiment_pack=1'>Create condiment pack | 10 ml max | Glass: 50</A>"
 	if(!condi)
 		show_browser(user, "<meta charset=\"utf-8\"><TITLE>Chemmaster 3000</TITLE>Chemmaster menu:<BR><BR>[dat]", "window=chem_master;size=575x400")
 	else
@@ -520,6 +535,12 @@
 		//Calling attack_hand(user) to make ensure no functionality is missed.
 		//If attack_hand is updated, this segment won't have to be updated as well.
 		return attack_hand(user)
+
+/obj/machinery/reagentgrinder/AltClick(mob/user)
+	if(!user.Adjacent(get_turf(src)))
+		return
+		
+	grab_container(user, &beaker)
 
 /obj/machinery/reagentgrinder/proc/show_choices(mob/user)
 	if(!length(choices))

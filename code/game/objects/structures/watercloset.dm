@@ -180,7 +180,7 @@
 
 /obj/machinery/shower/Initialize(mapload, ...)
 	. = ..()
-	create_reagents(50)
+	create_reagents(0.5 LITERS)
 
 //add heat controls? when emagged, you can freeze to death in it?
 
@@ -264,8 +264,7 @@
 
 	if(isliving(O))
 		var/mob/living/L = O
-		L.ExtinguishMob()
-		L.fire_stacks = -20 //Douse ourselves with water to avoid fire more easily
+		L.adjust_fire_stacks(-100) //Douse ourselves with water to avoid fire more easily
 
 	if(iscarbon(O))
 		var/mob/living/carbon/M = O
@@ -337,10 +336,11 @@
 					H.update_inv_belt(0)
 			H.clean_blood(washshoes)
 
-			var/obj/item/organ/external/head/head = H.organs_by_name[BP_HEAD]
+			var/obj/item/organ/external/head/head = H.external_organs_by_name[BP_HEAD]
 			if(istype(head))
 				head.forehead_graffiti = null
 				head.graffiti_style = null
+				head.forehead_stamps.Cut()
 		else
 			if(M.wear_mask)						//if the mob is not human, it cleans the mask without asking for bitflags
 				if(M.wear_mask.clean_blood())
@@ -429,8 +429,8 @@
 	icon = 'icons/obj/watercloset.dmi'
 	icon_state = "sink"
 	desc = "A sink used for washing one's hands and face."
-	anchored = 1
-	var/busy = 0 	//Something's being washed at the moment
+	anchored = TRUE
+	var/busy = FALSE // Something's being washed at the moment
 
 /obj/structure/sink/MouseDrop_T(obj/item/thing, mob/user)
 	..()
@@ -446,14 +446,10 @@
 	thing.reagents.clear_reagents()
 	thing.update_icon()
 
-/obj/structure/sink/attack_hand(mob/user as mob)
+/obj/structure/sink/attack_hand(mob/user)
 	if (ishuman(user))
 		var/mob/living/carbon/human/H = user
-		var/obj/item/organ/external/temp = H.organs_by_name[BP_R_HAND]
-		if (user.hand)
-			temp = H.organs_by_name[BP_L_HAND]
-		if(temp && !temp.is_usable())
-			to_chat(user, "<span class='notice'>You try to move your [temp.name], but cannot!</span>")
+		if(!H.is_hand_usable())
 			return
 
 	if(isrobot(user) || isAI(user))
@@ -469,11 +465,11 @@
 	playsound(loc, 'sound/effects/using/sink/washing1.ogg', 75)
 	to_chat(usr, "<span class='notice'>You start washing your hands.</span>")
 
-	busy = 1
-	if(!do_after(user, 40,src))
-		busy = 0
+	busy = TRUE
+	if(!do_after(user, (3 SECONDS), src))
+		busy = FALSE
 		return
-	busy = 0
+	busy = FALSE
 
 	if(!Adjacent(user)) return		//Person has moved away from the sink
 
@@ -497,7 +493,10 @@
 		playsound(loc, 'sound/effects/using/sink/filling1.ogg', 75)
 		RG.reagents.add_reagent(/datum/reagent/water, min(RG.volume - RG.reagents.total_volume, RG.amount_per_transfer_from_this))
 		user.visible_message("<span class='notice'>[user] fills \the [RG] using \the [src].</span>","<span class='notice'>You fill \the [RG] using \the [src].</span>")
-		return 1
+		return TRUE
+
+	else if(istype(O, /obj/item/soap))
+		return FALSE // We don't want to wash it, we want to wet it.
 
 	else if (istype(O, /obj/item/melee/baton))
 		var/obj/item/melee/baton/B = O
@@ -517,13 +516,14 @@
 				user.visible_message( \
 					"<span class='danger'>[user] was stunned by \his wet [O]!</span>", \
 					"<span class='userdanger'>[user] was stunned by \his wet [O]!</span>")
-				return 1
+				return TRUE
+
 	else if(istype(O, /obj/item/mop))
 		playsound(loc, 'sound/effects/using/sink/filling1.ogg', 75)
-		O.reagents.add_reagent(/datum/reagent/water, 5)
+		O.reagents.add_reagent(/datum/reagent/water, 300)
 		to_chat(user, "<span class='notice'>You wet \the [O] in \the [src].</span>")
 		playsound(loc, 'sound/effects/slosh.ogg', 25, 1)
-		return
+		return TRUE
 
 	var/turf/location = user.loc
 	if(!isturf(location)) return
@@ -535,15 +535,18 @@
 
 	playsound(loc, 'sound/effects/using/sink/washing1.ogg', 75)
 
-	busy = 1
-	if(!do_after(user, 40,src))
-		busy = 0
+	busy = TRUE
+	if(!do_after(user, (3 SECONDS), src))
+		busy = FALSE
 		return
-	busy = 0
+	busy = FALSE
 
-	if(user.loc != location) return				//User has moved
-	if(!I) return 								//Item's been destroyed while washing
-	if(user.get_active_hand() != I) return		//Person has switched hands or the item in their hands
+	if(user.loc != location)
+		return
+	if(QDELETED(I))
+		return
+	if(!user.has_in_hands(I))
+		return
 
 	O.clean_blood()
 

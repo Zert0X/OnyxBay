@@ -64,7 +64,7 @@
 		if (src.stage == 1)
 			playsound(src.loc, 'sound/items/Ratchet.ogg', 75, 1)
 			to_chat(usr, "You begin deconstructing \a [src].")
-			if (!do_after(usr, 30,src))
+			if (!do_after(usr, 30,src, luck_check_type = LUCK_CHECK_ENG))
 				return
 			new /obj/item/stack/material/steel( get_turf(src.loc), sheets_refunded )
 			user.visible_message("[user.name] deconstructs [src].", \
@@ -147,6 +147,7 @@
 	idle_power_usage = 2 WATTS
 	active_power_usage = 20 WATTS
 	power_channel = STATIC_LIGHT //Lights are calc'd via area so they dont need to be in the machine list
+	glow_colored = TRUE
 
 	/// Whether light is currently turned on.
 	var/on = TRUE
@@ -266,6 +267,10 @@
 		set_light(arglist(lightbulb.lighting_modes[current_mode]))
 	else
 		set_light(lightbulb.b_max_bright, lightbulb.b_inner_range, lightbulb.b_outer_range, lightbulb.b_curve, lightbulb.b_color)
+
+	glow_icon_state = istype(lightbulb) ? lightbulb.glow_icon_state : null
+	exposure_icon_state = istype(lightbulb) ? lightbulb.exposure_icon_state : null
+	update_bloom()
 
 	return TRUE
 
@@ -442,7 +447,7 @@
 
 		else
 			to_chat(user, "You hit the light!")
-		user.setClickCooldown(W.update_attack_cooldown())
+		W.set_cooldown()
 		user.do_attack_animation(src)
 
 	// attempt to remove the lightbulb out of the fixture with a crowbar
@@ -488,7 +493,7 @@
 
 /obj/machinery/light/proc/has_power()
 	var/area/our_area = get_area(src)
-	return our_area.lightswitch && !(stat & NOPOWER)
+	return (!our_area || our_area.lightswitch) && !(stat & NOPOWER)
 
 /obj/machinery/light/power_change()
 	. = ..()
@@ -618,16 +623,16 @@
 				to_chat(user, "You try to remove the [get_fitting_name()], but it's too hot and you don't want to burn your hand.")
 			else
 				to_chat(user, "You try to remove the [get_fitting_name()], but you burn your hand on it!")
-				var/obj/item/organ/external/E = H.get_organ(user.hand ? BP_L_HAND : BP_R_HAND)
-				if(E)
-					E.take_external_damage(0, rand(3, 7), used_weapon = "hot lightbulb")
+				var/obj/item/organ/external/E = H.get_hand_organ()
+				if(istype(E))
+					E.take_burn_damage(rand(3, 7), "hot lightbulb")
 			user.setClickCooldown(DEFAULT_QUICK_COOLDOWN)
 			return				// if burned, don't remove the light
 	else
 		to_chat(user, "You remove the [get_fitting_name()].")
 
 	// create a light tube/bulb item and put it in the user's hand
-	user.put_in_active_hand(remove_bulb())	//puts it in our active hand
+	user.put_in_clicking_hand(remove_bulb())	//puts it in our active hand
 
 /obj/machinery/light/attack_tk(mob/user)
 	if(!lightbulb)
@@ -756,6 +761,10 @@
 	sound_on = SFX_LIGHT_TUBE_ON
 	sound_on_volume = 50
 
+	glow_icon_state = "tube1-ea"
+	exposure_icon_state = "cone"
+	glow_colored = TRUE
+
 /obj/item/light/tube/nobreak // For mapping's sake
 	desc = "A replacement light tube. This one seems to wield some extra quality."
 	broken_chance = 0
@@ -809,6 +818,8 @@
 	random_tone = TRUE
 	sound_on = SFX_LIGHT_BULB_ON
 	sound_on_volume = 75
+	glow_icon_state = "bulb1-ea"
+	exposure_icon_state = "circle"
 
 /obj/item/light/bulb/he
 	name = "high efficiency light bulb"

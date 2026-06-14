@@ -40,6 +40,8 @@
 	return ..()
 
 /datum/action/proc/Grant(mob/living/T)
+	if(!T)
+		return
 	if(owner)
 		if(owner == T)
 			return
@@ -185,7 +187,7 @@
 
 
 /atom/movable/screen/movable/action_button/hide_toggle/proc/InitialiseIcon(mob/living/user)
-	if(isalien(user))
+	if(islarva(user))
 		icon_state = "bg_alien"
 	else
 		icon_state = "bg_default"

@@ -77,10 +77,12 @@
 		else
 			util_crash_with("Cell ([src], [c_uid]) called use() with negative amount ([amount]).")
 		return 0
-	var/used = min(charge, amount)
-	charge -= used
-	update_icon()
-	return used
+	if(charge < amount)
+		amount = charge
+	charge -= amount
+	if(!istype(loc, /obj/machinery/power/apc))
+		update_icon()
+	return amount
 
 // Checks if the specified amount can be provided. If it can, it removes the amount
 // from the cell and returns 1. Otherwise does nothing and returns 0.
@@ -96,10 +98,12 @@
 		return 0
 	if(maxcharge == charge)
 		return 0
-	var/amount_used = min(maxcharge - charge,amount)
-	charge += amount_used
-	update_icon()
-	return amount_used
+	if(maxcharge - charge < amount)
+		amount = maxcharge - charge
+	charge += amount
+	if(!istype(loc, /obj/machinery/power/apc))
+		update_icon()
+	return amount
 
 /obj/item/cell/examine(mob/user, infix)
 	. = ..()

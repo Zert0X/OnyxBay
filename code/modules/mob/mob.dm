@@ -68,10 +68,15 @@
 	bodytemp = null
 	healths = null
 	pains = null
+	resting_icon = null
 	throw_icon = null
 	block_icon = null
-	blockswitch_icon = null
+	aim_assist_icon = null
+	twohanded_mode_icon = null
 	nutrition_icon = null
+	hydration_icon = null
+	bladder_icon = null
+	bowels_icon = null
 	pressure = null
 	pain = null
 	item_use_icon = null
@@ -92,7 +97,6 @@
 		add_movespeed_mod_immunities(src, /datum/movespeed_modifier/pull_slowdown)
 	add_think_ctx("dust", CALLBACK(src, nameof(.proc/dust)), 0)
 	add_think_ctx("dust_deletion", CALLBACK(src, nameof(.proc/dust_check_delete)), 0)
-	add_think_ctx("remove_from_examine_context", CALLBACK(src, nameof(.proc/remove_from_recent_examines)), 0)
 	add_think_ctx("weaken_context", CALLBACK(src, nameof(.proc/Weaken)), 0)
 	add_think_ctx("post_close_winset", CALLBACK(src, nameof(.proc/post_close_winset)), 0)
 	register_signal(src, SIGNAL_SEE_IN_DARK_SET,	nameof(.proc/set_blackness))
@@ -133,7 +137,7 @@
 /mob/visible_message(message, self_message, blind_message, range = world.view, checkghosts = null, narrate = FALSE)
 	var/list/seeing_mobs = list()
 	var/list/seeing_objs = list()
-	get_mobs_and_objs_in_view_fast(get_turf(src), range, seeing_mobs, seeing_objs, checkghosts)
+	get_listeners_in_range(get_turf(src), range, seeing_mobs, seeing_objs, checkghosts)
 
 	for(var/o in seeing_objs)
 		var/obj/O = o
@@ -176,7 +180,7 @@
 /mob/audible_message(message, self_message, deaf_message, hearing_distance = world.view, checkghosts = null, narrate = FALSE)
 	var/list/hearing_mobs = list()
 	var/list/hearing_objs = list()
-	get_mobs_and_objs_in_view_fast(get_turf(src), hearing_distance, hearing_mobs, hearing_objs, checkghosts)
+	get_listeners_in_range(get_turf(src), hearing_distance, hearing_mobs, hearing_objs, checkghosts)
 
 	for(var/o in hearing_objs)
 		var/obj/O = o
@@ -258,24 +262,6 @@
 #undef PARTIALLY_BUCKLED
 #undef FULLY_BUCKLED
 
-/**
- * Assembles one-dimensional array of strings to display inside "Status" stat panel tab.
- */
-/mob/proc/get_status_tab_items()
-	SHOULD_CALL_PARENT(TRUE)
-	CAN_BE_REDEFINED(TRUE)
-	return list()
-
-/**
- * Assembles two-dimensional array of objects representing action entry inside stat panel. Objects must
- * look like `list([action_category], [unclickable_action_string], [action_string], [action_holder_ref])`,
- * not passing ref makes stat entry unclickable.
- */
-/mob/proc/get_actions_for_statpanel()
-	SHOULD_CALL_PARENT(TRUE)
-	CAN_BE_REDEFINED(TRUE)
-	return list()
-
 /mob/proc/restrained()
 	return
 
@@ -305,54 +291,27 @@
 	return FALSE
 
 // Mob verbs are faster than object verbs. See http://www.byond.com/forum/?post=1326139&page=2#comment8198716 for why this isn't atom/verb/examine()
-/mob/verb/examinate(atom/to_axamine as mob|obj|turf in view(client.eye))
+/mob/verb/examinate(atom/A as mob|obj|turf in view(client.eye))
 	set name = "Examine"
 	set category = "IC"
 
-	run_examinate(to_axamine)
-
-/// Runs examine proc chain, generates styled description and prints it to mob's client chat.
-/mob/proc/run_examinate(atom/to_axamine)
-	if((isliving(src) && is_ic_dead(src)) || is_blind(src))
-		to_chat(src, SPAN_NOTICE("Something is there but you can't see it."))
+	if((is_blind(src) || usr?.stat) && !isobserver(src))
+		to_chat(src, SPAN("notice", "Something is there but you can't see it."))
 		return
 
-	face_atom(to_axamine)
+	var/examine_result
 
-	var/to_examine_ref = ref(to_axamine)
-	var/list/examine_result
+	face_atom(A)
+	if(iscarbon(src))
+		var/mob/living/carbon/C = src
+		var/mob/fake = C.get_fake_appearance(A)
+		if(fake)
+			examine_result = fake.baked_examine(src)
 
-	if(isnull(client))
-		examine_result = to_axamine.examine(src)
-	else
-		if(LAZYISIN(client.recent_examines, to_examine_ref))
-			examine_result = to_axamine.examine_more(src)
+	if(isnull(examine_result))
+		examine_result = A.baked_examine(src)
 
-			if(!length(examine_result))
-				examine_result += SPAN_NOTICE("<i>You examine [to_axamine] closer, but find nothing of interest...</i>")
-		else
-			examine_result = to_axamine.examine(src)
-			LAZYINITLIST(client.recent_examines)
-			client.recent_examines[to_examine_ref] = world.time + 1 SECOND
-
-		set_next_think_ctx("remove_from_examine_context", world.time + 1 SECOND)
-
-	to_chat(usr, EXAMINE_BLOCK(examine_result.Join("\n")))
-
-/mob/proc/remove_from_recent_examines()
-	SIGNAL_HANDLER
-
-	if(isnull(client))
-		return
-
-	for(var/ref in client.recent_examines)
-		if(client.recent_examines[ref] > world.time)
-			continue
-
-		LAZYREMOVE(client.recent_examines, ref)
-
-	if(client.recent_examines)
-		set_next_think_ctx("remove_from_examine_context", world.time + 1 SECOND)
+	to_chat(usr, examine_result)
 
 /mob/verb/pointed(atom/A as mob|obj|turf in view())
 	set name = "Point To"
@@ -394,24 +353,34 @@
 					G.affecting.ret_grab(L)
 	return L
 
-/mob/verb/mode()
+/mob/verb/activate_held_object()
 	set name = "Activate Held Object"
 	set category = "Object"
 	set src = usr
 
-	if(istype(loc,/obj/mecha)) return
-
-	if(hand)
-		var/obj/item/I = l_hand
-		if(I)
-			I.attack_self(src)
-			update_inv_l_hand()
-	else
-		var/obj/item/I = r_hand
-		if(I)
-			I.attack_self(src)
-			update_inv_r_hand()
+	use_attack_self()
 	return
+
+/mob/proc/use_attack_self(is_active_hand = TRUE)
+	if(istype(loc, /obj/mecha))
+		return
+
+	if(active_hand == ACTIVE_HAND_LEFT)
+		var/obj/item/I = is_active_hand ? l_hand : r_hand
+		if(I)
+			I.attack_self(src)
+			if(is_active_hand)
+				update_inv_l_hand()
+			else
+				update_inv_r_hand()
+	else
+		var/obj/item/I = is_active_hand ? r_hand : l_hand
+		if(I)
+			I.attack_self(src)
+			if(is_active_hand)
+				update_inv_r_hand()
+			else
+				update_inv_l_hand()
 
 /*
 /mob/verb/dump_source()
@@ -497,80 +466,6 @@
 		prefs.lastchangelog = changelog_hash
 		SScharacter_setup.queue_preferences_save(prefs)
 
-/mob/new_player/verb/observe()
-	set name = "Observe"
-	set category = "OOC"
-
-	if(GAME_STATE < RUNLEVEL_LOBBY)
-		to_chat(src, "<span class='warning'>Please wait for server initialization to complete...</span>")
-		return
-
-	var/is_admin = 0
-
-	if(client.holder && (client.holder.rights & R_ADMIN))
-		is_admin = 1
-
-	if(is_admin && is_ooc_dead())
-		is_admin = 0
-
-	var/list/names = list()
-	var/list/namecounts = list()
-	var/list/creatures = list()
-
-	for(var/obj/O in world)				//EWWWWWWWWWWWWWWWWWWWWWWWW ~needs to be optimised
-		if(!O.loc)
-			continue
-		if(istype(O, /obj/item/disk/nuclear))
-			var/name = "Nuclear Disk"
-			if (names.Find(name))
-				namecounts[name]++
-				name = "[name] ([namecounts[name]])"
-			else
-				names.Add(name)
-				namecounts[name] = 1
-			creatures[name] = O
-
-		if(istype(O, /obj/singularity))
-			var/name = "Singularity"
-			if (names.Find(name))
-				namecounts[name]++
-				name = "[name] ([namecounts[name]])"
-			else
-				names.Add(name)
-				namecounts[name] = 1
-			creatures[name] = O
-
-	for(var/mob/M in sortAtom(SSmobs.mob_list))
-		var/name = M.name
-		if (names.Find(name))
-			namecounts[name]++
-			name = "[name] ([namecounts[name]])"
-		else
-			names.Add(name)
-			namecounts[name] = 1
-
-		creatures[name] = M
-
-
-	client.perspective = EYE_PERSPECTIVE
-
-	var/eye_name = null
-
-	var/ok = "[is_admin ? "Admin Observe" : "Observe"]"
-	eye_name = input("Please, select a player!", ok, null, null) as null|anything in creatures
-
-	if (!eye_name)
-		return
-
-	var/mob/mob_eye = creatures[eye_name]
-
-	if(client && mob_eye)
-		client.eye = mob_eye
-		if (is_admin)
-			client.adminobs = 1
-			if(mob_eye == client.mob || client.eye == client.mob)
-				client.adminobs = 0
-
 /mob/verb/cancel_camera()
 	set name = "Cancel Camera View"
 	set category = "OOC"
@@ -594,20 +489,7 @@
 /mob/proc/pull_damage()
 	return 0
 
-/mob/living/carbon/human/pull_damage()
-	if(!lying || getBruteLoss() + getFireLoss() < 100)
-		return 0
-	for(var/thing in organs)
-		var/obj/item/organ/external/e = thing
-		if(!e || e.is_stump())
-			continue
-		if((e.status & ORGAN_BROKEN) && !e.splinted)
-			return 1
-		if(e.status & ORGAN_BLEEDING)
-			return 1
-	return 0
-
-/mob/MouseDrop(mob/M)
+/mob/MouseDrop(mob/M, ...)
 	..()
 	if(M != usr)
 		return
@@ -741,6 +623,53 @@
 /mob/proc/show_viewers(message)
 	for(var/mob/M in viewers())
 		M.see(message)
+
+/mob/Stat()
+	..()
+	. = (is_client_active(10 MINUTES))
+	if(!.)
+		return
+
+	if(statpanel("Status"))
+		if(GAME_STATE >= RUNLEVEL_LOBBY)
+			stat("Local Time", stationtime2text())
+			stat("Local Date", stationdate2text())
+			stat("Round Duration", roundduration2text())
+		if(client.holder || isghost(client.mob))
+			stat("Location:", "([x], [y], [z]) [loc]")
+
+	if(client.holder)
+		if(statpanel("MC"))
+			stat("CPU:","[world.cpu]")
+			stat("Instances:","[world.contents.len]")
+			stat(null)
+			if(Master)
+				Master.stat_entry()
+			else
+				stat("Master Controller:", "ERROR")
+			if(Failsafe)
+				Failsafe.stat_entry()
+			else
+				stat("Failsafe Controller:", "ERROR")
+			if(Master)
+				stat(null)
+				for(var/datum/controller/subsystem/SS in Master.subsystems)
+					SS.stat_entry()
+
+	if(listed_turf && client)
+		if(!TurfAdjacent(listed_turf))
+			listed_turf = null
+		else
+			if(statpanel("Turf"))
+				stat(listed_turf)
+				for(var/atom/A in listed_turf)
+					if(!A.mouse_opacity)
+						continue
+					if(A.invisibility > see_invisible)
+						continue
+					if(is_type_in_list(A, shouldnt_see))
+						continue
+					stat(A)
 
 // facing verbs
 /mob/proc/canface()
@@ -891,31 +820,25 @@
 	sleeping = max(sleeping + amount,0)
 	return
 
-/mob/proc/Resting(amount)
-	facing_dir = null
-	resting = max(max(resting,amount),0)
-	return
-
-/mob/proc/SetResting(amount)
-	resting = max(amount,0)
-	return
-
-/mob/proc/AdjustResting(amount)
-	resting = max(resting + amount,0)
-	return
-
 /mob/proc/get_species()
 	return ""
 
-/mob/proc/get_visible_implants(class = 0)
-	var/list/visible_implants = list()
+/mob/proc/set_resting(new_state)
+	resting = new_state
+	update_canmove()
+	if(resting_icon)
+		resting_icon.icon_state = "rest[resting]"
+	return
+
+/mob/proc/get_visible_implants()
+	return
+
+/mob/proc/get_embedded_objects(class = 0)
+	var/list/embedded_objects = list()
 	for(var/obj/item/O in embedded)
 		if(O.w_class > class)
-			visible_implants += O
-	return visible_implants
-
-/mob/proc/embedded_needs_process()
-	return (embedded.len > 0)
+			embedded_objects += O
+	return embedded_objects
 
 /mob/proc/yank_out_object()
 	set category = "Object"
@@ -943,13 +866,13 @@
 	if(S == U)
 		self = 1 // Removing object from yourself.
 
-	valid_objects = get_visible_implants(0)
+	valid_objects = get_embedded_objects(0)
 	if(!valid_objects.len)
 		if(self)
 			to_chat(src, "You have nothing stuck in your body that is large enough to remove.")
 		else
 			to_chat(U, "[src] has nothing stuck in their wounds that is large enough to remove.")
-		revoke_verb(src, /mob/proc/yank_out_object)
+		src.verbs -= /mob/proc/yank_out_object
 		return
 
 	var/obj/item/selection = input("What do you want to yank out?", "Embedded objects") in valid_objects
@@ -972,17 +895,15 @@
 		var/mob/living/carbon/human/H = src
 		var/obj/item/organ/external/affected
 
-		for(var/obj/item/organ/external/organ in H.organs) //Grab the organ holding the implant.
-			for(var/obj/item/O in organ.implants)
-				if(O == selection)
-					affected = organ
+		for(var/obj/item/organ/external/organ in H.external_organs) //Grab the organ holding the embedded object.
+			if(LAZYISIN(organ.embedded_objects, selection))
+				affected = organ
+				break
 
-		affected.implants -= selection
-		for(var/datum/wound/wound in affected.wounds)
-			LAZYREMOVE(wound.embedded_objects, selection)
+		affected.drop_embedded_object(selection)
 
 		H.shock_stage+=20
-		affected.take_external_damage((selection.w_class * 3), 0, DAM_EDGE, "Embedded object extraction")
+		affected.take_pierce_damage((selection.w_class * 3), "Embedded object extraction")
 
 		if(prob(selection.w_class * 5) && affected.sever_artery()) //I'M SO ANEMIC I COULD JUST -DIE-.
 			H.custom_pain("Something tears wetly in your [affected] as [selection] is pulled free!", 50, affecting = affected)
@@ -1007,9 +928,9 @@
 		if(!LAZYLEN(pinned))
 			anchored = 0
 
-	valid_objects = get_visible_implants(0)
+	valid_objects = get_embedded_objects(0)
 	if(!valid_objects.len)
-		revoke_verb(src, /mob/proc/yank_out_object)
+		src.verbs -= /mob/proc/yank_out_object
 
 	return 1
 
@@ -1207,3 +1128,96 @@
 		set_sight(sight&(~SEE_BLACKNESS))
 	else
 		set_sight(sight|SEE_BLACKNESS)
+
+/// Update the mouse pointer of the attached client in this mob.
+/mob/proc/update_mouse_pointer()
+	if(!client)
+		return
+
+	client.mouse_pointer_icon = initial(client.mouse_pointer_icon)
+
+/mob/keybind_face_direction(direction)
+	facedir(direction)
+
+/mob/get_mass()
+	return mob_size
+
+/mob/proc/get_solid_footing(ignore_floors = FALSE)
+
+	if(!loc)
+		return src // this is a bit weird but we shouldn't slip in nullspace probably
+
+	// Check for dense turfs.
+	var/turf/my_turf = loc
+	if(!istype(my_turf))
+		return my_turf
+
+	if(istype(my_turf) && (!ignore_floors || my_turf.density) && !my_turf.is_open())
+		return my_turf
+
+	// Check for catwalks and lattices. Apparently, these are "grippier" than solid floors and allow one to move in space even without magboots.
+	var/atom/platform = (locate(/obj/structure/catwalk) in my_turf) || (locate(/obj/structure/lattice) in my_turf)
+	if(platform)
+		return platform
+
+	// Check for a dense object to push off of
+	var/atom/dense_object = my_turf.get_first_dense_object(exceptions = src, check_mobs = FALSE)
+	if(dense_object)
+		return dense_object
+
+	// Check for supportable nearby atoms.
+	for(var/turf/neighbor in RANGE_TURFS(1, my_turf))
+		if(neighbor == my_turf)
+			continue
+		if(istype(neighbor) && (!ignore_floors || neighbor.density) && !neighbor.is_open())
+			return neighbor
+		platform = (locate(/obj/structure/catwalk) in neighbor) || (locate(/obj/structure/lattice) in neighbor)
+		if(platform)
+			return platform
+		dense_object = neighbor.get_first_dense_object(exceptions = src, check_mobs = FALSE)
+		if(dense_object)
+			return dense_object
+
+	// Find something we are grabbing onto for support.
+	for(var/atom/movable/thing in range(1, my_turf))
+		if(thing == src || thing == inertia_ignore || !thing.simulated || thing == buckled)
+			continue
+		if(isturf(thing))
+			continue // We checked turfs when using magboots above.
+		else if(ismob(thing))
+			var/mob/victim = thing
+			if(victim.buckled)
+				continue
+		else if(thing.CanPass(src))
+			continue
+		if(thing.anchored)
+			return thing
+
+/mob/proc/can_slip(magboots_only = FALSE)
+
+	// Are we immune to everything?
+	if(status_flags & GODMODE)
+		return FALSE
+
+	// Quick basic checks.
+	if(!simulated || !isturf(loc) || buckled || (lying || resting) || throwing)
+		return FALSE
+
+	// Check footwear.
+	if(magboots_only)
+		return !((has_gravity() || has_magnetised_footing()) && get_solid_footing())
+
+	if(has_non_slip_footing())
+		return FALSE
+
+	// Slip!
+	return TRUE
+
+/mob/proc/has_non_slip_footing()
+	var/obj/item/shoes = get_equipped_item(slot_shoes)
+	return istype(shoes) && (shoes.item_flags & ITEM_FLAG_NOSLIP)
+
+/mob/proc/has_magnetised_footing()
+	var/obj/item/shoes = get_equipped_item(slot_shoes)
+	return istype(shoes) && (shoes.item_flags & ITEM_FLAG_MAGNETISED)
+

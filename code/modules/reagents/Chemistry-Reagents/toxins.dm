@@ -3,18 +3,23 @@
 /datum/reagent/toxin
 	name = "Toxin"
 	description = "A toxic chemical."
+
 	taste_description = "bitterness"
 	taste_mult = 1.2
+
 	reagent_state = LIQUID
 	color = "#cf3600"
-	metabolism = REM * 0.25 // 0.05 by default. They last a while and slowly kill you.
+
+	metabolism = REM
+	digest_met = REM * 0.5 // 0.1 by default. They last a while and slowly kill you.
+	digest_absorbability = 1.0 // Eaten toxins last twice as long and deal half the damage per tick.
 
 	var/target_organ
-	var/strength = 4 // How much damage it deals per unit
+	var/strength = 5 // How much damage it deals per ml
 
 /datum/reagent/toxin/affect_blood(mob/living/carbon/M, alien, removed)
 	if(strength && alien != IS_DIONA)
-		M.add_chemical_effect(CE_TOXIN, strength)
+		M.add_up_to_chemical_effect(CE_TOXIN, strength)
 		var/dam = (strength * removed)
 		if(target_organ && ishuman(M))
 			var/mob/living/carbon/human/H = M
@@ -62,7 +67,7 @@
 	taste_mult = 1.5
 	reagent_state = LIQUID
 	color = "#e90eb8"
-	strength = 30
+	strength = 15
 	touch_met = 5
 	var/fire_mult = 5
 
@@ -77,7 +82,7 @@
 
 /datum/reagent/toxin/plasma/touch_mob(mob/living/L, amount)
 	if(istype(L))
-		L.adjust_fire_stacks(amount / fire_mult)
+		L.adjust_fire_stacks(ceil(amount / fire_mult))
 
 /datum/reagent/toxin/plasma/affect_touch(mob/living/carbon/M, alien, removed)
 	M.take_organ_damage(0, removed * 0.1) //being splashed directly with plasma causes minor chemical burns
@@ -95,7 +100,7 @@
 	name = "Plasmygen"
 	description = "An exceptionally flammable molecule formed from deuterium synthesis."
 	strength = 15
-	fire_mult = 15
+	fire_mult = 2
 
 /datum/reagent/toxin/plasma/oxygen/touch_turf(turf/simulated/T)
 	if(!istype(T))
@@ -148,7 +153,7 @@
 	strength = 10
 	overdose = 20
 	metabolism = REM * 0.5
-	absorbability = 0.75
+	digest_absorbability = 0.75
 
 /datum/reagent/toxin/potassium_chlorophoride/affect_blood(mob/living/carbon/M, alien, removed, affecting_dose)
 	..()
@@ -201,7 +206,7 @@
 	taste_description = "plant food"
 	taste_mult = 0.5
 	reagent_state = LIQUID
-	strength = 0.5 // It's not THAT poisonous.
+	strength = 4.0 // It's not THAT poisonous.
 	color = "#664330"
 
 /datum/reagent/toxin/fertilizer/eznutrient
@@ -252,21 +257,6 @@
 	if(alien == IS_DIONA)
 		M.adjustToxLoss(50 * removed)
 
-/datum/reagent/acid/polyacid
-	name = "Polytrinic acid"
-	description = "Polytrinic acid is a an extremely corrosive chemical substance."
-	taste_description = "acid"
-	reagent_state = LIQUID
-	color = "#8e18a9"
-	power = 10
-	meltdose = 4
-
-/datum/reagent/acid/stomach
-	name = "stomach acid"
-	taste_description = "coppery foulness"
-	power = 1
-	color = "#d8ff00"
-
 /datum/reagent/lexorin
 	name = "Lexorin"
 	description = "Lexorin temporarily stops respiration. Causes tissue damage."
@@ -300,7 +290,7 @@
 	if(prob(33))
 		affect_blood(M, alien, removed)
 
-/datum/reagent/mutagen/affect_ingest(mob/living/carbon/M, alien, removed)
+/datum/reagent/mutagen/affect_digest(mob/living/carbon/M, alien, removed)
 	if(prob(67))
 		affect_blood(M, alien, removed)
 
@@ -314,7 +304,7 @@
 		return
 
 	if(M.dna)
-		if(prob(removed * mutation_potency)) // Approx. one mutation per 10 injected/20 ingested/30 touching units
+		if(prob(removed * mutation_potency)) // Approx. one mutation per 10 injected/20 ingested/30 touching ml
 			randmuti(M)
 			M.UpdateAppearance()
 	M.radiation += (0.05 SIEVERT) * removed
@@ -351,7 +341,7 @@
 	color = "#009ca8"
 	metabolism = REM * 0.5
 	overdose = REAGENTS_OVERDOSE
-	absorbability = 0.75
+	digest_absorbability = 0.75
 
 /datum/reagent/soporific/affect_blood(mob/living/carbon/M, alien, removed, affecting_dose)
 	if(alien == IS_DIONA)
@@ -383,7 +373,7 @@
 	color = "#000067"
 	metabolism = REM * 0.5
 	overdose = REAGENTS_OVERDOSE * 0.5
-	absorbability = 0.75
+	digest_absorbability = 0.75
 
 /datum/reagent/chloralhydrate/affect_blood(mob/living/carbon/M, alien, removed, affecting_dose)
 	if(alien == IS_DIONA)
@@ -411,7 +401,7 @@
 	taste_description = "shitty piss water"
 	reagent_state = LIQUID
 	color = "#ffd300"
-	absorbability = 1.0 // SpEcIaL ingestible chloralhydrate
+	digest_absorbability = 1.0 // SpEcIaL ingestible chloralhydrate
 
 	glass_name = "beer"
 	glass_desc = "A freezing pint of beer"
@@ -427,6 +417,9 @@
 	metabolism = REM * 0.5
 	overdose = REAGENTS_OVERDOSE
 
+/datum/reagent/space_drugs/add_user_effects(mob/living/carbon/M)
+	M.apply_spessdrugs_effects()
+
 /datum/reagent/space_drugs/affect_blood(mob/living/carbon/M, alien, removed)
 	if(alien == IS_DIONA)
 		return
@@ -435,7 +428,7 @@
 	if(alien == IS_SKRELL)
 		effect_mult *= 0.8
 
-	M.druggy = max(M.druggy, 15 * effect_mult)
+	M.make_drugged(15 * effect_mult)
 	if(prob(10))
 		M.SelfMove(pick(GLOB.cardinal))
 	if(prob(7))
@@ -505,11 +498,15 @@
 	metabolism = REM * 0.25
 	overdose = REAGENTS_OVERDOSE
 
+/datum/reagent/mindbreaker/add_user_effects(mob/living/carbon/M)
+	M.apply_mindbreaker_effects()
+
 /datum/reagent/mindbreaker/affect_blood(mob/living/carbon/M, alien, removed)
 	if(alien == IS_DIONA)
 		return
 	M.add_chemical_effect(CE_MIND, -2)
 	var/effect_mult = removed / metabolism
+	M.make_drugged(30 * effect_mult)
 	if(alien == IS_SKRELL)
 		M.hallucination(25 * effect_mult, 30 * effect_mult)
 	else
@@ -522,7 +519,10 @@
 	color = "#e700e7"
 	overdose = REAGENTS_OVERDOSE
 	metabolism = REM * 0.5
-	absorbability = 0.75
+	digest_absorbability = 0.75
+
+/datum/reagent/psilocybin/add_user_effects(mob/living/carbon/M)
+	M.apply_psilo_effects()
 
 /datum/reagent/psilocybin/affect_blood(mob/living/carbon/M, alien, removed, affecting_dose)
 	if(alien == IS_DIONA)
@@ -536,14 +536,14 @@
 	if(affecting_dose < 1 * threshold)
 		M.apply_effect(3, STUTTER)
 		M.make_dizzy(5 * effect_mult)
-		M.druggy = max(M.druggy, 30 * effect_mult)
+		M.make_drugged(30 * effect_mult)
 		if(prob(5))
 			M.emote(pick("twitch", "giggle"))
 	else if(affecting_dose < 2 * threshold)
 		M.apply_effect(3, STUTTER)
 		M.make_jittery(5 * effect_mult)
 		M.make_dizzy(5 * effect_mult)
-		M.druggy = max(M.druggy, 35 * effect_mult)
+		M.make_drugged(35 * effect_mult)
 		if(prob(10))
 			M.emote(pick("twitch", "giggle"))
 	else
@@ -551,7 +551,7 @@
 		M.apply_effect(3, STUTTER)
 		M.make_jittery(10 * effect_mult)
 		M.make_dizzy(10 * effect_mult)
-		M.druggy = max(M.druggy, 40 * effect_mult)
+		M.make_drugged(40 * effect_mult)
 		if(prob(15))
 			M.emote(pick("twitch", "giggle"))
 
@@ -584,7 +584,7 @@
 			to_chat(H, "<span class='danger'>Your flesh rapidly mutates!</span>")
 			H.set_species(SPECIES_PROMETHEAN)
 			H.shapeshifter_set_colour("#05ff9b")
-			revoke_verb(H, /mob/living/carbon/human/proc/shapeshifter_select_colour)
+			H.verbs -= /mob/living/carbon/human/proc/shapeshifter_select_colour
 		return
 	var/obj/item/organ/external/O = pick(meatchunks)
 	to_chat(H, "<span class='danger'>Your [O.name]'s flesh mutates rapidly!</span>")
@@ -644,14 +644,14 @@
 	reagent_state = LIQUID
 	color = "#535e66"
 	overdose = 5
+	ingest_met = REM
+	ingest_absorbability = 1.0
+	digest_absorbability = 1.0
 
 /datum/reagent/nanites/affect_blood(mob/living/carbon/M, alien, removed)
 	if(alien != IS_DIONA)
 		M.heal_organ_damage(15 * removed, 15 * removed)
 		M.add_chemical_effect(CE_OXYGENATED, 2)
-
-/datum/reagent/nanites/affect_ingest(mob/living/carbon/M, alien, removed)
-	affect_blood(M, alien, removed)
 
 /datum/reagent/nanites/overdose(mob/living/carbon/M, alien)
 	if(prob(80))
@@ -723,6 +723,10 @@
 /datum/reagent/toxin/hair_remover/affect_touch(mob/living/carbon/human/M, alien, removed)
 	if(alien == IS_SKRELL)	//skrell can't have hair unless you hack it in, also to prevent tentacles from falling off
 		return
+	var/obj/item/organ/external/head/head = M?.external_organs_by_name[BP_HEAD]
+	if(istype(head))
+		for(var/obj/item/organ_module/active/cyber_hair/H in head.organ_modules)
+			return
 	M.species.set_default_hair(M)
 	to_chat(M, "<span class='warning'>Your feel a chill, your skin feels lighter..</span>")
 	remove_self(volume)

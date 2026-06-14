@@ -31,7 +31,7 @@
 	if(!closed_turf_height_offset)
 		closed_turf_height_offset = turf_height_offset
 	if(has_overlay)
-		crate_overlay = OVERLAY(icon, "[icon_closed]over", layer = ABOVE_HUMAN_LAYER)
+		crate_overlay = OVERLAY(icon, "[icon_closed]over", layer = DEPTH_OVERLAY_LAYER)
 	update_icon()
 
 /obj/structure/closet/crate/on_update_icon()
@@ -313,7 +313,8 @@
 	icon_state = "plasmacrate"
 	icon_opened = "plasmacrateopen"
 	icon_closed = "plasmacrate"
-	req_access = list(access_medical,access_research,access_engine)
+	req_access = null
+	req_one_access = list(access_medical, access_research, access_engine)
 
 /obj/structure/closet/crate/secure/gear
 	name = "gear crate"
@@ -392,6 +393,14 @@
 
 /obj/structure/closet/crate/secure/large/plasma/supermatter/prespawned/WillContain()
 	return list(/obj/machinery/power/supermatter)
+
+/obj/structure/closet/crate/secure/large/plasma/supermatter/random
+	name = "unstable supermatter crate"
+	desc = "A crate with an experimental supermatter crystal inside."
+
+/obj/structure/closet/crate/secure/large/plasma/supermatter/random/WillContain()
+	return list(/obj/machinery/power/supermatter/random)
+
 //fluff variant
 /obj/structure/closet/crate/secure/large/reinforced
 	desc = "A hefty, reinforced metal crate with an electronic locking system."
@@ -408,6 +417,7 @@
 
 /obj/structure/closet/crate/hydroponics/prespawned/WillContain()
 	return list(
+		/obj/item/reagent_containers/vessel/bucket/watercan = 2,
 		/obj/item/reagent_containers/spray/plantbgone = 2,
 		/obj/item/material/minihoe = 2,
 		/obj/item/storage/plants = 2,

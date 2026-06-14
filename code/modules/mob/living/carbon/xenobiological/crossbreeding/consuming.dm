@@ -55,7 +55,7 @@ Consuming extracts:
 	desc = "A weird metroid cookie. You shouldn't see this."
 	icon = 'icons/obj/xenobiology/metroidcookies.dmi'
 	var/taste = "error"
-	var/nutrition = 5
+	var/nutrition = 50
 	icon_state = "base"
 	force = 0
 	w_class = ITEM_SIZE_TINY
@@ -79,7 +79,7 @@ Consuming extracts:
 	if(fed)
 		playsound(get_turf(M), 'sound/items/eatfood.ogg', 20, TRUE)
 		if(nutrition)
-			M.reagents.add_reagent(/datum/reagent/nutriment,nutrition)
+			M.reagents.add_reagent(/datum/reagent/nutriment, nutrition)
 		do_effect(M, user)
 		qdel(src)
 		return
@@ -214,7 +214,7 @@ Consuming extracts:
 	nutrition = 0 //We don't want normal nutriment
 
 /obj/item/metroid_cookie/silver/do_effect(mob/living/M, mob/user)
-	M.reagents.add_reagent(/datum/reagent/nutriment/protein,10)
+	M.reagents.add_reagent(/datum/reagent/nutriment/protein, 100)
 
 /obj/item/metroidcross/consuming/bluespace
 	colour = "bluespace"

@@ -73,19 +73,22 @@
 			flick("[icon_base]closing", src)
 	return
 
+/obj/machinery/door/unpowered/simple/operable(additional_flags = 0)
+	return !(stat & (BROKEN|additional_flags))
+
 /obj/machinery/door/unpowered/simple/inoperable(additional_flags = 0)
 	return (stat & (BROKEN|additional_flags))
 
 /obj/machinery/door/unpowered/simple/close(forced = 0)
 	if(!can_close(forced))
 		return
-	playsound(src.loc, material.dooropen_noise, 100, 1)
+	playsound(loc, material.dooropen_noise, 100, 1)
 	..()
 
 /obj/machinery/door/unpowered/simple/open(forced = 0)
 	if(!can_open(forced))
 		return
-	playsound(src.loc, material.dooropen_noise, 100, 1)
+	playsound(loc, material.dooropen_noise, 100, 1)
 	..()
 
 /obj/machinery/door/unpowered/simple/set_broken(new_state)
@@ -243,11 +246,14 @@
 /obj/machinery/door/unpowered/simple/resin/New(newloc,material_name,complexity)
 	..(newloc, MATERIAL_RESIN, complexity)
 
-/obj/machinery/door/unpowered/simple/resin/allowed(mob/M)
-	if(istype(M, /mob/living/carbon/alien/larva))
+/obj/machinery/door/unpowered/simple/resin/check_access(atom/movable/AM)
+	if(istype(AM, /obj/item))
+		AM = AM.loc
+
+	if(istype(AM, /mob/living/carbon/larva/xenomorph))
 		return TRUE
-	if(ishuman(M))
-		var/mob/living/carbon/human/H = M
+	if(ishuman(AM))
+		var/mob/living/carbon/human/H = AM
 		if(H.internal_organs_by_name[BP_HIVE])
 			return TRUE
 	return FALSE
@@ -269,7 +275,7 @@
 	if(operating)
 		return
 
-	if(allowed(user))
+	if(check_access(user))
 		if(density)
 			open()
 		else

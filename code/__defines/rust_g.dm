@@ -48,49 +48,6 @@
 /// Gets the version of rust_g
 /proc/rustg_get_version() return RUSTG_CALL(RUST_G, "get_version")()
 
-
-/**
- * Sets up the Aho-Corasick automaton with its default options.
- *
- * The search patterns list and the replacements must be of the same length when replace is run, but an empty replacements list is allowed if replacements are supplied with the replace call
- * Arguments:
- * * key - The key for the automaton, to be used with subsequent rustg_acreplace/rustg_acreplace_with_replacements calls
- * * patterns - A non-associative list of strings to search for
- * * replacements - Default replacements for this automaton, used with rustg_acreplace
- */
-#define rustg_setup_acreplace(key, patterns, replacements) RUSTG_CALL(RUST_G, "setup_acreplace")(key, json_encode(patterns), json_encode(replacements))
-
-/**
- * Sets up the Aho-Corasick automaton using supplied options.
- *
- * The search patterns list and the replacements must be of the same length when replace is run, but an empty replacements list is allowed if replacements are supplied with the replace call
- * Arguments:
- * * key - The key for the automaton, to be used with subsequent rustg_acreplace/rustg_acreplace_with_replacements calls
- * * options - An associative list like list("anchored" = 0, "ascii_case_insensitive" = 0, "match_kind" = "Standard"). The values shown on the example are the defaults, and default values may be omitted. See the identically named methods at https://docs.rs/aho-corasick/latest/aho_corasick/struct.AhoCorasickBuilder.html to see what the options do.
- * * patterns - A non-associative list of strings to search for
- * * replacements - Default replacements for this automaton, used with rustg_acreplace
- */
-#define rustg_setup_acreplace_with_options(key, options, patterns, replacements) RUSTG_CALL(RUST_G, "setup_acreplace")(key, json_encode(options), json_encode(patterns), json_encode(replacements))
-
-/**
- * Run the specified replacement engine with the provided haystack text to replace, returning replaced text.
- *
- * Arguments:
- * * key - The key for the automaton
- * * text - Text to run replacements on
- */
-#define rustg_acreplace(key, text) RUSTG_CALL(RUST_G, "acreplace")(key, text)
-
-/**
- * Run the specified replacement engine with the provided haystack text to replace, returning replaced text.
- *
- * Arguments:
- * * key - The key for the automaton
- * * text - Text to run replacements on
- * * replacements - Replacements for this call. Must be the same length as the set-up patterns
- */
-#define rustg_acreplace_with_replacements(key, text, replacements) RUSTG_CALL(RUST_G, "acreplace_with_replacements")(key, text, json_encode(replacements))
-
 /**
  * This proc generates a cellular automata noise grid which can be used in procedural generation methods.
  *
@@ -106,6 +63,30 @@
  */
 #define rustg_cnoise_generate(percentage, smoothing_iterations, birth_limit, death_limit, width, height) \
 	RUSTG_CALL(RUST_G, "cnoise_generate")(percentage, smoothing_iterations, birth_limit, death_limit, width, height)
+
+/// Call this first to initialize a config builder.
+/// Then use the `rustg_cfg_add_*` macros to configure the builder
+/// (calling these macros before `begin_builder` of `end_builder` will cause an error).
+/// When you are done with configuring the builder - call `rustg_cfg_end_builder`,
+/// then you can call `rustg_cfg_try_deserialize` which will return a JSON string with your config.
+///
+/// **You can only call `rustg_cfg_try_deserialize` only once,
+/// then you have to do everything from `rustg_cfg_begin_builder` and to the end again before you can call this again.**
+#define rustg_cfg_begin_builder(...) RUSTG_CALL(RUST_G, "cfg_begin_builder")()
+
+/// Add files that match the glob pattern, for example: `config/*`
+#define rustg_cfg_add_source_glob(pattern) RUSTG_CALL(RUST_G, "cfg_add_source_glob")(pattern)
+
+/// Add files that match the glob pattern, for example: `config/*`Add the file with the specified path. The extension is optional.
+#define rustg_cfg_add_source_file(name) RUSTG_CALL(RUST_G, "cfg_add_source_file")(name)
+
+/// Use environment variables. The prefix is optional.
+#define rustg_cfg_add_source_env(prefix, separator) RUSTG_CALL(RUST_G, "cfg_add_source_env")(isnull(prefix) ? "" : prefix, isnull(separator) ? "" : separator)
+
+#define rustg_cfg_end_builder(...) RUSTG_CALL(RUST_G, "cfg_end_builder")()
+
+/// Returns a JSON string.
+#define rustg_cfg_try_deserialize(...) RUSTG_CALL(RUST_G, "cfg_try_deserialize")()
 
 /**
  * This proc generates a grid of perlin-like noise
@@ -123,37 +104,6 @@
 #define rustg_dbp_generate(seed, accuracy, stamp_size, world_size, lower_range, upper_range) \
 	RUSTG_CALL(RUST_G, "dbp_generate")(seed, accuracy, stamp_size, world_size, lower_range, upper_range)
 
-
-#define rustg_dmi_strip_metadata(fname) RUSTG_CALL(RUST_G, "dmi_strip_metadata")(fname)
-#define rustg_dmi_create_png(path, width, height, data) RUSTG_CALL(RUST_G, "dmi_create_png")(path, width, height, data)
-#define rustg_dmi_resize_png(path, width, height, resizetype) RUSTG_CALL(RUST_G, "dmi_resize_png")(path, width, height, resizetype)
-/**
- * input: must be a path, not an /icon; you have to do your own handling if it is one, as icon objects can't be directly passed to rustg.
- *
- * output: json_encode'd list. json_decode to get a flat list with icon states in the order they're in inside the .dmi
- */
-#define rustg_dmi_icon_states(fname) RUSTG_CALL(RUST_G, "dmi_icon_states")(fname)
-
-#define rustg_file_read(fname) RUSTG_CALL(RUST_G, "file_read")(fname)
-#define rustg_file_exists(fname) (RUSTG_CALL(RUST_G, "file_exists")(fname) == "true")
-#define rustg_file_write(text, fname) RUSTG_CALL(RUST_G, "file_write")(text, fname)
-#define rustg_file_append(text, fname) RUSTG_CALL(RUST_G, "file_append")(text, fname)
-#define rustg_file_get_line_count(fname) text2num(RUSTG_CALL(RUST_G, "file_get_line_count")(fname))
-#define rustg_file_seek_line(fname, line) RUSTG_CALL(RUST_G, "file_seek_line")(fname, "[line]")
-
-#ifdef RUSTG_OVERRIDE_BUILTINS
-	#define file2text(fname) rustg_file_read("[fname]")
-	#define text2file(text, fname) rustg_file_append(text, "[fname]")
-#endif
-
-/// Returns the git hash of the given revision, ex. "HEAD".
-#define rustg_git_revparse(rev) RUSTG_CALL(RUST_G, "rg_git_revparse")(rev)
-
-/**
- * Returns the date of the given revision in the format YYYY-MM-DD.
- * Returns null if the revision is invalid.
- */
-#define rustg_git_commit_date(rev) RUSTG_CALL(RUST_G, "rg_git_commit_date")(rev)
 
 #define rustg_hash_string(algorithm, text) RUSTG_CALL(RUST_G, "hash_string")(algorithm, text)
 #define rustg_hash_file(algorithm, fname) RUSTG_CALL(RUST_G, "hash_file")(algorithm, fname)
@@ -186,49 +136,88 @@
 #define rustg_http_request_async(method, url, body, headers, options) RUSTG_CALL(RUST_G, "http_request_async")(method, url, body, headers, options)
 #define rustg_http_check_request(req_id) RUSTG_CALL(RUST_G, "http_check_request")(req_id)
 
+/// Generates a spritesheet at: [file_path][spritesheet_name]_[size_id].png
+/// The resulting spritesheet arranges icons in a random order, with the position being denoted in the "sprites" return value.
+/// All icons have the same y coordinate, and their x coordinate is equal to `icon_width * position`.
+///
+/// hash_icons is a boolean (0 or 1), and determines if the generator will spend time creating hashes for the output field dmi_hashes.
+/// These hashes can be heplful for 'smart' caching (see rustg_iconforge_cache_valid), but require extra computation.
+///
+/// Spritesheet will contain all sprites listed within "sprites".
+/// "sprites" format:
+/// list(
+///     "sprite_name" = list( // <--- this list is a [SPRITE_OBJECT]
+///         icon_file = 'icons/path_to/an_icon.dmi',
+///         icon_state = "some_icon_state",
+///         dir = SOUTH,
+///         frame = 1,
+///         transform = list([TRANSFORM_OBJECT], ...)
+///     ),
+///     ...,
+/// )
+/// TRANSFORM_OBJECT format:
+/// list("type" = RUSTG_ICONFORGE_BLEND_COLOR, "color" = "#ff0000", "blend_mode" = ICON_MULTIPLY)
+/// list("type" = RUSTG_ICONFORGE_BLEND_ICON, "icon" = [SPRITE_OBJECT], "blend_mode" = ICON_OVERLAY)
+/// list("type" = RUSTG_ICONFORGE_SCALE, "width" = 32, "height" = 32)
+/// list("type" = RUSTG_ICONFORGE_CROP, "x1" = 1, "y1" = 1, "x2" = 32, "y2" = 32) // (BYOND icons index from 1,1 to the upper bound, inclusive)
+///
+/// Returns a SpritesheetResult as JSON, containing fields:
+/// list(
+///     "sizes" = list("32x32", "64x64", ...),
+///     "sprites" = list("sprite_name" = list("size_id" = "32x32", "position" = 0), ...),
+///     "dmi_hashes" = list("icons/path_to/an_icon.dmi" = "d6325c5b4304fb03", ...),
+///     "sprites_hash" = "a2015e5ff403fb5c", // This is the xxh64 hash of the INPUT field "sprites".
+///     "error" = "[A string, empty if there were no errors.]"
+/// )
+/// In the case of an unrecoverable panic from within Rust, this function ONLY returns a string containing the error.
+#define rustg_iconforge_generate(file_path, spritesheet_name, sprites, hash_icons) RUSTG_CALL(RUST_G, "iconforge_generate")(file_path, spritesheet_name, sprites, "[hash_icons]")
+/// Returns a job_id for use with rustg_iconforge_check()
+#define rustg_iconforge_generate_async(file_path, spritesheet_name, sprites, hash_icons) RUSTG_CALL(RUST_G, "iconforge_generate_async")(file_path, spritesheet_name, sprites, "[hash_icons]")
+/// Returns the status of an async job_id, or its result if it is completed. See RUSTG_JOB DEFINEs.
+#define rustg_iconforge_check(job_id) RUSTG_CALL(RUST_G, "iconforge_check")("[job_id]")
+/// Clears all cached DMIs and images, freeing up memory.
+/// This should be used after spritesheets are done being generated.
+#define rustg_iconforge_cleanup RUSTG_CALL(RUST_G, "iconforge_cleanup")
+/// Takes in a set of hashes, generate inputs, and DMI filepaths, and compares them to determine cache validity.
+/// input_hash: xxh64 hash of "sprites" from the cache.
+/// dmi_hashes: xxh64 hashes of the DMIs in a spritesheet, given by `rustg_iconforge_generate` with `hash_icons` enabled. From the cache.
+/// sprites: The new input that will be passed to rustg_iconforge_generate().
+/// Returns a CacheResult with the following structure: list(
+///     "result": "1" (if cache is valid) or "0" (if cache is invalid)
+///     "fail_reason": "" (emtpy string if valid, otherwise a string containing the invalidation reason or an error with ERROR: prefixed.)
+/// )
+/// In the case of an unrecoverable panic from within Rust, this function ONLY returns a string containing the error.
+#define rustg_iconforge_cache_valid(input_hash, dmi_hashes, sprites) RUSTG_CALL(RUST_G, "iconforge_cache_valid")(input_hash, dmi_hashes, sprites)
+/// Returns a job_id for use with rustg_iconforge_check()
+#define rustg_iconforge_cache_valid_async(input_hash, dmi_hashes, sprites) RUSTG_CALL(RUST_G, "iconforge_cache_valid_async")(input_hash, dmi_hashes, sprites)
+
+#define RUSTG_ICONFORGE_BLEND_COLOR "BlendColor"
+#define RUSTG_ICONFORGE_BLEND_ICON "BlendIcon"
+#define RUSTG_ICONFORGE_CROP "Crop"
+#define RUSTG_ICONFORGE_SCALE "Scale"
+
 #define RUSTG_JOB_NO_RESULTS_YET "NO RESULTS YET"
 #define RUSTG_JOB_NO_SUCH_JOB "NO SUCH JOB"
 #define RUSTG_JOB_ERROR "JOB PANICKED"
 
 #define rustg_json_is_valid(text) (RUSTG_CALL(RUST_G, "json_is_valid")(text) == "true")
 
-#define rustg_log_write(fname, text, format) RUSTG_CALL(RUST_G, "log_write")(fname, text, format)
-/proc/rustg_log_close_all() return RUSTG_CALL(RUST_G, "log_close_all")()
-
 #define rustg_noise_get_at_coordinates(seed, x, y) RUSTG_CALL(RUST_G, "noise_get_at_coordinates")(seed, x, y)
 
-/**
- * Register a list of nodes into a rust library. This list of nodes must have been serialized in a json.
- * Node {// Index of this node in the list of nodes
- *  	  unique_id: usize,
- *  	  // Position of the node in byond
- *  	  x: usize,
- *  	  y: usize,
- *  	  z: usize,
- *  	  // Indexes of nodes connected to this one
- *  	  connected_nodes_id: Vec<usize>}
- * It is important that the node with the unique_id 0 is the first in the json, unique_id 1 right after that, etc.
- * It is also important that all unique ids follow. {0, 1, 2, 4} is not a correct list and the registering will fail
- * Nodes should not link across z levels.
- * A node cannot link twice to the same node and shouldn't link itself either
- */
-#define rustg_register_nodes_astar(json) RUSTG_CALL(RUST_G, "register_nodes_astar")(json)
+/// Register a list of nodes into a rust library. This list of nodes must have been serialized in a json.
+/// {
+///		"position": { x: 0, y: 0, z: 0 },
+///		"mask": 0,
+///		"links": [{x: 0, y: 0, z: 1}]
+/// }
+/// A node cannot link twice to the same node and shouldn't link itself either.
+#define rustg_update_nodes_astar(json) RUSTG_CALL(RUST_G, "update_nodes_astar")(json)
 
-/**
- * Add a new node to the static list of nodes. Same rule as registering_nodes applies.
- * This node unique_id must be equal to the current length of the static list of nodes
- */
-#define rustg_add_node_astar(json) RUSTG_CALL(RUST_G, "add_node_astar")(json)
+/// Remove the node with node position.
+#define rustg_remove_node_astar(node_pos) RUSTG_CALL(RUST_G, "remove_node_astar")(node_pos)
 
-/**
- * Remove every link to the node with unique_id. Replace that node by null
- */
-#define rustg_remove_node_astar(unique_id) RUSTG_CALL(RUST_G, "remove_node_astar")("[unique_id]")
-
-/**
- * Compute the shortest path between start_node and goal_node using A*. Heuristic used is simple geometric distance
- */
-#define rustg_generate_path_astar(start_node_id, goal_node_id) RUSTG_CALL(RUST_G, "generate_path_astar")("[start_node_id]", "[goal_node_id]")
+/// Compute the shortest path between start_node and goal_node using A*.
+#define rustg_generate_path_astar(strat_node_pos, goal_node_pos, pass_bit, deny_bit, costs) RUSTG_CALL(RUST_G, "generate_path_astar")(strat_node_pos, goal_node_pos, istext(pass_bit) ? pass_bit : num2text(pass_bit), istext(deny_bit) ? deny_bit : num2text(deny_bit), isnull(costs) ? "null" : costs)
 
 #define rustg_prom_init(port) RUSTG_CALL(RUST_G, "prom_init")(istext(port) ? port : num2text(port))
 
@@ -295,7 +284,7 @@
 
 /// Returns a bool with a probability of numerator/denominator of being true. I.e. gen_ratio(2, 3) has chance of 2 in 3, or about 67%, of returning true.
 /// If numerator == denominator, then the returned value is guaranteed to be true. If numerator == 0, then the returned value is guaranteed to be false.
-#define rustg_rand_ratio(nominator, denominator) ext2num(RUSTG_CALL(RUST_G, "rand_ratio")(istext(nominator) ? nominator : num2text(nominator), istext(denominator) ? denominator : num2text(denominator)))
+#define rustg_rand_ratio(nominator, denominator) text2num(RUSTG_CALL(RUST_G, "rand_ratio")(istext(nominator) ? nominator : num2text(nominator), istext(denominator) ? denominator : num2text(denominator)))
 
 // Related to real-valued quantities that grow linearly (e.g. errors, offsets):
 
@@ -489,21 +478,6 @@
 
 /// https://en.wikipedia.org/wiki/Normal-inverse_Gaussian_distribution
 #define rustg_rand_normal_inverse_gaussian(alpha, beta) text2num(RUSTG_CALL(RUST_G, "rand_normal_inverse_gaussian")(istext(alpha) ? alpha : num2text(alpha), istext(beta) ? beta : num2text(beta)))
-
-#define rustg_sql_connect_pool(options) RUSTG_CALL(RUST_G, "sql_connect_pool")(options)
-#define rustg_sql_query_async(handle, query, params) RUSTG_CALL(RUST_G, "sql_query_async")(handle, query, params)
-#define rustg_sql_query_blocking(handle, query, params) RUSTG_CALL(RUST_G, "sql_query_blocking")(handle, query, params)
-#define rustg_sql_connected(handle) RUSTG_CALL(RUST_G, "sql_connected")(handle)
-#define rustg_sql_disconnect_pool(handle) RUSTG_CALL(RUST_G, "sql_disconnect_pool")(handle)
-#define rustg_sql_check_query(job_id) RUSTG_CALL(RUST_G, "sql_check_query")("[job_id]")
-
-#define rustg_time_microseconds(id) text2num(RUSTG_CALL(RUST_G, "time_microseconds")(id))
-#define rustg_time_milliseconds(id) text2num(RUSTG_CALL(RUST_G, "time_milliseconds")(id))
-#define rustg_time_reset(id) RUSTG_CALL(RUST_G, "time_reset")(id)
-
-/// Returns the timestamp as a string
-/proc/rustg_unix_timestamp()
-	return RUSTG_CALL(RUST_G, "unix_timestamp")()
 
 #define rustg_raw_read_toml_file(path) json_decode(RUSTG_CALL(RUST_G, "toml_file_to_json")(path) || "null")
 

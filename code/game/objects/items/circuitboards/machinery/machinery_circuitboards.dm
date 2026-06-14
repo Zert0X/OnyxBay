@@ -4,6 +4,7 @@
 
 /obj/item/circuitboard/cell_charger
 	name = T_BOARD("cell charger")
+	icon_state = "id_mod_orange"
 	build_path = /obj/machinery/cell_charger
 	board_type = "machine"
 	origin_tech = list(TECH_POWER = 2, TECH_ENGINEERING = 2)
@@ -11,6 +12,7 @@
 
 /obj/item/circuitboard/recharger
 	name = T_BOARD("recharger")
+	icon_state = "id_mod_orange"
 	build_path = /obj/machinery/recharger
 	board_type = "machine"
 	origin_tech = list(TECH_POWER = 2, TECH_ENGINEERING = 2)
@@ -25,6 +27,7 @@
 
 /obj/item/circuitboard/sleeper
 	name = T_BOARD("sleeper")
+	icon_state = "id_mod_cyan"
 	build_path = /obj/machinery/sleeper
 	board_type = "machine"
 	origin_tech = list(TECH_MAGNET = 2, TECH_BIO = 2, TECH_ENGINEERING = 2)
@@ -37,6 +40,7 @@
 
 /obj/item/circuitboard/microwave
 	name = T_BOARD("microwave")
+	icon_state = "id_mod_yellow"
 	build_path = /obj/machinery/microwave
 	board_type = "machine"
 	origin_tech = list(TECH_ENGINEERING = 1)
@@ -46,6 +50,7 @@
 
 /obj/item/circuitboard/sauna
 	name = T_BOARD("sauna")
+	icon_state = "id_mod_yellow"
 	build_path = /obj/machinery/sauna
 	board_type = "machine"
 	origin_tech = list(TECH_POWER = 2, TECH_ENGINEERING = 2)

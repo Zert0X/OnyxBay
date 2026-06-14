@@ -157,7 +157,7 @@
 		to_chat(M, "<font color='red' size='7'>HONK</font>")
 		M.sleeping = 0
 		M.stuttering += 20
-		M.ear_deaf += 30
+		M.adjustEarDamage(null, 30)
 		M.Weaken(3)
 		M.Stun(3)
 		if(prob(30))
@@ -263,7 +263,7 @@
 	name = "\improper SRM-8 missile rack"
 	icon_state = "mecha_missilerack"
 	projectile = /obj/item/missile
-	fire_sound = 'sound/effects/bang.ogg'
+	fire_sound = SFX_BANG
 	projectiles = 8
 	projectile_energy_cost = 200 KILO WATTS
 	equip_cooldown = 60
@@ -280,19 +280,17 @@
 	throwforce = 120
 	throw_spin = FALSE
 
-/obj/item/missile/throw_impact(atom/hit_atom)
+/obj/item/missile/throw_impact(atom/hit_atom, datum/thrownthing/TT)
+	..()
 	if(primed)
 		explosion(hit_atom, 0, 1, 4, 4)
 		qdel(src)
-	else
-		..()
-	return
 
 /obj/item/mecha_parts/mecha_equipment/weapon/ballistic/missile_rack/flashbang
 	name = "\improper SGL-6 grenade launcher"
 	icon_state = "mecha_grenadelnchr"
 	projectile = /obj/item/grenade/flashbang
-	fire_sound = 'sound/effects/bang.ogg'
+	fire_sound = SFX_BANG
 	projectiles = 6
 	missile_speed = 1.5
 	projectile_energy_cost = 200 KILO WATTS

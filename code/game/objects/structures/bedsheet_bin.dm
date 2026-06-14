@@ -17,7 +17,7 @@ LINEN BINS
 	throw_speed = 3
 	throw_range = 2
 	w_class = ITEM_SIZE_SMALL
-	var/folded = 0
+	var/folded = FALSE
 	drop_sound = SFX_DROP_CLOTH
 	pickup_sound = SFX_PICKUP_CLOTH
 
@@ -32,20 +32,23 @@ LINEN BINS
 		return
 	..()
 
-/obj/item/bedsheet/AltClick()
-	if(src in oview(1))
-		playsound(loc, SFX_SEARCH_CLOTHES, 15, 1, -5)
-		if(!folded)
-			folded = 1
-			icon_state = "sheet-folded"
-		else
-			folded = 0
-			icon_state = initial(icon_state)
-	return
+/obj/item/bedsheet/attack_self(mob/living/user)
+	fold_sheet(user)
 
-/obj/item/bedsheet/gray
-	icon_state = "sheetgray"
-	item_state = "sheetgray"
+/obj/item/bedsheet/AltClick(mob/user)
+	if(Adjacent(user))
+		fold_sheet(user)
+
+/obj/item/bedsheet/proc/fold_sheet(mob/user)
+	playsound(loc, SFX_SEARCH_CLOTHES, 15, 1, -5)
+	folded = !folded
+	icon_state = folded ? "sheet-folded" : initial(icon_state)
+	if(istype(user))
+		to_chat(user, SPAN("notice", "You [folded ? "" : "un"]fold \the [src]."))
+
+/obj/item/bedsheet/grey
+	icon_state = "sheetgrey"
+	item_state = "sheetgrey"
 
 /obj/item/bedsheet/blue
 	icon_state = "sheetblue"
@@ -187,7 +190,7 @@ LINEN BINS
 /obj/structure/bedsheetbin/on_update_icon()
 	if(!amount)
 		icon_state = "linenbin-empty"
-	else if (amount <= amount / 2)
+	else if (amount <= initial(amount) / 2)
 		icon_state = "linenbin-half"
 	else
 		icon_state = "linenbin-full"

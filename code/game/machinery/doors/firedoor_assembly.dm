@@ -21,7 +21,7 @@
 			to_chat(user, "<span class='warning'>You need one length of coil to wire \the [src].</span>")
 			return
 		user.visible_message("[user] wires \the [src].", "You start to wire \the [src].")
-		if(do_after(user, 40, src) && !wired && anchored)
+		if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG) && !wired && anchored)
 			if (cable.use(1))
 				wired = 1
 				to_chat(user, "<span class='notice'>You wire \the [src].</span>")
@@ -30,7 +30,7 @@
 		playsound(src.loc, 'sound/items/Wirecutter.ogg', 100, 1)
 		user.visible_message("[user] cuts the wires from \the [src].", "You start to cut the wires from \the [src].")
 
-		if(do_after(user, 40, src))
+		if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 			if(!src) return
 			to_chat(user, "<span class='notice'>You cut the wires!</span>")
 			new /obj/item/stack/cable_coil(src.loc, 1)
@@ -56,7 +56,7 @@
 		var/obj/item/weldingtool/WT = C
 		user.visible_message("<span class='warning'>[user] dissassembles \the [src].</span>",
 			"You start to dissassemble \the [src].")
-		if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 1))
+		if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 10))
 			return
 
 		if(QDELETED(src) || !user)

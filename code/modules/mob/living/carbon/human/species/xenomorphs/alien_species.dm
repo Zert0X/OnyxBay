@@ -90,7 +90,7 @@
 	xenomorph_type = null // No larvae spawn from xenomorphs themselves
 
 /datum/species/xenos/can_understand(mob/other)
-	if(istype(other,/mob/living/carbon/alien/larva))
+	if(istype(other,/mob/living/carbon/larva/xenomorph))
 		return TRUE
 	return FALSE
 
@@ -141,7 +141,7 @@
 		H.adjustToxLoss(-heal_rate)
 		if(prob(5))
 			to_chat(H, "<span class='alium'>I feel a soothing sensation come over me...</span>")
-		H.UpdateDamageIcon()
+		H.update_damage_overlays()
 		return TRUE
 
 	//next internal organs
@@ -158,7 +158,7 @@
 	//next regrow lost limbs, approx 5 ticks each
 	if(prob(mend_prob))
 		for(var/limb_type in has_limbs)
-			var/obj/item/organ/external/E = H.organs_by_name[limb_type]
+			var/obj/item/organ/external/E = H.external_organs_by_name[limb_type]
 			if(E && E.organ_tag != BP_HEAD && !E.vital && !E.is_usable())
 				E.removed()
 				qdel(E)
@@ -172,11 +172,6 @@
 				O.set_dna(H.dna)
 				H.update_body()
 				return TRUE
-			else
-				for(var/datum/wound/W in E.wounds)
-					if(W.wound_damage() == 0)
-						E.wounds -= W
-						return TRUE
 	return FALSE
 
 /datum/species/xenos/can_overcome_gravity(mob/living/carbon/human/H)
@@ -312,6 +307,8 @@
 	brute_mod = 0.65
 	burn_mod  = 1.4
 
+	push_flags = ~HEAVY
+
 	icobase = 'icons/mob/human_races/xenos/r_xenos_sentinel.dmi'
 
 	has_organ = list(
@@ -360,6 +357,10 @@
 	burn_mod  = 1.2
 	icon_scale = 1.3
 	generic_attack_mod = 4.5
+
+	bump_flag = HEAVY
+	swap_flags = ALLMOBS
+	push_flags = ALLMOBS
 
 	icobase = 'icons/mob/human_races/xenos/r_xenos_queen.dmi'
 

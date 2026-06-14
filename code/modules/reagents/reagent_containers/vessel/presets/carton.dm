@@ -14,7 +14,16 @@
 	desc = "It's cream. Made from milk. What else did you think you'd find in there?"
 	icon_state = "cream"
 	item_state = "cream"
+	w_class = ITEM_SIZE_SMALL
+
+	volume = 0.5 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;60;100;150;250;500"
+
 	startswith = list(/datum/reagent/drink/milk/cream)
+
+/obj/item/reagent_containers/vessel/carton/cream/get_storage_cost()
+	return ..() * 1.5
 
 /obj/item/reagent_containers/vessel/carton/tomatojuice
 	name = "Tomato Juice"
@@ -25,9 +34,14 @@
 
 /obj/item/reagent_containers/vessel/carton/milk
 	name = "small milk carton"
-	volume = 30
 	icon_state = "mini-milk"
 	item_state = "milk"
+	w_class = ITEM_SIZE_SMALL
+
+	volume = 0.25 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;60;100;150;250"
+
 	startswith = list(/datum/reagent/drink/milk)
 
 /obj/item/reagent_containers/vessel/carton/milk/chocolate

@@ -6,7 +6,7 @@
 /obj/item/circuitboard/mecha
 	name = "exosuit circuit board"
 	icon = 'icons/obj/module.dmi'
-	icon_state = "std_mod"
+	icon_state = "mecha_mod"
 	item_state = "electronic"
 	board_type = "other"
 

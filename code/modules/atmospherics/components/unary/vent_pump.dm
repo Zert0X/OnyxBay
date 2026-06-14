@@ -105,20 +105,17 @@
 /obj/machinery/atmospherics/unary/vent_pump/on_update_icon(safety = 0)
 	if(!check_icon_cache())
 		return
-	if (!node)
-		update_use_power(POWER_USE_OFF)
 
 	ClearOverlays()
-
-	var/vent_icon = "vent"
 
 	var/turf/T = get_turf(src)
 	if(!istype(T))
 		return
 
+	var/vent_icon = "vent"
+
 	if(!T.is_plating() && node && node.level == 1 && istype(node, /obj/machinery/atmospherics/pipe))
 		vent_icon += "h"
-
 
 	if(broken)
 		switch(broken)
@@ -350,7 +347,7 @@
 
 		var/obj/item/weldingtool/WT = W
 
-		if(!WT.use_tool(src, user, delay = 2 SECONDS, amount = 5))
+		if(!WT.use_tool(src, user, delay = 2 SECONDS, amount = 50))
 			return
 
 		if(QDELETED(src) || !user)
@@ -378,7 +375,7 @@
 
 		to_chat(user, "<span class='notice'>Now welding \the [src].</span>")
 
-		if(!W.use_tool(src, user, delay = 2 SECONDS, amount = 5))
+		if(!W.use_tool(src, user, delay = 2 SECONDS, amount = 50))
 			return
 
 		if(QDELETED(src) || !user)
@@ -430,7 +427,7 @@
 	var/datum/gas_mixture/env_air = loc.return_air()
 	playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
 	to_chat(user, "<span class='notice'>You begin to unfasten \the [src]...</span>")
-	if (do_after(user, 40, src))
+	if (do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 		user.visible_message( \
 			"<span class='notice'>\The [user] unfastens \the [src].</span>", \
 			"<span class='notice'>You have unfastened \the [src].</span>", \

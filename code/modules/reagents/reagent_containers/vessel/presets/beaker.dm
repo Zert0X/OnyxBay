@@ -8,7 +8,7 @@
 	base_name = "beaker"
 	base_desc = "A beaker."
 	start_label = "cryoxadone"
-	startswith = list(/datum/reagent/cryoxadone = 30)
+	startswith = list(/datum/reagent/cryoxadone = 150)
 	override_lid_state = LID_CLOSED
 
 /obj/item/reagent_containers/vessel/beaker/sulphuric
@@ -17,5 +17,5 @@
 	base_name = "beaker"
 	base_desc = "A beaker."
 	start_label = "sulphuric acid"
-	startswith = list(/datum/reagent/acid = 60)
+	startswith = list(/datum/reagent/acid = 300)
 	override_lid_state = LID_CLOSED

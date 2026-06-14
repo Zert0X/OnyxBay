@@ -42,7 +42,7 @@
 
 	var/can_downgrade_on_resist = 1
 	var/list/break_chance_table = list(100)
-	var/breakability = 2
+	var/breakability = 1
 
 	// The names of different intents for use in attack logs
 	var/help_action = "help intent"
@@ -105,7 +105,7 @@
 	var/mob/living/carbon/human/affecting = G.affecting
 
 	if(can_throw)
-		animate(affecting, pixel_x = 0, pixel_y = 0, 4, 1)
+		animate(affecting, pixel_x = affecting.default_pixel_x, pixel_y = affecting.default_pixel_y, time = 4, tag = MOB_ANIM_GRAB)
 		qdel(G)
 		return affecting
 	return null
@@ -155,26 +155,29 @@
 		return
 	var/mob/living/carbon/human/affecting = G.affecting
 	var/mob/living/carbon/human/assailant = G.assailant
-	var/adir = get_dir(assailant, affecting)
+	var/direction = get_dir(assailant, affecting)
 
 	if(same_tile)
 		affecting.forceMove(assailant.loc)
-		adir = assailant.dir
+		direction = assailant.dir
 		affecting.set_dir(assailant.dir)
 
-	switch(adir)
-		if(NORTH)
-			animate(affecting, pixel_x = 0, pixel_y =-shift, 5, 1, LINEAR_EASING)
-			G.draw_affecting_under()
-		if(SOUTH)
-			animate(affecting, pixel_x = 0, pixel_y = shift, 5, 1, LINEAR_EASING)
-			G.draw_affecting_over()
-		if(WEST)
-			animate(affecting, pixel_x = shift, pixel_y = 0, 5, 1, LINEAR_EASING)
-			G.draw_affecting_under()
-		if(EAST)
-			animate(affecting, pixel_x =-shift, pixel_y = 0, 5, 1, LINEAR_EASING)
-			G.draw_affecting_under()
+	var/resulting_pixel_x = affecting.default_pixel_x
+	var/resulting_pixel_y = affecting.default_pixel_y
+	if(direction & NORTH)
+		resulting_pixel_y = -shift
+		G.draw_affecting_under()
+	else
+		if(direction & SOUTH)
+			resulting_pixel_y = shift
+		G.draw_affecting_over()
+
+	if(direction & EAST)
+		resulting_pixel_x = -shift
+	else if(direction & WEST)
+		resulting_pixel_x = shift
+
+	animate(affecting, pixel_x = resulting_pixel_x, pixel_y = resulting_pixel_y, time = 5, LINEAR_EASING, tag = MOB_ANIM_GRAB)
 
 	affecting.reset_plane_and_layer()
 
@@ -184,7 +187,7 @@
 	var/mob/living/carbon/human/affecting = G.affecting
 
 	if(!affecting.buckled)
-		animate(affecting, pixel_x = 0, pixel_y = 0, 4, 1, LINEAR_EASING)
+		animate(affecting, pixel_x = affecting.default_pixel_x, pixel_y = affecting.default_pixel_y, time = 4, LINEAR_EASING, tag = MOB_ANIM_GRAB)
 	affecting.reset_plane_and_layer()
 
 /*
@@ -254,6 +257,7 @@
 
 	if(affecting.incapacitated(INCAPACITATION_KNOCKOUT | INCAPACITATION_STUNNED))
 		to_chat(affecting, SPAN("warning", "You can't resist in your current state!"))
+		return
 
 	//var/break_strength = breakability + size_difference(affecting, assailant)
 
@@ -265,39 +269,42 @@
 		p_mult -= 0.1
 	if(affecting.confused)
 		p_mult -= 0.1
-	if(!affecting.lying)
-		p_mult += 0.1
+	if(affecting.lying)
+		p_mult -= 0.1
 
 	//if(break_strength < 1)
 	//	to_chat(G.assailant, "<span class='warning'>You try to break free but feel that unless something changes, you'll never escape!</span>")
 	//	return
 
-	var/p_lost = (5.5 + affecting.poise/10 - assailant.poise/20) * p_mult
+	var/p_lost = round((3.5 + affecting.poise/15 - assailant.poise/30) * p_mult, 0.1)
+	p_lost = Clamp(p_lost, 1.5, 8.0)
 	assailant.damage_poise(p_lost)
 	affecting.damage_poise(2.0)
 
 	//assailant.visible_message("Debug: [assailant] lost [p_lost] poise | now: [assailant.poise]/[assailant.poise_pool]") //Debug message
 
-	var/p_diff = 25.0 // If difference is less than 5.0 then the break chance is capped (12.5%/8.33% for normal and agressive grabs respectively).
-	if((affecting.poise - assailant.poise) > 5.0)
-		p_diff = (affecting.poise - assailant.poise) * 5
-	else if(assailant.poise - affecting.poise > 20.0) // HUGE difference, tiny chance to escape
-		p_diff = 10.0
+	var/poise_gap = affecting.poise - assailant.poise
+	var/p_diff = 50.0
+	if(poise_gap > 8.0)
+		p_diff += (poise_gap - 8.0) * 2.0
+	else if(poise_gap < -10.0)
+		p_diff -= abs(poise_gap + 10.0) * 1.2
 
-	p_diff /= breakability // 2 for a normal grab, 3 for agressive and kill grabs
+	p_diff = Clamp(round(p_diff / breakability, 0.1), 18.0, 58.0)
+	var/control_chance = Clamp(round(88.0 + (poise_gap * 0.7), 0.1), 68.0, 98.0)
 
 	//assailant.visible_message("Debug: p_diff = [p_diff] | breakability = [breakability]") //Debug message
 
-	if(p_diff > assailant.poise || prob(p_diff))
-		if(can_downgrade_on_resist && !prob(p_diff))
+	if(prob(p_diff) && prob(control_chance))
+		var/break_roll = prob(p_diff)
+		if(can_downgrade_on_resist && !break_roll)
 			affecting.visible_message(SPAN("warning", "[affecting] has loosened [assailant]'s grip!"))
-			assailant.setClickCooldown(10)
 			G.downgrade()
 			return
 		else
 			affecting.visible_message(SPAN("warning", "[affecting] has broken free of [assailant]'s grip!"))
-			assailant.setClickCooldown(15)
 			G.delete_self()
+			return
 
 /datum/grab/proc/size_difference(mob/A, mob/B)
 	return mob_size_difference(A.mob_size, B.mob_size)

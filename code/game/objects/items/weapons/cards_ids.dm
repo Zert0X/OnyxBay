@@ -30,7 +30,7 @@
 /obj/item/card/data
 	name = "data disk"
 	desc = "A disk of data."
-	icon_state = "data"
+	icon_state = "card_data"
 	var/function = "storage"
 	var/data = "null"
 	var/special = null
@@ -56,14 +56,14 @@
 	desc = "It's a card with a magnetic strip attached to some circuitry. It looks too busted to be used for anything but salvage."
 	name = "broken cryptographic sequencer"
 	icon_state = "emag"
-	item_state = "card-id"
+	item_state = "emag"
 	origin_tech = list(TECH_MAGNET = 2, TECH_ILLEGAL = 2)
 
 /obj/item/card/emag
 	desc = "It's a card with a magnetic strip attached to some circuitry."
 	name = "cryptographic sequencer"
 	icon_state = "emag"
-	item_state = "card-id"
+	item_state = "emag"
 	origin_tech = list(TECH_MAGNET = 2, TECH_ILLEGAL = 2)
 	var/uses = 10
 
@@ -92,7 +92,7 @@ var/const/NO_EMAG_ACT = -50
 	desc = "It's a card with a magnetic strip attached to some circuitry."
 	name = "cryptographic sequencer"
 	icon_state = "emag"
-	item_state = "card-id"
+	item_state = "emag"
 	origin_tech = list(TECH_MAGNET = 2, TECH_ILLEGAL = 2)
 	uses = 3
 
@@ -116,12 +116,14 @@ var/const/NO_EMAG_ACT = -50
 /obj/item/card/id
 	name = "identification card"
 	desc = "A card used to provide ID and determine access."
-	icon_state = "id"
-	item_state = "card-id"
+	icon_state = "card_id"
+	item_state = "card_id"
+
+	slot_flags = SLOT_ID
+	item_state_slots = alist(slot_wear_id_str = "id")
 
 	var/access = list()
 	var/registered_name = "Unknown" // The name registered_name on the card
-	slot_flags = SLOT_ID
 
 	var/age = "\[UNSET\]"
 	var/blood_type = "\[UNSET\]"
@@ -256,29 +258,35 @@ var/const/NO_EMAG_ACT = -50
 /obj/item/card/id/silver
 	name = "identification card"
 	desc = "A silver card which shows honour and dedication."
-	icon_state = "silver"
-	item_state = "silver_id"
+	icon_state = "card_silver"
+	item_state = "card_silver"
 	job_access_type = /datum/job/hop
 
 /obj/item/card/id/gold
 	name = "identification card"
 	desc = "A golden card which shows power and might."
-	icon_state = "gold"
-	item_state = "gold_id"
+	icon_state = "card_gold"
+	item_state = "card_gold"
 	job_access_type = /datum/job/captain
 
 /obj/item/card/id/syndicate_command
 	name = "syndicate ID card"
 	desc = "An ID straight from the Syndicate."
+	icon_state = "card_syndie"
+	item_state = "card_syndie"
 	registered_name = "Syndicate"
 	assignment = "Syndicate Overlord"
 	access = list(access_syndicate, access_external_airlocks)
 
+/obj/item/card/id/syndicate_command/gold
+	icon_state = "card_syndieGold"
+	item_state = "card_syndieGold"
+
 /obj/item/card/id/captains_spare
 	name = "captain's spare ID"
 	desc = "The spare ID of the High Lord himself."
-	icon_state = "gold"
-	item_state = "gold_id"
+	icon_state = "card_gold"
+	item_state = "card_gold"
 	registered_name = "Captain"
 	assignment = "Captain"
 	is_poi = TRUE
@@ -290,8 +298,8 @@ var/const/NO_EMAG_ACT = -50
 /obj/item/card/id/synthetic
 	name = "\improper Synthetic ID"
 	desc = "Access module for lawed synthetics."
-	icon_state = "id-robot"
-	item_state = "tdgreen"
+	icon_state = "card_robot"
+	item_state = "card_id"
 	assignment = "Synthetic"
 
 /obj/item/card/id/synthetic/New()
@@ -301,9 +309,11 @@ var/const/NO_EMAG_ACT = -50
 /obj/item/card/id/centcom
 	name = "\improper CentCom. ID"
 	desc = "An ID straight from Cent. Com."
-	icon_state = "centcom"
+	icon_state = "card_centcom"
+	item_state = "card_centcom"
 	registered_name = "Central Command"
 	assignment = "General"
+
 /obj/item/card/id/centcom/New()
 	access = get_all_centcom_access()
 	..()
@@ -323,10 +333,11 @@ var/const/NO_EMAG_ACT = -50
 /obj/item/card/id/all_access
 	name = "\improper Administrator's spare ID"
 	desc = "The spare ID of the Lord of Lords himself."
-	icon_state = "data"
-	item_state = "tdgreen"
+	icon_state = "card_data"
+	item_state = "card_data"
 	registered_name = "Administrator"
 	assignment = "Administrator"
+
 /obj/item/card/id/all_access/New()
 	access = get_access_ids()
 	..()
@@ -335,145 +346,203 @@ var/const/NO_EMAG_ACT = -50
 /obj/item/card/id/medical
 	name = "identification card"
 	desc = "A card issued to medical staff."
-	icon_state = "med"
+	icon_state = "card_med"
+	item_state = "card_med"
 	job_access_type = /datum/job/doctor
 
 /obj/item/card/id/medical/chemist
+	icon_state = "card_chem"
 	job_access_type = /datum/job/chemist
 
 /obj/item/card/id/medical/virologist
+	icon_state = "card_viro"
 	job_access_type = /datum/job/virologist
 
 /obj/item/card/id/medical/psychiatrist
+	icon_state = "card_psych"
 	job_access_type = /datum/job/psychiatrist
 
 /obj/item/card/id/medical/paramedic
+	icon_state = "card_paramed"
 	job_access_type = /datum/job/paramedic
 
 /obj/item/card/id/medical/head
 	name = "identification card"
 	desc = "A card which represents care and compassion."
-	icon_state = "medGold"
+	icon_state = "card_cmo"
+	item_state = "card_head"
 	job_access_type = /datum/job/cmo
 
 /obj/item/card/id/security
 	name = "identification card"
 	desc = "A card issued to security staff."
-	icon_state = "sec"
+	icon_state = "card_sec"
+	item_state = "card_sec"
 	job_access_type = /datum/job/officer
 
 /obj/item/card/id/security/warden
+	icon_state = "card_warden"
 	job_access_type = /datum/job/warden
 
 /obj/item/card/id/security/detective
+	icon_state = "card_dec"
 	job_access_type = /datum/job/detective
 
 /obj/item/card/id/security/head
 	name = "identification card"
 	desc = "A card which represents honor and protection."
-	icon_state = "secGold"
+	icon_state = "card_hos"
+	item_state = "card_head"
 	job_access_type = /datum/job/hos
 
 /obj/item/card/id/engineering
 	name = "identification card"
 	desc = "A card issued to engineering staff."
-	icon_state = "eng"
+	icon_state = "card_eng"
+	item_state = "card_eng"
 	job_access_type = /datum/job/engineer
 
 /obj/item/card/id/engineering/atmos
+	icon_state = "card_atmos"
 	job_access_type = /datum/job/atmos
 
 /obj/item/card/id/engineering/head
 	name = "identification card"
 	desc = "A card which represents creativity and ingenuity."
-	icon_state = "engGold"
+	icon_state = "card_ce"
+	item_state = "card_head"
 	job_access_type = /datum/job/chief_engineer
 
 /obj/item/card/id/science
 	name = "identification card"
 	desc = "A card issued to science staff."
-	icon_state = "sci"
+	icon_state = "card_sci"
+	item_state = "card_sci"
 	job_access_type = /datum/job/scientist
 
 /obj/item/card/id/science/xenobiologist
+	icon_state = "card_xenobio"
 	job_access_type = /datum/job/xenobiologist
 
 /obj/item/card/id/science/roboticist
+	icon_state = "card_roboticist"
 	job_access_type = /datum/job/roboticist
 
 /obj/item/card/id/science/head
 	name = "identification card"
 	desc = "A card which represents knowledge and reasoning."
-	icon_state = "sciGold"
+	icon_state = "card_rd"
+	item_state = "card_head"
 	job_access_type = /datum/job/rd
 
-/obj/item/card/id/cargo
+/obj/item/card/id/provisioning
 	name = "identification card"
-	desc = "A card issued to cargo staff."
-	icon_state = "cargo"
-	job_access_type = /datum/job/cargo_tech
+	desc = "A card issued to provisioning staff."
+	icon_state = "card_civ"
+	item_state = "card_civ"
 
-/obj/item/card/id/cargo/mining
-	job_access_type = /datum/job/mining
-
-/obj/item/card/id/cargo/head
+/obj/item/card/id/provisioning/head
 	name = "identification card"
 	desc = "A card which represents service and planning."
-	icon_state = "cargoGold"
-	job_access_type = /datum/job/qm
+	icon_state = "card_hop"
+	item_state = "card_head"
+	job_access_type = /datum/job/hop
+
+/obj/item/card/id/provisioning/cargo
+	name = "identification card"
+	desc = "A card issued to cargo staff."
+	icon_state = "card_cargo"
+	item_state = "card_cargo"
+	job_access_type = /datum/job/cargo_tech
+
+/obj/item/card/id/provisioning/cargo/mining
+	icon_state = "card_mining"
+	job_access_type = /datum/job/mining
+
+/obj/item/card/id/provisioning/bartender
+	icon_state = "card_bartender"
+	job_access_type = /datum/job/bartender
+
+/obj/item/card/id/provisioning/chef
+	icon_state = "card_chef"
+	job_access_type = /datum/job/chef
+
+/obj/item/card/id/provisioning/botanist
+	icon_state = "card_botanist"
+	job_access_type = /datum/job/hydro
+
+/obj/item/card/id/provisioning/janitor
+	icon_state = "card_janitor"
+	job_access_type = /datum/job/janitor
 
 /obj/item/card/id/civilian
 	name = "identification card"
 	desc = "A card issued to civilian staff."
-	icon_state = "civ"
+	icon_state = "card_civ"
+	item_state = "card_civ"
 	job_access_type = /datum/job/assistant
 
-/obj/item/card/id/civilian/bartender
-	job_access_type = /datum/job/bartender
-
-/obj/item/card/id/civilian/chef
-	job_access_type = /datum/job/chef
-
-/obj/item/card/id/civilian/botanist
-	job_access_type = /datum/job/hydro
-
-/obj/item/card/id/civilian/janitor
-	job_access_type = /datum/job/janitor
-
 /obj/item/card/id/civilian/librarian
+	icon_state = "card_librarian"
 	job_access_type = /datum/job/librarian
 
 /obj/item/card/id/civilian/internal_affairs_agent
+	icon_state = "card_iaa"
 	job_access_type = /datum/job/iaa
 
 /obj/item/card/id/civilian/lawyer
+	icon_state = "card_lawyer"
 	job_access_type = /datum/job/lawyer
 
 /obj/item/card/id/civilian/chaplain
+	icon_state = "card_chaplain"
 	job_access_type = /datum/job/chaplain
 
 /obj/item/card/id/civilian/clown
 	desc = "A card issued to... Wait, what?!"
-	icon_state = "clown"
+	icon_state = "card_clown"
+	item_state = "card_clown"
 	job_access_type = /datum/job/clown
+
+/obj/item/card/id/civilian/clown/gold //Use me in the name of Honkmother
+	icon_state = "card_clownGold"
+	item_state = "card_clownGold"
+	job_access_type = null
+
+/obj/item/card/id/civilian/clown/gold/New()
+	access = get_all_station_access()
+	..()
 
 /obj/item/card/id/civilian/mime
 	desc = "A card issued to..."
-	icon_state = "mime"
+	icon_state = "card_mime"
+	item_state = "card_mime"
 	job_access_type = /datum/job/mime
+
+/obj/item/card/id/civilian/mime/gold //...
+	icon_state = "card_mimeGold"
+	item_state = "card_mimeGold"
+	job_access_type = null
+
+/obj/item/card/id/civilian/mime/gold/New()
+	access = get_all_station_access()
+	..()
 
 /obj/item/card/id/civilian/barmonkey
 	desc = "A card issued to a monkey. Aboard a space station."
-	icon_state = "monkey"
+	icon_state = "card_monkey"
+	item_state = "card_id"
 	job_access_type = /datum/job/barmonkey
 
 /obj/item/card/id/civilian/head //This is not the HoP. There's no position that uses this right now.
 	name = "identification card"
 	desc = "A card which represents common sense and responsibility."
-	icon_state = "civGold"
+	icon_state = "card_civGold"
+	item_state = "card_head"
 
 /obj/item/card/id/merchant
 	name = "identification card"
 	desc = "A card issued to Merchants, indicating their right to sell and buy goods."
-	icon_state = "trader"
+	icon_state = "card_trader"
+	item_state = "card_trader"
 	access = list(access_merchant)

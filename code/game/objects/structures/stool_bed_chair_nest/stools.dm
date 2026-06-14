@@ -7,6 +7,7 @@ var/global/list/stool_cache = list() //haha stool
 	icon = 'icons/obj/furniture.dmi'
 	icon_state = "stool_preview" //set for the map
 	item_state = "stool"
+	base_icon_state = "stool"
 	randpixel = 0
 	force = 10
 	mod_reach = 0.85
@@ -18,67 +19,66 @@ var/global/list/stool_cache = list() //haha stool
 
 	rad_resist_type = /datum/rad_resist/none
 
-	var/base_icon = "stool"
 	var/material/material
 	var/material/padding_material
 
 /obj/item/stool/padded
 	icon_state = "stool_padded_preview" //set for the map
+	material = MATERIAL_STEEL
+	padding_material = MATERIAL_CARPET
 
-/obj/item/stool/New(newloc, new_material, new_padding_material)
-	..(newloc)
-	if(!new_material)
-		new_material = MATERIAL_STEEL
-	material = get_material_by_name(new_material)
-	if(new_padding_material)
-		padding_material = get_material_by_name(new_padding_material)
-	if(!istype(material))
-		qdel(src)
-		return
+/obj/item/stool/Initialize(mapload, new_material, new_padding_material)
+	. = ..(mapload)
+	material = get_material_by_name(new_material || material || MATERIAL_STEEL)
+	padding_material = new_padding_material || padding_material
+	if(padding_material)
+		padding_material = get_material_by_name(padding_material)
+
 	force = round(material.get_blunt_damage()*0.4)
 	update_icon()
-
-/obj/item/stool/padded/New(newloc, new_material)
-	..(newloc, MATERIAL_STEEL, MATERIAL_CARPET)
 
 /obj/item/stool/bar_new
 	name = "wooden bar stool"
 	icon_state = "barstool_new_preview" //set for the map
 	item_state = "bar_stool"
-	base_icon = "barstool_new"
+	base_icon_state = "barstool_new"
 
 /obj/item/stool/bar_new/padded
 	icon_state = "barstool_new_padded_preview"
-
-/obj/item/stool/bar_new/padded/New(newloc, new_material)
-	..(newloc, MATERIAL_WOOD, MATERIAL_CARPET)
+	material = MATERIAL_WOOD
+	padding_material = MATERIAL_CARPET
 
 /obj/item/stool/bar
 	name = "bar stool"
 	icon_state = "bar_stool_preview" //set for the map
 	item_state = "bar_stool"
-	base_icon = "bar_stool"
+	base_icon_state = "bar_stool"
 
 /obj/item/stool/bar/padded
 	icon_state = "bar_stool_padded_preview"
+	material = MATERIAL_STEEL
+	padding_material = MATERIAL_CARPET
 
-/obj/item/stool/bar/padded/New(newloc, new_material)
-	..(newloc, MATERIAL_STEEL, MATERIAL_CARPET)
+
+/obj/item/stool/attack_hand(mob/user)
+	if(isturf(loc) && user.a_intent != I_GRAB)
+		return
+	return ..()
 
 /obj/item/stool/on_update_icon()
 	// Base icon.
 	var/list/noverlays = list()
-	var/cache_key = "[base_icon]-[material.name]"
+	var/cache_key = "[base_icon_state]-[material.name]"
 	if(isnull(stool_cache[cache_key]))
-		var/image/I = image(icon, "[base_icon]_base")
+		var/image/I = image(icon, "[base_icon_state]_base")
 		I.color = material.icon_colour
 		stool_cache[cache_key] = I
 	noverlays |= stool_cache[cache_key]
 	// Padding overlay.
 	if(padding_material)
-		var/padding_cache_key = "[base_icon]-padding-[padding_material.name]"
+		var/padding_cache_key = "[base_icon_state]-padding-[padding_material.name]"
 		if(isnull(stool_cache[padding_cache_key]))
-			var/image/I =  image(icon, "[base_icon]_padding")
+			var/image/I =  image(icon, "[base_icon_state]_padding")
 			I.color = padding_material.icon_colour
 			stool_cache[padding_cache_key] = I
 		noverlays |= stool_cache[padding_cache_key]

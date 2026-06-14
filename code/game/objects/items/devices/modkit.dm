@@ -91,4 +91,3 @@
     parts[1] = 1
     original[1] = /obj/item/shield/riot
     finished[1] = /obj/item/shield/riot/assault
-

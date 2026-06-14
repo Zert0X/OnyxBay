@@ -134,7 +134,6 @@
 		ghost.admin_ghosted = 1
 		ghost.can_reenter_corpse = 1
 		ghost.reload_fullscreen()
-		ghost.client?.init_verbs()
 
 /mob/living/carbon/human/bluespace_tech/verb/antigrav()
 	set name = "Toggle Gravity"
@@ -322,7 +321,8 @@
 
 //ID
 /obj/item/card/id/bluespace_tech
-	icon_state = "centcom"
+	icon_state = "card_centcom"
+	item_state = "card_centcom"
 	desc = "An ID straight from Central Command. This one looks highly classified."
 
 /obj/item/card/id/bluespace_tech/Initialize()

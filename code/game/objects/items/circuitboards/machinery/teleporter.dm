@@ -4,6 +4,7 @@
 
 /obj/item/circuitboard/teleporter_gate
 	name = T_BOARD("Teleporter Gate")
+	icon_state = "id_mod_blue"
 	build_path = /obj/machinery/teleporter_gate
 	board_type = "machine"
 	origin_tech = list(

@@ -113,13 +113,13 @@
 
 /obj/item/card/robot //This is not a child of id cards, as to avoid dumb typechecks on computers.
 	name = "access code transmission device"
-	icon_state = "id-robot"
+	icon_state = "card_robot"
 	desc = "A circuit grafted onto the bottom of an ID card.  It is used to transmit access codes into other robot chassis, \
 	allowing you to lock and unlock other robots' panels."
 
 /obj/item/card/robot_sec //This is not a child of id cards, as to avoid dumb typechecks on computers.
 	name = "access code transmission device"
-	icon_state = "id-robot"
+	icon_state = "card_robot"
 	desc = "A circuit grafted onto the bottom of an ID card.  It is used to transmit access codes into security deployable barriers, \
 	allowing you to lock and unlock them."
 
@@ -208,6 +208,11 @@
 /obj/item/surgical_selector/Destroy()
 	QDEL_NULL_LIST(surgery_items)
 	return ..()
+
+/obj/item/surgical_selector/get_ghost_image(atom/target)
+	if(!istype(selected_tool))
+		return null
+	return selected_tool.get_ghost_image(target)
 
 /obj/item/surgical_selector/advanced
 	surgery_item_paths = list(
@@ -378,6 +383,7 @@
 
 
 //Personal shielding for the combat module.
+// TODO: add a cool shielding effect
 /obj/item/borg/combat/shield
 	name = "personal shielding"
 	desc = "A powerful experimental module that turns aside or absorbs incoming attacks at the cost of charge."
@@ -393,12 +399,6 @@
 	var/N = input("How much damage should the shield absorb?") in list("5","10","25","50","75","100")
 	if (N)
 		shield_level = text2num(N)/100
-
-/obj/item/borg/combat/mobility
-	name = "mobility module"
-	desc = "By retracting limbs and tucking in its head, a combat android can roll at high speeds."
-	icon = 'icons/obj/decals.dmi'
-	icon_state = "shock"
 
 #define INFLATABLE_MODES list("walls", "doors", "panels")
 #define INFLATABLE_MODE_WALLS 1
@@ -547,7 +547,7 @@
 /obj/item/reagent_containers/spray/cleaner/drone
 	name = "space cleaner"
 	desc = "BLAM!-brand non-foaming space cleaner!"
-	volume = 150
+	volume = 0.25 LITERS
 
 /obj/item/robot_rack
 	name = "a generic robot rack"
@@ -826,7 +826,8 @@
 	. += "[selected.name] is chosen to be produced."
 
 
-/obj/item/robot_item_dispenser/New()
+/obj/item/robot_item_dispenser/Initialize()
+	. = ..()
 	selected = item_types[1]
 
 /obj/item/robot_item_dispenser/attack_self(mob/user as mob)

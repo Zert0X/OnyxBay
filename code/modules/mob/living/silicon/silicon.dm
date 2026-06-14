@@ -31,17 +31,6 @@ GLOBAL_LIST_EMPTY(all_synthetic_mind_to_data) // data: list of name and type of 
 	var/list/avaliable_huds
 	var/active_hud
 
-	/// List of subsystems to initialize when silicon is spawned.
-	var/list/default_silicon_subsystems = list(
-		/datum/nano_module/alarm_monitor/all,
-		/datum/nano_module/law_manager,
-		/datum/nano_module/records/ai
-	)
-	/// List of all created and managed subsystems.
-	var/list/datum/nano_module/silicon_subsystems
-	/// Asociative list typepath -> `datum/ui_state`, where typepath is subsystem's type.
-	var/list/silicon_subsystems_states
-
 	rad_resist_type = /datum/rad_resist/mob_silicon
 
 /datum/rad_resist/mob_silicon
@@ -73,9 +62,6 @@ GLOBAL_LIST_EMPTY(all_synthetic_mind_to_data) // data: list of name and type of 
 	QDEL_NULL(silicon_radio)
 	QDEL_NULL(silicon_camera)
 
-	for(var/datum/nano_module/subsystem in silicon_subsystems)
-		remove_subsystem(subsystem.type)
-
 	for(var/datum/alarm_handler/AH in SSalarm.all_handlers)
 		AH.unregister_alarm(src)
 
@@ -83,7 +69,6 @@ GLOBAL_LIST_EMPTY(all_synthetic_mind_to_data) // data: list of name and type of 
 		QDEL_NULL(idcard)
 
 	queued_alarms.Cut()
-	silicon_subsystems_states?.Cut() // Just in case...
 
 	return ..()
 
@@ -167,7 +152,7 @@ GLOBAL_LIST_EMPTY(all_synthetic_mind_to_data) // data: list of name and type of 
 				adjustFireLoss(Proj.damage)
 
 	Proj.on_hit(src,100) //wow this is a terrible hack
-	updatehealth()
+	update_health()
 	return 100
 
 /mob/living/silicon/apply_effect(effect = 0,effecttype = STUN, blocked = 0)
@@ -183,25 +168,30 @@ GLOBAL_LIST_EMPTY(all_synthetic_mind_to_data) // data: list of name and type of 
 
 // this function shows the health of the AI in the Status panel
 /mob/living/silicon/proc/show_system_integrity()
-	. = list()
-
 	if(!src.stat)
-		. += "System integrity: [round((health/maxHealth)*100)]%"
+		stat(null, text("System integrity: [round((health/maxHealth)*100)]%"))
 	else
-		. += "Systems nonfunctional"
+		stat(null, text("Systems nonfunctional"))
 
 
 // This is a pure virtual function, it should be overwritten by all subclasses
-/mob/living/silicon/proc/show_malf_ai(list/stats)
-	return list()
+/mob/living/silicon/proc/show_malf_ai()
+	return 0
 
+// this function displays the shuttles ETA in the status panel if the shuttle has been called
+/mob/living/silicon/proc/show_emergency_shuttle_eta()
+	if(evacuation_controller)
+		var/eta_status = evacuation_controller.get_status_panel_eta()
+		if(eta_status)
+			stat(null, eta_status)
 
 // This adds the basic clock, shuttle recall timer, and malf_ai info to all silicon lifeforms
-/mob/living/silicon/get_status_tab_items()
+/mob/living/silicon/Stat()
+	if(statpanel("Status"))
+		show_emergency_shuttle_eta()
+		show_system_integrity()
+		show_malf_ai()
 	. = ..()
-
-	. += show_system_integrity()
-	. += show_malf_ai()
 
 
 // this function displays the stations manifest in a separate window
@@ -321,7 +311,7 @@ GLOBAL_LIST_EMPTY(all_synthetic_mind_to_data) // data: list of name and type of 
 	adjustBruteLoss(brute)
 	adjustFireLoss(burn)
 
-	updatehealth()
+	update_health()
 
 /mob/living/silicon/blob_act(damage)
 	if(is_ic_dead())
@@ -333,7 +323,7 @@ GLOBAL_LIST_EMPTY(all_synthetic_mind_to_data) // data: list of name and type of 
 	brute *= protection
 	adjustBruteLoss(brute)
 
-	updatehealth()
+	update_health()
 
 /mob/living/silicon/proc/receive_alarm(datum/alarm_handler/alarm_handler, datum/alarm/alarm, was_raised)
 	if(!next_alarm_notice)

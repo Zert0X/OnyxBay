@@ -59,7 +59,7 @@
 		to_chat(user, "There is nothing to remove in \the [src].")
 
 /obj/item/gun/launcher/pneumatic/attack_hand(mob/user as mob)
-	if(user.get_inactive_hand() == src)
+	if(user.has_in_passive_hand(src))
 		unload_hopper(user)
 	else
 		return ..()
@@ -117,7 +117,7 @@
 /obj/item/gun/launcher/pneumatic/update_release_force(obj/item/projectile)
 	if(tank)
 		release_force = ((fire_pressure*tank.volume)/projectile.w_class)/force_divisor //projectile speed.
-		if(release_force > 80) release_force = 80 //damage cap.
+		if(release_force > 10) release_force = 10 //damage cap.
 	else
 		release_force = 0
 
@@ -192,7 +192,7 @@
 	else if(isWelder(W))
 		if(buildstate == 1)
 			var/obj/item/weldingtool/WT = W
-			if(!WT.use_tool(src, user, amount = 1))
+			if(!WT.use_tool(src, user, amount = 10))
 				return
 
 			to_chat(user, "<span class='notice'>You weld the pipe into place.</span>")
@@ -200,7 +200,7 @@
 			update_icon()
 		if(buildstate == 3)
 			var/obj/item/weldingtool/WT = W
-			if(!WT.use_tool(src, user, amount = 1))
+			if(!WT.use_tool(src, user, amount = 10))
 				return
 
 			to_chat(user, "<span class='notice'>You weld the metal chassis together.</span>")
@@ -208,7 +208,7 @@
 			update_icon()
 		if(buildstate == 5)
 			var/obj/item/weldingtool/WT = W
-			if(!WT.use_tool(src, user, amount = 1))
+			if(!WT.use_tool(src, user, amount = 10))
 				return
 
 			to_chat(user, "<span class='notice'>You weld the valve into place.</span>")

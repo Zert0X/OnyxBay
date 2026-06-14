@@ -56,11 +56,11 @@
 
 /obj/item/gun/launcher/money/update_release_force()
 	if(!emagged)
-		release_force = 0
+		release_force = 1
 		return
 
 	// Must launch at least 100 credits to incur damage.
-	release_force = dispensing / 100
+	release_force = clamp(dispensing / 100, 1, 10)
 
 /obj/item/gun/launcher/money/proc/unload_receptacle(mob/user)
 	if(receptacle_value < 1)
@@ -113,7 +113,7 @@
 		to_chat(user, SPAN("notice", "You set [src] to dispense [dispensing] credits at a time."))
 
 /obj/item/gun/launcher/money/attack_hand(mob/user as mob)
-	if(user.get_inactive_hand() == src)
+	if(user.has_in_passive_hand(src))
 		unload_receptacle(user)
 	else
 		return ..()
@@ -154,7 +154,7 @@
 	var/mob/living/carbon/human/M = user
 	M.visible_message(SPAN("danger", "[user] sticks [src] in their mouth, ready to pull the trigger..."))
 
-	if(!do_after(user, 40, progress = 0))
+	if(!do_after(user, 40, progress = 0, luck_check_type = LUCK_CHECK_COMBAT))
 		M.visible_message(SPAN("notice", "[user] decided life was worth living."))
 		return
 
@@ -167,7 +167,7 @@
 	var/mob/living/carbon/human/M = user
 	M.visible_message(SPAN("danger", "[user] sticks their gun in [target]'s mouth, ready to pull the trigger..."))
 
-	if(!do_after(user, 40, progress = 0))
+	if(!do_after(user, 40, progress = 0, luck_check_type = LUCK_CHECK_COMBAT))
 		M.visible_message(SPAN("notice", "[user] decided [target]'s life was worth living."))
 		return
 

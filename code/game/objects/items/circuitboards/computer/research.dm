@@ -4,6 +4,7 @@
 
 /obj/item/circuitboard/rdconsole
 	name = T_BOARD("R&D control console")
+	icon_state = "id_mod_purple"
 	build_path = /obj/machinery/computer/rdconsole/core
 
 /obj/item/circuitboard/rdconsole/attackby(obj/item/I as obj, mob/user as mob)

@@ -1,17 +1,4 @@
 
-/mob/living/carbon/proc/ingest(datum/reagents/from, datum/reagents/target, amount = 1, multiplier = 1, copy = 0) //we kind of 'sneak' a proc in here for ingesting stuff so we can play with it.
-	if(last_taste_time + 50 < world.time)
-		var/datum/reagents/temp = new(amount, GLOB.temp_reagents_holder) //temporary holder used to analyse what gets transfered.
-		from.trans_to_holder(temp, amount, multiplier, 1)
-
-		var/text_output = temp.generate_taste_message(src)
-		if(text_output != last_taste_text || last_taste_time + 100 < world.time) //We dont want to spam the same message over and over again at the person. Give it a bit of a buffer.
-			to_chat(src, "<span class='notice'>You can taste [text_output].</span>")//no taste means there are too many tastes and not enough flavor.
-
-			last_taste_time = world.time
-			last_taste_text = text_output
-	return from.trans_to_holder(target,amount,multiplier,copy) //complete transfer
-
 /* what this does:
 catalogue the 'taste strength' of each one
 calculate text size per text.
@@ -20,7 +7,16 @@ calculate text size per text.
 	var/minimum_percent = 15
 	if(ishuman(taster))
 		var/mob/living/carbon/human/H = taster
-		minimum_percent = round(15/ (H.isSynthetic() ? TASTE_DULL : H.species.taste_sensitivity))
+
+		var/dull_taste = FALSE
+		if(H.should_have_organ(BP_TONGUE))
+			var/obj/item/organ/internal/tongue/L = taster.internal_organs_by_name[BP_TONGUE]
+			if(L?.is_bruised())
+				dull_taste = TRUE
+		if(H.isSynthetic())
+			dull_taste = TRUE
+
+		minimum_percent = round(15/ (dull_taste ? TASTE_DULL : H.species.taste_sensitivity))
 
 	var/list/out = list()
 	var/list/tastes = list() //descriptor = strength
@@ -30,11 +26,12 @@ calculate text size per text.
 				continue
 			if(R.type == /datum/reagent/nutriment) //this is ugly but apparently only nutriment (not subtypes) has taste data TODO figure out why
 				var/list/taste_data = R.get_data()
+				var/nutriment_amount = get_reagent_amount(R.type)
 				for(var/taste in taste_data)
 					if(taste in tastes)
-						tastes[taste] += taste_data[taste]
+						tastes[taste] += nutriment_amount * taste_data[taste]
 					else
-						tastes[taste] = taste_data[taste]
+						tastes[taste] = nutriment_amount * taste_data[taste]
 			else
 				var/taste_desc = R.taste_description
 				var/taste_amount = get_reagent_amount(R.type) * R.taste_mult

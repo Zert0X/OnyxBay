@@ -67,14 +67,16 @@
 	mannequin.update_icon = TRUE
 
 	var/datum/job/previewJob
+	var/list/selected_jobs = (job_high ? list(job_high) : list()) | job_medium | job_low
 	if(equip_preview_mob && job_master)
-		// Determine what job is marked as 'High' priority, and dress them up as such.
+		// Determine what job is the highest priority, and dress them up as such.
+		// Order of the same priority jobs is not enforced.
 		if("Assistant" in job_low)
 			previewJob = job_master.GetJob("Assistant")
 		else
-			for(var/datum/job/job in job_master.occupations)
-				if(job.title == job_high)
-					previewJob = job
+			for(var/job_title in selected_jobs)
+				previewJob = job_master.occupations_by_title[job_title]
+				if(previewJob)
 					break
 	else
 		return
@@ -89,6 +91,8 @@
 
 	if((equip_preview_mob & EQUIP_PREVIEW_LOADOUT) && !previewJob?.preview_override)
 		// Equip custom gear loadout, replacing any job items
+		var/wrist_underwear_equipped = FALSE
+		var/neck_underwear_equipped = FALSE
 		var/list/loadout_taken_slots = list()
 		var/list/accessories = list()
 
@@ -114,9 +118,25 @@
 				if(!permitted)
 					continue
 
+				if(G.is_departmental() && previewJob)
+					if(previewJob)
+						G.set_selected_jobs(previewJob, selected_jobs)
+					else
+						G.set_selected_jobs(new DEFAULT_JOB_TYPE(), selected_jobs)
+
 				if(G.slot == slot_tie)
 					accessories.Add(G)
 					continue
+
+				if(ispath(G.path, /obj/item/underwear/wrist) && !wrist_underwear_equipped)
+					G.spawn_on_mob(mannequin, gears[G.display_name])
+					wrist_underwear_equipped = TRUE
+					update_icon = TRUE
+
+				if(ispath(G.path, /obj/item/underwear/neck) && !neck_underwear_equipped)
+					G.spawn_on_mob(mannequin, gears[G.display_name])
+					neck_underwear_equipped = TRUE
+					update_icon = TRUE
 
 				if(G.slot && !(G.slot in loadout_taken_slots) && G.spawn_on_mob(mannequin, gears[G.display_name]))
 					loadout_taken_slots.Add(G.slot)

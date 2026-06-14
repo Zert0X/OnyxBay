@@ -16,6 +16,8 @@
 	var/obj/item/reagent_containers/vessel/beaker = null
 	var/filtering = 0
 	var/pump
+	var/filtering_strength = 5
+	var/list/possible_filtering = list(7.5, 10.0, 15.0, 25.0)
 	var/list/possible_stasis = list(list(1, 2, 5),
 									list(1, 2, 5, 10),
 									list(1, 2, 5, 10, 15),
@@ -80,9 +82,16 @@
 		if(beaker)
 			if(beaker.reagents.total_volume < beaker.reagents.maximum_volume)
 				var/pumped = 0
+				// Trying to filter out the actual reagents first
 				for(var/datum/reagent/x in occupant.reagents.reagent_list)
-					occupant.reagents.trans_to_obj(beaker, 3)
+					occupant.reagents.trans_to_obj(beaker, filtering_strength)
 					pumped++
+				// If there are no reagents left, trying to filter out toxins
+				if(!pumped)
+					var/tox_loss = occupant.getToxLoss()
+					pumped = min(tox_loss, filtering_strength)
+					occupant.adjustToxLoss(pumped * -1)
+					beaker.reagents.add_reagent(/datum/reagent/toxin, pumped * 0.2)
 				if(ishuman(occupant))
 					occupant.vessel.trans_to_obj(beaker, pumped + 1)
 		else
@@ -90,10 +99,19 @@
 	if(pump > 0)
 		if(beaker && istype(occupant))
 			if(beaker.reagents.total_volume < beaker.reagents.maximum_volume)
+				var/stomach_pumped = FALSE
 				var/datum/reagents/ingested = occupant.get_ingested_reagents()
+				// Pumping from the stomach first
 				if(ingested)
 					for(var/datum/reagent/x in ingested.reagent_list)
-						ingested.trans_to_obj(beaker, 3)
+						ingested.trans_to_obj(beaker, 15)
+						stomach_pumped = TRUE
+				if(!stomach_pumped)
+					// ...and from the intestines if the stomach's empty
+					var/datum/reagents/digested = occupant.get_digested_reagents()
+					if(digested)
+						for(var/datum/reagent/x in digested.reagent_list)
+							digested.trans_to_obj(beaker, 15)
 		else
 			toggle_pump()
 
@@ -126,6 +144,8 @@
 		available_chemicals += list("Lexorin" = /datum/reagent/lexorin)
 
 	stasis_settings = possible_stasis[freeze]
+
+	filtering_strength = possible_filtering[drugs]
 
 	beaker = locate(/obj/item/reagent_containers/vessel/beaker) in component_parts
 
@@ -215,6 +235,13 @@
 		if(stasis != nstasis && (nstasis in stasis_settings))
 			stasis = text2num(href_list["stasis"])
 			return TOPIC_REFRESH
+
+/obj/machinery/sleeper/AltClick(mob/user)
+	if(grab_container(user, &beaker))
+		toggle_filter()
+		toggle_pump()
+		for(var/obj/item/reagent_containers/vessel/beaker/A in component_parts)
+			component_parts -= A
 
 /obj/machinery/sleeper/attack_ai(mob/user)
 	return attack_hand(user)
@@ -432,7 +459,7 @@
 		if(occupant.reagents.get_reagent_amount(chemical_type) + amount <= 20)
 			use_power_oneoff(amount * CHEM_SYNTH_ENERGY)
 			occupant.reagents.add_reagent(chemical_type, amount)
-			to_chat(user, "Occupant now has [occupant.reagents.get_reagent_amount(chemical_type)] unit\s of [chemical_name] in their bloodstream.")
+			to_chat(user, "Occupant now has [occupant.reagents.get_reagent_amount(chemical_type)] ml of [chemical_name] in their bloodstream.")
 		else
 			to_chat(user, "The subject has too many chemicals.")
 	else

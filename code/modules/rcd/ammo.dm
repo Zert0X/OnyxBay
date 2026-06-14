@@ -16,7 +16,10 @@
 	. = ..()
 
 	if(get_dist(src, user) <= 1)
-		. += SPAN("notice", "It has [ammoamt] unit\s of matter left.")
+		. += SPAN("notice", get_ammo_desc())
+
+/obj/item/rcd_ammo/proc/get_ammo_desc()
+	return "It has [ammoamt] unit\s of matter left."
 
 /obj/item/rcd_ammo/large
 	name = "high-capacity matter cartridge"

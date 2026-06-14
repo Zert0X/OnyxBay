@@ -59,7 +59,7 @@
 			return
 
 		if(isScrewdriver(W))
-			if(!do_after(user, 20, src))
+			if(!do_after(user, 20, src, luck_check_type = LUCK_CHECK_ENG))
 				return
 
 			if(QDELETED(src))
@@ -72,7 +72,7 @@
 		if(isMultitool(W) && open && !hacking)
 			show_splash_text(user, "resetting internal memory...", "You begin resetting \the [src] internal memory...")
 			hacking = TRUE
-			if(!do_after(usr, 100, src))
+			if(!do_after(usr, 100, src, luck_check_type = LUCK_CHECK_ENG))
 				return
 
 			if(QDELETED(src))
@@ -99,15 +99,17 @@
 	return ..()
 
 /obj/item/storage/secure/MouseDrop(over_object, src_location, over_location)
-	if(locked)
-		add_fingerprint(usr)
+	add_fingerprint(usr)
+	if(locked && usr == over_object)
+		to_chat(usr, SPAN_WARNING("[src] is locked and cannot be opened!"))
 		return
 
 	return ..()
 
 /obj/item/storage/secure/AltClick(mob/usr)
+	add_fingerprint(usr)
 	if(locked)
-		add_fingerprint(usr)
+		to_chat(usr, SPAN_WARNING("[src] is locked and cannot be opened!"))
 		return
 
 	return ..()

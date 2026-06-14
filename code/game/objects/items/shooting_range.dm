@@ -35,7 +35,7 @@
 	attackby(obj/item/W as obj, mob/user as mob)
 		if(isWelder(W))
 			var/obj/item/weldingtool/WT = W
-			if(!WT.use_tool(src, user, amount = 1))
+			if(!WT.use_tool(src, user, amount = 10))
 				return
 
 			ClearOverlays()
@@ -59,7 +59,7 @@
 
 				forceMove(user.loc)
 				if(ishuman(user))
-					if(!user.get_active_hand())
+					if(!user.get_clicking_hand())
 						user.pick_or_drop(src)
 						to_chat(user, "You take the target out of the stake.")
 				else

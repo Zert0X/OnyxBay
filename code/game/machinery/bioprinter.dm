@@ -21,21 +21,24 @@
 
 	// These should be subtypes of /obj/item/organ
 	var/list/products = list(
-		BP_HEART   = list("Heart",       /obj/item/organ/internal/heart,     25),
-		BP_LUNGS   = list("Lungs",      /obj/item/organ/internal/lungs,      25),
-		BP_KIDNEYS = list("Kidneys",    /obj/item/organ/internal/kidneys,    20),
-		BP_EYES    = list("Eyes",       /obj/item/organ/internal/eyes,       20),
-		BP_LIVER   = list("Liver",      /obj/item/organ/internal/liver,      25),
-		BP_STOMACH = list("Stomach",    /obj/item/organ/internal/stomach,    25),
-		BP_L_ARM   = list("Left Arm",   /obj/item/organ/external/arm,        65),
-		BP_L_HAND  = list("Left Hand",  /obj/item/organ/external/hand,       40),
-		BP_R_ARM   = list("Right Arm",  /obj/item/organ/external/arm/right,  65),
-		BP_R_HAND  = list("Right Hand", /obj/item/organ/external/hand/right, 40),
-		BP_GROIN   = list("Lower Body",	/obj/item/organ/external/groin,      65),
-		BP_L_LEG   = list("Left Leg",   /obj/item/organ/external/leg,        65),
-		BP_L_FOOT  = list("Left Foot",  /obj/item/organ/external/foot,       40),
-		BP_R_LEG   = list("Right Leg",  /obj/item/organ/external/leg/right,  65),
-		BP_R_FOOT  = list("Right Foot", /obj/item/organ/external/foot/right, 40)
+		BP_HEART      = list("Heart",       /obj/item/organ/internal/heart,     25),
+		BP_LUNGS      = list("Lungs",      /obj/item/organ/internal/lungs,      25),
+		BP_KIDNEYS    = list("Kidneys",    /obj/item/organ/internal/kidneys,    20),
+		BP_EYES       = list("Eyes",       /obj/item/organ/internal/eyes,       20),
+		BP_LIVER      = list("Liver",      /obj/item/organ/internal/liver,      25),
+		BP_STOMACH    = list("Stomach",    /obj/item/organ/internal/stomach,    25),
+		BP_TONGUE     = list("Tongue",     /obj/item/organ/internal/tongue ,    15),
+		BP_BLADDER    = list("Bladder",    /obj/item/organ/internal/bladder,    25),
+		BP_INTESTINES = list("Intestines", /obj/item/organ/internal/intestines, 25),
+		BP_L_ARM      = list("Left Arm",   /obj/item/organ/external/arm,        65),
+		BP_L_HAND     = list("Left Hand",  /obj/item/organ/external/hand,       40),
+		BP_R_ARM      = list("Right Arm",  /obj/item/organ/external/arm/right,  65),
+		BP_R_HAND     = list("Right Hand", /obj/item/organ/external/hand/right, 40),
+		BP_GROIN      = list("Lower Body", /obj/item/organ/external/groin,      65),
+		BP_L_LEG      = list("Left Leg",   /obj/item/organ/external/leg,        65),
+		BP_L_FOOT     = list("Left Foot",  /obj/item/organ/external/foot,       40),
+		BP_R_LEG      = list("Right Leg",  /obj/item/organ/external/leg/right,  65),
+		BP_R_FOOT     = list("Right Foot", /obj/item/organ/external/foot/right, 40)
 		)
 
 /obj/machinery/organ_printer/attackby(obj/item/O, mob/user)
@@ -82,7 +85,8 @@
 	if(printing || (stat & (BROKEN|NOPOWER)))
 		return
 	show_printer_menu(user)
-	printer_menu.open()
+	if(printer_menu) // TODO: AI intraction.
+		printer_menu.open()
 
 /obj/machinery/organ_printer/proc/show_printer_menu(mob/user)
 	add_fingerprint(user)
@@ -231,7 +235,8 @@
 	icon_state = "bioprinter"
 	var/list/amount_list = list(
 		/obj/item/reagent_containers/food/meat = 50,
-		/obj/item/reagent_containers/food/rawcutlet = 15
+		/obj/item/reagent_containers/food/cutlet/raw = 15,
+		/obj/item/reagent_containers/food/faggot/raw = 7.5
 		)
 	var/loaded_dna //Blood sample for DNA hashing.
 

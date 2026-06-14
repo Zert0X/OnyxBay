@@ -1,36 +1,36 @@
 
-#define CELL_VOLUME        (2500 LITERS) // Liters in a cell.
-#define MOLES_CELLSTANDARD (ONE_ATMOSPHERE*CELL_VOLUME/((20 CELSIUS)*R_IDEAL_GAS_EQUATION)) // Moles in a 2.5 m^3 cell at 101.325 kPa and 20 C.
+#define CELL_VOLUME        2500 // Liters in a cell.
+#define MOLES_CELL_STANDARD (ONE_ATMOSPHERE*CELL_VOLUME/((20 CELSIUS)*R_IDEAL_GAS_EQUATION)) // Moles in a 2.5 m^3 cell at 101.325 kPa and 20 C.
 
-#define O2STANDARD 0.21 // Percentage.
-#define N2STANDARD 0.79
+#define O2_STANDARD 0.21 // Percentage.
+#define N2_STANDARD 0.79
 
 #define MOLES_PLASMA_VISIBLE (0.7 MOLES) // Moles in a standard cell after which plasma is visible.
-#define MOLES_O2STANDARD     (MOLES_CELLSTANDARD * O2STANDARD) // O2 standard value (21%)
-#define MOLES_N2STANDARD     (MOLES_CELLSTANDARD * N2STANDARD) // N2 standard value (79%)
-#define MOLES_O2ATMOS (MOLES_O2STANDARD*50)
-#define MOLES_N2ATMOS (MOLES_N2STANDARD*50)
+#define MOLES_O2_STANDARD     (MOLES_CELL_STANDARD * O2_STANDARD) // O2 standard value (21%)
+#define MOLES_N2_STANDARD     (MOLES_CELL_STANDARD * N2_STANDARD) // N2 standard value (79%)
+#define MOLES_O2_ATMOS (MOLES_O2_STANDARD * 50)
+#define MOLES_N2_ATMOS (MOLES_N2_STANDARD * 50)
 
 // These are for when a mob breathes poisonous air.
 #define MIN_TOXIN_DAMAGE 1
 #define MAX_TOXIN_DAMAGE 10
 
-#define BREATH_VOLUME       (500 MILLI LITERS) // Liters in a normal breath.
+#define BREATH_VOLUME       0.5 // Liters in a normal breath.
 #define BREATH_MOLES        (ONE_ATMOSPHERE * BREATH_VOLUME / ((20 CELSIUS) * R_IDEAL_GAS_EQUATION)) // Amount of air to take a from a tile
 #define BREATH_PERCENTAGE   (BREATH_VOLUME / CELL_VOLUME)                                    // Amount of air needed before pass out/suffocation commences.
-#define HUMAN_NEEDED_OXYGEN (MOLES_CELLSTANDARD * BREATH_PERCENTAGE * 0.16)
+#define HUMAN_NEEDED_OXYGEN (MOLES_CELL_STANDARD * BREATH_PERCENTAGE * 0.16)
 #define HUMAN_HEAT_CAPACITY 280000 //J/K For 80kg person
 
 #define SOUND_MINIMUM_PRESSURE 10
 
-#define PRESSURE_DAMAGE_COEFFICIENT 4 // The amount of pressure damage someone takes is equal to (pressure / HAZARD_HIGH_PRESSURE)*PRESSURE_DAMAGE_COEFFICIENT, with the maximum of MAX_PRESSURE_DAMAGE.
-#define    MAX_HIGH_PRESSURE_DAMAGE 4 // This used to be 20... I got this much random rage for some retarded decision by polymorph?! Polymorph now lies in a pool of blood with a katana jammed in his spleen. ~Errorage --PS: The katana did less than 20 damage to him :(
-#define         LOW_PRESSURE_DAMAGE 2 // The amount of damage someone takes when in a low pressure area. (The pressure threshold is so low that it doesn't make sense to do any calculations, so it just applies this flat value).
+#define PRESSURE_DAMAGE_COEFFICIENT 0.5 // The amount of pressure per-limb damage someone takes per tick is equal to '((pressure / HAZARD_HIGH_PRESSURE) - 1) * PRESSURE_DAMAGE_COEFFICIENT'.
+#define    MAX_HIGH_PRESSURE_DAMAGE 4.0 // The maximum amount of per-limb pressure damage someone can take per tick. Setting this above 4.95 will cause humans' limbs to pop when the pressure goes beyond 50 atmospheres, which is a rather questionable behavior. ~ToTh
+#define         LOW_PRESSURE_DAMAGE 2.0 // The amount of per-limb damage someone takes per tick when in a low pressure area. (The pressure threshold is so low that it doesn't make sense to do any calculations, so it just applies this flat value).
 
 #define MINIMUM_PRESSURE_DIFFERENCE_TO_SUSPEND (MINIMUM_AIR_TO_SUSPEND*R_IDEAL_GAS_EQUATION*(20 CELSIUS))/CELL_VOLUME			// Minimum pressure difference between zones to suspend
 #define MINIMUM_AIR_RATIO_TO_SUSPEND 0.05 // Minimum ratio of air that must move to/from a tile to suspend group processing
-#define MINIMUM_AIR_TO_SUSPEND       (MOLES_CELLSTANDARD * MINIMUM_AIR_RATIO_TO_SUSPEND) // Minimum amount of air that has to move before a group processing can be suspended
-#define MINIMUM_MOLES_DELTA_TO_MOVE  (MOLES_CELLSTANDARD * MINIMUM_AIR_RATIO_TO_SUSPEND) // Either this must be active
+#define MINIMUM_AIR_TO_SUSPEND       (MOLES_CELL_STANDARD * MINIMUM_AIR_RATIO_TO_SUSPEND) // Minimum amount of air that has to move before a group processing can be suspended
+#define MINIMUM_MOLES_DELTA_TO_MOVE  (MOLES_CELL_STANDARD * MINIMUM_AIR_RATIO_TO_SUSPEND) // Either this must be active
 #define MINIMUM_TEMPERATURE_TO_MOVE  (120 CELSIUS)                                       // or this (or both, obviously)
 
 #define MINIMUM_TEMPERATURE_RATIO_TO_SUSPEND      0.012        // Minimum temperature difference before group processing is suspended.
@@ -52,8 +52,8 @@
 #define CARBON_LIFEFORM_FIRE_DAMAGE     4
 
 // Plasma fire properties.
-#define PLASMA_MINIMUM_BURN_TEMPERATURE    (126 CELSIUS) // Autoignite temperature in tanks and canisters - enclosed environments I guess
-#define PLASMA_FLASHPOINT                  (246 CELSIUS) // Autoignite temperature in air if that ever gets implemented.
+#define FLAMMABLE_GAS_MINIMUM_BURN_TEMPERATURE    (126 CELSIUS) // Autoignite temperature in tanks and canisters - enclosed environments I guess
+#define FLAMMABLE_GAS_FLASHPOINT           (246 CELSIUS) // Autoignite temperature in air if that ever gets implemented.
 
 //These control the mole ratio of oxidizer and fuel used in the combustion reaction
 #define FIRE_REACTION_OXIDIZER_AMOUNT	3 //should be greater than the fuel amount if fires are going to spread much
@@ -69,7 +69,7 @@
 #define FIRE_LIQUD_MIN_BURNRATE			0.0025
 
 //How many moles of fuel are contained within one solid/liquid fuel volume unit
-#define LIQUIDFUEL_AMOUNT_TO_MOL		0.45  //mol/volume unit
+#define LIQUIDFUEL_AMOUNT_TO_MOL		0.045  //mol/milliliter
 
 // XGM gas flags.
 #define XGM_GAS_FUEL        1

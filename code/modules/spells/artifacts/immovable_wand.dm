@@ -57,12 +57,12 @@
 
 	return ..()
 
-/obj/item/immovable_wand/throw_impact(hit_atom, speed)
-	. = ..()
+/obj/item/immovable_wand/throw_impact(hit_atom, datum/thrownthing/TT)
+	..()
 	var/pwn_chance = current_shape == IW_BALL ? 100 : 50
 	if(isliving(hit_atom) && prob(pwn_chance))
 		var/mob/living/L = hit_atom
-		playsound(L.loc, 'sound/effects/bang.ogg', 50, 1, -1)
+		playsound(L.loc, GET_SFX(SFX_BANG), 50, 1, -1)
 		L.Weaken(10)
 
 // So we can throw it

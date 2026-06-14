@@ -86,6 +86,9 @@ Class Procs:
 	pull_sound = SFX_PULL_MACHINE
 	layer = BELOW_OBJ_LAYER
 
+	throw_speed = 1
+	throw_range = 5
+
 	var/stat = 0
 	var/emagged = 0
 	var/malf_upgraded = 0
@@ -150,6 +153,9 @@ Class Procs:
 
 		if(length(component_parts))
 			RefreshParts()
+
+	if(!mapload)
+		power_change()
 
 	START_PROCESSING(SSmachines, src) // It's safe to remove machines from here.
 
@@ -226,10 +232,50 @@ Class Procs:
 	return istype(M) && M.operable()
 
 /obj/machinery/proc/operable(additional_flags = 0)
-	return !inoperable(additional_flags)
+	return !(stat & (POWEROFF|NOPOWER|BROKEN|additional_flags))
 
 /obj/machinery/proc/inoperable(additional_flags = 0)
 	return (stat & (POWEROFF|NOPOWER|BROKEN|additional_flags))
+
+/obj/machinery/proc/grab_container(mob/user, obj/item/reagent_containers/container, atom/drop_loc = loc)
+	if(!issilicon(user))
+		if(!user.Adjacent(get_turf(src)))
+			return FALSE
+	else
+		if(inoperable())
+			to_chat(user, SPAN("notice", "\The [src] is not functional"))
+			return FALSE
+
+	if(!can_use(user))
+		to_chat(user, SPAN("notice", "You cannot remove [container.name]."))
+		return FALSE
+
+	if(!*container)
+		to_chat(user, SPAN("notice", "\The [src] does not have a [istype(src, /obj/machinery/chemical_dispenser) ? "container" : "beaker"] in it."))
+		return FALSE
+
+	if(issilicon(user))
+		container.dropInto(drop_loc)
+	else
+		user.pick_or_drop(*container, get_turf(user))
+
+	to_chat(user, SPAN("notice", "You remove [container.name] from \the [src]"))
+
+	*container = null
+	update_icon()
+
+	if(operable())
+		playsound(src, clicksound, clickvol)
+
+	return TRUE
+
+/obj/machinery/proc/can_use(mob/user)
+	if(user.stat || user.restrained() || user.paralysis || user.stunned || user.weakened)
+		return FALSE
+	if(issilicon(user) || Adjacent(user))
+		return TRUE
+	else
+		return FALSE
 
 /obj/machinery/CanUseTopic(mob/user)
 	if(stat & BROKEN)
@@ -250,8 +296,12 @@ Class Procs:
 
 /obj/machinery/CouldUseTopic(mob/user)
 	..()
-	if(user)
-		user.set_machine(src)
+	if(!user)
+		return
+
+	user.set_machine(src)
+	if(clicksound && iscarbon(user))
+		playsound(src, clicksound, clickvol)
 
 /obj/machinery/CouldNotUseTopic(mob/user)
 	if(user)
@@ -417,11 +467,6 @@ Class Procs:
 		return TRUE
 
 	if(clicksound && istype(usr, /mob/living/carbon))
-		playsound(src, clicksound, clickvol)
-
-/obj/machinery/CouldUseTopic(mob/user)
-	..()
-	if(clicksound && istype(user, /mob/living/carbon))
 		playsound(src, clicksound, clickvol)
 
 /obj/machinery/proc/get_parts_infotext()

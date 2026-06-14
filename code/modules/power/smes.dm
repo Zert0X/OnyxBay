@@ -26,6 +26,7 @@
 	var/output_level = 50000		// amount of power the SMES attempts to output
 	var/output_level_max = 200000	// cap on output_level
 	var/output_used = 0				// amount of power actually outputted. may be less than output_level if the powernet returns excess power
+	var/datum/sound_token/ambient_sound_token = null
 
 	//Holders for powerout event.
 	//var/last_output_attempt	= 0
@@ -103,9 +104,23 @@
 	update_icon()
 
 /obj/machinery/power/smes/Destroy()
+	stop_ambient_sound()
 	GLOB.smes_list -= src
 	ClearOverlays()
+	for(var/datum/nano_module/rcon/R in world)
+		R.FindDevices()
 	return ..()
+
+/obj/machinery/power/smes/proc/start_ambient_sound()
+	if(ambient_sound_token)
+		return
+	ambient_sound_token = GLOB.sound_player.PlayLoopingSound(src, "\ref[src]_smes_ambient", 'sound/machines/smes_ambient.ogg', volume = 35, range = 6, falloff = 2)
+
+/obj/machinery/power/smes/proc/stop_ambient_sound()
+	if(!ambient_sound_token)
+		return
+	ambient_sound_token.Stop()
+	ambient_sound_token = null
 
 /obj/machinery/power/smes/add_avail(amount)
 	if(..(amount))
@@ -173,8 +188,11 @@
 	charge -= amount*CELLRATE
 
 /obj/machinery/power/smes/Process()
-	if(stat & BROKEN)	return
+	if(stat & BROKEN)
+		stop_ambient_sound()
+		return
 	if(failure_timer)	// Disabled by gridcheck.
+		stop_ambient_sound()
 		failure_timer--
 		return
 
@@ -215,6 +233,11 @@
 		outputting = 1
 	else
 		outputting = 0
+
+	if(outputting == 2)
+		start_ambient_sound()
+	else
+		stop_ambient_sound()
 
 // called after all power processes are finished
 // restores charge level to smes if there was excess this ptick
@@ -267,7 +290,7 @@
 	if(check_terminal_exists(tempLoc, user, tempDir))
 		return 1
 	to_chat(user, "<span class='notice'>You start adding cable to the [src].</span>")
-	if(do_after(user, 50, src))
+	if(do_after(user, 50, src, luck_check_type = LUCK_CHECK_ENG))
 		if(check_terminal_exists(tempLoc, user, tempDir))
 			return 1
 		var/obj/machinery/power/terminal/term = new /obj/machinery/power/terminal(tempLoc)
@@ -339,7 +362,7 @@
 			to_chat(user, "\The [src] is already fully repaired.")
 			return
 
-		if(!WT.use_tool(src, user, delay = damage, amount = 5))
+		if(!WT.use_tool(src, user, delay = damage, amount = 50))
 			return
 
 		if(QDELETED(src) || !user)
@@ -367,7 +390,7 @@
 			else
 				to_chat(user, "<span class='notice'>You begin to cut the cables...</span>")
 				playsound(src, 'sound/items/Deconstruct.ogg', 50, 1)
-				if(do_after(user, 50, src))
+				if(do_after(user, 50, src, luck_check_type = LUCK_CHECK_ENG))
 					if (prob(50) && electrocute_mob(usr, term.powernet, term))
 						var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
 						s.set_up(5, 1, src)

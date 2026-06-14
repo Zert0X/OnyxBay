@@ -12,7 +12,7 @@
 	if(affecting.w_uniform)
 		affecting.w_uniform.add_fingerprint(assailant)
 
-	assailant.put_in_active_hand(src)
+	assailant.put_in_clicking_hand(src)
 	assailant.do_attack_animation(affecting)
 	playsound(affecting.loc, 'sound/weapons/thudswoosh.ogg', 50, 1, -1)
 	var/obj/O = get_targeted_organ()
@@ -24,6 +24,12 @@
 
 	if(!(affecting.a_intent == I_HELP))
 		upgrade(TRUE)
+
+/obj/item/grab/normal/get_ghost_image(atom/target)
+	var/image/I = image('icons/hud/actions.dmi', null, "grabbed", target.layer + 1)
+	I.appearance_flags |= RESET_COLOR|KEEP_APART
+	I.alpha = 128
+	return I
 
 /// For when we start choking 'em straight away
 /obj/item/grab/normal/quickchoke
@@ -272,7 +278,7 @@
 	user.visible_message("<span class='danger'>\The [user] begins to slit [affecting]'s throat with \the [W]!</span>")
 
 	user.next_move = world.time + 30 //also should prevent user from triggering this repeatedly
-	if(!do_after(user, 30))
+	if(!do_after(user, 30, luck_check_type = LUCK_CHECK_COMBAT))
 		return 0
 	if(!(G && G.affecting == affecting)) //check that we still have a grab
 		return 0
@@ -282,7 +288,7 @@
 	var/obj/item/clothing/head/helmet = affecting.get_equipped_item(slot_head)
 	if(istype(helmet) && (helmet.body_parts_covered & HEAD) && (helmet.item_flags & ITEM_FLAG_STOPPRESSUREDAMAGE))
 		//we don't do an armor_check here because this is not an impact effect like a weapon swung with momentum, that either penetrates or glances off.
-		damage_mod = 1.0 - (helmet.armor["melee"]/100)
+		damage_mod = 1.0 - (A_LAZYACCESS(helmet.armor_values, "melee") / 100)
 
 	var/total_damage = 0
 	var/damage_flags = W.damage_flags()
@@ -313,7 +319,7 @@
 	if(!W.edge || !W.force || W.damtype != BRUTE)
 		return 0 //unsuitable weapon
 
-	var/obj/item/organ/external/head/head = affecting.organs_by_name[BP_HEAD]
+	var/obj/item/organ/external/head/head = affecting.external_organs_by_name[BP_HEAD]
 	if(head && head.deformities > 0)
 		return 0 //already smiling
 
@@ -324,7 +330,7 @@
 	user.visible_message("<span class='danger'>\The [user] begins to slit [affecting]'s cheeks with \the [W]!</span>")
 
 	user.next_move = world.time + 30
-	if(!do_after(user, 30))
+	if(!do_after(user, 30, luck_check_type = LUCK_CHECK_COMBAT))
 		return 0
 	if(!(G && G.affecting == affecting)) //check that we still have a grab
 		return 0
@@ -362,7 +368,7 @@
 	user.visible_message("<span class='danger'>\The [user] begins to cut \the [affecting]'s [O.tendon_name] with \the [W]!</span>")
 	user.next_move = world.time + 20
 
-	if(!do_after(user, 20, progress=0))
+	if(!do_after(user, 20, progress=0, , luck_check_type = LUCK_CHECK_COMBAT))
 		return 0
 	if(!(G && G.affecting == affecting)) //check that we still have a grab
 		return 0
@@ -396,7 +402,7 @@
 	user.visible_message("<span class='danger'>\The [user] aims \his [W.name] at [affecting]'s eyes!</span>")
 
 	user.next_move = world.time + 25
-	if(!do_after(user, 25))
+	if(!do_after(user, 25, , luck_check_type = LUCK_CHECK_COMBAT))
 		return 0
 	if(!(G && G.affecting == affecting)) //check that we still have a grab
 		return 0
@@ -421,14 +427,14 @@
 				to_chat(affecting, "<span class='warning'>You go blind!</span>")
 
 		var/obj/item/organ/external/E = affecting.get_organ(eyes.parent_organ)
-		E.take_external_damage(10)
+		E.take_pierce_damage(10)
 
 	user.visible_message("<span class='danger'>\The [user] stabs [affecting]'s eyes with \the [W]!</span>")
 	admin_attack_log(user, affecting, "Grab-stabbed the victim's eyes.", "Had their eyes grab-stabbed.", "stabbed the eyes, using a grab action, of")
 
 	if(!eyes)
 		return 0 //rare case of the victim's eyes being removed by someone faster than us
-	if(!do_after(user, 50))
+	if(!do_after(user, 50, , luck_check_type = LUCK_CHECK_COMBAT))
 		return 0
 	if(!(G && G.affecting == affecting)) //check that we still have a grab
 		return 0

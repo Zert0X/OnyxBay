@@ -26,17 +26,20 @@
 		/obj/item/reagent_containers/vessel/coffee = 25,
 		/obj/item/reagent_containers/vessel/tea = 25,
 		/obj/item/reagent_containers/vessel/h_chocolate = 25,
+		/obj/item/reagent_containers/vessel/can/startrucks = 10,
 		/obj/item/storage/pill_bottle/sugar_cubes = 5
 		)
 
 	illegal = list(
-		/obj/item/reagent_containers/vessel/ice = 10
+		/obj/item/reagent_containers/vessel/ice = 10,
+		/obj/item/storage/pill_bottle/glucose = 2
 		)
 
 	prices = list(
 		/obj/item/reagent_containers/vessel/coffee = 3,
 		/obj/item/reagent_containers/vessel/tea = 3,
 		/obj/item/reagent_containers/vessel/h_chocolate = 3,
+		/obj/item/reagent_containers/vessel/can/startrucks = 10,
 		/obj/item/storage/pill_bottle/sugar_cubes = 10
 		)
 

@@ -222,6 +222,8 @@
 	return ..()
 
 /obj/structure/synthesized_instrument/attack_hand(mob/user)
+	if(istype(user, /mob/living) && user.stat != CONSCIOUS)
+		return
 	src.interact(user)
 
 
@@ -275,7 +277,7 @@
 
 /obj/item/device/synthesized_instrument/attack_self(mob/user as mob)
 	src.interact(user)
-	register_signal(user, SIGNAL_MOVED, nameof(.proc/onPlayingMobMoved))
+	register_signal(user, SIGNAL_MOVED, nameof(.proc/onPlayingMobMoved), override = TRUE)
 	playing_mob = weakref(user)
 
 /obj/item/device/synthesized_instrument/proc/onPlayingMobMoved(atom/movable/am, old_loc, new_loc)

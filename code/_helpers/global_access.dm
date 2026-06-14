@@ -239,6 +239,8 @@
 			return global.chemical_reactions_list;
 		if("church_name")
 			return global.church_name;
+		if("client_preference_stats_")
+			return global.client_preference_stats_;
 		if("client_repository")
 			return global.client_repository;
 		if("combatlog")
@@ -265,8 +267,6 @@
 			return global.crew_repository;
 		if("custom_event_msg")
 			return global.custom_event_msg;
-		if("custom_items")
-			return global.custom_items;
 		if("damage_icon_parts")
 			return global.damage_icon_parts;
 		if("dbcon")
@@ -661,28 +661,6 @@
 			return global.sparring_attack_cache;
 		if("splatter_cache")
 			return global.splatter_cache;
-		if("sqladdress")
-			return global.sqladdress;
-		if("sqldb")
-			return global.sqldb;
-		if("sqllogging")
-			return global.sqllogging;
-		if("sqllogin")
-			return global.sqllogin;
-		if("sqlpass")
-			return global.sqlpass;
-		if("sqlport")
-			return global.sqlport;
-		if("sqldonaddress")
-			return global.sqldonaddress;
-		if("sqldonport")
-			return global.sqldonport;
-		if("sqldondb")
-			return global.sqldondb;
-		if("sqldonlogin")
-			return global.sqldonlogin;
-		if("sqldonpass")
-			return global.sqldonpass;
 		if("station_account")
 			return global.station_account;
 		if("station_date")
@@ -783,8 +761,6 @@
 			return global.weighted_mundaneevent_locations;
 		if("weighted_randomevent_locations")
 			return global.weighted_randomevent_locations;
-		if("whitelist")
-			return global.whitelist;
 		if("whitelisted_species")
 			return global.whitelisted_species;
 		if("wireColours")
@@ -1044,6 +1020,8 @@
 			global.chemical_reactions_list=newval;
 		if("church_name")
 			global.church_name=newval;
+		if("client_preference_stats_")
+			global.client_preference_stats_=newval;
 		if("client_repository")
 			global.client_repository=newval;
 		if("combatlog")
@@ -1070,8 +1048,6 @@
 			global.crew_repository=newval;
 		if("custom_event_msg")
 			global.custom_event_msg=newval;
-		if("custom_items")
-			global.custom_items=newval;
 		if("damage_icon_parts")
 			global.damage_icon_parts=newval;
 		if("dbcon")
@@ -1466,28 +1442,6 @@
 			global.sparring_attack_cache=newval;
 		if("splatter_cache")
 			global.splatter_cache=newval;
-		if("sqladdress")
-			global.sqladdress=newval;
-		if("sqldb")
-			global.sqldb=newval;
-		if("sqllogging")
-			global.sqllogging=newval;
-		if("sqllogin")
-			global.sqllogin=newval;
-		if("sqlpass")
-			global.sqlpass=newval;
-		if("sqlport")
-			global.sqlport=newval;
-		if("sqldonaddress")
-			global.sqldonaddress=newval;
-		if("sqldonport")
-			global.sqldonport=newval;
-		if("sqldondb")
-			global.sqldondb=newval;
-		if("sqldonlogin")
-			global.sqldonlogin=newval;
-		if("sqldonpass")
-			global.sqldonpass=newval;
 		if("station_account")
 			global.station_account=newval;
 		if("station_date")
@@ -1586,8 +1540,6 @@
 			global.weighted_mundaneevent_locations=newval;
 		if("weighted_randomevent_locations")
 			global.weighted_randomevent_locations=newval;
-		if("whitelist")
-			global.whitelist=newval;
 		if("whitelisted_species")
 			global.whitelisted_species=newval;
 		if("wireColours")
@@ -1742,6 +1694,7 @@
 	"chemical_reactions_list",
 	"chicken_count",
 	"church_name",
+	"client_preference_stats_",
 	"client_repository",
 	"combatlog",
 	"comm_message_listeners",

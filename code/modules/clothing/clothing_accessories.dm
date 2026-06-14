@@ -5,7 +5,7 @@
 		return 0
 	if(LAZYLEN(accessories) && LAZYISIN(restricted_accessory_slots, A.slot))
 		for(var/obj/item/clothing/accessory/AC in accessories)
-			if (AC.slot == A.slot)
+			if (AC.slot == A.slot && AC.slot != ACCESSORY_SLOT_COVER)
 				return 0
 
 /obj/item/clothing/attackby(obj/item/I, mob/user)
@@ -35,27 +35,6 @@
 		return
 	return ..()
 
-/obj/item/clothing/MouseDrop(obj/over_object)
-	if(!over_object || !(ishuman(usr) || issmall(usr)))
-		return
-
-	//makes sure that the clothing is equipped so that we can't drag it into our hand from miles away.
-	if(loc != usr)
-		return
-
-	if(usr.incapacitated())
-		return
-
-	if(!usr.drop(src, changing_slots = TRUE))
-		return
-
-	switch(over_object.name)
-		if("r_hand")
-			usr.put_in_r_hand(src)
-		if("l_hand")
-			usr.put_in_l_hand(src)
-	add_fingerprint(usr)
-
 /obj/item/clothing/examine(mob/user, infix)
 	. = ..()
 	for(var/obj/item/clothing/accessory/A in accessories)
@@ -77,10 +56,12 @@
  */
 /obj/item/clothing/proc/attach_accessory(mob/user, obj/item/clothing/accessory/A)
 	LAZYADD(accessories, A)
-	A.on_attached(src, user)
-	add_verb(loc, /obj/item/clothing/proc/removetie_verb)
-	update_accessory_slowdown()
-	update_clothing_icon()
+	if(A.on_attached(src, user))
+		src.verbs |= /obj/item/clothing/proc/removetie_verb
+		update_accessory_slowdown()
+		update_clothing_icon()
+	else
+		LAZYREMOVE(accessories, A)
 
 /obj/item/clothing/proc/remove_accessory(mob/user, obj/item/clothing/accessory/A)
 	if(!A || !LAZYISIN(accessories, A))
@@ -107,7 +88,7 @@
 		A = accessories[1]
 	src.remove_accessory(usr,A)
 	if(!LAZYLEN(accessories))
-		remove_verb(loc, /obj/item/clothing/proc/removetie_verb)
+		src.verbs -= /obj/item/clothing/proc/removetie_verb
 
 /obj/item/clothing/emp_act(severity)
 	if(LAZYLEN(accessories))

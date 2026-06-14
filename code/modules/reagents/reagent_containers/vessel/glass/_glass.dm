@@ -12,11 +12,11 @@
 	mod_weight = 0.45
 	mod_reach = 0.25
 	mod_handy = 0.65
-	volume = 30
+	volume = 0.25 LITERS
 	matter = list(MATERIAL_GLASS = 65)
 	can_be_splashed = TRUE
-	amount_per_transfer_from_this = 5
-	possible_transfer_amounts = "5;10;15;30"
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;60;100;150;250"
 	lid_type = null
 	label_icon = TRUE
 	overlay_icon = TRUE

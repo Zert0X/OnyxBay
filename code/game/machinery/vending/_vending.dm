@@ -189,10 +189,8 @@
 	return
 
 /obj/machinery/vending/proc/pay(obj/item/W, mob/user)
-	if(!W)
+	if(!istype(W))
 		return FALSE
-
-	var/obj/item/card/id/I = W.get_id_card()
 
 	if(currently_vending && vendor_account && !vendor_account.suspended)
 		var/paid = 0
@@ -201,7 +199,8 @@
 			to_chat(user, SPAN("warning", "\The [src] is busy at the moment!"))
 			return
 
-		if(I) // For IDs and PDAs and wallets with IDs
+		var/obj/item/card/id/I = W.get_id_card()
+		if(istype(I)) // For IDs and PDAs and wallets with IDs
 			paid = pay_with_card(I, W)
 		else if(istype(W, /obj/item/spacecash/ewallet))
 			var/obj/item/spacecash/ewallet/C = W
@@ -246,7 +245,7 @@
 	else if(W.force >= 10)
 		take_damage(W.force)
 		user.visible_message(SPAN("danger", "\The [src] has been [pick(W.attack_verb)] with [W] by [user]!"))
-		user.setClickCooldown(W.update_attack_cooldown())
+		W.set_cooldown()
 		user.do_attack_animation(src)
 		obj_attack_sound(W)
 		shake_animation(stime = 4)
@@ -259,7 +258,7 @@
 /obj/machinery/vending/default_deconstruction_crowbar(mob/user, obj/item/crowbar/C)
 	if(!istype(C) || !(stat & (POWEROFF | NOPOWER)) || !panel_open)
 		return FALSE
-	if(!do_after(user, 40, src) || !(stat & (POWEROFF | NOPOWER)) || !panel_open)
+	if(!do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG) || !(stat & (POWEROFF | NOPOWER)) || !panel_open)
 		return FALSE
 	. = dismantle()
 
@@ -288,7 +287,7 @@
 		return FALSE
 
 	user.visible_message(SPAN("notice", "[user] is repairing \the [src]..."), SPAN("notice", "You start repairing the damage to [src]..."))
-	if(!WT.use_tool(src, user, delay = 3 SECONDS, amount = 5))
+	if(!WT.use_tool(src, user, delay = 3 SECONDS, amount = 50))
 		return
 
 	if(QDELETED(src) || !user)
@@ -535,7 +534,7 @@
 			if(!vend_ready || currently_vending)
 				return TRUE
 
-			if((!allowed(usr)) && !emagged)	// For SECURE VENDING MACHINES YEAH
+			if((!check_access(usr)) && !emagged)	// For SECURE VENDING MACHINES YEAH
 				to_chat(usr, SPAN("warning", "Access denied.")) // Unless emagged of course
 				flick("[base_icon]-deny", src)
 				return TRUE
@@ -577,7 +576,7 @@
 			return TRUE
 
 /obj/machinery/vending/proc/vend(datum/stored_items/vending_products/R, mob/user)
-	if((!allowed(usr)) && !emagged)	// For SECURE VENDING MACHINES YEAH
+	if((!check_access(usr)) && !emagged)	// For SECURE VENDING MACHINES YEAH
 		to_chat(usr, SPAN("warning", "Access denied.")) // Unless emagged of course
 		flick("[base_icon]-deny", src)
 		return
@@ -621,7 +620,7 @@
 
 		if(prob(diona_spawn_chance)) //Hehehe
 			var/turf/T = get_turf(src)
-			var/mob/living/carbon/alien/diona/S = new(T)
+			var/mob/living/carbon/larva/diona/S = new(T)
 			visible_message(SPAN("notice", "\The [src] makes an odd grinding noise before coming to a halt as \a [S.name] slurmps out from the receptacle."))
 		else //Just a normal vend, then
 			R.get_product(get_turf(src), user)
@@ -722,6 +721,12 @@
 		pixel_y = initial(pixel_y)
 	update_icon()
 
+/obj/machinery/vending/power_change()
+	var/oldstat = stat
+	. = ..()
+	if((oldstat & NOPOWER) && !(stat & NOPOWER) && !(stat & (BROKEN | POWEROFF)))
+		playsound(loc, 'sound/machines/vending/vendomat_on.ogg', 45, 1)
+
 //Oh no we're malfunctioning!  Dump out some product and break.
 /obj/machinery/vending/proc/malfunction()
 	for(var/datum/stored_items/vending_products/R in cartridge.product_records)
@@ -743,7 +748,7 @@
 			break
 	if(!throw_item)
 		return 0
-	throw_item.throw_at(target, rand(1, 3), null, src)
+	throw_item.throw_at(target, rand(1, 3))
 	visible_message(SPAN("warning", "\The [src] launches \a [throw_item] at \the [target]!"))
 	return 1
 

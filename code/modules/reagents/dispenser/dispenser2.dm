@@ -75,6 +75,9 @@
 	cartridges -= label
 	SSnano.update_uis(src)
 
+/obj/machinery/chemical_dispenser/AltClick(mob/user)
+	grab_container(user, &container)
+
 /obj/machinery/chemical_dispenser/attackby(obj/item/W, mob/user)
 	if(default_deconstruction_crowbar(user, W))
 		return
@@ -152,14 +155,14 @@
 	// update the ui if it exists, returns null if no ui is passed/found
 	ui = SSnano.try_update_ui(user, src, ui_key, ui, data, force_open)
 	if(!ui)
-		ui = new(user, src, ui_key, "chem_disp.tmpl", ui_title, 390, 680)
+		ui = new(user, src, ui_key, "chem_disp.tmpl", ui_title, 560, 640)
 		ui.set_initial_data(data)
 		ui.open()
 
 /obj/machinery/chemical_dispenser/OnTopic(user, href_list)
 	if(href_list["amount"])
 		amount = round(text2num(href_list["amount"]), 1) // round to nearest 1
-		amount = max(0, min(120, amount)) // Since the user can actually type the commands himself, some sanity checking
+		amount = max(0, min(1 LITER, amount)) // Since the user can actually type the commands himself, some sanity checking
 		return TOPIC_REFRESH
 
 	if(href_list["dispense"])

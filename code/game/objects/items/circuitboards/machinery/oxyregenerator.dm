@@ -4,6 +4,7 @@
 
 /obj/item/circuitboard/oxyregenerator
 	name = T_BOARD("oxygen regenerator")
+	icon_state = "id_mod_orange"
 	build_path = /obj/machinery/atmospherics/binary/oxyregenerator
 	board_type = "machine"
 	origin_tech = list(TECH_DATA = 2)

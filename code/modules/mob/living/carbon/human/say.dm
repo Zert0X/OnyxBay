@@ -50,29 +50,40 @@
 
 
 /mob/living/carbon/human/proc/forcesay(list/append)
+	set waitfor = FALSE // winget() can be slow AF depending on the client's connection, hence this proc may hang up a lot of things.
+
 	if(stat != CONSCIOUS || !client)
 		return
 
 	var/temp = client.close_saywindow(return_content = TRUE)
 
-	if(!temp)
+	if(!temp && client)
 		temp = winget(client, ":input", "text")
-		if(length(temp) > 4 && findtextEx(temp, "Say ", 1, 5))
-			temp = copytext(temp, 5)
-			if (text2ascii(temp, 1) == text2ascii("\""))
-				temp = copytext(temp, 2)
-			var/custom_emote_key = get_prefix_key(/decl/prefix/custom_emote)
-			if(findtext(temp, custom_emote_key, 1, 2))	//emotes
-				return
-		else
+
+		if(length(temp) <= 4 || !findtextEx(temp, "Say ", 1, 5))
 			return
-		winset(client, ":input", "text=\"Say \\\"\"")
+
+		temp = copytext(temp, 5)
+		if(text2ascii(temp, 1) == text2ascii("\""))
+			temp = copytext(temp, 2)
+		var/custom_emote_key = get_prefix_key(/decl/prefix/custom_emote)
+		if(findtext(temp, custom_emote_key, 1, 2))	//emotes
+			return
+
+		if(client)
+			winset(client, ":input", "text=\"Say \\\"\"")
+
 	temp = trim_left(temp)
 
 	if(length(temp))
 		if(append)
 			temp += pick(append)
-			say(temp)
+		say(temp)
+
+	// Never trust a winget() not to be late for the party
+	// YES I KNOW spawns are bad. Could care less in this particular case.
+	spawn(1)
+		remove_speech_bubble()
 
 /mob/living/carbon/human/say_understands(mob/other,datum/language/language = null)
 
@@ -82,9 +93,15 @@
 	if(species.can_understand(other))
 		return TRUE
 
+	var/obj/item/organ/external/head/head = external_organs_by_name[BP_HEAD]
+	if(istype(head))
+		var/obj/item/organ_module/active/translator/translator = locate() in head
+		if(language && translator?.toggled && (language.name in translator.languages))
+			return TRUE
+
 	//These only pertain to common. Languages are handled by mob/say_understands()
 	if(!language)
-		if(istype(other, /mob/living/carbon/alien/diona))
+		if(istype(other, /mob/living/carbon/larva/diona))
 			if(other.languages.len >= 2) //They've sucked down some blood and can speak common now.
 				return TRUE
 		if(istype(other, /mob/living/silicon))
@@ -149,8 +166,19 @@
 /mob/living/carbon/human/handle_speech_problems(list/message_data)
 	if(silent || (sdisabilities & MUTE))
 		message_data["message"] = ""
-		. = TRUE
-	else if(wear_mask)
+		return TRUE
+	if(should_have_organ(BP_TONGUE) && !(message_data["language"]?.language_flags & (NONVERBAL|SIGNLANG)))
+		var/obj/item/organ/internal/tongue/T = internal_organs_by_name[BP_TONGUE]
+		if(!T)
+			message_data["message"] = mutespeech(message_data["message"], 95)
+			message_data["verb"] = "mumbles"
+		else if(T.is_broken())
+			message_data["message"] = mutespeech(message_data["message"], 75)
+			message_data["verb"] = "mumbles"
+		else if(T.is_bruised())
+			message_data["message"] = bruisedspeech(message_data["message"])
+			message_data["verb"] = pick("mumbles", "says")
+	if(wear_mask)
 		var/obj/item/clothing/mask/M = wear_mask
 		if(is_muzzled() && !(message_data["language"]?.language_flags & (NONVERBAL|SIGNLANG)))
 			if(istype(M, /obj/item/clothing/mask))

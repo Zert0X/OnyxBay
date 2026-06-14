@@ -11,7 +11,6 @@ var/list/ventcrawl_machinery = list(
 	/obj/machinery/camera,
 	/mob/living/simple_animal/borer,
 	/obj/item/organ/internal/biostructure,
-	/obj/effect/abstract/proximity_checker, //spiderbot staff
 	/obj/item/organ/internal/adamantine_resonator
 	)
 
@@ -78,7 +77,7 @@ var/list/ventcrawl_machinery = list(
 	return ..()
 
 /mob/living/carbon/human/is_allowed_vent_crawl_item(obj/item/carried_item)
-	if(carried_item in organs)
+	if(carried_item in external_organs)
 		return 1
 	if(carried_item in list(w_uniform, gloves, glasses, wear_mask, l_ear, r_ear, belt, l_store, r_store))
 		return 1
@@ -87,6 +86,11 @@ var/list/ventcrawl_machinery = list(
 	return ..()
 
 /mob/living/simple_animal/mouse/is_allowed_vent_crawl_item(obj/item/carried_item)
+	if(carried_item == holding_item)
+		return TRUE
+	return ..()
+
+/mob/living/simple_animal/hamster/is_allowed_vent_crawl_item(obj/item/carried_item)
 	if(carried_item == holding_item)
 		return TRUE
 	return ..()
@@ -125,7 +129,7 @@ var/list/ventcrawl_machinery = list(
 	if(!is_physically_disabled() && pipe)
 		return pipe
 
-/mob/living/carbon/alien/ventcrawl_carry()
+/mob/living/carbon/larva/ventcrawl_carry()
 	return 1
 
 /mob/living/simple_animal/borer/ventcrawl_carry()
@@ -209,13 +213,13 @@ var/list/ventcrawl_machinery = list(
 			A.pipe_image.layer = ABOVE_LIGHTING_LAYER
 			A.pipe_image.plane = EFFECTS_ABOVE_LIGHTING_PLANE
 			pipes_shown += A.pipe_image
-			client.images += A.pipe_image
+			add_client_image(A.pipe_image)
 
 /mob/living/proc/remove_ventcrawl()
 	is_ventcrawling = 0
+	for(var/image/current_image in pipes_shown)
+		remove_client_image(current_image)
 	if(client)
-		for(var/image/current_image in pipes_shown)
-			client.images -= current_image
 		client.eye = src
 
 	pipes_shown.len = 0

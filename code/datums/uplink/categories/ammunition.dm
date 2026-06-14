@@ -35,30 +35,10 @@
 	item_cost = 2
 	path = /obj/item/ammo_magazine/c556
 
-/datum/uplink_item/item/ammo/a556box
-	name = "5.56mm Magazine Box"
-	item_cost = 3
-	path = /obj/item/ammo_magazine/box/a556
-
-/datum/uplink_item/item/ammo/rocket
-	name = "Rocket"
-	item_cost = 2
-	path = /obj/item/ammo_casing/rocket
-
-/datum/uplink_item/item/ammo/sniperammo
-	name = "14.5mm"
-	item_cost = 3
-	path = /obj/item/storage/box/sniperammo
-
 /datum/uplink_item/item/ammo/bullpup //for zipguns
 	name = "7.62 Magazine"
 	item_cost = 2
 	path = /obj/item/ammo_magazine/a762
-
-/datum/uplink_item/item/ammo/sniperammo/apds
-	name = "14.5mm APDS"
-	item_cost = 4
-	path = /obj/item/storage/box/sniperammo/apds
 
 /datum/uplink_item/item/ammo/shotgun_shells
 	name = "Shotgun Shells box"
@@ -90,7 +70,99 @@
 	item_cost = 1
 	path = /obj/item/ammo_magazine/c38
 
+// Nuke-only ammo below
+/datum/uplink_item/item/ammo/a556box
+	name = "5.56mm Magazine Box"
+	item_cost = 3
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/ammo_magazine/box/a556
+
+/datum/uplink_item/item/ammo/rocket
+	name = "Rocket"
+	item_cost = 2
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/ammo_casing/rocket
+
+/datum/uplink_item/item/ammo/sniperammo
+	name = "14.5mm"
+	item_cost = 3
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/storage/box/sniperammo
+
+/datum/uplink_item/item/ammo/sniperammo/apds
+	name = "14.5mm APDS"
+	item_cost = 4
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/storage/box/sniperammo/apds
+
 /datum/uplink_item/item/ammo/flechette
 	name = "Flechette Magazine"
 	item_cost = 3
-	path = /obj/item/magnetic_ammo
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/rcd_ammo/magnetic_ammo
+
+/datum/uplink_item/item/ammo/grenade_shell_emp
+	name = "40mm low-yield EMP shells"
+	item_cost = 1
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/ammo_casing/grenade/loaded/empgrenade/low_yield
+
+/datum/uplink_item/item/ammo/grenade_shells_emp
+	name = "6 40mm low-yield EMP shells"
+	item_cost = 3
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/storage/box/grenade_shells_emp
+
+/datum/uplink_item/item/ammo/grenade_shell_he
+	name = "40mm HE shell"
+	item_cost = 1
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/ammo_casing/grenade/he
+
+/datum/uplink_item/item/ammo/grenade_shells_he
+	name = "6 40mm HE shells"
+	item_cost = 4
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/storage/box/grenade_shells_he
+
+/datum/uplink_item/item/ammo/grenade_shell_hep
+	name = "40mm HE+ shell"
+	item_cost = 2
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/ammo_casing/grenade/hep
+
+/datum/uplink_item/item/ammo/grenade_shells_hep
+	name = "6 40mm HE+ shells"
+	item_cost = 8
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/storage/box/grenade_shells_hep
+
+/datum/uplink_item/item/ammo/grenade_shell_frag
+	name = "40mm FRAG shell"
+	item_cost = 1
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/ammo_casing/grenade/loaded/frag
+
+/datum/uplink_item/item/ammo/grenade_shells_frag
+	name = "6 40mm FRAG shells"
+	item_cost = 4
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/storage/box/grenade_shells_frag
+
+/datum/uplink_item/item/ammo/grenade_shell_frag_best
+	name = "40mm FRAG++ shell"
+	item_cost = 2
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/ammo_casing/grenade/loaded/frag/best
+
+/datum/uplink_item/item/ammo/grenade_shell_emphe
+	name = "40mm high-yield EMP shell"
+	item_cost = 2
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/ammo_casing/grenade/loaded/empgrenade
+
+/datum/uplink_item/item/ammo/grenade_shell_rubber
+	name = "6 40mm rubber shells"
+	item_cost = 2
+	antag_roles = list(MODE_NUKE)
+	path = /obj/item/storage/box/grenade_shells_rubber

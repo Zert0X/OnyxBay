@@ -16,7 +16,7 @@
 	if(!should_have_organ(BP_HEART)) //We want the var for safety but we can do without the actual blood.
 		return
 
-	vessel.add_reagent(/datum/reagent/blood,species.blood_volume)
+	vessel.add_reagent(/datum/reagent/blood, species.blood_volume)
 	fixblood()
 
 //Resets blood data
@@ -35,7 +35,7 @@
 			)
 			B.color = B.data["blood_colour"]
 
-//Makes a blood drop, leaking amt units of blood from the mob
+//Makes a blood drop, leaking amt ml of blood from the mob
 /mob/living/carbon/human/proc/drip(amt, tar = src, ddir)
 	if(remove_blood(amt))
 		if(bloodstr.total_volume && vessel.total_volume)
@@ -98,7 +98,10 @@
 	return bled
 #undef BLOOD_SPRAY_DISTANCE
 
-/mob/living/carbon/human/proc/remove_blood(amt)
+/mob/living/carbon/proc/remove_blood(amt)
+	return 0
+
+/mob/living/carbon/human/remove_blood(amt)
 	if(!should_have_organ(BP_HEART)) //TODO: Make drips come from the reagents instead.
 		return 0
 	if(!amt)
@@ -106,6 +109,26 @@
 	if(!vessel.total_volume) // Oh-oh, nuffin to remove
 		return 0
 	return vessel.remove_reagent(/datum/reagent/blood, amt * (src.mob_size/MOB_MEDIUM))
+
+
+/mob/living/carbon/human/proc/handle_blood()
+	if(!should_have_organ(BP_HEART))
+		return
+
+	// No longer tied to liver. Bone marrow goes brr.
+	var/regen_value = 0
+	switch(hydration)
+		if(HYDRATION_SUPER to INFINITY)
+			regen_value = 5.0
+		if(HYDRATION_HIGH to HYDRATION_SUPER)
+			regen_value = 3.5
+		if(HYDRATION_LOW to HYDRATION_HIGH)
+			regen_value = 2.0
+		if(1 to HYDRATION_LOW)
+			regen_value = 1.0
+
+	if(regen_value && regenerate_blood(regen_value + chem_effects[CE_BLOODRESTORE]))
+		remove_hydration(DEFAULT_THIRST_FACTOR * regen_value) // Regenerating blood dehydrates ya.
 
 /****************************************************
 				BLOOD TRANSFERS
@@ -152,7 +175,7 @@
 	var/list/chems = list()
 	chems = params2list(injected.data["trace_chem"])
 	for(var/C in chems)
-		src.reagents.add_reagent(C, (text2num(chems[C]) / species.blood_volume) * amount)//adds trace chemicals to owner's blood
+		src.reagents.add_reagent(C, (text2num(chems[C]) / species.blood_volume) * amount) // adds trace chemicals to owner's blood
 	reagents.update_total()
 
 //Transfers blood from reagents to vessel, respecting blood types compatability.
@@ -201,6 +224,14 @@
 			if(donor_antigen != "O") return 1
 		//AB is a universal receiver.
 	return 0
+
+/mob/living/carbon/human/proc/restore_blood()
+	if(!should_have_organ(BP_HEART))
+		return FALSE
+	if(vessel.total_volume < species.blood_volume)
+		vessel.add_reagent(/datum/reagent/blood, species.blood_volume - vessel.total_volume)
+		return TRUE
+	return FALSE
 
 /mob/living/carbon/human/proc/regenerate_blood(amount)
 	var/blood_volume_raw = vessel.get_reagent_amount(/datum/reagent/blood)
@@ -272,8 +303,11 @@
 	return B
 
 //Percentage of maximum blood volume.
-/mob/living/carbon/human/proc/get_blood_volume()
-	if (isfakeliving(src))
+/mob/living/carbon/proc/get_blood_volume()
+	return 100
+
+/mob/living/carbon/human/get_blood_volume()
+	if(isfakeliving(src))
 		return 100
 	return round((vessel.get_reagent_amount(/datum/reagent/blood)/species.blood_volume)*100)
 

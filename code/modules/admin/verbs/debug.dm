@@ -164,11 +164,11 @@
 			if(istype(H.wear_id, /obj/item/device/pda))
 				var/obj/item/device/pda/pda = H.wear_id
 				id = pda.id
-			id.icon_state = "gold"
+			id.icon_state = "card_gold"
 			id.access = get_all_accesses()
 		else
 			var/obj/item/card/id/id = new /obj/item/card/id(M);
-			id.icon_state = "gold"
+			id.icon_state = "card_gold"
 			id.access = get_all_accesses()
 			id.registered_name = H.real_name
 			id.assignment = "Captain"
@@ -463,3 +463,11 @@
 		SSgarbage.toggle_harddel(TRUE)
 		log_and_message_admins("stop hard deleting garbage queue.", usr)
 	return
+
+/client/proc/allow_browser_inspect()
+	set category = "Debug"
+	set name = "Allow Browser Inspect"
+	set desc = "Allow browser debugging via inspect."
+
+	to_chat(usr, SPAN("notice", "You can now right click to use inspect on browsers."))
+	winset(usr, null, list("browser-options" = "+devtools"))

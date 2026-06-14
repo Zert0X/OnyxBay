@@ -29,10 +29,10 @@ mob/living/carbon/metroid/airflow_stun()
 	return
 
 /mob/living/carbon/human/airflow_stun()
-	if(!slip_chance())
-		to_chat(src, "<span class='notice'>Air suddenly rushes past you!</span>")
-		return 0
-	..()
+	if(!get_eva_slip_prob())
+		to_chat(src, SPAN("notice", "Air suddenly rushes past you!"))
+		return FALSE
+	return ..()
 
 /atom/movable/proc/check_airflow_movable(n)
 
@@ -80,15 +80,10 @@ mob/living/carbon/metroid/airflow_stun()
 
 /mob/AirflowCanMove(n)
 	if(status_flags & GODMODE)
-		return 0
-	if(buckled)
-		return 0
-	var/obj/item/shoes = get_equipped_item(slot_shoes)
-	if(istype(shoes) && (shoes.item_flags & ITEM_FLAG_NOSLIP))
-		return 0
-	return 1
+		return FALSE
+	return can_slip(magboots_only = TRUE)
 
-/atom/movable/Bump(atom/A)
+/atom/movable/Bump(atom/A, yes)
 	if(airflow_speed > 0 && airflow_dest)
 		if(!istype(A, /obj/item))
 			if(airborne_acceleration > 1)
@@ -108,16 +103,14 @@ mob/living/carbon/metroid/airflow_stun()
 	airborne_acceleration = 0
 
 /mob/airflow_hit(atom/A)
-	for(var/mob/M in hearers(src))
-		M.show_message("<span class='danger'>\The [src] slams into \a [A]!</span>",1,"<span class='danger'>You hear a loud slam!</span>",2)
+	visible_message(SPAN_DANGER("\The [src] slams into \the [A]!"), SPAN_DANGER("You slam into \the [A]!"), SPAN_DANGER("You hear a loud slam!"))
 	playsound(src.loc, "smash.ogg", 25, 1, -1)
-	var/weak_amt = istype(A,/obj/item) ? A:w_class : rand(1,5) //Heheheh
+	var/weak_amt = istype(A,/obj/item) ? A:w_class : rand(1,5)
 	Weaken(weak_amt)
 	. = ..()
 
 /obj/airflow_hit(atom/A)
-	for(var/mob/M in hearers(src))
-		M.show_message("<span class='danger'>\The [src] slams into \a [A]!</span>",1,"<span class='danger'>You hear a loud slam!</span>",2)
+	visible_message(SPAN_DANGER("\The [src] slams into \the [A]!"), null, SPAN_DANGER("You hear a loud slam!"))
 	playsound(src.loc, "smash.ogg", 25, 1, -1)
 	. = ..()
 
@@ -126,8 +119,6 @@ mob/living/carbon/metroid/airflow_stun()
 	airflow_dest = null
 
 /mob/living/carbon/human/airflow_hit(atom/A)
-//	for(var/mob/M in hearers(src))
-//		M.show_message("<span class='danger'>[src] slams into [A]!</span>",1,"<span class='danger'>You hear a loud slam!</span>",2)
 	playsound(src.loc, SFX_FIGHTING_PUNCH, rand(80, 100), 1, -1)
 	if (prob(33))
 		loc:add_blood(src)
@@ -149,3 +140,11 @@ mob/living/carbon/metroid/airflow_stun()
 	else
 		Stun(round(airflow_speed * vsc.airflow_stun/2))
 	. = ..()
+
+/zone/proc/movables()
+	. = list()
+	for(var/turf/T as anything in contents)
+		for(var/atom/movable/A in T)
+			if(!A.simulated || A.anchored || istype(A, /obj/effect) || isobserver(A))
+				continue
+			. += A

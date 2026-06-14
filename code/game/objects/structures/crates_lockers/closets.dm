@@ -56,6 +56,9 @@
 	density = FALSE
 	intact_closet = FALSE
 
+/obj/structure/closet/add_debris_element()
+	AddElement(/datum/element/debris, DEBRIS_SPARKS, -10, 5)
+
 /obj/item/shield/closet
 	name = "closet door"
 	desc = "An essential part of a closet. Could it be used as a tower shield?.."
@@ -80,8 +83,8 @@
 	matter = list(MATERIAL_STEEL = 1000)
 	attack_verb = list("shoved", "bashed")
 
-	req_access = list()
-	req_one_access = list()
+	req_access = null
+	req_one_access = null
 
 	var/icon_closed = "closed"
 	var/icon_opened = "open"
@@ -129,6 +132,7 @@
 
 	if(intact_closet && (z in GLOB.using_map.get_levels_with_trait(ZTRAIT_STATION)))
 		GLOB.intact_station_closets.Add(src)
+	add_debris_element()
 
 	return INITIALIZE_HINT_LATELOAD
 
@@ -453,7 +457,7 @@
 		if(isScrewdriver(W) && dremovable && cdoor)
 			user.visible_message(SPAN_NOTICE("[user] starts unscrewing [cdoor] from [src]."))
 			user.next_move = world.time + 10
-			if(!do_after(user, 30))
+			if(!do_after(user, 30, luck_check_type = LUCK_CHECK_COMBAT))
 				return FALSE
 			if(!cdoor)
 				return FALSE
@@ -465,7 +469,7 @@
 			var/obj/item/shield/closet/C = W
 			user.visible_message(SPAN_NOTICE("[user] starts connecting [C] to [src]."))
 			user.next_move = world.time + 10
-			if(!do_after(user, 20))
+			if(!do_after(user, 20, luck_check_type = LUCK_CHECK_COMBAT))
 				return FALSE
 			if(cdoor)
 				return FALSE
@@ -528,7 +532,7 @@
 		for(var/i in 1 to rand(4, 8))
 			user.visible_message(SPAN("warning", "[user] picks in wires of \the [name] with a multitool."),
 								 SPAN("warning", "I am trying to reset circuitry lock module ([i])..."))
-			if(!do_after(user, 200, src) || locked != prev_locked || opened || (!istype(src, /obj/structure/closet/crate) && dremovable && !cdoor))
+			if(!do_after(user, 200, src, luck_check_type = LUCK_CHECK_COMBAT) || locked != prev_locked || opened || (!istype(src, /obj/structure/closet/crate) && dremovable && !cdoor))
 				multi.in_use = 0
 				return
 		locked = !locked
@@ -543,7 +547,7 @@
 		src.attack_hand(user)
 
 /obj/structure/closet/proc/slice_into_parts(obj/item/weldingtool/WT, mob/user)
-	if(!WT.use_tool(src, user, amount = 1))
+	if(!WT.use_tool(src, user, amount = 10))
 		return
 
 	if(material != null)
@@ -595,7 +599,7 @@
 		to_chat(user, SPAN("warning", "You can't do this right now."))
 		return
 	in_use = TRUE
-	if(open_delay && !do_after(user, open_delay))
+	if(!locked && open_delay && !do_after(user, open_delay, luck_check_type = LUCK_CHECK_COMBAT))
 		in_use = FALSE
 		return
 	toggle(user)
@@ -768,11 +772,12 @@
 		update_icon()
 		return TRUE
 	else
+		playsound(src.loc, 'sound/signals/error31.ogg', 50)
 		to_chat(user, SPAN_WARNING("Access denied!"))
 		return FALSE
 
 /obj/structure/closet/proc/CanToggleLock(mob/user, obj/item/card/id/id_card)
-	return allowed(user) || (istype(id_card) && check_access_list(id_card.GetAccess()))
+	return check_access(user) || check_access(id_card)
 
 /obj/structure/closet/AltClick(mob/user)
 	if(!src.opened)
@@ -794,8 +799,8 @@
 			if(!locked)
 				open()
 			else
-				src.req_access = list()
-				src.req_access += pick(get_all_station_access())
+				req_access = list()
+				req_access += pick(get_all_station_access())
 	..()
 
 /obj/structure/closet/emag_act(remaining_charges, mob/user, obj/item/emag_source, visual_feedback = "", audible_feedback = "")

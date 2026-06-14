@@ -201,7 +201,7 @@
 	set_next_think(world.time)
 
 /obj/item/clothing/mask/smokable/ecig/attack_hand(mob/user)// Open lid or eject cartridge
-	if(user.get_inactive_hand() == src && !istype(src, /obj/item/clothing/mask/smokable/ecig/disposable))// If being hold
+	if(user.has_in_passive_hand(src) && !istype(src, /obj/item/clothing/mask/smokable/ecig/disposable))// If being hold
 		active = FALSE
 		if(!opened)
 			opened = TRUE
@@ -259,7 +259,7 @@
 	. = ..()
 
 	if(ec_cartridge)
-		. += SPAN("notice", "There are [round(ec_cartridge.reagents.total_volume, 1)] units of liquid remaining.")
+		. += SPAN("notice", "There are [round(ec_cartridge.reagents.total_volume, 1)] ml of liquid remaining.")
 	else
 		. += SPAN("notice", "There is no cartridge connected.")
 
@@ -290,7 +290,7 @@
 	. = ..()
 
 	if(ec_cartridge)
-		. += SPAN("notice", "There are [round(ec_cartridge.reagents.total_volume, 1)] units of liquid remaining.")
+		. += SPAN("notice", "There are [round(ec_cartridge.reagents.total_volume, 1)] ml of liquid remaining.")
 	else
 		. += SPAN("notice", "There is no cartridge connected.")
 
@@ -312,7 +312,7 @@
 
 /obj/item/reagent_containers/ecig_cartridge/examine(mob/user, infix)
 	. = ..()
-	. += "The cartridge has [reagents.total_volume] units of liquid remaining."
+	. += "The cartridge has [reagents.total_volume] ml of liquid remaining."
 
 /obj/item/reagent_containers/ecig_cartridge/Initialize()
 	. = ..()

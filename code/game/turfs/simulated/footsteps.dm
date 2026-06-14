@@ -32,7 +32,7 @@
 		if(step_count % 2) //every other turf makes a sound
 			return
 
-	if(!has_gravity(src))
+	if(!has_gravity())
 		if(step_count % 3) // don't need to step as often when you hop around
 			return
 
@@ -50,7 +50,7 @@
 			volume -= 60
 			range -= 0.333
 
-		playsound(T, S, volume, 1, range)
+		playsound(T, S, volume, FALSE, range)
 
 	// Playing far movement sound with small chance when someone make step in maintenance area
 	// These sounds another players can hear only in the same maintenance area

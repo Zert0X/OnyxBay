@@ -35,7 +35,7 @@
 
 /obj/item/plastique/attack_self(mob/user as mob)
 	var/newtime = input(usr, "Please set the timer.", "Timer", 10) as num
-	if(user.get_active_hand() == src)
+	if(user.has_in_hands(src))
 		newtime = Clamp(newtime, 10, 60000)
 		timer = newtime
 		to_chat(user, "Timer set for [timer] seconds.")
@@ -48,7 +48,7 @@
 	to_chat(user, "Planting explosives...")
 	user.do_attack_animation(target)
 
-	if(do_after(user, 50, target) && in_range(user, target))
+	if(do_after(user, 50, target, luck_check_type = LUCK_CHECK_COMBAT) && in_range(user, target))
 		user.drop(src)
 		src.target = target
 		forceMove(null)

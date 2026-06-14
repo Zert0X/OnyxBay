@@ -4,8 +4,8 @@
 	icon = 'icons/mob/metroids.dmi'
 	icon_state = "jellovessel"
 	organ_tag = BP_METROID
-	var/stored_jelly = 600
-	var/max_jelly= 600
+	var/stored_jelly = 6 LITERS
+	var/max_jelly= 6 LITERS
 
 /obj/item/organ/internal/promethean/metroid_jelly_vessel/think()
 	. = ..()

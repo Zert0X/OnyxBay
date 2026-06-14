@@ -15,10 +15,11 @@
 // Subsystems shutdown in the reverse of the order they initialize in
 // The numbers just define the ordering, they are meaningless otherwise.
 
-#define SS_INIT_LOBBY            17
+#define SS_INIT_CHAR_SETUP       19
+#define SS_INIT_LOBBY            18
+#define SS_INIT_INPUT            17
 #define SS_INIT_GARBAGE          16
 #define SS_INIT_EAMS             15
-#define SS_INIT_CHAR_SETUP       14
 #define SS_INIT_DONATIONS        13
 #define SS_INIT_PLANTS           12
 #define SS_INIT_WARNINGS         11
@@ -46,7 +47,6 @@
 #define SS_INIT_EXPLOSIONS      -69
 #define SS_INIT_ANNOUNCERS      -90
 #define SS_INIT_VOTE      		-95
-#define SS_INIT_STATPANELS      -99
 #define SS_INIT_ORDER_CHAT 		-100 // Should be last to ensure chat remains smooth during init.
 
 // Explosion Subsystem subtasks

@@ -51,6 +51,7 @@
 	var/icon/icon_template = 'icons/mob/human_races/r_template.dmi' // Used for mob icon generation for non-32x32 species.
 	var/pixel_offset_x = 0                    // Used for offsetting large icons.
 	var/pixel_offset_y = 0                    // Used for offsetting large icons.
+	var/pixel_offset_z = 0                    // Used for offsetting large icons.
 
 	var/mob_size	= MOB_MEDIUM
 	var/strength    = STR_MEDIUM
@@ -58,7 +59,8 @@
 	var/virus_immune
 	var/short_sighted                         // Permanent weldervision.
 	var/light_sensitive                       // Ditto, but requires sunglasses to fix
-	var/blood_volume = 560                    // Initial blood volume.
+	var/blood_volume = 5.6 LITERS             // Initial blood volume.
+	var/coagulation = COAGULATION_NORMAL      // Coagulation value when liver is healthy OR none is needed.
 	var/hunger_factor = DEFAULT_HUNGER_FACTOR // Multiplier for hunger.
 	var/taste_sensitivity = TASTE_NORMAL      // How sensitive the species is to minute tastes.
 	var/troublesome_sexual_dimorphism = FALSE // Do other species have hard time differentiating our biological genders?
@@ -120,10 +122,12 @@
 	var/heat_level_2 = 500                            // Heat damage level 2 above this point.
 	var/heat_level_3 = 1000                           // Heat damage level 3 above this point.
 	var/passive_temp_gain = 0		                  // Species will gain this much temperature every second
+
 	var/hazard_high_pressure = HAZARD_HIGH_PRESSURE   // Dangerously high pressure.
 	var/warning_high_pressure = WARNING_HIGH_PRESSURE // High pressure warning.
 	var/warning_low_pressure = WARNING_LOW_PRESSURE   // Low pressure warning.
 	var/hazard_low_pressure = HAZARD_LOW_PRESSURE     // Dangerously low pressure.
+
 	var/body_temperature = 310.15	                  // Species will try to stabilize at this temperature.
 	                                                  // (also affects temperature processing)
 
@@ -171,14 +175,17 @@
 	var/rarity_value = 1               // Relative rarity/collector value for this species.
 	                                   // Determines the organs that the species spawns with and
 	var/list/has_organ = list(         // which required-organ checks are conducted.
-		BP_HEART =    /obj/item/organ/internal/heart,
-		BP_STOMACH =  /obj/item/organ/internal/stomach,
-		BP_LUNGS =    /obj/item/organ/internal/lungs,
-		BP_LIVER =    /obj/item/organ/internal/liver,
-		BP_KIDNEYS =  /obj/item/organ/internal/kidneys,
-		BP_BRAIN =    /obj/item/organ/internal/cerebrum/brain,
-		BP_APPENDIX = /obj/item/organ/internal/appendix,
-		BP_EYES =     /obj/item/organ/internal/eyes
+		BP_HEART =      /obj/item/organ/internal/heart,
+		BP_STOMACH =    /obj/item/organ/internal/stomach,
+		BP_LUNGS =      /obj/item/organ/internal/lungs,
+		BP_LIVER =      /obj/item/organ/internal/liver,
+		BP_KIDNEYS =    /obj/item/organ/internal/kidneys,
+		BP_BRAIN =      /obj/item/organ/internal/cerebrum/brain,
+		BP_APPENDIX =   /obj/item/organ/internal/appendix,
+		BP_EYES =       /obj/item/organ/internal/eyes,
+		BP_TONGUE =     /obj/item/organ/internal/tongue,
+		BP_BLADDER =    /obj/item/organ/internal/bladder,
+		BP_INTESTINES = /obj/item/organ/internal/intestines
 		)
 	var/vision_organ              // If set, this organ is required for vision. Defaults to "eyes" if the species has them.
 	var/breathing_organ           // If set, this organ is required for breathing. Defaults to "lungs" if the species has them.
@@ -204,9 +211,9 @@
 	var/list/genders = list(MALE, FEMALE)
 
 	// Bump vars
-	var/bump_flag = HUMAN	// What are we considered to be when bumped?
-	var/push_flags = ~HEAVY	// What can we push?
-	var/swap_flags = ~HEAVY	// What can we swap place with?
+	var/bump_flag  = HUMAN            // What are we considered to be when bumped?
+	var/push_flags = ~HEAVY           // What can we push?
+	var/swap_flags = (~HEAVY) ^ ROBOT // What can we swap place with?
 
 	var/pass_flags = 0
 	var/breathing_sound = 'sound/voice/monkey.ogg'
@@ -219,7 +226,7 @@
 	var/icon_scale = 1
 	var/y_shift = 0 // Vertically shifts the icon, mostly for monkeys.
 
-	var/xenomorph_type = /mob/living/carbon/alien/larva // What type of larva is spawned if infected with an alien embryo
+	var/xenomorph_type = /mob/living/carbon/larva/xenomorph // What type of larva is spawned if infected with an alien embryo
 /*
 These are all the things that can be adjusted for equipping stuff and
 each one can be in the NORTH, SOUTH, EAST, and WEST direction. Specify
@@ -298,40 +305,40 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 				E.internal_organs.Remove(O)
 				H.internal_organs.Remove(O)
 				foreign_organs |= O
-		if(E.implants.len)
+		if(LAZYLEN(E.implants))
 			implants_from_external_organs[E.organ_tag] = list()
-		for(var/I in E.implants)
-			implants_from_external_organs[E.organ_tag] += I
+			for(var/I in E.implants)
+				implants_from_external_organs[E.organ_tag] += I
 
 	for(var/obj/item/organ/organ in H.contents)
-		if((organ in H.organs) || (organ in H.internal_organs))
+		if((organ in H.external_organs) || (organ in H.internal_organs))
 			qdel(organ)
 
-	if(H.organs)                  H.organs.Cut()
+	if(H.external_organs)         H.external_organs.Cut()
 	if(H.internal_organs)         H.internal_organs.Cut()
-	if(H.organs_by_name)          H.organs_by_name.Cut()
+	if(H.external_organs_by_name) H.external_organs_by_name.Cut()
 	if(H.internal_organs_by_name) H.internal_organs_by_name.Cut()
 
-	H.organs = list()
+	H.external_organs = list()
 	H.internal_organs = list()
-	H.organs_by_name = list()
-	H.internal_organs_by_name = list()
+	H.external_organs_by_name = alist()
+	H.internal_organs_by_name = alist()
 
 	for(var/limb_type in has_limbs)
 		var/list/organ_data = has_limbs[limb_type]
 		var/limb_path = organ_data["path"]
-		new limb_path(H, H)
+		new limb_path(H)
 
 	for(var/organ_tag in has_organ)
 		var/organ_type = has_organ[organ_tag]
-		var/obj/item/organ/O = new organ_type(H, H)
+		var/obj/item/organ/O = new organ_type(H)
 		if(organ_tag != O.organ_tag)
 			warning("[O.type] has a default organ tag \"[O.organ_tag]\" that differs from the species' organ tag \"[organ_tag]\". Updating organ_tag to match.")
 			O.organ_tag = organ_tag
 		H.internal_organs_by_name[organ_tag] = O
 
-	for(var/name in H.organs_by_name)
-		H.organs |= H.organs_by_name[name]
+	for(var/name in H.external_organs_by_name)
+		H.external_organs |= H.external_organs_by_name[name]
 
 	for(var/name in H.internal_organs_by_name)
 		H.internal_organs |= H.internal_organs_by_name[name]
@@ -344,7 +351,7 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 		H.internal_organs_by_name[organ.organ_tag] = organ
 		organ.handle_foreign()
 
-	for(var/obj/item/organ/O in (H.organs|H.internal_organs))
+	for(var/obj/item/organ/O in (H.external_organs|H.internal_organs))
 		O.owner = H
 
 	H.sync_organ_dna()
@@ -439,11 +446,15 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 
 /datum/species/proc/remove_inherent_verbs(mob/living/carbon/human/H)
 	if(inherent_verbs)
-		revoke_verb(H, inherent_verbs)
+		for(var/verb_path in inherent_verbs)
+			H.verbs -= verb_path
+	return
 
 /datum/species/proc/add_inherent_verbs(mob/living/carbon/human/H)
 	if(inherent_verbs)
-		grant_verb(H, inherent_verbs)
+		for(var/verb_path in inherent_verbs)
+			H.verbs |= verb_path
+	return
 
 /datum/species/proc/remove_inherent_traits(mob/living/carbon/human/H)
 	if(inherent_traits)
@@ -674,12 +685,12 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 	//target.visible_message("Debug \[DISARM\]: [target] lost [round(4.0+4.0*((100-effective_armor)/100),0.1)] poise ([target.poise]/[target.poise_pool])") // Debug Message
 
 	//var/randn = rand(1, 100)
-	if(!(species_flags & SPECIES_FLAG_NO_SLIP) && target.poise <= 20 && !prob(target.poise*4.5) && !target.lying)
+	if(!(species_flags & SPECIES_FLAG_NO_SLIP) && target.poise <= 20 && !prob(target.poise*4.5) && !target.check_poise_immunity())
 		var/armor_check = target.run_armor_check(affecting, "melee")
 		playsound(target.loc, 'sound/weapons/thudswoosh.ogg', 50, 1, -1)
 		if(prob(100-target.poise*6.5))
 			target.visible_message("<span class='danger'>[attacker] has pushed [target]!</span>")
-			target.apply_effect(4, WEAKEN, armor_check)
+			target.apply_effect(5, WEAKEN, armor_check)
 		else
 			target.visible_message("<span class='warning'>[attacker] attempted to push [target]!</span>")
 		return
@@ -757,3 +768,8 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 	else
 		var/list/A = list(max(64, H.r_hair), max(64, H.g_hair), max(64, H.b_hair))
 		return A
+
+/datum/species/proc/check_no_slip(mob/living/user, magboots_only)
+	if(can_overcome_gravity(user))
+		return TRUE
+	return (species_flags & SPECIES_FLAG_NO_SLIP)

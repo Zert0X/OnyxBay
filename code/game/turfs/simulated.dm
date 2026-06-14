@@ -1,3 +1,4 @@
+
 /turf/simulated
 	name = "station"
 	var/wet = 0
@@ -8,14 +9,16 @@
 	var/list/resources
 
 	var/thermite = 0
-	initial_gas = list("oxygen" = MOLES_O2STANDARD, "nitrogen" = MOLES_N2STANDARD)
+	initial_gas = /decl/initial_gas_mix/air
 	var/to_be_destroyed = 0 //Used for fire, if a melting temperature was reached, it will be destroyed
 	var/max_fire_temperature_sustained = 0 //The max temperature of the fire which it was subjected to
 	var/dirt = 0
 
-/turf/simulated/Initialize(mapload, ...)
+/turf/simulated/Initialize()
 	. = ..()
-	add_think_ctx("unwet_context", CALLBACK(src, nameof(.proc/unwet_floor)), 0 )
+	if(istype(loc, /area/chapel))
+		holy = TRUE
+	levelupdate()
 
 /turf/simulated/post_change()
 	..()
@@ -34,7 +37,7 @@
 		wet_overlay = image('icons/effects/water.dmi',src,"wet_floor")
 		AddOverlays(wet_overlay)
 
-	set_next_think_ctx("unwet_context", world.time + 20 SECONDS)
+	try_add_think_ctx("unwet_context", CALLBACK(src, nameof(.proc/unwet_floor)), world.time + 20 SECONDS)
 
 /turf/simulated/proc/unwet_floor(check_very_wet = TRUE)
 	if(check_very_wet && wet >= 2)
@@ -47,25 +50,11 @@
 		CutOverlays(wet_overlay)
 		wet_overlay = null
 
+	remove_think_ctx("unwet_context")
+
 /turf/simulated/clean_blood()
 	for(var/obj/effect/decal/cleanable/blood/B in contents)
 		B.clean_blood()
-	return ..()
-
-/turf/simulated/New()
-	..()
-	if(istype(loc, /area/chapel))
-		holy = TRUE
-	levelupdate()
-
-/turf/simulated/Destroy()
-	if (zone && !zone.invalid)
-		// Try to remove it gracefully first.
-		if (can_safely_remove_from_zone())
-			c_copy_air()
-			zone.remove(src)
-		else	// Can't remove it safely, just rebuild the entire thing.
-			zone.rebuild()
 	return ..()
 
 /turf/simulated/proc/AddTracks(typepath,bloodDNA,comingdir,goingdir,bloodcolor=COLOR_BLOOD_HUMAN)
@@ -90,8 +79,7 @@
 	if(isliving(A))
 		var/mob/living/M = A
 
-		// Dirt overlays.
-		update_dirt()
+		var/need_update_dirt = TRUE
 
 		if(M.buckled && !istype(M.buckled, /obj/structure/bed/chair/wheelchair)) // No bloody trails for rollerbedded dudes pls
 			return ..()
@@ -103,14 +91,21 @@
 			var/bloodcolor = ""
 
 			if(H.shoes)
-				var/obj/item/clothing/shoes/S = H.shoes
-				if(istype(S))
-					S.handle_movement(src,(H.m_intent == M_RUN ? 1 : 0))
-					if(S.track_blood)
-						if(S.blood_DNA)
-							bloodDNA = S.blood_DNA
-						bloodcolor = S.blood_color
-						S.track_blood--
+				var/obj/item/clothing/accessory/shoe_covers/SC = H.shoes
+				if(istype(SC))
+					SC.handle_movement(src, (H.m_intent == M_RUN ? 1 : 0), TRUE)
+					need_update_dirt = FALSE
+				else
+					var/obj/item/clothing/shoes/S = H.shoes
+					if(istype(S))
+						S.handle_movement(src, (H.m_intent == M_RUN ? 1 : 0))
+						if(S.get_accessory_cover())
+							need_update_dirt = FALSE
+						if(S.track_blood)
+							if(S.blood_DNA)
+								bloodDNA = S.blood_DNA
+							bloodcolor = S.blood_color
+							S.track_blood--
 
 			else if(H.track_blood)
 				if(H.feet_blood_DNA)
@@ -125,6 +120,10 @@
 					from.AddTracks(H.species.get_move_trail(H), bloodDNA, 0, H.dir, bloodcolor) // Going
 
 				bloodDNA = null
+
+		// Dirt overlays.
+		if(need_update_dirt)
+			update_dirt()
 
 		if(M.lying)
 			return ..()
@@ -149,10 +148,6 @@
 				for(var/i = 1 to slip_dist)
 					step(M, M.dir)
 					sleep(1)
-			else
-				M.inertia_dir = 0
-		else
-			M.inertia_dir = 0
 
 	..()
 
@@ -162,7 +157,7 @@
 		return FALSE // Meh, fuck it, if you'll ever need the add_blood("#abcdef") behavior - just go ahead code it yourself. ~ToTh
 	. = ..()
 	if(!.)
-		return
+		return null
 
 	var/mob/living/carbon/human/M = source
 	for(var/obj/effect/decal/cleanable/blood/B in contents)
@@ -171,12 +166,12 @@
 		if(!B.blood_DNA[M.dna.unique_enzymes])
 			B.blood_DNA[M.dna.unique_enzymes] = M.dna.b_type
 			B.virus2 = virus_copylist(M.virus2)
-		return
-	blood_splatter(src, M.get_blood(M.vessel), 1)
+		return B
+	return blood_splatter(src, M.get_blood(M.vessel), 1)
 
 // Only adds blood on the floor -- Skie
 /turf/simulated/proc/add_blood_floor(mob/living/carbon/M as mob)
-	if( istype(M, /mob/living/carbon/alien ))
+	if(ischestburster(M))
 		var/obj/effect/decal/cleanable/blood/xeno/this = new /obj/effect/decal/cleanable/blood/xeno(src)
 		this.blood_DNA["UNKNOWN BLOOD"] = "X*"
 	else if( istype(M, /mob/living/silicon/robot ))

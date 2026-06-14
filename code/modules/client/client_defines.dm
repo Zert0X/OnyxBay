@@ -65,25 +65,40 @@
 	// For tracking shift key (world.time)
 	var/shift_released_at = 0
 
-	/// Currently viewed stat tab.
-	var/stat_tab
-
-	/// List of all stat panel tabs.
-	var/list/panel_tabs = list()
-	/// List of stat panel tabs containing spells and abilities.
-	var/list/spell_tabs = list()
-
-	/// Stat panel window.
-	var/datum/tgui_window/stat_panel
-
-	/// Settings window.
-	var/datum/player_settings/settings = null
-
 	/// Messages currently seen by this client
 	var/list/seen_messages
 
-	/// List of atom refs that were recently examined via `run_examinare` proc.
-	var/list/recent_examines
-
 	/// Whether typing indicators are enabled
 	var/typing_indicators
+
+	var/luck_general = 100
+	var/luck_combat = 100
+	var/luck_eng = 100
+	var/luck_med = 100
+	var/luck_rnd = 100
+
+	/// Custom movement keys for this client
+	var/list/movement_keys = list()
+	/// Are we locking our movement input?
+	var/movement_locked = FALSE
+	/// A buffer of currently held keys.
+	var/list/keys_held = list()
+	/// A buffer for combinations such of modifiers + keys (ex: CtrlD, AltE, ShiftT). Format: `"key"` -> `"combo"` (ex: `"D"` -> `"CtrlD"`)
+	var/list/key_combos_held = list()
+	/*
+	** These next two vars are to apply movement for keypresses and releases made while move delayed.
+	** Because discarding that input makes the game less responsive.
+	*/
+	/// On next move, add this dir to the move that would otherwise be done
+	var/next_move_dir_add
+	/// On next move, subtract this dir from the move that would otherwise be done
+	var/next_move_dir_sub
+
+	/// Movement dir of the most recently pressed movement key. Used in cardinal-only movement mode.
+	var/last_move_dir_pressed
+
+	/// Full-auto guns broke clicking and now we have to invent workarounds. What a life.
+	var/mouse_down_last_time = 0
+	var/mouse_click_last_time = 0
+	var/mouse_click_opportunity_window = 2 // Must be enough for most users.
+	var/atom/mouse_down_atom = null

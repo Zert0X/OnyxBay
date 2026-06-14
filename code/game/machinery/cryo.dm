@@ -23,6 +23,7 @@
 
 	var/ejecting = 0
 	var/biochemical_stasis = 0
+	var/datum/sound_token/cryo_sound_token = null
 
 	component_types = list(
 		/obj/item/circuitboard/cryo_cell,
@@ -49,8 +50,11 @@
 
 	RefreshParts()
 	atmos_init()
+	if(on)
+		start_operating_sound()
 
 /obj/machinery/atmospherics/unary/cryo_cell/Destroy()
+	stop_operating_sound()
 	var/turf/T = loc
 	T.contents += contents
 	if(beaker)
@@ -84,6 +88,7 @@
 
 /obj/machinery/atmospherics/unary/cryo_cell/Process()
 	if(stat & (BROKEN|NOPOWER))
+		stop_operating_sound()
 		update_use_power(0)
 		update_icon()
 	..()
@@ -200,11 +205,13 @@
 	if(href_list["switchOn"])
 		on = 1
 		update_icon()
+		start_operating_sound()
 		return TOPIC_REFRESH
 
 	if(href_list["switchOff"])
 		on = 0
 		update_icon()
+		stop_operating_sound()
 		return TOPIC_REFRESH
 
 	if(href_list["ejectBeaker"])
@@ -229,7 +236,17 @@
 		update_icon()
 		return TOPIC_REFRESH
 
-	. = ..()
+/obj/machinery/atmospherics/unary/cryo_cell/proc/start_operating_sound()
+	if(cryo_sound_token)
+		return
+	var/sound_id = "\ref[src]_cryo"
+	cryo_sound_token = GLOB.sound_player.PlayLoopingSound(src, sound_id, 'sound/effects/machinery/medical/cryo_ambient.ogg', volume = 15, range = 7, falloff = 3)
+
+/obj/machinery/atmospherics/unary/cryo_cell/proc/stop_operating_sound()
+	if(!cryo_sound_token)
+		return
+	cryo_sound_token.Stop()
+	cryo_sound_token = null
 
 /obj/machinery/atmospherics/unary/cryo_cell/attackby(obj/G, mob/user as mob)
 	if(default_deconstruction_screwdriver(user, G))
@@ -264,6 +281,9 @@
 			user.visible_message(SPAN("notice", "\The [user] places \the [M] into \the [src]."), SPAN("notice", "You place \the [M] into \the [src]."))
 	return
 
+/obj/machinery/atmospherics/unary/cryo_cell/AltClick(mob/user)
+	grab_container(user, &beaker, get_step(loc, SOUTH))
+
 /obj/machinery/atmospherics/unary/cryo_cell/on_update_icon()
 	ClearOverlays()
 	var/overlays_state = 0
@@ -280,7 +300,7 @@
 	AddOverlays(I)
 
 	if(occupant)
-		occupant.UpdateDamageIcon()
+		occupant.update_damage_overlays()
 		var/image/pickle = image(occupant.icon, occupant.icon_state)
 		pickle.CopyOverlays(occupant)
 		pickle.pixel_z = 18
@@ -310,7 +330,7 @@
 		if(beaker && !has_cryo_medicine && !emagged)
 			beaker.reagents.trans_to_mob(occupant, REM, CHEM_BLOOD)
 		if(occupant.InStasis() && !biochemical_stasis)
-			occupant.handle_chemicals_in_body(handle_ingested = FALSE)
+			occupant.handle_chemicals_in_body(handle_ingested = FALSE, handle_digested = FALSE)
 		if(emagged)
 			if(prob(5))
 				to_chat(occupant, SPAN("notice", "You feel strange."))

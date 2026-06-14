@@ -3,7 +3,7 @@
 /mob/living/silicon/robot
 	name = "Cyborg"
 	real_name = "Cyborg"
-	icon = 'icons/mob/robots.dmi'
+	icon = 'icons/mob/silicon/robot.dmi'
 	icon_state = "robot"
 	maxHealth = 200
 	health = 200
@@ -24,12 +24,9 @@
 	var/integrated_light_max_bright = 0.75
 	var/datum/wires/robot/wires
 
-	/// Whether this type of robot supports custom icons
-	var/custom_sprite = TRUE
 	/// Default hull typepath
 	var/default_hull = /datum/robot_hull/spider/robot
 
-	var/static/list/eye_overlays
 	/// Key used to look up an appropriate hull datum in the `module_hulls`
 	var/icontype
 	/// Whether this mob've chosen a custom icon
@@ -278,33 +275,36 @@
 	if(!(new_hull.icon_state in icon_states))
 		return
 
+	// NOTE: Personally, I hate boilerplate, but I currently don't have the mental capacity to deal with emotes code.
+	var/datum/robot_hull/old_hull = module_hulls[icontype]
+	for (var/datum/emote/typepath as anything in old_hull?.default_emotes)
+		var/datum/emote/emote_to_remove = GLOB.all_emotes[typepath]
+		clear_emote(emote_to_remove.key)
+		if (!isnull(emote_to_remove.statpanel_proc))
+			verbs -= emote_to_remove.statpanel_proc
+
+	for (var/datum/emote/typepath as anything in new_hull.default_emotes)
+		var/datum/emote/emote_to_add = GLOB.all_emotes[typepath]
+		set_emote(emote_to_add.key, emote_to_add)
+		if (!isnull(emote_to_add.statpanel_proc))
+			verbs |= emote_to_add.statpanel_proc
+
 	icontype = new_icontype
 	icon = new_hull.icon
 	icon_state = new_hull.icon_state
-	footstep_sound = new_hull.footstep_sound
+	footstep_sound = (new_hull.hull_flags & ROBOT_HULL_FLAG_HAS_FOOTSTEPS) ? new_hull.footstep_sound : null
 
 	update_icon()
+	update_transform()
 
 	return TRUE
 
-/mob/living/silicon/robot/proc/set_module_hulls(list/new_sprites)
-	if(length(new_sprites))
-		module_hulls = new_sprites.Copy()
-		if(custom_sprite)
-			custom_sprite = (ckey in GLOB.robot_custom_icons)
-		// Custom_sprite check and entry
-		if(custom_sprite && CUSTOM_ITEM_ROBOTS)
-			var/list/customs = GLOB.robot_custom_icons[ckey]
-			var/list/valid_states = icon_states(CUSTOM_ITEM_ROBOTS)
-			for(var/list/custom_data in customs)
-				var/sprite_state = custom_data["item_state"]
-				var/footstep = custom_data["footstep"]
-				if(sprite_state && (sprite_state in valid_states))
-					if(module_hulls[sprite_state])
-						qdel(module_hulls[sprite_state])
-						module_hulls[sprite_state] = null
-					module_hulls[sprite_state] = new /datum/robot_hull(CUSTOM_ITEM_ROBOTS, sprite_state, footstep)
-	return module_hulls
+/mob/living/silicon/robot/proc/set_module_hulls(list/new_hulls)
+	if (!LAZYLEN(new_hulls))
+		return
+
+	module_hulls = new_hulls.Copy()
+	module_hulls += get_custom_hulls(ckey)
 
 /mob/living/silicon/robot/proc/choose_module()
 	if(module)
@@ -493,30 +493,41 @@
 	else
 		set_light(0)
 
-// this function returns the robots jetpack, if one is installed
-/mob/living/silicon/robot/proc/installed_jetpack()
-	if(module)
-		return (locate(/obj/item/tank/jetpack) in module.modules)
-	return null
+// this function displays jetpack pressure in the stat panel
+/mob/living/silicon/robot/proc/show_jetpack_pressure()
+	// if you have a jetpack, show the internal tank pressure
+	var/obj/item/tank/jetpack/current_jetpack = get_jetpack()
+	if (current_jetpack)
+		stat("Internal Atmosphere Info", current_jetpack.name)
+		stat("Tank Pressure", current_jetpack.air_contents.return_pressure())
 
-/mob/living/silicon/robot/get_status_tab_items()
+// this function displays the cyborgs current cell charge in the stat panel
+/mob/living/silicon/robot/proc/show_cell_power()
+	if(cell)
+		stat(null, text("Charge Left: [round(CELL_PERCENT(cell))]%"))
+		stat(null, text("Cell Rating: [round(cell.maxcharge)]")) // Round just in case we somehow get crazy values
+		stat(null, text("Power Cell Load: [round(used_power_this_tick)]W"))
+	else
+		stat(null, text("No Cell Inserted!"))
+
+/mob/living/silicon/robot/proc/show_gps()
+	var/turf/T = get_turf(src)
+	if (T.z != 1 && T.z != 2)
+		stat(null, text("Current location: Unknown"))
+	else
+		stat(null, text("Current location:[T.x]:[T.y]:[T.z]"))
+
+// update the status screen display
+/mob/living/silicon/robot/Stat()
 	. = ..()
-
-	. += list(
-		"Cell Charge: [isnull(cell) ? "NO CELL" : "[round(cell.charge)]/[round(cell.maxcharge)]W"]",
-		"Cell Load: [round(used_power_this_tick)]W",
-		"",
-	)
-
-	var/obj/item/tank/jetpack/current_jetpack = installed_jetpack()
-	if(!isnull(current_jetpack))
-		. += list(
-			"[current_jetpack]: [current_jetpack.air_contents.return_pressure()]kPa",
-			"",
-		)
-
-	for(var/datum/matter_synth/ms in module?.synths)
-		. += "[ms.name]: [ms.energy]/[ms.max_energy_multiplied]"
+	if (statpanel("Status"))
+		show_gps()
+		show_cell_power()
+		show_jetpack_pressure()
+		stat(null, text("Lights: [lights_on ? "ON" : "OFF"]"))
+		if(module)
+			for(var/datum/matter_synth/ms in module.synths)
+				stat("[ms.name]: [ms.energy]/[ms.max_energy_multiplied]")
 
 /mob/living/silicon/robot/restrained()
 	return 0
@@ -559,7 +570,7 @@
 			to_chat(user, "Nothing to fix here!")
 			return
 		var/obj/item/weldingtool/WT = W
-		if(!WT.use_tool(src, user, delay = 3 SECONDS, amount = 5))
+		if(!WT.use_tool(src, user, delay = 3 SECONDS, amount = 50))
 			return
 
 		if(QDELETED(src) || !user)
@@ -567,7 +578,7 @@
 
 		user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 		adjustBruteLoss(-30)
-		updatehealth()
+		update_health()
 		add_fingerprint(user)
 		for(var/mob/O in viewers(user, null))
 			O.show_message(text("<span class='warning'>[user] has fixed some of the dents on [src]!</span>"), 1)
@@ -580,7 +591,7 @@
 		if (coil.use(1))
 			user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 			adjustFireLoss(-30)
-			updatehealth()
+			update_health()
 			for(var/mob/O in viewers(user, null))
 				O.show_message(text("<span class='warning'>[user] has fixed some of the burnt wires on [src]!</span>"), 1)
 
@@ -792,50 +803,34 @@
 	return 0
 
 /mob/living/silicon/robot/proc/check_access(obj/item/card/id/I)
-	if(!istype(req_access, /list)) //something's very wrong
-		return 1
+	if(!length(req_access))
+		return TRUE
 
-	var/list/L = req_access
-	if(!L.len) //no requirements
-		return 1
-	if(!I || !istype(I, /obj/item/card/id) || !I.access) //not ID or no access
-		return 0
+	if(!istype(I) || !I.access) // Not an ID card or no access
+		return FALSE
+
 	for(var/req in req_access)
-		if(req in I.access) //have one of the required accesses
-			return 1
-	return 0
+		if(req in I.access) // We have one of the required accesses
+			return TRUE
+	return FALSE
 
 /mob/living/silicon/robot/on_update_icon()
+	var/datum/robot_hull/using_hull = module_hulls[icontype]
+
 	ClearOverlays()
-	if(stat == CONSCIOUS)
-		var/eye_icon_state = "eyes-[module_hulls[icontype].icon_state]"
-		if(eye_icon_state in icon_states(icon))
-			if(!eye_overlays)
-				eye_overlays = list()
-			var/image/eye_overlay = eye_overlays[eye_icon_state]
-			if(!eye_overlay)
-				eye_overlays[eye_icon_state] = image(icon, eye_icon_state)
-				eye_overlays["[eye_icon_state]+ea"] = emissive_appearance(icon, eye_icon_state, cache = FALSE)
-			AddOverlays(eye_overlay)
-			AddOverlays("[eye_icon_state]+ea")
 
-	if(opened)
-		var/panelprefix = custom_sprite ? module_hulls[icontype] : "ov"
-		if(wiresexposed)
-			AddOverlays("[panelprefix]-openpanel +w")
-		else if(cell)
-			AddOverlays("[panelprefix]-openpanel +c")
-		else
-			AddOverlays("[panelprefix]-openpanel -c")
+	if (stat == CONSCIOUS && (using_hull.hull_flags & ROBOT_HULL_FLAG_HAS_EYES))
+		var/eyes_icon_state = "eyes-[using_hull.icon_state]"
 
-	if(module_active && istype(module_active,/obj/item/borg/combat/shield))
-		AddOverlays("[module_hulls[icontype].icon_state]-shield")
+		AddOverlays(eyes_icon_state)
+		AddOverlays(emissive_appearance(icon, eyes_icon_state))
 
-	if(modtype == "Combat")
-		if(module_active && istype(module_active,/obj/item/borg/combat/mobility))
-			icon_state = "[module_hulls[icontype].icon_state]-roll"
-		else
-			icon_state = module_hulls[icontype].icon_state
+	if (opened && (using_hull.hull_flags & ROBOT_HULL_FLAG_HAS_PANEL))
+		var/panel_icon = using_hull.get_panel_icon()
+		var/panel_icon_state = using_hull.get_panel_icon_state(wires = wiresexposed, cell = !!cell)
+
+		AddOverlays(icon(panel_icon, panel_icon_state))
+		AddOverlays(emissive_blocker(panel_icon, panel_icon_state))
 
 /mob/living/silicon/robot/proc/installed_modules()
 	if(weapon_lock)
@@ -943,17 +938,6 @@
 
 /mob/living/silicon/robot/proc/radio_menu()
 	silicon_radio.interact(src)//Just use the radio's Topic() instead of bullshit special-snowflake code
-
-/mob/living/silicon/robot/get_active_item()
-	var/obj/item/I = ..()
-	var/obj/item/gripper/grip = I
-	if(istype(grip))
-		return grip.wrapped
-	var/obj/item/surgical_selector/SS = I
-	if(istype(SS))
-		return SS.selected_tool
-	return I
-
 
 /mob/living/silicon/robot/Move(newloc, direct)
 	. = ..()
@@ -1067,15 +1051,17 @@
 		return 1
 	return 0
 
-/mob/living/silicon/robot/mode()
+/mob/living/silicon/robot/activate_held_object()
 	set name = "Activate Held Object"
 	set category = "IC"
 	set src = usr
 
+	use_attack_self()
+	return
+
+/mob/living/silicon/robot/use_attack_self(is_active_hand = TRUE)
 	var/obj/item/I = get_active_hand()
 	I?.attack_self(src)
-
-	return
 
 /mob/living/silicon/robot/proc/choose_hull(list/module_hulls)
 	if(!length(module_hulls))
@@ -1083,7 +1069,6 @@
 		return FALSE
 
 	icon_chosen = FALSE
-	set_custom_sprite()
 
 	set_module_hulls(module_hulls)
 
@@ -1111,10 +1096,10 @@
 	toggle_sensor_mode()
 
 /mob/living/silicon/robot/proc/add_robot_verbs()
-	grant_verb(src, robot_verbs_default)
+	src.verbs |= robot_verbs_default
 
 /mob/living/silicon/robot/proc/remove_robot_verbs()
-	revoke_verb(src, robot_verbs_default)
+	src.verbs -= robot_verbs_default
 
 // Uses power from cyborg's cell. Returns 1 on success or 0 on failure.
 // Properly converts using CELLRATE now! Amount is in Joules.
@@ -1309,3 +1294,9 @@
 	var/S = safepick(GLOB.sfx_list[footstep_sound])
 
 	playsound(get_turf(src), S, volume, FALSE, range)
+
+/mob/living/silicon/robot/set_stat(new_stat)
+	. = ..()
+
+	if (stat != new_stat)
+		queue_icon_update()

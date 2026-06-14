@@ -11,6 +11,7 @@
 	var/intialFire = 0	//it's a little sloppy I know but it was this or the GODMODE flag. Lesser of two evils.
 	var/intialBrute = 0
 	var/intialOxy = 0
+	var/intialInternal = 0
 	var/timer = 240 //eventually the person will be freed
 	dremovable = 0
 	intact_closet = FALSE
@@ -30,6 +31,7 @@
 		intialFire = L.getFireLoss()
 		intialBrute = L.getBruteLoss()
 		intialOxy = L.getOxyLoss()
+		intialInternal = L.getInternalLoss()
 		if(ishuman(L))
 			name = "statue of [L.name]"
 			if(L.gender == "female")
@@ -52,9 +54,10 @@
 /obj/structure/closet/statue/think()
 	timer--
 	for(var/mob/living/M in src) //Go-go gadget stasis field
-		M.setToxLoss(intialTox)
+		M.adjustToxPercent(intialTox - M.getToxLoss())
 		M.adjustFireLoss(intialFire - M.getFireLoss())
 		M.adjustBruteLoss(intialBrute - M.getBruteLoss())
+		M.adjustInternalLoss(intialInternal - M.getInternalLoss())
 		M.setOxyLoss(intialOxy)
 	if (timer <= 0)
 		dump_contents()

@@ -10,9 +10,13 @@
 	var/health = 40
 	var/last_act = 0
 
-/obj/structure/rock/New()
-	..()
+/obj/structure/rock/Initialize()
+	. = ..()
 	icon_state = pick(iconlist)
+	add_debris_element()
+
+/obj/structure/rock/add_debris_element()
+	AddElement(/datum/element/debris, DEBRIS_ROCK, -10, 5, 1)
 
 /obj/structure/rock/Destroy()
 	var/mineralSpawnChanceList = list(uranium = 10, osmium = 10, iron = 20, coal = 20, diamond = 2, gold = 10, silver = 10, plasma = 20)
@@ -50,10 +54,10 @@
 	. = ..()
 	if(istype(AM,/mob/living/carbon/human))
 		var/mob/living/carbon/human/H = AM
-		if((istype(H.l_hand,/obj/item/pickaxe)) && (!H.hand))
-			attackby(H.l_hand,H)
-		else if((istype(H.r_hand,/obj/item/pickaxe)) && H.hand)
-			attackby(H.r_hand,H)
+		if((istype(H.l_hand,/obj/item/pickaxe)) && H.active_hand == ACTIVE_HAND_RIGHT)
+			attackby(H.l_hand, H)
+		else if((istype(H.r_hand,/obj/item/pickaxe)) && H.active_hand == ACTIVE_HAND_LEFT)
+			attackby(H.r_hand, H)
 
 	else if(istype(AM,/mob/living/silicon/robot))
 		var/mob/living/silicon/robot/R = AM

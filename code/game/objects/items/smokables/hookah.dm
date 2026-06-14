@@ -18,7 +18,7 @@
 	label_icon = FALSE
 	overlay_icon = FALSE
 	lid_type = null
-	volume = 60
+	volume = 0.5 LITERS
 
 	var/obj/item/hookah_coal/HC = null
 	var/obj/item/hookah_hose/H1 = null
@@ -127,23 +127,10 @@
 		to_chat(user, SPAN("notice", "\The [src] is already in use!"))
 	return TRUE
 
-/obj/item/reagent_containers/vessel/hookah/MouseDrop(mob/user)
-	if(!CanMouseDrop(src, usr))
-		return
-	if(user == usr && (user.contents.Find(src) || in_range(src, user)))
-		if(ishuman(user) && !user.get_active_hand())
-			var/mob/living/carbon/human/H = user
-			var/obj/item/organ/external/temp = H.organs_by_name[BP_R_HAND]
-			if(H.hand)
-				temp = H.organs_by_name[BP_L_HAND]
-			if(temp && !temp.is_usable())
-				to_chat(user, SPAN("warning", "You try to pick up \the [src] with your [temp.name], but cannot!"))
-				return
-			if(user.pick_or_drop(src, loc))
-				to_chat(user, SPAN("notice", "You pick up \the [src]."))
-				reattach_hose()
-				if(has_second_hose)
-					reattach_hose(TRUE)
+/obj/item/reagent_containers/vessel/hookah/pickup(mob/user)
+	reattach_hose()
+	if(has_second_hose)
+		reattach_hose(TRUE)
 	return
 
 /obj/item/reagent_containers/vessel/hookah/attackby(obj/item/W, mob/user)
@@ -320,12 +307,9 @@
 	var/pulls_left = 0
 	var/smoke_amount = 0
 
-/obj/item/hookah_coal/New()
-	..()
-	atom_flags |= ATOM_FLAG_OPEN_CONTAINER
-
 /obj/item/hookah_coal/Initialize()
 	. = ..()
+	atom_flags |= ATOM_FLAG_OPEN_CONTAINER
 	create_reagents(chem_volume) // making the cigarrete a chemical holder with a maximum volume of [chem_volume]
 
 /obj/item/hookah_coal/on_update_icon()

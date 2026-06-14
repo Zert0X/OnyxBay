@@ -14,7 +14,7 @@
 
 	..()
 
-	create_reagents(500)
+	create_reagents(5 LITERS)
 
 	if(cached_icon)
 		icon = cached_icon
@@ -74,7 +74,7 @@
 /datum/effect/effect/system/smoke_spread/chem/New()
 	..()
 	chemholder = new /obj()
-	chemholder.create_reagents(500)
+	chemholder.create_reagents(5 LITERS)
 
 //Sets up the chem smoke effect
 // Calculates the max range smoke can travel, then gets all turfs in that view range.
@@ -222,6 +222,7 @@
 
 	pending += location
 
+	var/airblock
 	while(pending.len)
 		for(var/turf/current in pending)
 			for(var/D in GLOB.cardinal)
@@ -238,10 +239,15 @@
 					continue
 				if(!(target in targetTurfs))
 					continue
-				if(current.c_airblock(target)) //this is needed to stop chemsmoke from passing through thin window walls
+
+				ATMOS_CANPASS_TURF(airblock, current, target)
+				if(airblock)
 					continue
-				if(target.c_airblock(current))
+
+				ATMOS_CANPASS_TURF(airblock, target, current)
+				if(airblock)
 					continue
+
 				pending += target
 
 			pending -= current

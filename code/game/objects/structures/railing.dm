@@ -11,6 +11,7 @@
 	throwpass = 1
 	can_buckle = 1
 	buckle_require_restraints = 1
+	climb_delay = 2 SECONDS
 	var/health = 40
 	var/maxhealth = 40
 	var/check = 0
@@ -168,7 +169,7 @@
 	// Dismantle
 	if(isWrench(W) && !anchored)
 		playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
-		if(do_after(user, 20, src))
+		if(do_after(user, 20, src, luck_check_type = LUCK_CHECK_ENG))
 			user.visible_message("<span class='notice'>\The [user] dismantles \the [src].</span>", "<span class='notice'>You dismantle \the [src].</span>")
 			new material_path(get_turf(usr), 2)
 			qdel(src)
@@ -177,7 +178,7 @@
 	// Repair
 	if(health < maxhealth && isWelder(W))
 		var/obj/item/weldingtool/F = W
-		if(!F.use_tool(src, user, delay = 2 SECONDS, amount = 5))
+		if(!F.use_tool(src, user, delay = 2 SECONDS, amount = 50))
 			return
 
 		if(QDELETED(src) || !user)
@@ -191,7 +192,7 @@
 	if(isScrewdriver(W))
 		user.visible_message(anchored ? "<span class='notice'>\The [user] begins unscrewing \the [src].</span>" : "<span class='notice'>\The [user] begins fasten \the [src].</span>" )
 		playsound(loc, 'sound/items/Screwdriver.ogg', 75, 1)
-		if(do_after(user, 10, src))
+		if(do_after(user, 10, src, luck_check_type = LUCK_CHECK_ENG))
 			to_chat(user, (anchored ? "<span class='notice'>You have unfastened \the [src] from the floor.</span>" : "<span class='notice'>You have fastened \the [src] to the floor.</span>"))
 			anchored = !anchored
 			update_icon()
@@ -261,7 +262,7 @@
 	user.visible_message("<span class='warning'>\The [user] starts climbing over \the [src]!</span>")
 	LAZYDISTINCTADD(climbers, user)
 
-	if(!do_after(user,(issmall(user) ? 30 : 50), src))
+	if(!do_after(user, (user.get_climb_speed() * climb_delay), src))
 		LAZYREMOVE(climbers, user)
 		return
 

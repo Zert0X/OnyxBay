@@ -167,11 +167,13 @@
 
 /obj/item/circuitboard/cryopodcontrol
 	name = "Circuit board (Cryogenic Oversight Console)"
+	icon_state = "id_mod_cyan"
 	build_path = /obj/machinery/computer/cryopod
 	origin_tech = list(TECH_DATA = 3)
 
 /obj/item/circuitboard/robotstoragecontrol
 	name = "Circuit board (Robotic Storage Console)"
+	icon_state = "id_mod_purple"
 	build_path = /obj/machinery/computer/cryopod/robot
 	origin_tech = list(TECH_DATA = 3)
 
@@ -261,8 +263,8 @@
 	. = ..()
 	airtank = new()
 	airtank.temperature = 0 CELSIUS
-	airtank.adjust_gas("oxygen", MOLES_O2STANDARD, 0)
-	airtank.adjust_gas("nitrogen", MOLES_N2STANDARD)
+	airtank.adjust_gas("oxygen", MOLES_O2_STANDARD, 0)
+	airtank.adjust_gas("nitrogen", MOLES_N2_STANDARD)
 
 /obj/machinery/cryopod/lifepod/return_air()
 	return airtank
@@ -297,7 +299,7 @@
 /obj/machinery/cryopod/Destroy()
 	if(occupant)
 		occupant.forceMove(loc)
-		occupant.resting = 1
+		occupant.set_resting(TRUE)
 	. = ..()
 
 /obj/machinery/cryopod/Initialize()
@@ -523,7 +525,7 @@
 	if(usr.stat != 0)
 		return
 
-	if(usr != occupant && !allowed(usr) && !emagged)
+	if(usr != occupant && !check_access(usr) && !emagged)
 		to_chat(usr, "<span class='warning'>Access Denied.</span>")
 		return
 

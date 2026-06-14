@@ -35,7 +35,7 @@
 			to_chat(user, "You don't see anything that can be cut with [W].")
 			return
 
-		if(!WT.use_tool(src, user, amount = 1) )
+		if(!WT.use_tool(src, user, amount = 10))
 			return
 
 		if(isemptylist(welder_salvage))

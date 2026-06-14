@@ -10,7 +10,7 @@
 	stunned = 1
 	icon = null
 	set_invisibility(101)
-	for(var/t in organs)
+	for(var/t in external_organs)
 		qdel(t)
 	var/atom/movable/fake_overlay/animation = new /atom/movable/fake_overlay(loc)
 	animation.icon_state = "blank"
@@ -45,7 +45,7 @@
 /mob/living/carbon/human/AIize(move, rename) // 'move' argument needs defining here too because BYOND is dumb
 	if(HAS_TRANSFORMATION_MOVEMENT_HANDLER(src))
 		return
-	for(var/t in organs)
+	for(var/t in external_organs)
 		qdel(t)
 	QDEL_NULL_LIST(worn_underwear)
 	return ..(move, rename)
@@ -72,7 +72,6 @@
 		O.mind.original_mob = weakref(O)
 	else
 		O.key = key
-		O.client?.init_verbs()
 
 	if(move)
 		var/obj/loc_landmark
@@ -119,7 +118,7 @@
 	ADD_TRANSFORMATION_MOVEMENT_HANDLER(src)
 	icon = null
 	set_invisibility(101)
-	for(var/t in organs)
+	for(var/t in external_organs)
 		qdel(t)
 
 	var/mob/living/silicon/robot/O = new /mob/living/silicon/robot( loc )
@@ -135,7 +134,6 @@
 			O.mind.store_memory("In case you look at this after being borged, the objectives are only here until I find a way to make them not show up for you, as I can't simply delete them without screwing up round-end reporting. --NeoFite")
 	else
 		O.key = key
-		O.client?.init_verbs()
 
 	O.forceMove(loc)
 	O.job = "Cyborg"
@@ -168,7 +166,7 @@
 	ADD_TRANSFORMATION_MOVEMENT_HANDLER(src)
 	icon = null
 	set_invisibility(101)
-	for(var/t in organs)
+	for(var/t in external_organs)
 		qdel(t)
 
 	var/mob/living/carbon/metroid/new_metroid
@@ -187,7 +185,6 @@
 			new_metroid.is_adult = 1
 
 	new_metroid.key = key
-	new_metroid.client?.init_verbs()
 
 	to_chat(new_metroid, "<B>You are now a metroid. Skreee!</B>")
 	qdel(src)
@@ -202,14 +199,13 @@
 	ADD_TRANSFORMATION_MOVEMENT_HANDLER(src)
 	icon = null
 	set_invisibility(101)
-	for(var/t in organs)	//this really should not be necessary
+	for(var/t in external_organs)	//this really should not be necessary
 		qdel(t)
 
 	var/mob/living/simple_animal/corgi/new_corgi = new /mob/living/simple_animal/corgi (loc)
 	new_corgi.a_intent = I_HURT
 
 	new_corgi.key = key
-	new_corgi.client?.init_verbs()
 
 	to_chat(new_corgi, "<B>You are now a Corgi. Yap Yap!</B>")
 	qdel(src)
@@ -234,14 +230,13 @@
 	icon = null
 	set_invisibility(101)
 
-	for(var/t in organs)
+	for(var/t in external_organs)
 		qdel(t)
 
 	var/mob/new_mob = new mobpath(src.loc)
-	new_mob.a_intent = I_HURT
 
 	new_mob.key = key
-	new_mob.client?.init_verbs()
+	new_mob.a_intent = I_HURT
 
 	to_chat(new_mob, "You suddenly feel more... animalistic.")
 	spawn()
@@ -260,7 +255,6 @@
 	var/mob/new_mob = new mobpath(src.loc)
 
 	new_mob.key = key
-	new_mob.client?.init_verbs()
 
 	new_mob.a_intent = I_HURT
 	to_chat(new_mob, "You feel more... animalistic")
@@ -307,6 +301,8 @@
 		return 1
 	if(ispath(MP, /mob/living/simple_animal/mouse))
 		return 1 //It is impossible to pull up the player panel for mice (Fixed! - Nodrak)
+	if(ispath(MP, /mob/living/simple_animal/hamster))
+		return 1
 	if(ispath(MP, /mob/living/simple_animal/hostile/bear))
 		return 1 //Bears will auto-attack mobs, even if they're player controlled (Fixed! - Nodrak)
 	if(ispath(MP, /mob/living/simple_animal/parrot))
@@ -319,7 +315,7 @@
 //This is barely a transformation but probably best file for it.
 /mob/living/carbon/human/proc/zombify()
 	RemoveHairAndFacials()
-	for(var/obj/item/organ/external/head/h in organs)
+	for(var/obj/item/organ/external/head/h in external_organs)
 		h.status |= ORGAN_DISFIGURED
 	mutations |= MUTATION_CLUMSY
 	src.visible_message("<span class='danger'>\The [src]'s skin decays before your very eyes!</span>", "<span class='danger'>Your entire body is ripe with pain as it is consumed down to flesh and bones. You ... hunger. Not only for flesh, but to spread this gift.</span>")
@@ -334,7 +330,7 @@
 	Weaken(5)
 	if (should_have_organ(BP_HEART))
 		vessel.add_reagent(/datum/reagent/blood, species.blood_volume - vessel.total_volume)
-	for (var/o in organs)
+	for (var/o in external_organs)
 		var/obj/item/organ/organ = o
 		organ.vital = 0
 		if (!BP_IS_ROBOTIC(organ))
@@ -343,9 +339,7 @@
 			organ.min_broken_damage = Floor(organ.max_damage * 0.75)
 	src.no_pain = TRUE
 	src.does_not_breathe = TRUE
-	grant_verb(src, list(
-		/mob/living/carbon/human/proc/breath_death,
-		/mob/living/carbon/human/proc/consume,
-	))
+	verbs += /mob/living/carbon/human/proc/breath_death
+	verbs += /mob/living/carbon/human/proc/consume
 	remove_language(LANGUAGE_GALCOM)
 	playsound(src, 'sound/hallucinations/wail.ogg', 20, 1)

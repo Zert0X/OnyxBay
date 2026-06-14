@@ -1,5 +1,5 @@
 
-/mob/living/carbon/alien
+/mob/living/carbon/larva
 	default_emotes = list(
 		/datum/emote/scratch,
 		/datum/emote/drool,
@@ -80,6 +80,8 @@
 		/datum/emote/giggle,
 		/datum/emote/whistle,
 		/datum/emote/signal,
+		/datum/emote/sway,
+		/datum/emote/push_up
 	)
 
 /mob/living/carbon/metroid/load_default_emotes()
@@ -110,10 +112,6 @@
 		/datum/emote/stare,
 		/datum/emote/dance
 		)
-
-/mob/living/silicon/robot/load_default_emotes()
-	default_emotes += subtypesof(/datum/emote/synth)
-	return ..()
 
 /mob/living/carbon/metroid
 	default_emotes = list(

@@ -13,9 +13,10 @@
 	icon_state = "emptycondiment"
 	item_state = "emptycondiment"
 	atom_flags = ATOM_FLAG_OPEN_CONTAINER
-	possible_transfer_amounts = "1;5;10"
 	center_of_mass = "x=16;y=6"
-	volume = 50
+	volume = 0.3 LITERS
+	amount_per_transfer_from_this = 10
+	possible_transfer_amounts = "5;10;15;25;30;50;60;100;150;250;300"
 	lid_type = null
 	can_flip = TRUE
 
@@ -47,8 +48,8 @@
 		return
 
 /obj/item/reagent_containers/vessel/condiment/afterattack(obj/target, mob/user, proximity)
-	if(!proximity)
-		return
+	if(!is_open_container() || !proximity) //Is the container open & are they next to whatever they're clicking?
+		return //If not, do nothing.
 
 	if(standard_dispenser_refill(user, target))
 		return
@@ -66,7 +67,7 @@
 			return
 
 		var/trans = reagents.trans_to_obj(target, amount_per_transfer_from_this)
-		to_chat(user, "<span class='notice'>You add [trans] units of the condiment to \the [target].</span>")
+		to_chat(user, "<span class='notice'>You add [trans] ml of the condiment to \the [target].</span>")
 	else
 		..()
 
@@ -112,7 +113,7 @@
 				icon_state = "coldsauce"
 				item_state = "coldsauce"
 				center_of_mass = "x=16;y=6"
-			if(/datum/reagent/sodiumchloride)
+			if(/datum/reagent/salt)
 				name = "Salt Shaker"
 				desc = "Salt. From space oceans, presumably."
 				icon_state = "saltshaker"
@@ -124,9 +125,15 @@
 				icon_state = "peppermillsmall"
 				item_state = "peppermillsmall"
 				center_of_mass = "x=16;y=10"
-			if(/datum/reagent/nutriment/cornoil)
+			if(/datum/reagent/nutriment/oil/corn)
 				name = "Corn Oil"
 				desc = "A delicious oil used in cooking. Made from corn."
+				icon_state = "oliveoil"
+				item_state = "oliveoil"
+				center_of_mass = "x=16;y=6"
+			if(/datum/reagent/nutriment/oil)
+				name = "Cooking Oil"
+				desc = "A practically tasteless oil used in cooking."
 				icon_state = "oliveoil"
 				item_state = "oliveoil"
 				center_of_mass = "x=16;y=6"
@@ -171,9 +178,9 @@
 	startswith = list(/datum/reagent/sugar)
 
 /obj/item/reagent_containers/vessel/condiment/small
-	possible_transfer_amounts = "1;20"
+	volume = 0.1 LITERS
 	amount_per_transfer_from_this = 1
-	volume = 20
+	possible_transfer_amounts = "1;5;10;15;25;30;50;60;100"
 
 /obj/item/reagent_containers/vessel/condiment/small/on_reagent_change()
 	return
@@ -183,7 +190,7 @@
 	desc = "Salt. From space oceans, presumably."
 	icon_state = "saltshakersmall"
 	center_of_mass = "x=16;y=9"
-	startswith = list(/datum/reagent/sodiumchloride)
+	startswith = list(/datum/reagent/salt)
 
 /obj/item/reagent_containers/vessel/condiment/small/peppermill
 	name = "pepper mill"
@@ -205,6 +212,9 @@
 	icon_state = "flour"
 	item_state = "flour"
 	randpixel = 10
+	volume = 1.0 LITER
+	amount_per_transfer_from_this = 50
+	possible_transfer_amounts = "50;60;100;150;250;300;1000"
 	startswith = list(/datum/reagent/nutriment/flour)
 
 /obj/item/reagent_containers/vessel/condiment/flour/on_reagent_change()
@@ -267,7 +277,7 @@
 				icon_state = "condi_frostoil"
 				item_state = "condi_frostoil"
 				center_of_mass = "x=16;y=6"
-			if(/datum/reagent/sodiumchloride)
+			if(/datum/reagent/salt)
 				name = "Salt Shaker"
 				desc = "Salt. From space oceans, presumably."
 				icon_state = "condi_salt"
@@ -279,9 +289,15 @@
 				icon_state = "condi_pepper"
 				item_state = "condi_pepper"
 				center_of_mass = "x=16;y=10"
-			if(/datum/reagent/nutriment/cornoil)
+			if(/datum/reagent/nutriment/oil/corn)
 				name = "Corn Oil"
 				desc = "A delicious oil used in cooking. Made from corn."
+				icon_state = "condi_cornoil"
+				item_state = "condi_cornoil"
+				center_of_mass = "x=16;y=6"
+			if(/datum/reagent/nutriment/oil)
+				name = "Cooking Oil"
+				desc = "A practically tasteless oil used in cooking."
 				icon_state = "condi_cornoil"
 				item_state = "condi_cornoil"
 				center_of_mass = "x=16;y=6"

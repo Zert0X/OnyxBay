@@ -11,18 +11,24 @@
 
 	req_access = list(access_cent_specops)
 
-	armor = list(melee = 100, bullet = 110, laser = 120, energy = 15, bomb = 30, bio = 100)
+	armor_values = alist(melee = 100, bullet = 110, laser = 120, energy = 15, bomb = 30, bio = 100)
 
 	allowed = list(/obj/item/device/flashlight, /obj/item/tank,/obj/item/ammo_magazine,/obj/item/ammo_casing,/obj/item/handcuffs, /obj/item/device/t_scanner, /obj/item/construction/rcd, /obj/item/crowbar, \
 	/obj/item/screwdriver, /obj/item/weldingtool, /obj/item/wirecutters, /obj/item/wrench, /obj/item/device/multitool, \
 	/obj/item/device/radio, /obj/item/device/analyzer,/obj/item/storage/briefcase/inflatable, /obj/item/melee/baton, /obj/item/gun, \
-	/obj/item/storage/firstaid, /obj/item/reagent_containers/hypospray, /obj/item/roller)
+	/obj/item/storage/firstaid, /obj/item/reagent_containers/hypospray, /obj/item/roller, /obj/item/flag)
 
 	initial_modules = list(
 		/obj/item/rig_module/ai_container,
 		/obj/item/rig_module/maneuvering_jets,
 		/obj/item/rig_module/datajack,
 		/obj/item/rig_module/cooling_unit
+		)
+
+/obj/item/rig/ert/empty
+	initial_modules = list(
+		/obj/item/rig_module/ai_container,
+		/obj/item/rig_module/cooling_unit,
 		)
 
 /obj/item/clothing/head/helmet/space/rig/ert
@@ -45,7 +51,7 @@
 	desc = "A powersuit used by NanoTrasen's elite Emergency Response Teams. Has orange highlights. Armored and space ready."
 	suit_type = "ERT engineer"
 	icon_state = "ert_engineer_rig"
-	armor = list(melee = 100, bullet = 110, laser = 120, energy = 40, bomb = 60, bio = 100)
+	armor_values = alist(melee = 100, bullet = 110, laser = 120, energy = 40, bomb = 60, bio = 100)
 
 	glove_type = /obj/item/clothing/gloves/rig/ert/engineer
 
@@ -56,6 +62,12 @@
 		/obj/item/rig_module/cooling_unit
 		)
 
+/obj/item/rig/ert/engineer/empty
+	initial_modules = list(
+		/obj/item/rig_module/ai_container,
+		/obj/item/rig_module/cooling_unit,
+		)
+
 /obj/item/clothing/gloves/rig/ert/engineer
 	siemens_coefficient = 0
 
@@ -64,7 +76,7 @@
 	desc = "A powersuit used by NanoTrasen's elite Emergency Response Teams. Has purple highlights. Armored and space ready."
 	suit_type = "ERT sanitation"
 	icon_state = "ert_janitor_rig"
-	armor = list(melee = 100, bullet = 110, laser = 120, energy = 15, bomb = 30, bio = 100)
+	armor_values = alist(melee = 100, bullet = 110, laser = 120, energy = 15, bomb = 30, bio = 100)
 
 	initial_modules = list(
 		/obj/item/rig_module/ai_container,
@@ -73,6 +85,12 @@
 		/obj/item/rig_module/grenade_launcher/cleaner,
 		/obj/item/rig_module/device/decompiler,
 		/obj/item/rig_module/cooling_unit
+		)
+
+/obj/item/rig/ert/janitor/empty
+	initial_modules = list(
+		/obj/item/rig_module/ai_container,
+		/obj/item/rig_module/cooling_unit,
 		)
 
 /obj/item/rig/ert/medical
@@ -89,6 +107,12 @@
 		/obj/item/rig_module/cooling_unit
 		)
 
+/obj/item/rig/ert/medical/empty
+	initial_modules = list(
+		/obj/item/rig_module/ai_container,
+		/obj/item/rig_module/cooling_unit,
+		)
+
 /obj/item/rig/ert/security
 	name = "ERT security powersuit control module"
 	desc = "A powersuit used by NanoTrasen's elite Emergency Response Teams. Has red highlights. Armored and space ready."
@@ -103,12 +127,18 @@
 		/obj/item/rig_module/cooling_unit
 		)
 
+/obj/item/rig/ert/security/empty
+	initial_modules = list(
+		/obj/item/rig_module/ai_container,
+		/obj/item/rig_module/cooling_unit,
+		)
+
 /obj/item/rig/ert/assetprotection
 	name = "Death Squad suit control module"
 	desc = "That's not red paint. That's real blood."
 	suit_type = "Death Squad"
 	icon_state = "asset_protection_rig"
-	armor = list(melee = 130, bullet = 150, laser = 150, energy = 65, bomb = 80, bio = 100)
+	armor_values = alist(melee = 130, bullet = 150, laser = 150, energy = 65, bomb = 80, bio = 100)
 
 	glove_type = /obj/item/clothing/gloves/rig/ert/assetprotection
 
@@ -122,6 +152,12 @@
 		/obj/item/rig_module/device/rcd,
 		/obj/item/rig_module/datajack,
 		/obj/item/rig_module/cooling_unit
+		)
+
+/obj/item/rig/ert/assetprotection/empty
+	initial_modules = list(
+		/obj/item/rig_module/ai_container,
+		/obj/item/rig_module/cooling_unit,
 		)
 
 /obj/item/clothing/gloves/rig/ert/assetprotection

@@ -4,6 +4,7 @@
 
 /obj/item/circuitboard/miningdrill
 	name = T_BOARD("mining drill head")
+	icon_state = "id_mod_brown"
 	build_path = /obj/machinery/mining/drill
 	board_type = "machine"
 	origin_tech = list(TECH_DATA = 1, TECH_ENGINEERING = 1)
@@ -14,6 +15,7 @@
 
 /obj/item/circuitboard/miningdrillbrace
 	name = T_BOARD("mining drill brace")
+	icon_state = "id_mod_brown"
 	build_path = /obj/machinery/mining/brace
 	board_type = "machine"
 	origin_tech = list(TECH_DATA = 1, TECH_ENGINEERING = 1)
@@ -21,11 +23,13 @@
 
 /obj/item/circuitboard/processing_unit_console
 	name = T_BOARD("ore processor console")
+	icon_state = "id_mod_brown"
 	build_path = /obj/machinery/computer/processing_unit_console
 	origin_tech = list(TECH_ENGINEERING = 2)
 
 /obj/item/circuitboard/processing_unit
 	name = T_BOARD("ore processor")
+	icon_state = "id_mod_brown"
 	build_path = /obj/machinery/mineral/processing_unit
 	board_type = "machine"
 	origin_tech = list(TECH_MAGNET = 2, TECH_ENGINEERING = 2)
@@ -36,11 +40,13 @@
 
 /obj/item/circuitboard/stacking_machine_console
 	name = T_BOARD("ore stacker console")
+	icon_state = "id_mod_brown"
 	build_path = /obj/machinery/computer/stacking_unit_console
 	origin_tech = list(TECH_ENGINEERING = 2)
 
 /obj/item/circuitboard/stacking_machine
 	name = T_BOARD("ore stacker")
+	icon_state = "id_mod_Brown"
 	build_path = /obj/machinery/mineral/stacking_machine
 	board_type = "machine"
 	origin_tech = list(TECH_MAGNET = 2, TECH_ENGINEERING = 2)
@@ -49,6 +55,7 @@
 
 /obj/item/circuitboard/minting_machine
 	name = T_BOARD("coin press")
+	icon_state = "id_mod_brown"
 	build_path = /obj/machinery/mineral/mint
 	board_type = "machine"
 	origin_tech = list(TECH_MAGNET = 2, TECH_ENGINEERING = 2)
@@ -57,6 +64,7 @@
 
 /obj/item/circuitboard/unloading_machine
 	name = T_BOARD("unloading machine")
+	icon_state = "id_mod_brown"
 	build_path = /obj/machinery/mineral/unloading_machine
 	board_type = "machine"
 	origin_tech = list(TECH_ENGINEERING = 1)

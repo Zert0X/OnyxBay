@@ -29,7 +29,7 @@
 		inv_box.alpha = ui_alpha
 
 		var/list/slot_data =  hud_data.gear[gear_slot]
-		inv_box.SetName(gear_slot)
+		inv_box.SetName(slot_data["name"])
 		inv_box.screen_loc =  slot_data["loc"]
 		inv_box.slot_id =     slot_data["slot"]
 		inv_box.icon_state =  slot_data["state"]
@@ -85,20 +85,20 @@
 		static_inventory += using
 
 	if(hud_data.has_rest)
-		using = new /atom/movable/screen()
-		using.SetName("rest")
-		using.icon = ui_style
-		using.icon_state = "rest"
-		using.screen_loc = ui_rest_act
-		using.color = ui_color
-		using.alpha = ui_alpha
-		static_inventory += using
+		mymob.resting_icon = new /atom/movable/screen()
+		mymob.resting_icon.SetName("Rest")
+		mymob.resting_icon.icon = ui_style
+		mymob.resting_icon.icon_state = "rest0"
+		mymob.resting_icon.screen_loc = ui_rest_act
+		mymob.resting_icon.color = ui_color
+		mymob.resting_icon.alpha = ui_alpha
+		static_inventory += mymob.resting_icon
 
 
 	if(hud_data.has_hands)
 
 		using = new /atom/movable/screen()
-		using.SetName("equip")
+		using.SetName("Equip")
 		using.icon = ui_style
 		using.icon_state = "act_equip"
 		using.screen_loc = ui_equip
@@ -106,11 +106,20 @@
 		using.alpha = ui_alpha
 		static_inventory += using
 
+		mymob.twohanded_mode_icon = new /atom/movable/screen()
+		mymob.twohanded_mode_icon.SetName("Two-Handed Mode")
+		mymob.twohanded_mode_icon.icon = ui_style
+		mymob.twohanded_mode_icon.icon_state = "act_twohanded0"
+		mymob.twohanded_mode_icon.screen_loc = ui_twohanded
+		mymob.twohanded_mode_icon.color = ui_color
+		mymob.twohanded_mode_icon.alpha = ui_alpha
+		static_inventory += mymob.twohanded_mode_icon
+
 		inv_box = new /atom/movable/screen/inventory()
-		inv_box.SetName("r_hand")
+		inv_box.SetName("Right Hand")
 		inv_box.icon = ui_style
 		inv_box.icon_state = "r_hand_inactive"
-		if(mymob && !mymob.hand)	//This being 0 or null means the right hand is in use
+		if(mymob?.active_hand == ACTIVE_HAND_RIGHT)
 			inv_box.icon_state = "r_hand_active"
 		inv_box.screen_loc = ui_rhand
 		inv_box.slot_id = slot_r_hand
@@ -121,10 +130,10 @@
 		static_inventory += inv_box
 
 		inv_box = new /atom/movable/screen/inventory()
-		inv_box.SetName("l_hand")
+		inv_box.SetName("Left Hand")
 		inv_box.icon = ui_style
 		inv_box.icon_state = "l_hand_inactive"
-		if(mymob && mymob.hand)	//This being 1 means the left hand is in use
+		if(mymob?.active_hand == ACTIVE_HAND_LEFT)
 			inv_box.icon_state = "l_hand_active"
 		inv_box.screen_loc = ui_lhand
 		inv_box.slot_id = slot_l_hand
@@ -134,7 +143,7 @@
 		static_inventory += inv_box
 
 		using = new /atom/movable/screen/inventory()
-		using.SetName("hand")
+		using.SetName("Swap Hands")
 		using.icon = ui_style
 		using.icon_state = "hand1"
 		using.screen_loc = ui_swaphand1
@@ -143,7 +152,7 @@
 		static_inventory += using
 
 		using = new /atom/movable/screen/inventory()
-		using.SetName("hand")
+		using.SetName("Swap Hands")
 		using.icon = ui_style
 		using.icon_state = "hand2"
 		using.screen_loc = ui_swaphand2
@@ -188,15 +197,15 @@
 		mymob.block_icon.alpha = ui_alpha
 		static_inventory += mymob.block_icon
 
-	if(hud_data.has_blockswitch)
-		mymob.blockswitch_icon = new /atom/movable/screen()
-		mymob.blockswitch_icon.icon = ui_style
-		mymob.blockswitch_icon.icon_state = "act_blockswitch0"
-		mymob.blockswitch_icon.SetName("blockswitch")
-		mymob.blockswitch_icon.screen_loc = ui_blockswitch
-		mymob.blockswitch_icon.color = ui_color
-		mymob.blockswitch_icon.alpha = ui_alpha
-		static_inventory += mymob.blockswitch_icon
+	if(hud_data.has_aim_assist)
+		mymob.aim_assist_icon = new /atom/movable/screen()
+		mymob.aim_assist_icon.icon = ui_style
+		mymob.aim_assist_icon.icon_state = "aim_assist0"
+		mymob.aim_assist_icon.SetName("Click Mode")
+		mymob.aim_assist_icon.screen_loc = ui_aim_assist
+		mymob.aim_assist_icon.color = ui_color
+		mymob.aim_assist_icon.alpha = ui_alpha
+		static_inventory += mymob.aim_assist_icon
 
 	if(hud_data.has_internals)
 		mymob.internals = new /atom/movable/screen()
@@ -268,13 +277,38 @@
 		target.cells.screen_loc = ui_nutrition
 		infodisplay |= target.cells
 
-	else if(hud_data.has_nutrition)
-		mymob.nutrition_icon = new /atom/movable/screen()
-		mymob.nutrition_icon.icon = ui_style
-		mymob.nutrition_icon.icon_state = "nutrition0"
-		mymob.nutrition_icon.SetName("nutrition")
-		mymob.nutrition_icon.screen_loc = ui_nutrition
-		infodisplay |= mymob.nutrition_icon
+	else
+		if(hud_data.has_nutrition)
+			mymob.nutrition_icon = new /atom/movable/screen()
+			mymob.nutrition_icon.icon = ui_style
+			mymob.nutrition_icon.icon_state = "nutrition0"
+			mymob.nutrition_icon.SetName("nutrition")
+			mymob.nutrition_icon.screen_loc = ui_nutrition
+			infodisplay |= mymob.nutrition_icon
+
+		if(hud_data.has_hydration)
+			mymob.hydration_icon = new /atom/movable/screen()
+			mymob.hydration_icon.icon = ui_style
+			mymob.hydration_icon.icon_state = "hydration0"
+			mymob.hydration_icon.SetName("hydration")
+			mymob.hydration_icon.screen_loc = ui_nutrition
+			infodisplay |= mymob.hydration_icon
+
+		if(hud_data.has_bladder)
+			mymob.bladder_icon = new /atom/movable/screen()
+			mymob.bladder_icon.icon = ui_style
+			mymob.bladder_icon.icon_state = "bladder0"
+			mymob.bladder_icon.SetName("bladder")
+			mymob.bladder_icon.screen_loc = ui_bladder
+			infodisplay |= mymob.bladder_icon
+
+		if(hud_data.has_bowels)
+			mymob.bowels_icon = new /atom/movable/screen()
+			mymob.bowels_icon.icon = ui_style
+			mymob.bowels_icon.icon_state = "bowels0"
+			mymob.bowels_icon.SetName("bowels")
+			mymob.bowels_icon.screen_loc = ui_bladder
+			infodisplay |= mymob.bowels_icon
 
 	if(hud_data.has_poise)
 		mymob.poise_icon = new /atom/movable/screen()
@@ -319,10 +353,3 @@
 	mymob.radio_use_icon.alpha = ui_alpha
 
 	inventory_shown = FALSE
-
-/mob/living/carbon/human/rejuvenate()
-	. = ..()
-	full_pain = 0
-	// And restore all internal organs...
-	for (var/obj/item/organ/internal/I in internal_organs)
-		I.rejuvenate()

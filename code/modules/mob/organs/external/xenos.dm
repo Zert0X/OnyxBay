@@ -9,12 +9,12 @@
 /obj/item/organ/internal/xenos/replaced(mob/living/carbon/human/target,obj/item/organ/external/affected)
 	. = ..()
 	if(ishuman(owner) && associated_power)
-		grant_verb(owner, associated_power)
+		owner.verbs |= associated_power
 
 /obj/item/organ/internal/xenos/removed(mob/living/user)
 	. = ..()
 	if(ishuman(owner) && associated_power && !(associated_power in owner.species.inherent_verbs))
-		revoke_verb(owner, associated_power)
+		owner.verbs -= associated_power
 
 /obj/item/organ/internal/xenos/eggsac
 	name = "egg sac"
@@ -77,10 +77,10 @@
 	organ_tag = BP_GANGLION
 	vital = TRUE
 	relative_size = 30
-
-/obj/item/organ/internal/xenos/ganglion/New(mob/living/carbon/holder)
-	..()
 	max_damage = 100
+
+/obj/item/organ/internal/xenos/ganglion/Initialize()
+	. = ..()
 	if(species)
 		max_damage = species.total_health
 	min_bruised_damage = max_damage*0.25

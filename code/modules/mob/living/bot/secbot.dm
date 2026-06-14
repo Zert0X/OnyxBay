@@ -111,7 +111,7 @@
 
 	handcuffs = new(src)
 
-	grant_verb(src, secbot_verbs_default)
+	src.verbs |= secbot_verbs_default
 
 	hud_list[ID_HUD]          = new /image/hud_overlay('icons/mob/huds/hud.dmi', src, "hudblank")
 	hud_list[WANTED_HUD]      = new /image/hud_overlay('icons/mob/huds/hud.dmi', src, "hudblank")
@@ -372,7 +372,7 @@
 	..()
 	if(isWelder(O) && !build_step)
 		var/obj/item/weldingtool/WT = O
-		if(!WT.use_tool(src, user, amount = 1))
+		if(!WT.use_tool(src, user, amount = 10))
 			return
 
 		build_step = 1
@@ -413,13 +413,6 @@
 		if(!in_range(src, usr) && loc != usr)
 			return
 		created_name = t
-
-/mob/living/bot/secbot/say_verb(message as text)
-	set name = "Say"
-	set category = "IC"
-	set hidden = 1
-
-	to_chat(usr,"<span class='danger'>An arbitrary speech module is not installed in the [src]!</span>")
 
 /mob/living/bot/secbot/say_verb_fake()
 	set name = "Say Verb"
@@ -469,6 +462,44 @@
 		process_sec_hud(src,1)
 	if(!client && prob(10))
 		to_chat(src, SPAN_NOTICE("...[pick(secbot_dreams)]..."))
+
+/mob/living/bot/secbot/Stat()
+	..()
+	if(statpanel("Status"))
+		stat(null,"-------------")
+		switch(emagged)
+			if(0)
+				stat(null,"Threat identifier status: Normal")
+			if(1)
+				stat(null,"Threat identifier status: Scrambled (DANGER)")
+			if(2)
+				stat(null,"Threat identifier status: ERROROROROROR-----")
+		if(idcheck)
+			stat(null,"Check for weapon authorization: Yes")
+		else
+			stat(null,"Check for weapon authorization: No")
+
+		if(check_records)
+			stat(null,"Check security records:: Yes")
+		else
+			stat(null,"Check security records:: No")
+
+		if(check_arrest)
+			stat(null,"Check arrest status: Yes")
+		else
+			stat(null,"Check arrest status: No")
+
+		if(declare_arrests)
+			stat(null,"Report arrests: Yes")
+		else
+			stat(null,"Report arrests: No")
+
+		if(will_patrol)
+			stat(null,"Auto patrol: On")
+		else
+			stat(null,"Auto patrol: Off")
+
+		stat(null,"-------------")
 
 //**///////////////////////////////////////////////////////////**//
 //**///////////////////////////BOOPSKY/////////////////////////**//

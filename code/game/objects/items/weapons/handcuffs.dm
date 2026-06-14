@@ -21,7 +21,7 @@
 	var/elastic
 	var/dispenser = 0
 	var/breakouttime = 1200 //Deciseconds = 120s = 2 minutes
-	var/cuff_sound = "handcuffs"
+	var/cuff_sound = 'sound/effects/handcuffs.ogg'
 	var/cuff_type = "handcuffs"
 
 	drop_sound = SFX_DROP_ACCESSORY
@@ -87,7 +87,7 @@
 
 	user.visible_message("<span class='danger'>\The [user] is attempting to put [cuff_type] on \the [H]!</span>")
 
-	if(!do_after(user,30, target))
+	if(!do_after(user,30, target, , luck_check_type = LUCK_CHECK_COMBAT))
 		return 0
 
 	if(!can_place(target, user)) // victim may have resisted out of the grab in the meantime
@@ -123,13 +123,13 @@ var/last_chew = 0
 	if(H.wear_mask) return
 	if(istype(H.wear_suit, /obj/item/clothing/suit/straight_jacket)) return
 
-	var/obj/item/organ/external/O = H.organs_by_name[(H.hand ? BP_L_HAND : BP_R_HAND)]
+	var/obj/item/organ/external/O = H.external_organs_by_name[(H.active_hand == ACTIVE_HAND_LEFT ? BP_L_HAND : BP_R_HAND)]
 	if (!O) return
 
 	H.visible_message("<span class='warning'>\The [H] chews on \his [O.name]!</span>", "<span class='warning'>You chew on your [O.name]!</span>")
 	admin_attacker_log(H, "chewed on their [O.name]!")
 
-	O.take_external_damage(3,0, DAM_SHARP|DAM_EDGE ,"teeth marks")
+	O.take_cut_damage(5, "teeth marks")
 
 	last_chew = world.time
 

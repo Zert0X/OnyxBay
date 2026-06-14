@@ -4,23 +4,16 @@
 	icon_state = "meat"
 	item_state = "meat"
 	health = 180
-	filling_color = "#ff1c1c"
+	filling_color = "#cd1c1c"
 	center_of_mass = "x=16;y=14"
-	startswith = list(/datum/reagent/nutriment/protein = 9)
-	bitesize = 3
+	startswith = list(/datum/reagent/nutriment/protein = 150)
+	bitesize = 30
 
 	drop_sound = SFX_DROP_FLESH
 	pickup_sound = SFX_PICKUP_FLESH
 
-/obj/item/reagent_containers/food/meat/attackby(obj/item/W, mob/user)
-	if(istype(W,/obj/item/material/knife))
-		new /obj/item/reagent_containers/food/rawcutlet(src)
-		new /obj/item/reagent_containers/food/rawcutlet(src)
-		new /obj/item/reagent_containers/food/rawcutlet(src)
-		to_chat(user, "You cut the meat into thin strips.")
-		qdel(src)
-	else
-		..()
+	slices_num = 3
+	slice_path = /obj/item/reagent_containers/food/cutlet/raw
 
 /obj/item/reagent_containers/food/meat/syntiflesh
 	name = "synthetic meat"
@@ -49,6 +42,16 @@
 	name = "chicken piece"
 	desc = "It tastes like you'd expect."
 
+/obj/item/reagent_containers/food/meat/bear
+	name = "bear meat"
+	desc = "A very manly slab of meat."
+	icon_state = "bearmeat"
+	filling_color = "#db0000"
+	center_of_mass = "x=16;y=10"
+	startswith = list(
+		/datum/reagent/nutriment/protein = 145,
+		/datum/reagent/hyperzine = 5)
+
 /obj/item/reagent_containers/food/meat/xeno
 	name = "xenomeat"
 	desc = "A slab of green meat. Smells like acid."
@@ -56,22 +59,13 @@
 	item_state = "xenomeat"
 	filling_color = "#43de18"
 	startswith = list(
-		/datum/reagent/nutriment/protein = 9,
-		/datum/reagent/acid/polyacid = 9)
-	bitesize = 6
+		/datum/reagent/nutriment/protein = 100,
+		/datum/reagent/acid/polyacid = 50)
 
 /obj/item/reagent_containers/food/meat/pork
 	name = "pork slab"
 	desc = "It tastes... Humane."
 	icon_state = "pork"
 
-/obj/item/reagent_containers/food/meat/pork/attackby(obj/item/W, mob/user)
-	if(istype(W,/obj/item/material/knife))
-		new /obj/item/reagent_containers/food/bacon(src)
-		new /obj/item/reagent_containers/food/bacon(src)
-		new /obj/item/reagent_containers/food/bacon(src)
-		to_chat(user, "You cut the meat into thin strips.")
-		qdel(src)
-		return
-	else
-		..()
+	slices_num = 3
+	slice_path = /obj/item/reagent_containers/food/bacon

@@ -78,7 +78,6 @@
 	icon_state = "r-casing"
 	spent_icon = "r-casing-spent"
 
-
 /obj/item/ammo_casing/c45
 	desc = "A .45 bullet casing."
 	caliber = ".45"
@@ -174,6 +173,14 @@
 	projectile_type = /obj/item/projectile/energy/flash/flare
 	matter = list(MATERIAL_STEEL = 90, MATERIAL_GLASS = 90)
 
+/obj/item/ammo_casing/shotgun/breaching
+	name = "breaching slug"
+	desc = "A 12 gauge breaching slug designed to destroy doors and other obstacles. Less effective against personnel."
+	icon_state = "brshell"
+	spent_icon = "brshell-spent"
+	projectile_type = /obj/item/projectile/bullet/shotgun/breaching
+	matter = list(MATERIAL_STEEL = 480)
+
 /obj/item/ammo_casing/a556
 	desc = "A 5.56mm bullet casing."
 	caliber = "a556"
@@ -232,6 +239,13 @@
 /obj/item/ammo_casing/c38/emp
 	name = ".38 haywire round"
 	desc = "A .38 bullet casing fitted with a single-use ion pulse generator."
+	icon_state = "empcasing"
+	projectile_type = /obj/item/projectile/ion/small
+	matter = list(MATERIAL_STEEL = 130, MATERIAL_URANIUM = 100)
+
+/obj/item/ammo_casing/c44/emp
+	name = ".44 haywire round"
+	desc = "A .44 bullet casing fitted with a single-use ion pulse generator."
 	icon_state = "empcasing"
 	projectile_type = /obj/item/projectile/ion/small
 	matter = list(MATERIAL_STEEL = 130, MATERIAL_URANIUM = 100)

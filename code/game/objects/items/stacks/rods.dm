@@ -48,7 +48,7 @@
 			return
 
 
-		if(!WT.use_tool(src, user, amount = 1))
+		if(!WT.use_tool(src, user, amount = 10))
 			return
 
 		var/obj/item/stack/material/steel/new_item = new(usr.loc)
@@ -58,7 +58,7 @@
 
 		var/obj/item/stack/rods/R = src
 		src = null
-		var/replace = (user.get_inactive_hand() == R)
+		var/replace = user.has_in_passive_hand(R)
 		R.use(2)
 		if(!R && replace)
 			user.pick_or_drop(new_item)
@@ -108,7 +108,7 @@
 			return
 		to_chat(usr, SPAN("notice", "Assembling a window frame..."))
 		in_use = TRUE
-		if(!do_after(usr, 1 SECOND))
+		if(!do_after(usr, 1 SECOND, luck_check_type = LUCK_CHECK_ENG))
 			in_use = FALSE
 			return
 		in_use = FALSE
@@ -140,7 +140,7 @@
 			return
 		to_chat(usr, SPAN("notice", "Assembling grille..."))
 		in_use = 1
-		if(!do_after(usr, 1 SECOND))
+		if(!do_after(usr, 1 SECOND, luck_check_type = LUCK_CHECK_ENG))
 			in_use = 0
 			return
 		var/obj/structure/grille/F = new /obj/structure/grille(user.loc)

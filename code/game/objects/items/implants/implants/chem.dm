@@ -16,7 +16,7 @@
 	<b>Function:</b> Contains a small capsule that can contain various chemicals. Upon receiving a specially encoded signal<BR>
 	the implant releases the chemicals directly into the blood stream.<BR>
 	<b>Special Features:</b>
-	<i>Micro-Capsule</i>- Can be loaded with any sort of chemical agent via the common syringe and can hold 50 units.<BR>
+	<i>Micro-Capsule</i>- Can be loaded with any sort of chemical agent via the common syringe and can hold 50 ml.<BR>
 	Can only be loaded while still in its original case.<BR>
 	<b>Integrity:</b> Implant will last so long as the subject is alive. However, if the subject suffers from malnutrition,<BR>
 	the implant may become unstable and either pre-maturely inject the subject or simply break."}
@@ -36,9 +36,9 @@
 		if(reagents.total_volume >= reagents.maximum_volume)
 			to_chat(user, "<span class='warning'>\The [src] is full.</span>")
 		else
-			if(do_after(user,5,src))
+			if(do_after(user,5,src, luck_check_type = LUCK_CHECK_COMBAT))
 				I.reagents.trans_to_obj(src, 5)
-				to_chat(user, "<span class='notice'>You inject 5 units of the solution. The syringe now contains [I.reagents.total_volume] units.</span>")
+				to_chat(user, "<span class='notice'>You inject 5 ml of the solution. The syringe now contains [I.reagents.total_volume] ml.</span>")
 	else
 		..()
 

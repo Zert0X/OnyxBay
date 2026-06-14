@@ -1,6 +1,6 @@
 /obj/item/gun/launcher/grenade
-	name = "grenade launcher"
-	desc = "A bulky pump-action grenade launcher. Holds up to 6 grenades in a revolving magazine."
+	name = "grenade slingshot"
+	desc = "A bulky pump-action grenade slingshot. Holds up to 6 grenades in a revolving magazine."
 	icon_state = "riotgun"
 	item_state = "riotgun"
 	origin_tech = list(TECH_COMBAT = 2, TECH_MATERIAL = 3)
@@ -10,11 +10,11 @@
 	mod_reach = 0.8
 	mod_handy = 1.0
 
-	fire_sound = 'sound/weapons/empty.ogg'
+	fire_sound = SFX_GRENADE_LAUNCHER
 	fire_sound_text = "a metallic thunk"
 	screen_shake = 0
 	throw_distance = 7
-	release_force = 5
+	release_force = 2
 	combustion = 1
 
 	var/obj/item/grenade/chambered
@@ -86,7 +86,7 @@
 		..()
 
 /obj/item/gun/launcher/grenade/attack_hand(mob/user)
-	if(user.get_inactive_hand() == src)
+	if(user.has_in_passive_hand(src))
 		unload(user)
 	else
 		..()

@@ -9,9 +9,9 @@
 	siemens_coefficient = 0.5
 	species_restricted = null
 
-	armor = list(melee = 70, bullet = 40, laser = 40, energy = 35, bomb = 20, bio = 60)
+	armor_values = alist(melee = 70, bullet = 40, laser = 40, energy = 35, bomb = 20, bio = 60)
 
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "b_shoes",
 		slot_r_hand_str = "b_shoes",
 		)
@@ -20,7 +20,7 @@
 	name = "mime shoes"
 	icon_state = "mime"
 
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "w_shoes",
 		slot_r_hand_str = "w_shoes",
 		)
@@ -30,12 +30,13 @@
 	desc = "When you want to turn up the heat."
 	icon_state = "swat"
 	force = 3
-	armor = list(melee = 100, bullet = 90, laser = 80, energy = 25, bomb = 50, bio = 30)
+	armor_values = alist(melee = 100, bullet = 90, laser = 80, energy = 25, bomb = 50, bio = 30)
 	item_flags = ITEM_FLAG_NOSLIP
 	siemens_coefficient = 0.4
+	species_restricted = null
 	can_hold_knife = 1
 
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "jackboots",
 		slot_r_hand_str = "jackboots",
 		)
@@ -45,9 +46,10 @@
 	desc = "When you REALLY want to turn up the heat."
 	icon_state = "swat"
 	force = 5
-	armor = list(melee = 100, bullet = 90, laser = 80, energy = 25, bomb = 50, bio = 30)
+	armor_values = alist(melee = 100, bullet = 90, laser = 80, energy = 25, bomb = 50, bio = 30)
 	item_flags = ITEM_FLAG_NOSLIP
 	siemens_coefficient = 0.1
+	species_restricted = null
 	can_hold_knife = 1
 
 	cold_protection = FEET
@@ -55,7 +57,7 @@
 	heat_protection = FEET
 	max_heat_protection_temperature = SHOE_MAX_HEAT_PROTECTION_TEMPERATURE
 
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "jackboots",
 		slot_r_hand_str = "jackboots",
 		)
@@ -77,9 +79,9 @@
 
 	wizard_garb = 1
 
-	armor = list(melee = 10, bullet = 10, laser = 10, energy = 5, bomb = 10, bio = 3)
+	armor_values = alist(melee = 10, bullet = 10, laser = 10, energy = 5, bomb = 10, bio = 3)
 
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "wizshoe",
 		slot_r_hand_str = "wizshoe",
 		)
@@ -91,7 +93,7 @@
 	body_parts_covered = FEET
 	coverage = 1.0
 
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "bl_shoes",
 		slot_r_hand_str = "bl_shoes",
 		)
@@ -140,16 +142,12 @@
 	species_restricted = null
 	siemens_coefficient = 0.5 // these things are kinda rubberish, aint they?
 
-	armor = list(melee = 35, bullet = 35, laser = 35, energy = 15, bomb = 25, bio = 30)
+	armor_values = alist(melee = 35, bullet = 35, laser = 35, energy = 15, bomb = 25, bio = 30)
 
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "clown_shoes",
 		slot_r_hand_str = "clown_shoes",
 		)
-
-/obj/item/clothing/shoes/clown_shoes/New()
-	..()
-	slowdown_per_slot[slot_shoes]  = 0
 
 /obj/item/clothing/shoes/clown_shoes/handle_movement(turf/walking, running)
 	if(running)
@@ -161,6 +159,20 @@
 	else
 		playsound(src, SFX_CLOWN, 20, 1)
 
+/obj/item/clothing/shoes/clown_shoes/traitorshoes
+	desc = "The prankster's standard-issue clowning shoes. Damn they're huge! Also, it seems like they have extra hole for something."
+	var/can_wet_floor = TRUE
+
+/obj/item/clothing/shoes/clown_shoes/traitorshoes/handle_movement(turf/walking, running)
+	..()
+	if(can_wet_floor)
+		can_wet_floor = FALSE
+		spawn(1) // Small delay to prevent slipping on the tile you just walked on.
+			var/turf/simulated/loc = get_turf(usr)
+			loc.wet_floor(2) // Lubbing floor for unlucky officers to slip on.
+		spawn(51) // So at max there will be 4 lubbed tiles.
+			can_wet_floor = TRUE
+
 /obj/item/clothing/shoes/cult
 	name = "boots"
 	desc = "A pair of boots worn by the followers of Nar-Sie."
@@ -168,7 +180,7 @@
 	force = 2
 	siemens_coefficient = 0.5
 
-	armor = list(melee = 90, bullet = 80, laser = 60, energy = 35, bomb = 20, bio = 40)
+	armor_values = alist(melee = 90, bullet = 80, laser = 60, energy = 35, bomb = 20, bio = 40)
 
 	cold_protection = FEET
 	min_cold_protection_temperature = SHOE_MIN_COLD_PROTECTION_TEMPERATURE
@@ -212,7 +224,7 @@
 
 /obj/item/clothing/shoes/swimmingfins/New()
 	..()
-	slowdown_per_slot[slot_shoes] = 1
+	A_LAZYSET(slowdown_per_slot, slot_shoes, 1)
 
 /obj/item/clothing/shoes/cheapboots
 	name = "budget jackboots"
@@ -220,6 +232,7 @@
 	icon_state = "jackboots"
 	item_state_slots = null
 	can_hold_knife = 1
+	trimmed_variant = /obj/item/clothing/shoes/cheapboots/toeless
 	cold_protection = FEET
 	min_cold_protection_temperature = HELMET_MIN_COLD_PROTECTION_TEMPERATURE
 	cold_protection = FEET
@@ -227,12 +240,27 @@
 	heat_protection = FEET
 	max_heat_protection_temperature = SHOE_MAX_HEAT_PROTECTION_TEMPERATURE
 
+/obj/item/clothing/shoes/cheapboots/toeless
+	name = "toeless budget jackboots"
+	desc = "Tall cheap-ass leatherlike boots with a hint of artificial shine.<br>This pair had their toes trimmed off to accomodate for species whose toes hold claws."
+	item_state = "digiboots"
+	species_restricted = null
+	coverage = 0.8
+
 /obj/item/clothing/shoes/cheapboots/work
 	name = "workboots"
 	icon_state = "workbootscheap"
 	desc = "A pair of sham work boots. These have never been designed for use in industrial settings."
+	trimmed_variant = /obj/item/clothing/shoes/cheapboots/work/toeless
 
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "jackboots",
 		slot_r_hand_str = "jackboots",
 		)
+
+/obj/item/clothing/shoes/cheapboots/work/toeless
+	name = "toeless workboots"
+	desc = "A pair of sham work boots. These have never been designed for use in industrial settings.<br>They had their toes trimmed off to accomodate for species whose toes hold claws."
+	icon_state = "workbootscheaptoeless"
+	species_restricted = null
+	coverage = 0.8

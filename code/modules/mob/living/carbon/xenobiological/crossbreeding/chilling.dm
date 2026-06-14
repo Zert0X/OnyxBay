@@ -11,13 +11,13 @@ Chilling extracts:
 
 /obj/item/metroidcross/chilling/Initialize(mapload)
 	. = ..()
-	create_reagents(10)
+	create_reagents(100)
 
 /obj/item/metroidcross/chilling/attack_self(mob/user)
-	if(!reagents.has_reagent(/datum/reagent/toxin/plasma,10))
+	if(!reagents.has_reagent(/datum/reagent/toxin/plasma, 100))
 		to_chat(user, SPAN_WARNING("This extract needs to be full of plasma to activate!"))
 		return
-	reagents.remove_reagent(/datum/reagent/toxin/plasma,10)
+	reagents.remove_reagent(/datum/reagent/toxin/plasma, 100)
 	to_chat(user, SPAN_NOTICE("You squeeze the extract, and it absorbs the plasma!"))
 	playsound(src, 'sound/effects/bubbles.ogg', 50, TRUE)
 	playsound(src, 'sound/effects/glass_step.ogg', 50, TRUE)
@@ -251,7 +251,7 @@ Chilling extracts:
 		user.visible_message(SPAN_DANGER("[src] chills and snaps off the front of the bone on [user]'s arm, leaving behind a strange, gun-like structure!"))
 		gun.think()
 	user.emote("scream")
-	L.apply_damage(30,BURN, L.hand ? BP_L_HAND : BP_R_HAND)
+	L.apply_damage(30,BURN, (L.active_hand == ACTIVE_HAND_LEFT) ? BP_L_HAND : BP_R_HAND)
 	..()
 
 /obj/item/metroidcross/chilling/pink

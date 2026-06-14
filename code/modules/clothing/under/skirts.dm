@@ -2,7 +2,7 @@
 	name = "black skirt"
 	desc = "A black skirt, very fancy!"
 	icon_state = "blackskirt"
-	item_state = "bl_suit"
+	item_state = "blackskirt"
 	worn_state = "blackskirt"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
 	rolled_sleeves = -1
@@ -12,20 +12,21 @@
 	name = "blue plaid skirt"
 	desc = "A preppy blue skirt with a white blouse."
 	icon_state = "plaid_blue"
+	item_state = "plaid_blue"
 	worn_state = "plaid_blue"
 
 /obj/item/clothing/under/skirt/plaid_red
 	name = "red plaid skirt"
 	desc = "A preppy red skirt with a white blouse."
 	icon_state = "plaid_red"
-	item_state = "kilt"
+	item_state = "plaid_red"
 	worn_state = "plaid_red"
 
 /obj/item/clothing/under/skirt/plaid_purple
 	name = "blue purple skirt"
 	desc = "A preppy purple skirt with a white blouse."
 	icon_state = "plaid_purple"
-	item_state = "kilt"
+	item_state = "plaid_purple"
 	worn_state = "plaid_purple"
 
 // discreet skirts, dont cover upper/arms etc
@@ -100,6 +101,7 @@
 	name = "short dress"
 	desc = "A short plain sleeveless dress."
 	icon_state = "shortdress"
+	item_state = "shortdress"
 	worn_state = "shortdress"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO
 	coverage = 0.9
@@ -108,6 +110,7 @@
 	name = "maxi dress"
 	desc = "A sleeveless dress that reaches the wearer's ankles."
 	icon_state = "longdress"
+	item_state = "longdress"
 	worn_state = "longdress"
 	flags_inv = HIDESHOES
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET
@@ -117,6 +120,7 @@
 	name = "silk gown"
 	desc = "A long silky sleeveless gown with a flared hem."
 	icon_state = "gowndress"
+	item_state = "gowndress"
 	worn_state = "gowndress"
 
 // some preset dresses for uniform vendors

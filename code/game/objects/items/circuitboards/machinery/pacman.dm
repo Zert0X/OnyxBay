@@ -4,6 +4,7 @@
 
 /obj/item/circuitboard/pacman
 	name = T_BOARD("PACMAN-type generator")
+	icon_state = "id_mod_orange"
 	build_path = /obj/machinery/power/port_gen/pacman
 	board_type = "machine"
 	origin_tech = list(TECH_DATA = 3, TECH_POWER = 3, TECH_PLASMA = 3, TECH_ENGINEERING = 3)

@@ -87,7 +87,8 @@
 				qdel(src)
 
 
-/obj/machinery/shield/hitby(atom/movable/AM) // Okay this stuff is belly-deep in legacy stuff, let's rework it later
+/obj/machinery/shield/hitby(atom/movable/AM, datum/thrownthing/TT) // Okay this stuff is belly-deep in legacy stuff, let's rework it later
+	..()
 	//Let everyone know we've been hit!
 	visible_message("<span class='notice'><B>\[src] was hit by [AM].</B></span>")
 
@@ -109,8 +110,6 @@
 	set_opacity(1)
 	spawn(20) if(!QDELETED(src)) set_opacity(0)
 
-	..()
-	return
 /obj/machinery/shieldgen
 	name = "Emergency shield projector"
 	desc = "Used to seal minor hull breaches."
@@ -308,10 +307,10 @@
 			anchored = 1
 
 
-	else if(istype(W, /obj/item/card/id) || istype(W, /obj/item/device/pda))
-		if(src.allowed(user))
-			src.locked = !src.locked
-			to_chat(user, "The controls are now [src.locked ? "locked." : "unlocked."]")
+	else if(W?.get_id_card())
+		if(check_access(W))
+			locked = !locked
+			to_chat(user, "The controls are now [locked ? "locked" : "unlocked"].")
 		else
 			to_chat(user, "<span class='warning'>Access denied.</span>")
 	else

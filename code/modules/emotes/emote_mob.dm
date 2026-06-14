@@ -1,6 +1,6 @@
 /mob
 	var/list/default_emotes
-	var/list/current_emotes
+	var/alist/current_emotes
 
 	var/list/next_emote_use
 	var/list/next_audio_emote_produce
@@ -18,7 +18,7 @@
 		var/datum/emote/E = GLOB.all_emotes[path]
 		set_emote(E.key, E)
 		if(!isnull(E.statpanel_proc))
-			grant_verb(src, E.statpanel_proc)
+			verbs |= E.statpanel_proc
 
 	default_emotes = null
 
@@ -32,16 +32,16 @@
 	for(var/datum/emote/E in GLOB.all_emotes)
 		clear_emote(E.key)
 		if(!isnull(E.statpanel_proc))
-			revoke_verb(src, E.statpanel_proc)
+			verbs -= E.statpanel_proc
 
 /mob/proc/get_emote(key)
-	return LAZYACCESS(current_emotes, key)
+	return A_LAZYACCESS(current_emotes, key)
 
 /mob/proc/set_emote(key, datum/emote/emote)
-	LAZYSET(current_emotes, key, emote)
+	A_LAZYSET(current_emotes, key, emote)
 
 /mob/proc/clear_emote(key)
-	LAZYREMOVE(current_emotes, key)
+	A_LAZYREMOVE(current_emotes, key)
 
 /mob/proc/emote(act, intentional = FALSE, target)
 	var/splitpoint = findtext_char(act, " ")
@@ -66,7 +66,7 @@
 		var/datum/emote/E = GLOB.all_emotes[path]
 		set_emote(E.key, E)
 		if(!isnull(E.statpanel_proc))
-			grant_verb(src, E.statpanel_proc)
+			verbs |= E.statpanel_proc
 
 /// A simple emote - just the message, and it's type. For anything more complex use datumized emotes.
 /mob/proc/custom_emote(message_type = VISIBLE_MESSAGE, message, intentional = FALSE)

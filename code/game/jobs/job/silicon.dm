@@ -13,7 +13,7 @@
 	outfit_type = /decl/hierarchy/outfit/job/silicon/ai
 	loadout_allowed = FALSE
 	hud_icon = "hudblank"
-	preview_override = list("Default", 'icons/mob/hologram.dmi')
+	preview_override = list("Default", 'icons/mob/silicon/hologram.dmi')
 
 /datum/job/ai/set_positions()
 	. = ..()
@@ -41,7 +41,7 @@
 	loadout_allowed = FALSE
 	outfit_type = /decl/hierarchy/outfit/job/silicon/cyborg
 	hud_icon = "hudblank"
-	preview_override = list("robot_preview", 'icons/mob/robots.dmi')
+	preview_override = list("robot_preview", 'icons/mob/silicon/robot.dmi')
 
 /datum/job/cyborg/equip(mob/living/carbon/human/H)
 	if(!H)	return 0

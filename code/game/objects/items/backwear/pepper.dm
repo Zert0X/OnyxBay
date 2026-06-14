@@ -9,7 +9,7 @@
 	gear_detachable = FALSE
 	gear = /obj/item/reagent_containers/spray/chemsprayer/crowdbuster
 	atom_flags = null
-	initial_capacity = 300
+	initial_capacity = 2.0 LITERS
 	initial_reagent_types = list(/datum/reagent/capsaicin/condensed = 1)
 	origin_tech = list(TECH_ENGINEERING = 2)
 	matter = list(MATERIAL_STEEL = 1500, MATERIAL_GLASS = 500)
@@ -26,7 +26,7 @@
 			to_chat(user, SPAN("notice", "\The [src] is already full."))
 			return
 		O.reagents.trans_to_obj(src, amount)
-		to_chat(user, SPAN("notice", "You crack the cap off the top of your [src] and fill it with [amount] units of the contents of \the [O]."))
+		to_chat(user, SPAN("notice", "You crack the cap off the top of your [src] and fill it with [amount] ml of the contents of \the [O]."))
 		playsound(src.loc, 'sound/effects/refill.ogg', 50, 1, -6)
 		return
 
@@ -47,7 +47,7 @@
 	item_state = "crowdbuster"
 	possible_transfer_amounts = null
 	volume = 0
-	amount_per_transfer_from_this = 10
+	amount_per_transfer_from_this = 0.1 LITER
 	step_delay = 1
 	atom_flags = null
 	slot_flags = null

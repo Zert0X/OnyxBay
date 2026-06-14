@@ -50,13 +50,18 @@
 
 		//TODO make this less terrible
 		if (!( user.restrained() ) && !( user.stat ))
-			switch(over_object.name)
-				if(BP_R_HAND)
+			var/atom/movable/screen/inventory/inv_box = over_object
+			if(!istype(inv_box))
+				return 0
+
+			switch(inv_box.slot_id)
+				if(slot_r_hand)
 					if(user.drop(master_item, changing_slots = TRUE))
 						user.put_in_r_hand(master_item)
-				if(BP_L_HAND)
+				if(slot_l_hand)
 					if(user.drop(master_item, changing_slots = TRUE))
 						user.put_in_l_hand(master_item)
+
 			master_item.add_fingerprint(user)
 			return 0
 	return 0
@@ -68,11 +73,11 @@
 
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
-		if(H.l_store == master_item && !H.get_active_hand())	//Prevents opening if it's in a pocket.
+		if(H.l_store == master_item && (!H.get_active_hand() || !H.get_inactive_hand()))	//Prevents opening if it's in a pocket.
 			if(H.put_in_hands(master_item))
 				H.l_store = null
 			return 0
-		if(H.r_store == master_item && !H.get_active_hand())
+		if(H.r_store == master_item && (!H.get_active_hand() || !H.get_inactive_hand()))
 			if(H.put_in_hands(master_item))
 				H.r_store = null
 			return 0

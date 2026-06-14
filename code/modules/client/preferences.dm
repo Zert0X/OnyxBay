@@ -53,6 +53,7 @@
 	..()
 
 /datum/preferences/Destroy()
+	QDEL_NULL(character_setup_ui)
 	QDEL_NULL_LIST(char_render_holders)
 	return ..()
 
@@ -61,6 +62,7 @@
 	gender = pick(MALE, FEMALE)
 	real_name = random_name(gender,species)
 	b_type = RANDOM_BLOOD_TYPE
+	key_bindings = deepCopyList(GLOB.hotkey_keybinding_list_by_key)
 
 	if(client)
 		if(IsGuestKey(client.key))
@@ -155,28 +157,18 @@
 
 	return dat
 
+/datum/preferences
+	var/datum/character_setup/character_setup_ui
+
 /datum/preferences/proc/open_setup_window(mob/user)
 	if(!SScharacter_setup.initialized || SSatoms.init_state < INITIALIZATION_INNEW_REGULAR)
 		to_chat(user, SPAN("notice", "Please, wait for the game to initialize!"))
 		return
 
-	if(!char_render_holders)
-		update_preview_icon()
-	show_character_previews()
-
-	winshow(user, "preferences_window", TRUE)
-	var/datum/browser/popup = new(user, "preferences_browser","Character Setup", 1000, 1000, src)
-	var/content = {"
-	<script type='text/javascript'>
-		function update_content(data){
-			document.getElementById('content').innerHTML = data;
-		}
-	</script>
-	<div id='content'>[get_content(user)]</div>
-	"}
-	popup.set_content(content)
-	popup.open(FALSE)
-	onclose(user, "preferences_window", src)
+	// Open the TGUI character setup window
+	if(!character_setup_ui)
+		character_setup_ui = new /datum/character_setup(src)
+	character_setup_ui.tgui_interact(user)
 
 	SSwarnings.show_warning(user.client, WARNINGS_NEWCOMERS, "window=Warning;size=360x240;can_resize=0;can_minimize=0")
 
@@ -335,7 +327,7 @@
 
 	// Replace any missing limbs.
 	for(var/name in BP_ALL_LIMBS)
-		var/obj/item/organ/external/O = character.organs_by_name[name]
+		var/obj/item/organ/external/O = character.external_organs_by_name[name]
 		if(!O && organ_data[name] != "amputated")
 			var/list/organ_data = character.species.has_limbs[name]
 			if(!islist(organ_data)) continue
@@ -345,18 +337,18 @@
 	// Destroy/cyborgize organs and limbs. The order is important for preserving low-level choices for robolimb sprites being overridden.
 	for(var/name in BP_BY_DEPTH)
 		var/status = organ_data[name]
-		var/obj/item/organ/external/O = character.organs_by_name[name]
+		var/obj/item/organ/external/O = character.external_organs_by_name[name]
 		if(!O)
 			continue
 		O.status = 0
 		O.model = null
 		if(status == "amputated")
-			character.organs_by_name.Remove(O.organ_tag)
-			character.organs -= O
+			character.external_organs_by_name -= O.organ_tag
+			character.external_organs -= O
 			if(O.children) // This might need to become recursive.
 				for(var/obj/item/organ/external/child in O.children)
-					character.organs_by_name.Remove(child.organ_tag)
-					character.organs -= child
+					character.external_organs_by_name -= child.organ_tag
+					character.external_organs -= child
 		else if(status == "cyborg")
 			if(rlimb_data[name])
 				O.robotize(rlimb_data[name])
@@ -369,7 +361,7 @@
 	//For species that don't care about your silly prefs
 	character.species.handle_limbs_setup(character)
 	if(!is_preview_copy)
-		for(var/name in list(BP_HEART,BP_EYES,BP_BRAIN,BP_LUNGS,BP_LIVER,BP_KIDNEYS,BP_STOMACH))
+		for(var/name in list(BP_HEART, BP_EYES, BP_BRAIN, BP_LUNGS, BP_LIVER, BP_KIDNEYS, BP_STOMACH, BP_TONGUE, BP_BLADDER, BP_INTESTINES))
 			var/status = organ_data[name]
 			if(!status)
 				continue
@@ -379,6 +371,20 @@
 					I.mechassist()
 				else if(status == "mechanical")
 					I.robotize()
+
+	for(var/tag in BP_ALL_LIMBS + BP_INTERNAL_ORGANS)
+		if(!LAZYLEN(organ_modules[tag]))
+			continue
+
+		var/obj/item/organ/O
+		if(tag in BP_ALL_LIMBS)
+			O = character.external_organs_by_name[tag]
+		else
+			O = character.internal_organs_by_name[tag]
+
+		for(var/path in organ_modules[tag])
+			var/obj/item/organ_module/module = new path(O)
+			module.install(O)
 
 	QDEL_NULL_LIST(character.worn_underwear)
 	character.worn_underwear = list()
@@ -391,14 +397,14 @@
 			var/metadata = all_underwear_metadata[underwear_category_name]
 			var/obj/item/underwear/UW = UWD.create_underwear(metadata)
 			if(UW)
-				UW.ForceEquipUnderwear(character, null, FALSE)
+				UW.ForceEquipUnderwear(character, FALSE)
 		else
 			all_underwear -= underwear_category_name
 
 	character.backpack_setup = new(backpack, backpack_metadata["[backpack]"])
 
-	for(var/N in character.organs_by_name)
-		var/obj/item/organ/external/O = character.organs_by_name[N]
+	for(var/N in character.external_organs_by_name)
+		var/obj/item/organ/external/O = character.external_organs_by_name[N]
 		O.markings.Cut()
 
 	for(var/M in body_markings)
@@ -406,7 +412,7 @@
 		var/mark_color = "[body_markings[M]]"
 
 		for(var/BP in mark_datum.body_parts)
-			var/obj/item/organ/external/O = character.organs_by_name[BP]
+			var/obj/item/organ/external/O = character.external_organs_by_name[BP]
 			if(O)
 				O.markings[mark_datum] = mark_color
 
@@ -444,6 +450,7 @@
 
 	if(!character.isSynthetic())
 		character.set_nutrition(rand(140, 360) * character.body_build.stomach_capacity)
+		character.set_hydration(rand(HYDRATION_LOW, HYDRATION_HIGH))
 
 	return
 

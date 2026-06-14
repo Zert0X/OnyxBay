@@ -3,16 +3,17 @@
 	name = "void helmet"
 	desc = "A high-tech dark red space suit helmet. Used for AI satellite maintenance."
 	icon_state = "void"
+	item_state = "void"
 
 	heat_protection = HEAD
-	armor = list(melee = 40, bullet = 20, laser = 35,energy = 15, bomb = 35, bio = 100)
+	armor_values = alist(melee = 40, bullet = 20, laser = 35,energy = 15, bomb = 35, bio = 100)
 	max_heat_protection_temperature = SPACE_SUIT_MAX_HEAT_PROTECTION_TEMPERATURE
 	siemens_coefficient = 0.4
 
 	//Species-specific stuff.
 	species_restricted = list(SPECIES_HUMAN)
 
-	sprite_sheets_obj = list(
+	sprite_sheets_obj = alist(
 		SPECIES_UNATHI = 'icons/obj/clothing/species/unathi/hats.dmi',
 		SPECIES_TAJARA = 'icons/obj/clothing/species/tajaran/hats.dmi',
 		SPECIES_SKRELL = 'icons/obj/clothing/species/skrell/hats.dmi'
@@ -23,11 +24,11 @@
 
 /obj/item/clothing/suit/space/void
 	name = "voidsuit"
-	icon_state = "void"
-	//item_state = "syndie_hardsuit"
+	icon_state = "voidsuit"
+	item_state = "voidsuit"
 	w_class = ITEM_SIZE_HUGE//bulky item
 	desc = "A high-tech dark red space suit. Used for AI satellite maintenance."
-	armor = list(melee = 40, bullet = 20, laser = 35,energy = 15, bomb = 35, bio = 100)
+	armor_values = alist(melee = 40, bullet = 20, laser = 35,energy = 15, bomb = 35, bio = 100)
 	allowed = list(/obj/item/device/flashlight,/obj/item/tank,/obj/item/device/suit_cooling_unit)
 	heat_protection = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
 	max_heat_protection_temperature = SPACE_SUIT_MAX_HEAT_PROTECTION_TEMPERATURE
@@ -35,7 +36,7 @@
 
 	species_restricted = list(SPECIES_HUMAN, SPECIES_SKRELL)
 
-	sprite_sheets_obj = list(
+	sprite_sheets_obj = alist(
 		SPECIES_UNATHI = 'icons/obj/clothing/species/unathi/suits.dmi',
 		SPECIES_TAJARA = 'icons/obj/clothing/species/tajaran/suits.dmi',
 		SPECIES_SKRELL = 'icons/obj/clothing/species/skrell/suits.dmi'
@@ -84,7 +85,7 @@ else if(##equipment_var) {\
 
 /obj/item/clothing/suit/space/void/New()
 	..()
-	slowdown_per_slot[slot_wear_suit] = 1
+	A_LAZYSET(slowdown_per_slot, slot_wear_suit, 1)
 
 /obj/item/clothing/suit/space/void/examine(mob/user, infix)
 	. = ..()
@@ -124,6 +125,7 @@ else if(##equipment_var) {\
 			to_chat(M, "You are unable to deploy your suit's helmet as \the [H.head] is in the way.")
 		else if (H.equip_to_slot_if_possible(helmet, slot_head))
 			to_chat(M, "Your suit's helmet deploys with a hiss.")
+			playsound(loc, 'sound/effects/using/outfit/helmet_voidsuit.ogg', 75, 1)
 			helmet.canremove = 0
 
 	if(tank)
@@ -188,6 +190,7 @@ else if(##equipment_var) {\
 		if(H.equip_to_slot_if_possible(helmet, slot_head))
 			helmet.pickup(H)
 			helmet.canremove = FALSE
+			playsound(loc, 'sound/effects/using/outfit/helmet_voidsuit.ogg', 75, 1)
 			to_chat(H, "<span class='info'>You deploy your suit helmet, sealing you off from the world.</span>")
 	helmet.update_light(H)
 

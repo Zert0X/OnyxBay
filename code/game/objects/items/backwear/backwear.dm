@@ -116,17 +116,6 @@
 	else
 		..()
 
-/obj/item/backwear/MouseDrop()
-	if(ismob(loc))
-		if(!CanMouseDrop(src))
-			return
-		var/mob/M = loc
-		if(!M.drop(src))
-			return
-		add_fingerprint(usr)
-		M.pick_or_drop(src)
-
-
 ///// These use power cells to function
 /obj/item/backwear/powered
 	var/obj/item/cell/bcell = null
@@ -180,7 +169,7 @@
 ///// These contain reagents
 /obj/item/backwear/reagent
 	atom_flags = ATOM_FLAG_OPEN_CONTAINER
-	var/initial_capacity = 500
+	var/initial_capacity = 5 LITERS
 	var/initial_reagent_types  // A list of reagents and their ratio relative the initial capacity. list(/datum/reagent/water = 0.5) would fill the dispenser halfway to capacity.
 	var/amount_per_transfer_from_this = 10
 	var/possible_transfer_amounts = "5;10;25;50;100"
@@ -203,7 +192,7 @@
 	. += "<span class='notice'>It contains:</span>"
 	if(reagents.reagent_list.len) // OOP be cool
 		for(var/datum/reagent/R in reagents.reagent_list)
-			. += "<span class='notice'>[R.volume] units of [R.name]</span>"
+			. += "<span class='notice'>[R.volume] ml of [R.name]</span>"
 	else
 		. += "<span class='notice'>Nothing.</span>"
 
@@ -236,5 +225,5 @@
 
 	var/trans = target.reagents.trans_to_obj(src, target.amount_per_transfer_from_this)
 	playsound(target, 'sound/effects/using/sink/fast_filling1.ogg', 75, TRUE)
-	to_chat(user, SPAN("notice", "You fill [src] with [trans] units of the contents of [target]."))
+	to_chat(user, SPAN("notice", "You fill [src] with [trans] ml of the contents of [target]."))
 	return 1

@@ -32,6 +32,7 @@
 	light_inner_range_on = 0.5
 	light_outer_range_on = 1.5
 	density = 0
+	turf_height_offset = 0
 
 /obj/effect/shuttle_landmark/lift/top
 	name = "Top Deck"
@@ -60,16 +61,16 @@
 	req_access = list(access_engine)
 
 /turf/simulated/floor/usedup
-	initial_gas = list("oxygen" = MOLES_O2STANDARD, "nitrogen" = MOLES_N2STANDARD)
+	initial_gas = /decl/initial_gas_mix/air
 
 /turf/simulated/floor/wood/usedup
-	initial_gas = list("oxygen" = MOLES_O2STANDARD, "nitrogen" = MOLES_N2STANDARD)
+	initial_gas = /decl/initial_gas_mix/air
 
 /turf/simulated/floor/tiled/usedup
-	initial_gas = list("oxygen" = MOLES_O2STANDARD, "nitrogen" = MOLES_N2STANDARD)
+	initial_gas = /decl/initial_gas_mix/air
 
 /turf/simulated/floor/tiled/dark/usedup
-	initial_gas = list("oxygen" = MOLES_O2STANDARD, "nitrogen" = MOLES_N2STANDARD)
+	initial_gas = /decl/initial_gas_mix/air
 
 /turf/simulated/floor/tiled/white/usedup
-	initial_gas = list("oxygen" = MOLES_O2STANDARD, "nitrogen" = MOLES_N2STANDARD)
+	initial_gas = /decl/initial_gas_mix/air

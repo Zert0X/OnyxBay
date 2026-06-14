@@ -7,9 +7,16 @@
 	taste_description = "pure alcohol"
 	reagent_state = LIQUID
 	color = "#404030"
+
+	metabolism = 1.0
+	ingest_met = 0.75
+	digest_met = 3.5
+	ingest_absorbability = 0.5
+	digest_absorbability = 0.0 // Works directly from the guts, and only poisons one if injected.
 	touch_met = 5
+
 	var/nutriment_factor = 0
-	var/strength = 10 // This is, essentially, units between stages - the lower, the stronger. Less fine tuning, more clarity.
+	var/strength = 10 // This is, essentially, ml between stages - the lower, the stronger. Less fine tuning, more clarity.
 	var/toxicity = 1
 
 	var/druggy = 0
@@ -22,22 +29,26 @@
 
 /datum/reagent/ethanol/touch_mob(mob/living/L, amount)
 	if(istype(L))
-		L.adjust_fire_stacks(amount / 15)
+		if(strength >= 30) // So that things like beer and wine extinguish you instead of making you burn brighter.
+			L.adjust_fire_stacks(-1 * ceil(amount / 10)) // The same as water, let's not make things overcomplicated.
+		else
+			L.adjust_fire_stacks(ceil(amount / strength)) // Thus, pure ethanol has a half of welding fuel's flammability, further decreasing as the drink gets softer.
 
 /datum/reagent/ethanol/affect_blood(mob/living/carbon/M, alien, removed)
 	M.adjustToxLoss(removed * 2 * toxicity)
 	return
 
-/datum/reagent/ethanol/affect_ingest(mob/living/carbon/M, alien, removed)
+/datum/reagent/ethanol/affect_digest(mob/living/carbon/M, alien, removed)
+	..()
 	M.add_nutrition(nutriment_factor * removed)
-	var/strength_mod = 1
+	var/strength_mod = 0.2
 	if(alien == IS_SKRELL)
-		strength_mod *= 5
+		strength_mod *= 1.0
 	if(alien == IS_DIONA)
 		strength_mod = 0
 
 	M.add_chemical_effect(CE_ALCOHOL, 1)
-	var/effective_dose = M.chem_traces[type] * strength_mod * (1 + volume/60) //drinking a LOT will make you go down faster
+	var/effective_dose = M.chem_traces[type] * strength_mod * (1 + volume / 500) //drinking a LOT will make you go down faster
 
 	if(effective_dose >= strength) // Early warning
 		M.make_dizzy(6) // It is decreased at the speed of 3 per tick
@@ -60,7 +71,7 @@
 		M.Sleeping(30)
 
 	if(druggy != 0)
-		M.druggy = max(M.druggy, druggy)
+		M.make_drugged(druggy)
 
 	if(adj_temp > 0 && M.bodytemperature < targ_temp) // 310 is the normal bodytemp. 310.055
 		M.bodytemperature = min(targ_temp, M.bodytemperature + (adj_temp * TEMPERATURE_DAMAGE_COEFFICIENT))
@@ -95,6 +106,7 @@
 	taste_mult = 1.5
 	color = "#33ee00"
 	strength = 12
+	hydration_value = 0.3
 
 	glass_name = "absinthe"
 	glass_desc = "Wormwood, anise, oh my."
@@ -105,6 +117,8 @@
 	taste_description = "hearty barley ale"
 	color = "#4c3100"
 	strength = 50
+	nutriment_factor = 0.5
+	hydration_value = 0.9
 
 	glass_name = "ale"
 	glass_desc = "A freezing pint of delicious ale"
@@ -115,13 +129,17 @@
 	taste_description = "piss water"
 	color = "#ffd300"
 	strength = 50
-	nutriment_factor = 1
+	nutriment_factor = 0.5
+	hydration_value = 0.9
+
+	ingest_met = 1.0
+	digest_met = 5.0
 
 	glass_name = "beer"
 	glass_desc = "A freezing pint of beer"
 	glass_special = list(DRINK_FIZZ)
 
-/datum/reagent/ethanol/beer/affect_ingest(mob/living/carbon/M, alien, removed)
+/datum/reagent/ethanol/beer/affect_digest(mob/living/carbon/M, alien, removed)
 	..()
 	if(alien == IS_DIONA)
 		return
@@ -133,7 +151,7 @@
 	taste_description = "bittersweet roasted flavor"
 	color = "#5b3500"
 	strength = 50
-	nutriment_factor = 1
+	nutriment_factor = 0.5
 
 	glass_name = "dark beer"
 	glass_desc = "A freezing pint of dark beer"
@@ -145,7 +163,7 @@
 	taste_description = "fairly sweet malty flavor"
 	color = "#5b3500"
 	strength = 50
-	nutriment_factor = 1
+	nutriment_factor = 0.5
 
 	glass_name = "dark beer"
 	glass_desc = "A freezing pint of Machpella Dark Beer"
@@ -158,6 +176,7 @@
 	taste_mult = 1.1
 	color = "#0000cd"
 	strength = 15
+	hydration_value = 0.75
 
 	glass_name = "blue curacao"
 	glass_desc = "Exotically blue, fruity drink, distilled from oranges."
@@ -168,6 +187,7 @@
 	taste_description = "apple cider"
 	color = "#e0e254"
 	strength = 50
+	hydration_value = 0.9
 
 	glass_name = "apple cider"
 	glass_special = list(DRINK_FIZZ)
@@ -179,6 +199,7 @@
 	taste_mult = 1.1
 	color = "#ab3c05"
 	strength = 15
+	hydration_value = 0.6
 
 	glass_name = "cognac"
 	glass_desc = "Damn, you feel like some kind of French aristocrat just by holding this."
@@ -189,11 +210,12 @@
 	taste_description = "salty sea water"
 	color = "#ecb633"
 	strength = 50
+	hydration_value = 0.6
 
 	glass_name = "rum"
 	glass_desc = "Now you want to Pray for a pirate suit, don't you?"
 
-/datum/reagent/ethanol/deadrum/affect_ingest(mob/living/carbon/M, alien, removed)
+/datum/reagent/ethanol/deadrum/affect_digest(mob/living/carbon/M, alien, removed)
 	..()
 	if(alien == IS_DIONA)
 		return
@@ -205,6 +227,7 @@
 	taste_description = "an alcoholic christmas tree"
 	color = "#0064c6"
 	strength = 15
+	hydration_value = 0.6
 
 	glass_name = "gin"
 	glass_desc = "A crystal clear glass of Griffeater gin."
@@ -212,8 +235,9 @@
 //Base type for alchoholic drinks containing coffee
 /datum/reagent/ethanol/coffee
 	overdose = 45
+	hydration_value = 0.6
 
-/datum/reagent/ethanol/coffee/affect_ingest(mob/living/carbon/M, alien, removed)
+/datum/reagent/ethanol/coffee/affect_digest(mob/living/carbon/M, alien, removed)
 	if(alien == IS_DIONA)
 		return
 	..()
@@ -248,6 +272,7 @@
 	taste_mult = 1.1
 	color = "#4c3100"
 	strength = 15
+	hydration_value = 0.84
 
 	glass_name = "RR coffee liquor"
 	glass_desc = "DAMN, THIS THING LOOKS ROBUST"
@@ -258,6 +283,7 @@
 	taste_description = "fruity alcohol"
 	color = "#138808" // rgb: 19, 136, 8
 	strength = 20
+	hydration_value = 0.8
 
 	glass_name = "melon liquor"
 	glass_desc = "A relatively sweet and fruity 46 proof liquor."
@@ -269,6 +295,7 @@
 	taste_mult = 1.1
 	color = "#ecb633"
 	strength = 15
+	hydration_value = 0.6
 
 	glass_name = "rum"
 	glass_desc = "Now you want to Pray for a pirate suit, don't you?"
@@ -279,6 +306,7 @@
 	taste_description = "dry alcohol"
 	color = "#dddddd"
 	strength = 25
+	hydration_value = 0.85
 
 	glass_name = "sake"
 	glass_desc = "A glass of sake."
@@ -288,7 +316,8 @@
 	description = "A strong and mildly flavoured, mexican produced spirit. Feeling thirsty hombre?"
 	taste_description = "paint stripper"
 	color = "#ffff91"
-	strength = 25
+	strength = 15
+	hydration_value = 0.6
 
 	glass_name = "Tequilla"
 	glass_desc = "Now all that's missing is the weird colored shades!"
@@ -300,11 +329,12 @@
 	color = "#102000"
 	strength = 25
 	nutriment_factor = 1
+	hydration_value = 0.85
 
 	glass_name = "Thirteen Loko"
 	glass_desc = "This is a glass of Thirteen Loko, it appears to be of the highest quality. The drink, not the glass."
 
-/datum/reagent/ethanol/thirteenloko/affect_ingest(mob/living/carbon/M, alien, removed)
+/datum/reagent/ethanol/thirteenloko/affect_digest(mob/living/carbon/M, alien, removed)
 	..()
 	if(alien == IS_DIONA)
 		return
@@ -322,6 +352,7 @@
 	taste_mult = 1.3
 	color = "#91ff91" // rgb: 145, 255, 145
 	strength = 15
+	hydration_value = 0.85
 
 	glass_name = "vermouth"
 	glass_desc = "You wonder why you're even drinking this straight."
@@ -332,11 +363,12 @@
 	taste_description = "grain alcohol"
 	color = "#9bcdff" // rgb: 211, 233, 255
 	strength = 15
+	hydration_value = 0.6
 
 	glass_name = "vodka"
 	glass_desc = "The glass contain wodka. Xynta."
 
-/datum/reagent/ethanol/vodka/affect_ingest(mob/living/carbon/M, alien, removed)
+/datum/reagent/ethanol/vodka/affect_digest(mob/living/carbon/M, alien, removed)
 	..()
 	M.radiation = max(SPACE_RADIATION, M.radiation - ((0.009 SIEVERT) * removed))
 
@@ -352,7 +384,8 @@
 	description = "A superb and well-aged single-malt whiskey. Damn."
 	taste_description = "molasses"
 	color = "#6d3a00"
-	strength = 25
+	strength = 15
+	hydration_value = 0.6
 
 	glass_name = "whiskey"
 	glass_desc = "The silky, smokey whiskey goodness inside the glass makes the drink look very classy."
@@ -362,7 +395,7 @@
 	description = "Just when you thought regular whiskey was good... This silky, amber goodness has to come along and ruin everything."
 	taste_description = "liquid fire"
 	color = "#523600"
-	strength = 25
+	strength = 15
 
 	glass_name = "special blend whiskey"
 	glass_desc = "Just when you thought regular whiskey was good... This silky, amber goodness has to come along and ruin everything."
@@ -372,12 +405,13 @@
 	description = "An premium alchoholic beverage made from distilled grape juice."
 	taste_description = "bitter sweetness"
 	color = "#7e4043" // rgb: 126, 64, 67
-	strength = 15
+	strength = 30
+	hydration_value = 0.85
 
 	glass_name = "red wine"
 	glass_desc = "A very classy looking drink."
 
-/datum/reagent/ethanol/wine/affect_ingest(mob/living/carbon/M, alien, removed)
+/datum/reagent/ethanol/wine/affect_digest(mob/living/carbon/M, alien, removed)
 	..()
 	M.radiation = max(SPACE_RADIATION, M.radiation - ((0.005 SIEVERT) * removed))
 
@@ -386,7 +420,7 @@
 	description = "An exceptionally expensive alchoholic beverage made from distilled white grapes."
 	taste_description = "white velvet"
 	color = "#ffddaa" // rgb: 255, 221, 170 - a light cream
-	strength = 20
+	strength = 30
 
 	glass_name = "white wine"
 	glass_desc = "A very expensive looking drink."
@@ -396,7 +430,7 @@
 	description = "Martian sauvignon blanc. For those who actually like wine."
 	taste_description = "refreshing sourness"
 	color = "#ffebb2"
-	strength = 15
+	strength = 30
 
 	glass_name = "white wine"
 	glass_desc = "A very elite looking drink."
@@ -406,7 +440,7 @@
 	description = "Glamorous and fancy beyond all limits."
 	taste_description = "sweet and sour pleasure"
 	color = "#ffcbc9"
-	strength = 12
+	strength = 30
 
 	glass_name = "red wine"
 	glass_desc = "A very glamorous looking drink."
@@ -415,7 +449,7 @@
 	name = "Sparkling Wine"
 	description = "Much like regular wine, but with bubbles. This one is white."
 	color = "#fff696"
-	strength = 17
+	strength = 25
 
 	glass_name = "sparkling wine"
 	glass_desc = "A very festive looking drink."
@@ -427,6 +461,7 @@
 	taste_description = "a sweet summer garden"
 	color = "#dfff00"
 	strength = 13
+	hydration_value = 0.65
 
 	glass_name = "herbal liquor"
 	glass_desc = "It's definitely green. Or is it yellow?"
@@ -439,6 +474,7 @@
 	reagent_state = LIQUID
 	color = "#9FE77B"
 	strength = 30
+	hydration_value = 0.7
 
 	glass_required = "pint"
 	glass_name = "Acid Spit"
@@ -451,6 +487,7 @@
 	taste_description = "bitter yet free"
 	color = "#d8ac45"
 	strength = 25
+	hydration_value = 0.7
 
 	glass_required = "cocktail"
 	glass_icon_state = "allies"
@@ -463,6 +500,7 @@
 	taste_description = "sweet 'n creamy"
 	color = "#b7ea75"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "wine"
 	glass_icon_state = "aloe"
@@ -476,6 +514,7 @@
 	reagent_state = LIQUID
 	color = "#ff975d"
 	strength = 25
+	hydration_value = 0.7
 
 	glass_required = "mug"
 	glass_icon_state = "amasec"
@@ -488,6 +527,7 @@
 	taste_description = "lemons"
 	color = "#f4ea4a"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "cognac"
 	glass_icon_state = "andalusia"
@@ -500,6 +540,7 @@
 	taste_description = "limes and alcoholic beer"
 	color = "#D3D879FD"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "pint"
 	glass_name = "Armstrong cocktail"
@@ -514,6 +555,7 @@
 	strength = 12
 	adj_temp = 20
 	targ_temp = 330
+	hydration_value = 0.7
 
 	glass_required = "pint"
 	glass_name = "Anti-freeze"
@@ -527,6 +569,7 @@
 	color = "#666300"
 	strength = 10
 	druggy = 50
+	hydration_value = 0.7
 
 	glass_required = "carafe"
 	glass_icon_state = "atomicbomb"
@@ -540,6 +583,7 @@
 	taste_mult = 1.3
 	color = "#997650"
 	strength = 12
+	hydration_value = 0.7
 
 	glass_required = "vodka"
 	glass_icon_state = "b52"
@@ -552,6 +596,7 @@
 	color = "#ff5e5e"
 	strength = 15
 	taste_description = "lime and grenadine"
+	hydration_value = 0.7
 
 	glass_required = "cocktail"
 	glass_icon_state = "bacardi"
@@ -564,6 +609,7 @@
 	taste_description = "lime and orange"
 	color = "#ff7f3b"
 	strength = 25
+	hydration_value = 0.7
 
 	glass_required = "hurricane"
 	glass_icon_state = "bahamamama"
@@ -577,6 +623,7 @@
 	nutriment_factor = 1
 	color = "#ffff91"
 	strength = 12
+	hydration_value = 0.7
 
 	glass_required = "pint"
 	glass_icon_state = "bananahonk"
@@ -588,6 +635,7 @@
 	description = "The magic of frozen banana sweets."
 	color = "#ffd791"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "cocktail"
 	glass_icon_state = "bananadaiquiri"
@@ -600,6 +648,7 @@
 	taste_description = "creamy berries"
 	color = "#ffcdea"
 	strength = 30
+	hydration_value = 0.7
 
 	glass_required = "cocktail"
 	glass_icon_state = "barefoot"
@@ -614,13 +663,14 @@
 	reagent_state = LIQUID
 	color = "#404040"
 	strength = 12
+	hydration_value = 0.7
 
 	glass_required = "rocks"
 	glass_icon_state = "beepskysmash"
 	glass_name = "Beepsky Smash"
 	glass_desc = "Heavy, hot and strong. Just like the Iron fist of the LAW."
 
-/datum/reagent/ethanol/beepsky_smash/affect_ingest(mob/living/carbon/M, alien, removed)
+/datum/reagent/ethanol/beepsky_smash/affect_digest(mob/living/carbon/M, alien, removed)
 	..()
 	M.Stun(2)
 
@@ -631,6 +681,7 @@
 	color = "#E3F2AED7"
 	strength = 50
 	nutriment_factor = 2
+	hydration_value = 0.9
 
 	glass_required = "square"
 	glass_name = "bilk"
@@ -642,6 +693,7 @@
 	taste_description = "bitterness"
 	color = "#360000"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "rocks"
 	glass_icon_state = "blackrussian"
@@ -654,6 +706,7 @@
 	taste_description = "tomatoes with a hint of lime"
 	color = "#b40000"
 	strength = 15
+	hydration_value = 0.8
 
 	glass_required = "pint"
 	glass_icon_state = "bloodymary"
@@ -666,6 +719,7 @@
 	taste_description = "sweet 'n creamy"
 	color = "#8cff8c"
 	strength = 30
+	hydration_value = 0.7
 
 	glass_required = "square"
 	glass_icon_state = "booger"
@@ -679,6 +733,7 @@
 	taste_mult = 1.1
 	color = "#4c3100"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "cognac"
 	glass_icon_state = "bravebull"
@@ -691,6 +746,7 @@
 	taste_description = "your brain coming out your nose"
 	color = "#2e6671"
 	strength = 10
+	hydration_value = 0.6
 
 	glass_required = "square"
 	glass_icon_state = "changelingsting"
@@ -703,6 +759,7 @@
 	taste_description = "dry class"
 	color = "#0064c8"
 	strength = 25
+	hydration_value = 0.7
 
 	glass_required = "cocktail"
 	glass_icon_state = "classicmartini"
@@ -715,6 +772,7 @@
 	color = "#924C3E"
 	strength = 25
 	taste_description = "fruity sweetness"
+	hydration_value = 0.7
 
 	glass_required = "rocks"
 	glass_name = "Commodore 64"
@@ -726,6 +784,7 @@
 	color = "#FCD18D"
 	strength = 10
 	taste_description = "one feels the taste of a distant mountainous country"
+	hydration_value = 0.7
 
 	glass_required = "shot"
 	glass_name = "Chacha"
@@ -736,6 +795,7 @@
 	description = "The best hangover cure!"
 	color = "#74E074"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "rock"
 	glass_name = "Corpse Reviver"
@@ -748,6 +808,7 @@
 	taste_description = "cola"
 	color = "#3e1b00"
 	strength = 30
+	hydration_value = 0.7
 
 	glass_required = "pint"
 	glass_icon_state = "cubalibre"
@@ -760,6 +821,7 @@
 	color = "#049956"
 	strength = 14
 	taste_description = "a stab wound in your liver"
+	hydration_value = 0.7
 
 	glass_required = "wine"
 	glass_icon_state = "daddysinthehouse"
@@ -772,6 +834,7 @@
 	color = "#d4ff66"
 	strength = 100
 	taste_description = "sweet and bitter, like Death itself."
+	hydration_value = 0.7
 
 	glass_required = "wine"
 	glass_icon_state = "deathintheafternoon"
@@ -785,6 +848,7 @@
 	taste_mult = 1.5
 	color = "#820000"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "cognac"
 	glass_icon_state = "demonsblood"
@@ -797,6 +861,7 @@
 	taste_description = "bitter iron"
 	color = "#a68310"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "cocktail"
 	glass_icon_state = "devilskiss"
@@ -810,18 +875,21 @@
 	reagent_state = LIQUID
 	color = "#ff8cff"
 	nutrition = 1
+	hydration_value = 1.25 // Because doctors
 
 	glass_required = "pint"
 	glass_icon_state = "doctorsdelight"
 	glass_name = "The Doctor's Delight"
 	glass_desc = "A healthy mixture of juices, guaranteed to keep you healthy until the next toolboxing takes place."
 
-/datum/reagent/drink/doctor_delight/affect_ingest(mob/living/carbon/M, alien, removed)
+/datum/reagent/drink/doctor_delight/affect_digest(mob/living/carbon/M, alien, removed)
 	..()
 	if(alien == IS_DIONA)
 		return
 	M.adjustOxyLoss(-4 * removed)
-	M.heal_organ_damage(2 * removed, 2 * removed)
+	M.add_chemical_effect(CE_BRUTE_REGEN, 0.75)
+	M.add_chemical_effect(CE_BURN_REGEN, 0.75)
+
 	M.adjustToxLoss(-2 * removed)
 	if(M.dizziness)
 		M.dizziness = max(0, M.dizziness - 15)
@@ -835,6 +903,7 @@
 	nutriment_factor = 1
 	color = "#2e6671"
 	strength = 12
+	hydration_value = 0.7
 
 	glass_required = "cocktail"
 	glass_icon_state = "driestmartini"
@@ -847,6 +916,7 @@
 	taste_description = "tartness and bananas"
 	color = "#5CB242"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "mug"
 	glass_name = "Erika Surprise"
@@ -859,6 +929,7 @@
 	color = "#72481d"
 	strength = 15
 	taste_description = "sweet espresso"
+	hydration_value = 0.7
 
 	glass_required = "wine"
 	glass_icon_state = "espressomartini"
@@ -871,6 +942,7 @@
 	color = "#d6774f"
 	strength = 15
 	taste_description = "mass effect"
+	hydration_value = 0.7
 
 	glass_required = "mug"
 	glass_icon_state = "fullbiotickick"
@@ -883,13 +955,14 @@
 	color = "#9f0000"
 	strength = 15
 	taste_description = "blood, tears and pure agony"
+	hydration_value = 0.7
 
 	glass_required = "hurricane"
 	glass_icon_state = "georgerrmartini"
 	glass_name = "George R.R. Martini"
 	glass_desc = "Makes you think about boobs and dragons."
 
-/datum/reagent/ethanol/georgerrmartini/affect_ingest(mob/living/carbon/M, alien, removed)
+/datum/reagent/ethanol/georgerrmartini/affect_digest(mob/living/carbon/M, alien, removed)
 	..()
 	if(prob(10))
 		M.emote(pick("cry"))
@@ -900,6 +973,7 @@
 	taste_description = "dry, tart lemons"
 	color = "#ffffae"
 	strength = 30
+	hydration_value = 0.7
 
 	glass_required = "square"
 	glass_name = "gin fizz"
@@ -912,6 +986,7 @@
 	taste_description = "mild and tart"
 	color = "#0064c8"
 	strength = 50
+	hydration_value = 0.7
 
 	glass_required = "square"
 	glass_icon_state = "gintonic"
@@ -922,12 +997,13 @@
 	name = "Glintwine"
 	description = "Mulled wine is very popular and traditional in the United Kingdom at Christmas, and less commonly throughout winter."
 	color = "#600202"
-	strength = 10
+	strength = 35
 	taste_mult = 1.5
 	druggy = 5
 	adj_temp = 10
 	targ_temp = 360
 	taste_description = "liquid new year"
+	hydration_value = 0.9
 
 	glass_required = "mug"
 	glass_icon_state = "glintwine"
@@ -941,6 +1017,7 @@
 	taste_mult = 1.3
 	color = "#EBEBEBD5"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "cocktail"
 	glass_name = "Goldschlager"
@@ -953,6 +1030,7 @@
 	reagent_state = LIQUID
 	color = "#E3E45E"
 	strength = 100
+	hydration_value = 0.8
 
 	glass_required = "mug"
 	glass_name = "grog"
@@ -967,6 +1045,7 @@
 	color = "#ff88ff"
 	strength = 15
 	druggy = 50
+	hydration_value = 0.7
 
 	glass_required = "pint"
 	glass_icon_state = "hippiesdelight"
@@ -980,6 +1059,7 @@
 	color = "#706A58"
 	strength = 25
 	toxicity = 2
+	hydration_value = 0.45
 
 	glass_required = "square"
 	glass_name = "Hooch"
@@ -991,6 +1071,7 @@
 	taste_description = "a Moroccan garden"
 	color = "#DFA866FE"
 	strength = 18
+	hydration_value = 0.7
 
 	glass_required = "cognac"
 	glass_name = "Ibn Batutta cocktail"
@@ -1004,6 +1085,7 @@
 	strength = 50
 	adj_temp = -20
 	targ_temp = 270
+	hydration_value = 0.95
 
 	glass_required = "pint"
 	glass_name = "iced beer"
@@ -1016,6 +1098,7 @@
 	taste_description = "delicious anger"
 	color = "#2e6671"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "pint"
 	glass_icon_state = "irishcarbomb"
@@ -1028,6 +1111,7 @@
 	taste_description = "giving up on the day"
 	color = "#4c3100"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "vodka"
 	glass_icon_state = "irishcoffee"
@@ -1040,6 +1124,7 @@
 	taste_description = "creamy alcohol"
 	color = "#E3D0B3F3"
 	strength = 25
+	hydration_value = 0.7
 
 	glass_required = "rocks"
 	glass_name = "Irish cream"
@@ -1052,6 +1137,7 @@
 	taste_description = "a mixture of cola and alcohol"
 	color = "#895b1f"
 	strength = 12
+	hydration_value = 0.7
 
 	glass_required = "pint"
 	glass_icon_state = "longislandicedtea"
@@ -1064,6 +1150,7 @@
 	taste_description = "mild dryness"
 	color = "#c13600"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "cocktail"
 	glass_icon_state = "manhattan"
@@ -1077,6 +1164,7 @@
 	color = "#c15d00"
 	strength = 10
 	druggy = 30
+	hydration_value = 0.7
 
 	glass_required = "cocktail"
 	glass_icon_state = "manhattanproject"
@@ -1089,6 +1177,7 @@
 	taste_description = "hair on your chest and your chin"
 	color = "#4c3100"
 	strength = 25
+	hydration_value = 0.85
 
 	glass_required = "bigmug"
 	glass_icon_state = "manlydorf"
@@ -1102,6 +1191,7 @@
 	taste_description = "dry and salty"
 	color = "#8cff8c"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "cocktail"
 	glass_icon_state = "margarita"
@@ -1114,6 +1204,7 @@
 	taste_description = "an aristrocatic experience"
 	color = "#B5A288E0"
 	strength = 13
+	hydration_value = 0.7
 
 	glass_required = "rocks"
 	glass_name = "Magellan"
@@ -1128,6 +1219,7 @@
 	color = "#E4C35E"
 	strength = 30
 	nutriment_factor = 1
+	hydration_value = 0.9
 
 	glass_required = "mug"
 	glass_name = "mead"
@@ -1136,14 +1228,15 @@
 
 /datum/reagent/ethanol/metroidscore
 	name = "Metroid's Core"
-	description = "Old good metroids... Where did you go?"
+	description = "Definitely better than a Slime's Core."
 	color = "#17523A"
 	strength = 20
 	taste_description = "sharp herbal taste and sourness"
+	hydration_value = 0.7
 
 	glass_required = "square"
 	glass_name = "Metroid's Core"
-	glass_desc = "Old good metroids... Where did you go?"
+	glass_desc = "Definitely better than a Slime's Core."
 	glass_special = list(DRINK_FIZZ)
 
 /datum/reagent/ethanol/mojito
@@ -1152,6 +1245,7 @@
 	color = "#76C98C"
 	strength = 20
 	taste_description = "mint and lime"
+	hydration_value = 0.7
 
 	glass_required = "square"
 	glass_icon_state = "mojito"
@@ -1166,6 +1260,7 @@
 	taste_mult = 2.5
 	color = "#AEE5E4B3"
 	strength = 12
+	hydration_value = 0.7
 
 	glass_required = "square"
 	glass_name = "moonshine"
@@ -1178,6 +1273,7 @@
 	reagent_state = LIQUID
 	color = "#2e2e61"
 	strength = 10
+	hydration_value = 0.7
 
 	glass_required = "pint"
 	glass_icon_state = "neurotoxin"
@@ -1186,7 +1282,7 @@
 	glass_icon = DRINK_ICON_NOISY
 	glass_special = list("neuroright")
 
-/datum/reagent/ethanol/neurotoxin/affect_ingest(mob/living/carbon/M, alien, removed)
+/datum/reagent/ethanol/neurotoxin/affect_digest(mob/living/carbon/M, alien, removed)
 	..()
 	M.Weaken(3)
 	M.Stun(2)
@@ -1200,6 +1296,7 @@
 	reagent_state = LIQUID
 	color = "#7f00ff"
 	strength = 10
+	hydration_value = 0.7
 
 	glass_required = "hurricane"
 	glass_icon_state = "gargleblaster"
@@ -1212,6 +1309,7 @@
 	taste_description = "metallic and expensive"
 	color = "#D4D6B0FC"
 	strength = 30
+	hydration_value = 0.7
 
 	glass_required = "cocktail"
 	glass_name = "Patron"
@@ -1225,11 +1323,12 @@
 	strength = 10
 	druggy = 50
 	halluci = 10
+	hydration_value = 0.7
 
 	glass_name = "???"
 	glass_desc = "A black ichor with an oily purple sheer on top. Are you sure you should drink this?"
 
-/datum/reagent/ethanol/pwine/affect_ingest(mob/living/carbon/M, alien, removed)
+/datum/reagent/ethanol/pwine/affect_digest(mob/living/carbon/M, alien, removed)
 	..()
 	if(M.chem_traces[type] > 30)
 		M.adjustToxLoss(2 * removed)
@@ -1248,6 +1347,7 @@
 	taste_description = "sweet and salty alcohol"
 	color = "#B24542"
 	strength = 30
+	hydration_value = 0.9
 
 	glass_required = "mug"
 	glass_name = "red mead"
@@ -1262,6 +1362,7 @@
 	strength = 15
 	adj_temp = 50
 	targ_temp = 360
+	hydration_value = 0.9
 
 	glass_required = "hurricane"
 	glass_icon_state = "sbiten"
@@ -1274,6 +1375,7 @@
 	taste_description = "oranges"
 	color = "#DAB58EFA"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "square"
 	glass_name = "Screwdriver"
@@ -1285,6 +1387,7 @@
 	taste_description = "black comedy"
 	color = "#524d0f"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "mug"
 	glass_icon_state = "shipssurgeon"
@@ -1297,18 +1400,22 @@
 	color = "#9f0000"
 	strength = 35
 	taste_description = "malty flavor and something extremely dear and familiar"
+	hydration_value = 1.0
 
 	glass_required = "hurricane"
 	glass_icon_state = "sigbrau"
 	glass_name = "Siegbrau"
 	glass_desc = "A drink that even an Undead can enjoy."
 
-/datum/reagent/ethanol/siegbrau/affect_ingest(mob/living/carbon/M, alien, removed)
+/datum/reagent/ethanol/siegbrau/affect_digest(mob/living/carbon/M, alien, removed)
 	..()
 	if(alien == IS_DIONA)
 		return
 	M.adjustOxyLoss(-4 * removed)
-	M.heal_organ_damage(2 * removed, 2 * removed)
+
+	M.add_chemical_effect(CE_BRUTE_REGEN, 1.0)
+	M.add_chemical_effect(CE_BURN_REGEN, 1.0)
+
 	M.adjustToxLoss(-2 * removed)
 	if(M.dizziness)
 		M.dizziness = max(0, M.dizziness - 15)
@@ -1324,6 +1431,7 @@
 	color = "#72487a"
 	strength = 15
 	taste_description = "BOILING RAGE WAAAAAAAAAGH"
+	hydration_value = 0.7
 
 	glass_required = "mug"
 	glass_icon_state = "shroombeer"
@@ -1337,7 +1445,7 @@
 
 	var/threshold = 10
 
-	M.druggy = max(M.druggy, 30)
+	M.make_drugged(30)
 
 	if(M.chem_doses[type] < 1 * threshold)
 		M.apply_effect(3, STUTTER)
@@ -1356,7 +1464,7 @@
 		M.add_up_to_chemical_effect(CE_SPEEDBOOST, 1.25)
 		M.add_chemical_effect(CE_PULSE, 3)
 
-		M.druggy = max(M.druggy, 35)
+		M.make_drugged(35)
 		if(prob(10))
 			M.emote(pick("twitch", "blink_r", "shiver"))
 	else
@@ -1369,7 +1477,7 @@
 		M.add_up_to_chemical_effect(CE_SPEEDBOOST, 2)
 		M.add_chemical_effect(CE_PULSE, 4)
 
-		M.druggy = max(M.druggy, 40)
+		M.make_drugged(40)
 		if(prob(15))
 			M.emote(pick("twitch", "blink_r", "shiver"))
 
@@ -1381,6 +1489,7 @@
 	nutriment_factor = 1
 	color = "#ffffff"
 	strength = 12
+	hydration_value = 0.7
 
 	glass_required = "pint"
 	glass_icon_state = "silencer"
@@ -1393,6 +1502,7 @@
 	taste_description = "concentrated matter"
 	color = "#2e6671"
 	strength = 10
+	hydration_value = 0.7
 
 	glass_required = "carafe"
 	glass_icon_state = "singulo"
@@ -1405,6 +1515,7 @@
 	taste_description = "refreshing cold"
 	color = "#DFDFDFE6"
 	strength = 30
+	hydration_value = 0.7
 
 	glass_required = "pint"
 	glass_name = "Snow White"
@@ -1417,6 +1528,7 @@
 	taste_description = "fruit"
 	color = "#00a86b"
 	strength = 100
+	hydration_value = 0.7
 
 	glass_required = "hurricane"
 	glass_icon_state = "suidream"
@@ -1429,6 +1541,7 @@
 	taste_description = "purified antagonism"
 	color = "#2e6671"
 	strength = 10
+	hydration_value = 0.8
 
 	glass_required = "pint"
 	glass_icon_state = "syndicatebomb"
@@ -1442,6 +1555,7 @@
 	taste_description = "oranges"
 	color = "#ffe48c"
 	strength = 25
+	hydration_value = 0.7
 
 	glass_required = "pint"
 	glass_icon_state = "tequillasunrise"
@@ -1454,6 +1568,7 @@
 	color = "#d34b00"
 	strength = 20
 	taste_description = "fruity classic"
+	hydration_value = 0.7
 
 	glass_required = "pint"
 	glass_icon_state = "sexonthebeach"
@@ -1467,6 +1582,7 @@
 	color = "#666340"
 	strength = 10
 	druggy = 50
+	hydration_value = 0.7
 
 	glass_required = "carafe"
 	glass_icon_state = "threemileisland"
@@ -1482,6 +1598,7 @@
 	strength = 10
 	adj_temp = 15
 	targ_temp = 330
+	hydration_value = 0.7
 
 	glass_required = "shot"
 	glass_icon_state = "toxinsspecial"
@@ -1494,6 +1611,7 @@
 	color = "#d8c36c"
 	strength = 13
 	taste_description = "perfect dryness"
+	hydration_value = 0.7
 
 	glass_required = "hurricane"
 	glass_icon_state = "vesper"
@@ -1506,6 +1624,7 @@
 	taste_description = "shaken, not stirred"
 	color = "#0064c8"
 	strength = 12
+	hydration_value = 0.7
 
 	glass_required = "cocktail"
 	glass_icon_state = "vodkamartini"
@@ -1518,6 +1637,7 @@
 	taste_description = "tart bitterness"
 	color = "#0064c8"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "square"
 	glass_icon_state = "vodkatonic"
@@ -1531,6 +1651,7 @@
 	taste_description = "bitter cream"
 	color = "#a68340"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "rocks"
 	glass_icon_state = "whiterussian"
@@ -1544,6 +1665,7 @@
 	taste_description = "cola"
 	color = "#A3877AFC"
 	strength = 25
+	hydration_value = 0.7
 
 	glass_required = "rocks"
 	glass_name = "whiskey cola"
@@ -1555,6 +1677,7 @@
 	description = "For the more refined griffon."
 	color = "#eab300"
 	strength = 15
+	hydration_value = 0.7
 
 	glass_required = "rocks"
 	glass_icon_state = "whiskeysoda"
@@ -1568,6 +1691,7 @@
 	color = "#f6f293"
 	strength = 15
 	taste_description = "potion"
+	hydration_value = 0.7
 
 	glass_required = "pint"
 	glass_icon_state = "witcher"
@@ -1616,6 +1740,7 @@
 	taste_description = "herbal bitterness"
 	color = "#173b06"
 	strength = 20
+	hydration_value = 0.7
 
 	glass_required = "cognac"
 	glass_icon_state = "zhenghe"
@@ -1627,8 +1752,10 @@
 	description = "Kvass is a traditional drink of old north nations from the Earth, commonly made from rye bread."
 	taste_description = "old north valleys"
 	color = "#473000"
-	strength = 60
+	strength = 90
 	adj_temp = 10
+	hydration_value = 0.95
+	nutriment_factor = 0.5
 
 	glass_required = "mug"
 	glass_icon_state = "kvass"
@@ -1644,6 +1771,7 @@
 	strength = 20
 	adj_temp = -30
 	targ_temp = 260
+	hydration_value = 0.7
 
 	glass_required = "vodkaglass"
 	glass_icon_state = "quas"
@@ -1651,8 +1779,10 @@
 	glass_desc = "Sadron's Summer Refreshment. Cold snap in a liquid form. Or, perhaps, just a bad pun."
 	glass_special = list(DRINK_FIZZ, DRINK_ICE)
 
-/datum/reagent/ethanol/quas/affect_ingest(mob/living/carbon/M, alien, removed)
+/datum/reagent/ethanol/quas/affect_digest(mob/living/carbon/M, alien, removed)
 	..()
 	if(alien == IS_DIONA)
 		return
-	M.heal_organ_damage(3 * removed, 3 * removed)
+
+	M.add_chemical_effect(CE_BRUTE_REGEN, 1.0)
+	M.add_chemical_effect(CE_BURN_REGEN, 1.0)

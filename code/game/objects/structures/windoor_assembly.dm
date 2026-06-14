@@ -76,7 +76,7 @@
 			if(isWelder(W) && !anchored )
 				var/obj/item/weldingtool/WT = W
 				user.visible_message("[user] dissassembles the windoor assembly.", "You start to dissassemble the windoor assembly.")
-				if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 5))
+				if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 50))
 					return
 
 				if(QDELETED(src)|| !user)
@@ -96,7 +96,7 @@
 				playsound(src.loc, 'sound/items/Ratchet.ogg', 100, 1)
 				user.visible_message("[user] secures the windoor assembly to the floor.", "You start to secure the windoor assembly to the floor.")
 
-				if(do_after(user, 40,src))
+				if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 					if(!src) return
 					to_chat(user, "<span class='notice'>You've secured the windoor assembly!</span>")
 					src.anchored = 1
@@ -110,7 +110,7 @@
 				playsound(src.loc, 'sound/items/Ratchet.ogg', 100, 1)
 				user.visible_message("[user] unsecures the windoor assembly to the floor.", "You start to unsecure the windoor assembly to the floor.")
 
-				if(do_after(user, 40,src))
+				if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 					if(!src) return
 					to_chat(user, "<span class='notice'>You've unsecured the windoor assembly!</span>")
 					src.anchored = 0
@@ -127,7 +127,7 @@
 					return
 				to_chat(user, "<span class='notice'>You start to reinforce the windoor with rods.</span>")
 
-				if(do_after(user,40,src) && !secure)
+				if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG) && !secure)
 					if (R.use(4))
 						to_chat(user, "<span class='notice'>You reinforce the windoor.</span>")
 						src.secure = "secure_"
@@ -141,7 +141,7 @@
 				user.visible_message("[user] wires the windoor assembly.", "You start to wire the windoor assembly.")
 
 				var/obj/item/stack/cable_coil/CC = W
-				if(do_after(user, 40,src))
+				if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 					if (CC.use(1))
 						to_chat(user, "<span class='notice'>You wire the windoor!</span>")
 						src.state = "02"
@@ -159,7 +159,7 @@
 				playsound(src.loc, 'sound/items/Wirecutter.ogg', 100, 1)
 				user.visible_message("[user] cuts the wires from the airlock assembly.", "You start to cut the wires from airlock assembly.")
 
-				if(do_after(user, 40,src))
+				if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 					if(!src) return
 
 					to_chat(user, "<span class='notice'>You cut the windoor wires.!</span>")
@@ -175,7 +175,7 @@
 				playsound(src.loc, 'sound/items/Screwdriver.ogg', 100, 1)
 				user.visible_message("[user] installs the electronics into the airlock assembly.", "You start to install electronics into the airlock assembly.")
 
-				if(do_after(user, 40,src))
+				if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 					if(!src)
 						return
 					if(!user.drop(W, src))
@@ -191,7 +191,7 @@
 				playsound(src.loc, 'sound/items/Screwdriver.ogg', 100, 1)
 				user.visible_message("[user] removes the electronics from the airlock assembly.", "You start to uninstall electronics from the airlock assembly.")
 
-				if(do_after(user, 40,src))
+				if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 					if(!src || !src.electronics) return
 					to_chat(user, "<span class='notice'>You've removed the airlock electronics!</span>")
 					if(src.secure)
@@ -211,7 +211,7 @@
 				playsound(src.loc, 'sound/items/Crowbar.ogg', 100, 1)
 				user.visible_message("[user] pries the windoor into the frame.", "You start prying the windoor into the frame.")
 
-				if(do_after(user, 40,src))
+				if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 					if(QDELETED(src))
 						return
 
@@ -238,11 +238,14 @@
 		windoor.set_dir(dir)
 		windoor.set_density(FALSE)
 
-		if(electronics.one_access)
-			windoor.req_access = null
-			windoor.req_one_access = electronics.conf_access
-		else
-			windoor.req_access = electronics.conf_access
+		windoor.req_access = null
+		windoor.req_one_access = null
+		if(length(electronics.conf_access))
+			if(electronics.one_access)
+				windoor.req_one_access = electronics.conf_access
+			else
+				windoor.req_access = electronics.conf_access
+
 		windoor.electronics = electronics
 		electronics.forceMove(windoor)
 	else

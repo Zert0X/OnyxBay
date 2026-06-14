@@ -75,14 +75,37 @@
 
 /obj/item/storage/backpack/holding/attackby(obj/item/W, mob/user)
 	if(istype(W, /obj/item/storage/backpack/holding))
-		investigate_log("has become a singularity. Caused by [user.key]", "singulo")
 		to_chat(usr, "\red The Bluespace interfaces of the two devices catastrophically malfunction!")
+
+		var/mob/living/carbon/human/human_user = user
+		if (istype(human_user))
+			for (var/limb_tag in list(BP_R_ARM, BP_L_ARM))
+				var/obj/item/organ/external/limb_to_drop = human_user.get_organ(limb_tag)
+				limb_to_drop.droplimb()
+				qdel(limb_to_drop)
+
+			human_user.visible_message(SPAN_DANGER("[human_user]'s hands are violently yanked into the collapsing structure of \the [src]!"))
+
+		var/outcome
+		if (config.misc.meme_content && prob(15))
+			new /obj/singularity(get_turf(src), 300)
+			outcome = "singularity"
+		else if (prob(60))
+			var/obj/effect/portal/wormhole/wormhole = create_wormhole(get_turf(src), get_random_turf_in_range(src, 16, 8))
+			wormhole.Bumped(user) // Otherwise spessman won't go through it...
+			outcome = "single wormhole"
+		else
+			var/datum/event/wormholes_event = SSevents.total_events["wormholes"]
+			wormholes_event.fire()
+			outcome = "wormhole event"
+
+		investigate_log("has triggered \a [outcome]. Caused by [user.key]")
+		log_and_message_admins("detonated a bag of holding", user, loc)
+
 		qdel(W)
-		new /obj/singularity(get_turf(src), 300)
-		log_and_message_admins("detonated a bag of holding", user, src.loc)
-		qdel(src)
-		return
-	..()
+		qdel_self()
+
+	. = ..()
 
 /obj/item/storage/backpack/santabag
 	name = "\improper Santa's gift bag"
@@ -272,7 +295,7 @@
 	icon_state = "pocketbook"
 	max_storage_space = DEFAULT_LARGEBOX_STORAGE
 	color = "#3F3F3F"
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "satchel-flat",
 		slot_r_hand_str = "satchel-flat",
 		)
@@ -332,7 +355,7 @@
 	name = "\improper NanoTrasen satchel"
 	desc = "Useful for holding research materials. The colors on it denote it as a NanoTrasen bag."
 	icon_state = "satchel-nt"
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "satchel-gen", // Looks surprisingly close
 		slot_r_hand_str = "satchel-gen",
 		)
@@ -358,7 +381,7 @@
 	desc = "A spacious backpack with lots of pockets, used by members of the Emergency Response Team."
 	icon_state = "ert_commander"
 	inspect_state = FALSE
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "securitypack",
 		slot_r_hand_str = "securitypack",
 		)
@@ -461,7 +484,7 @@
 		/obj/item/stack/tile/floor,
 		/obj/item/crowbar
 		)
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "satchel-flat",
 		slot_r_hand_str = "satchel-flat",
 		)
@@ -476,7 +499,7 @@
 	desc = "It's a backpack made of real space carp."
 	icon_state = "carppack"
 	inspect_state = FALSE
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "backpack",
 		slot_r_hand_str = "backpack",
 		)
@@ -485,7 +508,7 @@
 	name = "shoulder bag"
 	desc = "A complex backpack with multiple compartments."
 	icon_state = "shoulder_bag"
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "satchel",
 		slot_r_hand_str = "satchel",
 		)
@@ -495,7 +518,12 @@
 	desc = "Some say that humanity conquered space inside such things. Today it has obviously broken but looks neat, and you can store your stuff inside."
 	icon_state = "shipack"
 	inspect_state = FALSE
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "shipack",
 		slot_r_hand_str = "shipack",
 		)
+
+/obj/item/storage/backpack/carry_rig
+	name = "Carry rig"
+	desc = "A metal base with numerous straps designed to hold whatever and be attached to the back. Quite uncomfortable to wear."
+	icon_state = "carryrig"

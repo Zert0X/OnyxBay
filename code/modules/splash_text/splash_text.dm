@@ -9,13 +9,13 @@
 
 /// Creates text that will float from the atom upwards to the viewer.
 /atom/proc/show_splash_text(mob/viewer, text, chat_text, force_skip_chat = FALSE)
-	INVOKE_ASYNC(src, nameof(.proc/animate_splash_text), viewer, text, chat_text)
+	INVOKE_ASYNC(src, nameof(.proc/animate_splash_text), viewer, text, chat_text, force_skip_chat)
 
 /// Creates text that will float from the atom upwards to the viewers in range.
 /atom/proc/show_splash_text_to_viewers(message, self_message, vision_distance = 7, list/mob/ignored_mobs, force_skip_chat = FALSE)
 	var/list/hearers = list()
 	var/list/garbage_obj = list() // TO-DO: add more helpers to exclude searching objects.
-	get_mobs_and_objs_in_view_fast(get_turf(src), vision_distance, hearers, garbage_obj)
+	get_listeners_in_range(get_turf(src), vision_distance, hearers, garbage_obj)
 	hearers -= ignored_mobs
 
 	for(var/hearer in hearers)

@@ -37,7 +37,7 @@
 
 	gluttonous =          GLUT_TINY | GLUT_SMALLER | GLUT_ITEM_ANYTHING | GLUT_PROJECTILE_VOMIT
 	virus_immune =        1
-	blood_volume =        600
+	blood_volume =        6 LITERS
 	min_age =             1
 	max_age =             5
 	brute_mod =           0.5
@@ -80,9 +80,10 @@
 
 /datum/species/promethean/handle_post_spawn(mob/living/carbon/human/H)
 	..()
-	for(var/modifier in H.modifiers)
+	for (var/modifier in H.modifiers)
 		if(istype(modifier, /datum/modifier/trait/blooddeficiency))
 			blooddeficiency = modifier
+
 	var/datum/component/promethean/promethean_comp = H.AddComponent(/datum/component/promethean)
 	promethean_comp.regenerate_limbs = new
 	promethean_comp.regenerate_limbs.Grant(H)
@@ -107,7 +108,7 @@
 
 /datum/species/promethean/handle_death(mob/living/carbon/human/H)
 	spawn(1)
-		if(H)
+		if (H)
 			H.gib()
 
 /datum/species/promethean/handle_fall_special(mob/living/carbon/human/H, turf/landing)
@@ -118,59 +119,61 @@
 	var/obj/item/organ/internal/promethean/metroid_jelly_vessel/jelly_vessel = H.internal_organs_by_name[BP_METROID]
 	var/jelly_amount = jelly_vessel.stored_jelly
 	var/jelly_volume = round((jelly_amount/blood_volume)*100)
-	if(H.stat == DEAD) //can't farm metroid prometheany from a dead metroid/prometheany person indefinitely
+
+	if (H.is_ic_dead()) //can't farm metroid prometheany from a dead metroid/prometheany person indefinitely
 		return
 
-	if(!jelly_amount)
-		jelly_vessel.add_jelly(PROMETHEAN_REGEN_RATE_EMPTY * 0.1)
+	if (!jelly_amount)
+		jelly_vessel.add_jelly(PROMETHEAN_REGEN_RATE_EMPTY)
 		H.adjustBruteLoss(2.5 * 0.1)
 		to_chat(H, SPAN_DANGER("You feel empty!"))
 
-	if(jelly_volume < BLOOD_VOLUME_SAFE)
-		if(H.nutrition >= STOMACH_FULLNESS_LOW)
-			jelly_vessel.add_jelly(PROMETHEAN_REGEN_RATE * 0.1)
-			if(jelly_volume <= BLOOD_VOLUME_LOSE_NUTRITION) // don't lose nutrition if we are above a certain threshold, otherwise metroids on IV drips will still lose nutrition
+	if (jelly_volume < BLOOD_VOLUME_SAFE)
+		if (H.nutrition >= STOMACH_FULLNESS_LOW)
+			jelly_vessel.add_jelly(PROMETHEAN_REGEN_RATE)
+			if (jelly_volume <= BLOOD_VOLUME_LOSE_NUTRITION) // don't lose nutrition if we are above a certain threshold, otherwise metroids on IV drips will still lose nutrition
 				H.add_nutrition(-1.25 * 0.1)
 
-	if(HAS_TRAIT(H, TRAIT_BLOOD_DEFICIENCY))
+	if (HAS_TRAIT(H, TRAIT_BLOOD_DEFICIENCY))
 		if(jelly_volume>=BLOOD_VOLUME_BAD)
-			jelly_vessel.remove_jelly(PROMETHEAN_REGEN_RATE * 0.1)
+			jelly_vessel.remove_jelly(PROMETHEAN_REGEN_RATE)
 
-	if(jelly_volume < BLOOD_VOLUME_OKAY)
+	if (jelly_volume < BLOOD_VOLUME_OKAY)
 		if(prob(1))
 			to_chat(H, SPAN_DANGER("You feel drained!"))
 
-	if(jelly_volume < BLOOD_VOLUME_BAD)
+	if (jelly_volume < BLOOD_VOLUME_BAD)
 		Cannibalize_Body(H)
 
 /datum/species/promethean/proc/Cannibalize_Body(mob/living/carbon/human/H)
 	var/obj/item/organ/internal/promethean/metroid_jelly_vessel/jelly_vessel = H.internal_organs_by_name[BP_METROID]
 	var/list/missing_limbs
-	for(var/limb_type in has_limbs)
-		var/obj/item/organ/external/E = H.organs_by_name[limb_type]
-		if(!E)
+	for (var/limb_type in has_limbs)
+		var/obj/item/organ/external/E = H.external_organs_by_name[limb_type]
+		if (!E)
 			missing_limbs+=limb_type
+
 	var/list/limbs_to_consume = list(BP_L_FOOT, BP_R_FOOT, BP_L_LEG, BP_R_LEG, BP_L_HAND, BP_R_HAND, BP_L_ARM, BP_R_ARM) - missing_limbs
 
 	var/obj/item/organ/external/consumed_limb
-	if(!length(limbs_to_consume))
+	if (!length(limbs_to_consume))
 		H.losebreath++
 		return
 
-	if(H.has_organ(BP_L_FOOT) || H.has_organ(BP_R_FOOT)) //Feets go before legs
-		limbs_to_consume -= list(BP_L_LEG, BP_R_LEG)
-
-	if(H.has_organ(BP_L_LEG) || H.has_organ(BP_R_LEG)) //Legs go before Hands
-		limbs_to_consume -= list(BP_L_HAND, BP_R_HAND)
-
-	if(H.has_organ(BP_L_HAND) || H.has_organ(BP_R_HAND)) //Hands go before arms
+	if (H.has_organ(BP_L_HAND) || H.has_organ(BP_R_HAND)) //Hands before go arm
 		limbs_to_consume -= list(BP_L_ARM, BP_R_ARM)
+
+	if (H.has_organ(BP_L_ARM) || H.has_organ(BP_R_ARM)) //Arm before go feets
+		limbs_to_consume -= list(BP_L_FOOT, BP_R_FOOT)
+
+	if (H.has_organ(BP_L_FOOT) || H.has_organ(BP_R_FOOT)) //Feets before go legs
+		limbs_to_consume -= list(BP_L_LEG, BP_R_LEG)
 
 	consumed_limb = H.get_organ(pick(limbs_to_consume))
 	consumed_limb.droplimb()
 	to_chat(H, SPAN_DANGER("Your [consumed_limb] is drawn back into your body, unable to maintain its shape!"))
 	qdel(consumed_limb)
-	jelly_vessel.add_jelly(20)
+	jelly_vessel.add_jelly(0.2 LITERS)
 
 /datum/action/innate/regenerate_limbs
 	name = "Regenerate Limbs"
@@ -195,32 +198,33 @@
 	var/obj/item/organ/internal/promethean/metroid_jelly_vessel/jelly_vessel = H.internal_organs_by_name[BP_METROID]
 	var/jelly_amount = jelly_vessel.stored_jelly
 	var/jelly_volume = round((jelly_amount/H.species.blood_volume)*100)
-	for(var/limb_type in H.species.has_limbs)
-		var/obj/item/organ/external/E = H.organs_by_name[limb_type]
-		if(!E)
+	for (var/limb_type in H.species.has_limbs)
+		var/obj/item/organ/external/E = H.external_organs_by_name[limb_type]
+
+		if (!E)
 			limbs_to_heal.Add(limb_type)
+
 		else
-			if(istype(E, /obj/item/organ/external/stump))
+			if (istype(E, /obj/item/organ/external/stump))
 				limbs_to_heal.Add(limb_type)
 
-	if(!length(limbs_to_heal))
+	if (!length(limbs_to_heal))
 		to_chat(H, SPAN_NOTICE("You feel intact enough as it is."))
 		return
+
 	to_chat(H, SPAN_NOTICE("You focus intently on your missing [length(limbs_to_heal) >= 2 ? "limbs" : "limb"]..."))
-	if(jelly_volume >= 5*length(limbs_to_heal)+BLOOD_VOLUME_OKAY)
-		for(var/healed_limb in limbs_to_heal)
-			H.rejuvenate(TRUE)
-		jelly_vessel.remove_jelly(H.species.blood_volume*BLOOD_LOSE_PER_LIMB*length(limbs_to_heal)) //FIXME fuck baymed with their BLOOD
-		to_chat(H, SPAN_NOTICE("...and after a moment you finish reforming!"))
-		return
-	else if(jelly_volume > BLOOD_VOLUME_BAD + 25)//We can partially heal some limbs
-		while(jelly_volume >= BLOOD_VOLUME_BAD + 25)
+
+	if (jelly_volume > BLOOD_VOLUME_BAD + 5)//We can partially heal some limbs
+		H.rejuvenate(TRUE)
+		while (jelly_volume >= BLOOD_VOLUME_BAD + 5)
 			var/healed_limb = pick(limbs_to_heal)
 			H.restore_limb(healed_limb)
 			limbs_to_heal -= healed_limb
-			jelly_vessel.remove_jelly(H.species.blood_volume*BLOOD_LOSE_PER_LIMB) //FIXME fuck baymed with their BLOOD
+			jelly_vessel.remove_jelly(H.species.blood_volume * BLOOD_LOSE_PER_LIMB) //FIXME fuck baymed with their BLOOD
+
 		to_chat(H, SPAN_WARNING("...but there is not enough of you to fix everything! You must attain more mass to heal completely!"))
 		return
+
 	to_chat(H, SPAN_WARNING("...but there is not enough of you to go around! You must attain more mass to heal!"))
 
 

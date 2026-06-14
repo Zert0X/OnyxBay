@@ -8,6 +8,10 @@ var/list/hash_to_gear = list()
 	var/datum/gear/trying_on_gear
 	var/list/trying_on_tweaks = new
 	var/loadout_is_busy = FALSE // All these gear tweaks be slow as anything. Let's just force things to yield, sparing us from sanitizing and resanitizing stuff.
+	var/max_loadout_points
+	var/max_augmentation_points
+	var/total_lpoints_cost
+	var/total_aug_points
 
 /datum/preferences/proc/Gear()
 	return gear_list[gear_slot]
@@ -56,7 +60,7 @@ var/list/hash_to_gear = list()
 	var/hide_unavailable_gear = FALSE
 	var/hide_donate_gear = FALSE
 	var/flag_not_enough_opyxes = FALSE
-	var/max_loadout_points
+
 
 /datum/category_item/player_setup_item/loadout/load_character(datum/pref_record_reader/R)
 	pref.gear_list = R.read("gear_list")
@@ -91,10 +95,10 @@ var/list/hash_to_gear = list()
 	if(pref.gear_list.len < config.character_setup.loadout_slots)
 		pref.gear_list.len = config.character_setup.loadout_slots
 
-	max_loadout_points = config.character_setup.max_loadout_points
+	pref.max_loadout_points = config.character_setup.max_loadout_points
 	var/patron_tier = pref.client.donator_info.get_full_patron_tier()
 	if(!isnull(patron_tier) && patron_tier != PATREON_NONE && patron_tier != PATREON_CARGO)
-		max_loadout_points += config.character_setup.extra_loadout_points
+		pref.max_loadout_points += config.character_setup.extra_loadout_points
 
 	for(var/index = 1 to config.character_setup.loadout_slots)
 		var/list/gears = pref.gear_list[index]
@@ -112,12 +116,19 @@ var/list/hash_to_gear = list()
 					gears -= gear_name
 				else
 					var/datum/gear/G = gear_datums[gear_name]
-					if(total_cost + G.cost > max_loadout_points)
+					if(total_cost + G.cost > pref.max_loadout_points)
 						gears -= gear_name
 					else
 						total_cost += G.cost
 		else
 			pref.gear_list[index] = list()
+
+/datum/category_item/player_setup_item/loadout/get_lp_cost()
+	var/list/gears = pref.gear_list[pref.gear_slot]
+	for(var/i = 1; i <= gears.len; i++)
+		var/datum/gear/G = gear_datums[gears[i]]
+		if(G)
+			. += G.cost
 
 /datum/category_item/player_setup_item/loadout/content(mob/user)
 	. = list()
@@ -125,16 +136,11 @@ var/list/hash_to_gear = list()
 	if(!user.client)
 		return
 
-	var/total_cost = 0
-	var/list/gears = pref.gear_list[pref.gear_slot]
-	for(var/i = 1; i <= gears.len; i++)
-		var/datum/gear/G = gear_datums[gears[i]]
-		if(G)
-			total_cost += G.cost
+	var/total_cost = pref.get_lp_cost()
 
 	var/fcolor =  "#3366cc"
 
-	if(total_cost < max_loadout_points)
+	if(total_cost < pref.max_loadout_points)
 		fcolor = "#e67300"
 
 	. += "<table style='width: 100%;'><tr>"
@@ -145,8 +151,8 @@ var/list/hash_to_gear = list()
 	. += "<table style='white-space: nowrap;'><tr>"
 
 	. += "<td style=\"vertical-align: top;\">"
-	if(max_loadout_points < INFINITY)
-		. += "<font color = '[fcolor]'>[total_cost]/[max_loadout_points]</font> loadout points spent.<br>"
+	if(pref.max_loadout_points < INFINITY)
+		. += "<font color = '[fcolor]'>[total_cost]/[pref.max_loadout_points]</font> loadout points spent.<br>"
 	. += "<a href='?src=\ref[src];clear_loadout=1'>Clear Loadout</a><br>"
 	. += "<a href='?src=\ref[src];random_loadout=1'>Random Loadout</a><br>"
 	. += "<a href='?src=\ref[src];toggle_hiding=1'>[hide_unavailable_gear ? "Show unavailable for your jobs and species" : "Hide unavailable for your jobs and species"]</a><br>"
@@ -179,7 +185,7 @@ var/list/hash_to_gear = list()
 		. += "<td><b>Selected Item:</b></td>"
 	. += "</tr>"
 
-	. += "<tr style='vertical-align: top;'>"
+	. += "<tr style='vertical-align:top'>"
 
 	// Categories
 
@@ -208,12 +214,15 @@ var/list/hash_to_gear = list()
 	. += "<td style='white-space: nowrap; width: 40px;' class='block'>"
 	. += "<table>"
 	var/datum/loadout_category/LC = loadout_categories[current_tab]
+	var/datum/job/selected_job_high
 	var/list/selected_jobs = new
 	if(job_master)
-		for(var/job_title in (pref.job_medium|pref.job_low|pref.job_high))
+		selected_job_high = job_master.occupations_by_title[pref.job_high]
+		var/selected_job_titles = (pref.job_high ? list(pref.job_high) : list()) | pref.job_medium | pref.job_low
+		for(var/job_title in selected_job_titles)
 			var/datum/job/J = job_master.occupations_by_title[job_title]
 			if(J)
-				dd_insertObjectList(selected_jobs, J)
+				selected_jobs += J
 
 	var/purchased_gears = ""
 	var/paid_gears = ""
@@ -273,6 +282,9 @@ var/list/hash_to_gear = list()
 
 	if(selected_gear)
 		var/ticked = (selected_gear.display_name in pref.gear_list[pref.gear_slot])
+
+		if(selected_gear.is_departmental())
+			selected_gear.set_selected_jobs(selected_job_high, selected_jobs)
 
 		var/datum/gear_data/gd = new(selected_gear.path)
 		for(var/datum/gear_tweak/gt in selected_gear.gear_tweaks)
@@ -366,6 +378,12 @@ var/list/hash_to_gear = list()
 			. += "<br><b>Options:</b><br>"
 			for(var/datum/gear_tweak/tweak in selected_gear.gear_tweaks)
 				var/tweak_contents = tweak.get_contents(selected_tweaks["[tweak]"])
+				if(islist(tweak_contents))
+					for(var/name in tweak_contents)
+						. += " <a href='?src=\ref[src];tweak=\ref[tweak];subtype=[tweak_contents[name]]'>[name]</a>"
+						. += "<br>"
+					continue
+
 				if(tweak_contents)
 					. += " <a href='?src=\ref[src];tweak=\ref[tweak]'>[tweak_contents]</a>"
 					. += "<br>"
@@ -455,7 +473,7 @@ var/list/hash_to_gear = list()
 			pref.loadout_is_busy = FALSE
 			return TOPIC_NOACTION
 
-		var/metadata = tweak.get_metadata(user, get_tweak_metadata(selected_gear, tweak))
+		var/metadata = tweak.get_metadata(user, get_tweak_metadata(selected_gear, tweak), href_list["subtype"])
 		if(!metadata || !CanUseTopic(user))
 			pref.loadout_is_busy = FALSE
 			return TOPIC_NOACTION
@@ -618,9 +636,9 @@ var/list/hash_to_gear = list()
 	var/list/pool = new
 	for(var/gear_name in gear_datums)
 		var/datum/gear/G = gear_datums[gear_name]
-		if(gear_allowed_to_see(G) && gear_allowed_to_equip(G, user) && G.cost <= max_loadout_points)
+		if(gear_allowed_to_see(G) && gear_allowed_to_equip(G, user) && G.cost <= pref.max_loadout_points)
 			pool += G
-	var/points_left = max_loadout_points
+	var/points_left = pref.max_loadout_points
 	while (points_left > 0 && length(pool))
 		var/datum/gear/chosen = pick(pool)
 		var/list/chosen_tweaks = new
@@ -674,7 +692,7 @@ var/list/hash_to_gear = list()
 		for(var/gear_name in pref.gear_list[pref.gear_slot])
 			var/datum/gear/G = gear_datums[gear_name]
 			if(istype(G)) total_cost += G.cost
-		if((total_cost+TG.cost) <= max_loadout_points)
+		if((total_cost+TG.cost) <= pref.max_loadout_points)
 			pref.gear_list[pref.gear_slot][TG.display_name] = selected_tweaks.Copy()
 
 
@@ -690,6 +708,7 @@ var/list/hash_to_gear = list()
 	var/slot               //Slot to equip to.
 	var/list/allowed_roles //Roles that can spawn with this item.
 	var/whitelisted        //Term to check the whitelist for..
+	var/subgroup             //Subgroup for UI grouping within a category.
 	var/sort_category = "General"
 	var/flags              //Special tweaks in new
 	var/list/gear_tweaks = list() //List of datums which will alter the item after it has been spawned.
@@ -729,6 +748,24 @@ var/list/hash_to_gear = list()
 /datum/gear/proc/is_allowed_to_display(mob/user)
 	return TRUE
 
+/datum/gear/proc/is_departmental()
+	for(var/datum/gear_tweak/gt in gear_tweaks)
+		if(istype(gt, /datum/gear_tweak/departmental))
+			return TRUE
+
+	return FALSE
+
+/datum/gear/proc/set_selected_jobs(job_high, selected_jobs)
+	if(job_high && !istype(job_high,/datum/job))
+		CRASH("Expected /datum/job, got [job_high]")
+	if(selected_jobs && !islist(selected_jobs))
+		CRASH("Expected list, got [selected_jobs]")
+	for(var/datum/gear_tweak/departmental/gt in gear_tweaks)
+		if(!istype(gt, /datum/gear_tweak/departmental))
+			continue
+
+		gt.set_selected_jobs(job_high, selected_jobs)
+
 /datum/gear_data
 	var/path
 	var/location
@@ -749,8 +786,13 @@ var/list/hash_to_gear = list()
 /datum/gear/proc/spawn_on_mob(mob/living/carbon/human/H, metadata)
 	var/obj/item/item = spawn_item(H, metadata)
 
+	if(isunderwear(item))
+		var/obj/item/underwear/UW = item
+		UW.ForceEquipUnderwear(H)
+		to_chat(H, SPAN_NOTICE("Equipping you with \the [item]!"))
+
 	if(H.equip_to_slot_if_possible(item, slot, del_on_fail = 1, force = 1))
-		to_chat(H, "<span class='notice'>Equipping you with \the [item]!</span>")
+		to_chat(H, SPAN_NOTICE("Equipping you with \the [item]!"))
 		return TRUE
 
 	return FALSE

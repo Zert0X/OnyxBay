@@ -86,9 +86,9 @@
 	name = "rusted metal armor"
 	desc = "A hodgepodge of various pieces of metal scrapped together into a rudimentary vox-shaped piece of armor."
 	allowed = list(/obj/item/gun, /obj/item/tank)
-	armor = list(melee = 70, bullet = 30, laser = 20,energy = 5, bomb = 40, bio = 0) //Higher melee armor versus lower everything else.
+	armor_values = alist(melee = 70, bullet = 30, laser = 20,energy = 5, bomb = 40, bio = 0) //Higher melee armor versus lower everything else.
 	icon_state = "vox-scrap"
-	icon_state = "vox-scrap"
+	item_state = "vox-scrap"
 	body_parts_covered = UPPER_TORSO|ARMS|LOWER_TORSO|LEGS
 	species_restricted = list(SPECIES_VOX)
 	siemens_coefficient = 1 //Its literally metal

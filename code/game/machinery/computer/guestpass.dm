@@ -4,7 +4,8 @@
 /obj/item/card/id/guest
 	name = "guest pass"
 	desc = "Allows temporary access to restricted areas."
-	icon_state = "guest"
+	icon_state = "card_guest"
+	item_state = "card_guest"
 	light_color = "#0099ff"
 
 	var/temp_access = list() //to prevent agent cards stealing access as permanent
@@ -70,6 +71,7 @@
 	if(istype(O, /obj/item/card/id))
 		if(!giver && user.drop(O, src))
 			giver = O
+			SStgui.update_uis(src)
 		else if(giver)
 			to_chat(user, "<span class='warning'>There is already ID card inside.</span>")
 		return
@@ -86,7 +88,7 @@
 /obj/machinery/computer/guestpass/tgui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)
 
-	if (!ui)
+	if(!ui)
 		ui = new(user, src, "Guestpass", src)
 		ui.open()
 
@@ -94,7 +96,7 @@
 	var/list/data = list(
 		"scanName" = giver?.registered_name,
 		"areas",
-		"issueLog" = list(internal_log),
+		"IssueLog" = internal_log,
 	)
 
 	var/list/regions = list()
@@ -109,6 +111,7 @@
 			access["name"] = get_access_desc(j)
 			access["id"] = j
 			access["req"] = (j in accesses) ? TRUE : FALSE
+			access["allowed"] = (j in giver?.access)
 			accessess_data[++accessess_data.len] = access
 
 		region["accesses"] = accessess_data
@@ -128,10 +131,14 @@
 			if(isnull(params["area"]))
 				return
 
-			if(LAZYISIN(accesses, text2num(params["area"])))
-				accesses -= text2num(params["area"])
+			var/new_access = text2num(params["area"])
+			if(!(new_access in giver.access))
+				return
+
+			if(LAZYISIN(accesses, new_access))
+				accesses -= new_access
 			else
-				accesses |= text2num(params["area"])
+				accesses |= new_access
 			return TRUE
 
 		if("scan")
@@ -213,6 +220,18 @@
 			for(var/A in get_all_accesses())
 				if(A in giver.access)
 					accesses += A
+			return TRUE
+
+		if("set_name")
+			giv_name = params["new_name"]
+			return TRUE
+
+		if("set_duration")
+			duration = params["new_duration"]
+			return TRUE
+
+		if("set_reason")
+			reason = params["new_reason"]
 			return TRUE
 
 		if("issue")

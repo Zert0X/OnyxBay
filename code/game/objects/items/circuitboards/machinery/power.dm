@@ -4,6 +4,7 @@
 
 /obj/item/circuitboard/smes
 	name = T_BOARD("superconductive magnetic energy storage")
+	icon_state = "id_mod_orange"
 	build_path = /obj/machinery/power/smes/buildable
 	board_type = "machine"
 	origin_tech = list(TECH_POWER = 6, TECH_ENGINEERING = 4)
@@ -12,6 +13,7 @@
 
 /obj/item/circuitboard/batteryrack
 	name = T_BOARD("battery rack PSU")
+	icon_state = "id_mod_orange"
 	build_path = /obj/machinery/power/smes/batteryrack
 	board_type = "machine"
 	origin_tech = list(TECH_POWER = 3, TECH_ENGINEERING = 2)

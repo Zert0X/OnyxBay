@@ -31,18 +31,6 @@
 
 	sound_to(mob, sound(null))
 
-/client/verb/fix_hotkeys()
-	set name = "Fix hotkeys"
-	set category = "OOC"
-
-	if(!(isghost(mob) || isliving(mob)))
-		return
-
-	if(alert(usr, "Are you sure? You have to switch to the English keyboard layout first.\nWarning: This will close all open windows.", "Fix hotkeys", "Yes", "No") == "Yes")
-		winset(src, null, "reset=true")
-		update_chat_position()
-		nuke_chat()
-
 /client/verb/info_storyteller()
 	set name = "Storyteller info"
 	set category = "OOC"
@@ -51,9 +39,3 @@
 		to_chat(src, "<b>Current Storyteller:</b> N/A")
 	else
 		to_chat(src, "<b>Current Storyteller:</b> [SSstoryteller.character.name] - [SSstoryteller.character.desc]")
-
-/client/verb/fix_stat_panel()
-	set name = "Fix Stat Panel"
-	set hidden = TRUE
-
-	init_verbs()

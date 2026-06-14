@@ -87,9 +87,14 @@
 		print_object = FALSE
 
 /obj/machinery/bookbinder/operable()
-	. = ..()
 	if(!anchored)
 		return FALSE
+	return ..()
+
+/obj/machinery/bookbinder/inoperable()
+	if(!anchored)
+		return TRUE
+	return ..()
 
 /obj/machinery/bookbinder/attackby(obj/O, mob/user)
 	if(operable())

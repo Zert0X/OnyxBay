@@ -8,7 +8,11 @@
 	mod_weight = 0.65
 	mod_reach = 0.25
 	mod_handy = 0.5
-	volume = 60
+
+	volume = 0.25 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;60;100;150;250"
+
 	center_of_mass = "x=17;y=7"
 	lid_type = /datum/vessel_lid/flask
 	can_flip = TRUE
@@ -30,7 +34,6 @@
 	desc = "A metal flask with a leather band and golden badge belonging to the detective."
 	icon_state = "detflask"
 	item_state = "detflask"
-	volume = 60
 	center_of_mass = "x=17;y=8"
 
 /obj/item/reagent_containers/vessel/flask/barflask
@@ -38,7 +41,6 @@
 	desc = "For those who can't be bothered to hang out at the bar to drink."
 	icon_state = "barflask"
 	item_state = "barflask"
-	volume = 60
 	center_of_mass = "x=17;y=7"
 
 /obj/item/reagent_containers/vessel/flask/vacuumflask
@@ -46,7 +48,14 @@
 	desc = "Keeping your drinks at the perfect temperature since 1892."
 	icon_state = "vacuumflask"
 	item_state = "vacuumflask"
-	volume = 60
+
+	volume = 0.5 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;60;100;150;250;300;500"
+
 	center_of_mass = "x=15;y=4"
 	lid_type = /datum/vessel_lid/cap
 	override_lid_state = LID_CLOSED
+
+/obj/item/reagent_containers/vessel/flask/vacuumflask/get_storage_cost()
+	return ..() * 1.5

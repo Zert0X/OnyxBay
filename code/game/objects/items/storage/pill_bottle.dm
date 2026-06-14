@@ -8,6 +8,7 @@
 	icon_state = "pill_canister"
 	icon = 'icons/obj/chemical.dmi'
 	item_state = "contsolid"
+	base_icon_state = "pill_canister"
 	w_class = ITEM_SIZE_SMALL
 	max_w_class = ITEM_SIZE_TINY
 	max_storage_space = 14
@@ -22,6 +23,8 @@
 
 	pickup_sound = SFX_PICKUP_PILLBOTTLE
 	drop_sound = SFX_DROP_PILLBOTTLE
+
+	inspect_state = TRUE
 
 /obj/item/storage/pill_bottle/Initialize()
 	. = ..()
@@ -39,17 +42,17 @@
 /obj/item/storage/pill_bottle/on_update_icon()
 	ClearOverlays()
 	if(label_color)
-		AddOverlays(OVERLAY(icon, "[icon_state]-overlay", alpha, RESET_COLOR, label_color))
+		AddOverlays(OVERLAY(icon, "[base_icon_state]-overlay", alpha, RESET_COLOR, label_color))
 
 /obj/item/storage/pill_bottle/attack_self(mob/user)
-	if(user.get_inactive_hand())
+	if(user.get_passive_hand())
 		to_chat(user, SPAN_NOTICE("You need an empty hand to take something out."))
 		return
 	if(length(contents))
 		var/obj/item/I = contents[1]
 		if(!remove_from_storage(I, user))
 			return
-		if(user.put_in_inactive_hand(I))
+		if(user.put_in_passive_hand(I))
 			to_chat(user, SPAN_NOTICE("You take \the [I] out of \the [src]."))
 			user.swap_hand()
 		else
@@ -69,27 +72,41 @@
 	spam_flag = TRUE
 	if(M == user)
 		if(!M.can_eat("pills"))
+			spam_flag = FALSE
 			return
 		user.setClickCooldown(DEFAULT_QUICK_COOLDOWN)
 		to_chat(M, SPAN("notice", "You swallow a pill from \the [src]."))
 		remove_from_storage(pill, get_turf(M))
+
+		if(ishuman(M))
+			var/mob/living/carbon/human/H = M
+			if(H.ingest(pill, TRUE))
+				spam_flag = FALSE
+				return TRUE
+
 		if(pill.reagents.total_volume)
 			pill.reagents.trans_to_mob(M, pill.reagents.total_volume, CHEM_INGEST)
 		qdel(pill)
 		spam_flag = FALSE
 		return TRUE
 
-	else if(istype(M, /mob/living/carbon/human))
-		if(!M.can_force_feed(user, "pills"))
+	else if(ishuman(M))
+		var/mob/living/carbon/human/H = M
+
+		if(!H.can_force_feed(user, "pills"))
 			spam_flag = FALSE
 			return FALSE
 
-		user.visible_message(SPAN("warning", "[user] attempts to force [M] to swallow pills from \the [src]."))
-		if(!do_mob(user, M))
+		user.visible_message(SPAN("warning", "[user] attempts to force [H] to swallow pills from \the [src]."))
+		if(!do_mob(user, H))
 			spam_flag = FALSE
 			return FALSE
 
-		if(user.get_active_hand() != src)
+		if(user.has_in_hands(src))
+			spam_flag = FALSE
+			return FALSE
+
+		if(!H.can_force_feed(user, "pills", check_resist = TRUE))
 			spam_flag = FALSE
 			return FALSE
 
@@ -97,12 +114,17 @@
 			spam_flag = FALSE
 			return FALSE
 
-		remove_from_storage(pill, get_turf(M))
-		user.visible_message(SPAN("warning", "[user] forces [M] to swallow pills from \the [src]."))
+		remove_from_storage(pill, get_turf(H))
+		user.visible_message(SPAN("warning", "[user] forces [H] to swallow pills from \the [src]."))
 		var/contained = pill.reagentlist()
-		admin_attack_log(user, M, "Fed the victim with [pill] (Reagents: [contained])", "Was fed with [pill] (Reagents: [contained])", "used [pill] (Reagents: [contained]) to feed")
+		admin_attack_log(user, H, "Fed the victim with [pill] (Reagents: [contained])", "Was fed with [pill] (Reagents: [contained])", "used [pill] (Reagents: [contained]) to feed")
+
+		if(H.ingest(pill, TRUE))
+			spam_flag = FALSE
+			return TRUE
+
 		if(pill.reagents.total_volume)
-			pill.reagents.trans_to_mob(M, pill.reagents.total_volume, CHEM_INGEST)
+			pill.reagents.trans_to_mob(H, pill.reagents.total_volume, CHEM_INGEST)
 		qdel(pill)
 		spam_flag = FALSE
 		return TRUE
@@ -111,7 +133,7 @@
 	return FALSE
 
 /obj/item/storage/pill_bottle/bicaridine
-	name = "pill bottle (bicaridine)" // Keeping these for mapping
+	name = "pill bottle (bicaridine)" // Keeping these for mapping or merchants
 	desc = "Contains pills used to stabilize the severely injured."
 	label_color = "#bf0000"
 	starting_label = "bicaridine"
@@ -182,6 +204,70 @@
 
 	startswith = list(/obj/item/reagent_containers/pill/tramadol = 14)
 
+/obj/item/storage/pill_bottle/oxycodone
+	name = "pill bottle (oxycodone)"
+	desc = "Contains pills of complex painkillers."
+	label_color = "#800080"
+	starting_label = "oxycodone"
+
+	startswith = list(/obj/item/reagent_containers/pill/oxycodone = 14)
+
+/obj/item/storage/pill_bottle/metazine
+	name = "pill bottle (metazine)"
+	desc = "Contains pills of combat painkillers."
+	label_color = "#b5af80"
+	starting_label = "metazine"
+
+	startswith = list(/obj/item/reagent_containers/pill/metazine = 14)
+
+/obj/item/storage/pill_bottle/tricordrazine
+	name = "pill bottle (tricordrazine)"
+	desc = "Contains pills of treat a wide range of injuries."
+	label_color = "#8040ff"
+	starting_label = "tricordrazine"
+
+	startswith = list(/obj/item/reagent_containers/pill/tricordrazine = 14)
+
+/obj/item/storage/pill_bottle/alkysine
+	name = "pill bottle (alkysine)"
+	desc = "Contains pills of aid in healing brain tissue."
+	label_color = "#ffff66"
+	starting_label = "alkysine"
+
+	startswith = list(/obj/item/reagent_containers/pill/alkysine = 14)
+
+/obj/item/storage/pill_bottle/imidazoline
+	name = "pill bottle (imidazoline)"
+	desc = "Contains pills of heals eye damage."
+	label_color = "#c8a5dc"
+	starting_label = "imidazoline"
+
+	startswith = list(/obj/item/reagent_containers/pill/imidazoline = 14)
+
+/obj/item/storage/pill_bottle/ryetalyn
+	name = "pill bottle (ryetalyn)"
+	desc = "Contains pills of cure all genetic abnomalities."
+	label_color = "#004000"
+	starting_label = "ryetalyn"
+
+	startswith = list(/obj/item/reagent_containers/pill/ryetalyn = 14)
+
+/obj/item/storage/pill_bottle/peridaxon
+	name = "pill bottle (peridaxon)"
+	desc = "Contains pills of encourage recovery of internal organs and nervous systems."
+	label_color = "#561ec3"
+	starting_label = "peridaxon"
+
+	startswith = list(/obj/item/reagent_containers/pill/peridaxon = 14)
+
+/obj/item/storage/pill_bottle/albumin
+	name = "pill bottle (albumin)"
+	desc = "Contains pills of improve blood regeneration rate."
+	label_color = "#803835"
+	starting_label = "albumin"
+
+	startswith = list(/obj/item/reagent_containers/pill/albumin = 14)
+
 //Baycode specific Psychiatry pills.
 /obj/item/storage/pill_bottle/citalopram
 	name = "pill bottle (citalopram)"
@@ -243,5 +329,14 @@
 	name = "sugar box"
 	desc = "A small box containing some precious cubes of sweetness."
 	icon_state = "sugar_bottle"
+	base_icon_state = "sugar_bottle"
 
 	startswith = list(/obj/item/reagent_containers/pill/sugar_cube = 14)
+
+/obj/item/storage/pill_bottle/emezoline
+	name = "pill bottle (emezoline)"
+	desc = "A substance that effectively supresses vomiting and nausea."
+	label_color = "#abead6"
+	starting_label = "emezoline"
+
+	startswith = list(/obj/item/reagent_containers/pill/emezoline = 14)

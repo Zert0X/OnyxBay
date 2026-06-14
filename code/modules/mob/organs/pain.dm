@@ -38,7 +38,7 @@
 			to_chat(src, SPAN("danger", "[message]"))
 		else
 			to_chat(src, SPAN("warning", "[message]"))
-	next_pain_time = world.time + (100 - power)
+	next_pain_time = world.time + max(150 - power, 50)
 
 /mob/living/carbon/human/proc/handle_pain()
 	if(stat)
@@ -50,7 +50,7 @@
 
 	var/maxdam = 0
 	var/obj/item/organ/external/damaged_organ = null
-	for(var/obj/item/organ/external/E in organs)
+	for(var/obj/item/organ/external/E in shuffle(external_organs))
 		if(!E.can_feel_pain())
 			continue
 		var/dam = E.get_damage()

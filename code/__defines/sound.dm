@@ -54,6 +54,8 @@
 #define SOUND_CHANNEL_AMBIENT_MUSIC 2
 #define SOUND_CHANNEL_HUM           3
 #define SOUND_CHANNEL_WEATHER       4
+#define SOUND_CHANNEL_NUKE          5
+#define SOUND_CHANNEL_RED_ALERT     6
 
 // Ambient music tags
 #define MUSIC_TAG_NORMAL          0
@@ -77,6 +79,8 @@
 #define SFX_792_FIRE                "792_fire"
 #define SFX_792_BOLT_BACK           "792_bolt_back"
 #define SFX_792_BOLT_FORWARD        "792_bolt_back"
+#define SFX_GRENADE_LAUNCHER        "glauncher"
+#define SFX_BANG				    "bang"
 
 // FEMALE EMOTES
 #define SFX_FEMALE_INTERNAL_BREATH  "female_internal_breath"
@@ -91,6 +95,7 @@
 #define SFX_FEMALE_LAUGH            "female_laugh"
 #define SFX_FEMALE_YAWN             "female_yawn"
 #define SFX_FEMALE_SIGH             "female_sigh"
+#define SFX_FEMALE_MOAN            "female_moan"
 
 // MALE EMOTES
 #define SFX_MALE_INTERNAL_BREATH    "male_internal_breath"
@@ -105,6 +110,10 @@
 #define SFX_MALE_LAUGH              "male_laugh"
 #define SFX_MALE_YAWN               "male_yawn"
 #define SFX_MALE_SIGH               "male_sigh"
+#define SFX_MALE_MOAN              "male_moan"
+
+// MISC EMOTES
+#define SFX_ROBOTIC_MEOW "robotic_meow"
 
 // AMBIENT
 #define SFX_AMBIENT_POWERED_GLOBAL      "ambient_powered_global"
@@ -317,6 +326,8 @@
 #define SFX_FIGHTING_CRUNCH         "fighting_crunch"
 #define SFX_FIGHTING_PUNCH          "fighting_punch"
 #define SFX_FIGHTING_SWING          "fighting_swing"
+#define SFX_STUNSTICK_HIT           "stunstick_hit"
+#define SFX_FALL_DAMAGE             "fall_damage"
 
 // DEVICES
 #define SFX_GEIGER_LOW              "geiger_low"
@@ -334,6 +345,7 @@
 #define SFX_GLASS_KNOCK             "glass_knock"
 #define SFX_GIB                     "gib"
 #define SFX_CLOWN                   "clown"
+#define SFX_HEELS                   "heels"
 #define SFX_HISS                    "hiss"
 #define SFX_WHISTLE                 "whistle"
 #define SFX_SNORE                   "snore"
@@ -344,6 +356,11 @@
 #define SFX_THROWING                "throwing"
 #define SFX_DISPOSAL                "disposal"
 #define SFX_OINK                    "oink"
+#define SFX_PLANTCROSS              "plantcross"
+#define SFX_THUNDER                 "thunder"
+#define SFX_SHOE_COVERS             "shoe_covers"
+#define SFX_GLASSES_CLINK           "glasses_clink"
+#define SFX_SUPERMATTER             "supermatter"
 
 // FOOTSTEPS
 #define SFX_DISTANT_MOVEMENT        "distant_movement"
@@ -358,7 +375,9 @@
 #define SFX_FOOTSTEP_BLANK          "footstep_blank"
 #define SFX_FOOTSTEP_ROBOT_LEGS     "footstep_robot_legs"
 #define SFX_FOOTSTEP_ROBOT_SPIDER   "footstep_robot_spider"
+#define SFX_FOOTSTEP_ROBOT_UNICYCLE "footstep_robot_unicycle"
 #define SFX_FOOTSTEP_STAIRS         "footstep_stairs"
+#define SFX_FOOTSTEP_SWAMP          "footstep_swamp"
 
 // VENDING
 #define SFX_VENDING_CANS            "vending_cans"

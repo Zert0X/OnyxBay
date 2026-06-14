@@ -112,7 +112,7 @@
 		remove_cell(usr)
 
 /obj/item/device/handcharger/attack_hand(mob/user)
-	if(user.get_inactive_hand() == src)
+	if(user.has_in_passive_hand(src))
 		if(remove_cell(user))
 			return
 	return ..()
@@ -131,7 +131,7 @@
 
 	var/mob/living/carbon/human/H = user
 
-	if(H.nutrition > 10)
+	if(H.nutrition > 10 && H.hydration)
 		THROTTLE(cooldown, 5)
 		if(!cooldown)
 			return
@@ -140,6 +140,7 @@
 		playsound(user.loc, 'sound/items/Ratchet.ogg', 50, 1)
 
 		H.remove_nutrition(0.5)
+		H.remove_hydration(0.1)
 		my_cell.give(charge_per_use)
 	else
 		to_chat(H, "You can barely move your fingers at this point. Perhaps, YOU are the one who needs recharging now.")

@@ -2,7 +2,7 @@
 	hierarchy_type = /decl/hierarchy/outfit/job/security
 	glasses = /obj/item/clothing/glasses/hud/aviators/security
 	l_ear = /obj/item/device/radio/headset/headset_sec
-	gloves = /obj/item/clothing/gloves/thick/security
+	gloves = /obj/item/clothing/gloves/security
 	shoes = /obj/item/clothing/shoes/jackboots
 	backpack_contents = list(/obj/item/handcuffs = 1)
 	flags = OUTFIT_HAS_BACKPACK|OUTFIT_COMBAT_SURVIVAL
@@ -29,7 +29,7 @@
 /decl/hierarchy/outfit/job/security/detective
 	name = OUTFIT_JOB_NAME("Detective")
 	head = /obj/item/clothing/head/det
-	uniform = /obj/item/clothing/under/det
+	uniform = /obj/item/clothing/under/rank/det
 	suit = /obj/item/clothing/suit/storage/toggle/det_trench
 	l_pocket = /obj/item/flame/lighter/zippo
 	shoes = /obj/item/clothing/shoes/laceup

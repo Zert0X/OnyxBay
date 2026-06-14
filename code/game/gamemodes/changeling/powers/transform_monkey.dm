@@ -98,10 +98,11 @@
 
 	O.UpdateAppearance()
 	domutcheck(O, null)
-	O.setToxLoss(C.getToxLoss())
+	O.adjustToxPercent(C.getToxLoss())
 	O.adjustBruteLoss(C.getBruteLoss())
 	O.setOxyLoss(C.getOxyLoss())
 	O.adjustFireLoss(C.getFireLoss())
+	O.adjustInternalLoss(C.getInternalLoss())
 	O.set_stat(C.stat)
 	for (var/obj/item/implant/I in implants)
 		I.forceMove(O)

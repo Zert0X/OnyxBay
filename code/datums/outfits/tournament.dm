@@ -18,7 +18,7 @@
 /decl/hierarchy/outfit/tournament_gear/gangster
 	name = "Tournament gear - Gangster"
 	head = /obj/item/clothing/head/det
-	uniform = /obj/item/clothing/under/det
+	uniform = /obj/item/clothing/under/rank/det
 	suit_store = /obj/item/clothing/suit/storage/toggle/det_trench
 	glasses = /obj/item/clothing/glasses/hud/plain/thermal/monocle
 	r_hand = /obj/item/gun/projectile/revolver
@@ -47,4 +47,4 @@
 	..()
 	var/obj/item/reagent_containers/vessel/bucket/bucket = locate(/obj/item/reagent_containers/vessel/bucket) in H
 	if(bucket)
-		bucket.reagents.add_reagent(/datum/reagent/water, 70)
+		bucket.reagents.add_reagent(/datum/reagent/water, 700)

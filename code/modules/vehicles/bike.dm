@@ -86,6 +86,7 @@
 	if(!engine)
 		return
 	engine.forceMove(get_turf(src))
+	engine = null
 	if(trail)
 		trail.stop()
 		qdel(trail)
@@ -106,29 +107,33 @@
 /obj/vehicle/bike/insert_cell(obj/item/cell/C, mob/living/carbon/human/H)
 	return
 
-/obj/vehicle/bike/attackby(obj/item/W as obj, mob/user as mob)
+/obj/vehicle/bike/attackby(obj/item/W, mob/user)
 	if(open)
 		if(istype(W, /obj/item/engine))
 			if(engine)
 				to_chat(user, "<span class='warning'>There is already an engine block in \the [src].</span>")
-				return 1
+				return TRUE
+
 			user.visible_message("<span class='warning'>\The [user] installs \the [W] into \the [src].</span>")
-			load_engine(W)
-			return
+			load_engine(W, user)
+			return TRUE
+
 		else if(engine && engine.attackby(W,user))
-			return 1
+			return TRUE
+
 		else if(isCrowbar(W) && engine)
 			to_chat(user, "You pop out \the [engine] from \the [src].")
 			unload_engine()
-			return 1
+			return TRUE
+
 	return ..()
 
-/obj/vehicle/bike/MouseDrop_T(atom/movable/C, mob/user as mob)
+/obj/vehicle/bike/MouseDrop_T(atom/movable/C, mob/user)
 	if(!load(C))
 		to_chat(user, "<span class='warning'> You were unable to load \the [C] onto \the [src].</span>")
 		return
 
-/obj/vehicle/bike/attack_hand(mob/user as mob)
+/obj/vehicle/bike/attack_hand(mob/user)
 	if(user == load)
 		unload(load)
 		to_chat(user, "You unbuckle yourself from \the [src]")

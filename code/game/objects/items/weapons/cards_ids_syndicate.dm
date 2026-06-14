@@ -1,6 +1,7 @@
 /obj/item/card/id/syndicate
 	name = "agent card"
-	icon_state = "syndicate"
+	icon_state = "card_agent"
+	item_state = "card_agent"
 	assignment = "Agent"
 	origin_tech = list(TECH_ILLEGAL = 3)
 	var/electronic_warfare = TRUE

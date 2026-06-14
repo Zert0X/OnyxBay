@@ -9,7 +9,6 @@ var/list/global/tank_gauge_cache = list()
 
 	var/gauge_icon = "indicator_tank"
 	var/gauge_cap = 6
-	var/previous_gauge_pressure = null
 
 	obj_flags = OBJ_FLAG_CONDUCTIBLE
 	slot_flags = SLOT_BACK
@@ -31,6 +30,7 @@ var/list/global/tank_gauge_cache = list()
 	var/obj/item/device/assembly_holder/assembly = null
 	var/static/image/bomb_assembly = image(icon = 'icons/obj/tank.dmi', icon_state = "bomb_assembly")
 	var/image/assembly_overlay = null
+	var/image/gauge_overlay = null
 
 	var/volume = 70
 	var/manipulated_by = null		//Used by _onclick/hud/screen_objects.dm internals to determine if someone has messed with our tank or not.
@@ -57,6 +57,7 @@ var/list/global/tank_gauge_cache = list()
 
 	drop_sound = SFX_DROP_GASCAN
 	pickup_sound = SFX_PICKUP_GASCAN
+	flags_inv = HIDERIG
 
 /obj/item/tank/Initialize()
 	. = ..()
@@ -71,6 +72,7 @@ var/list/global/tank_gauge_cache = list()
 /obj/item/tank/Destroy()
 	manipulated_by = null
 	assembly_overlay = null
+	gauge_overlay = null
 
 	QDEL_NULL(air_contents)
 	QDEL_NULL(assembly)
@@ -140,7 +142,7 @@ var/list/global/tank_gauge_cache = list()
 		if(wired && istype(assembly))
 
 			to_chat(user, "<span class='notice'>You carefully begin clipping the wires that attach to the tank.</span>")
-			if(do_after(user, 100,src))
+			if(do_after(user, 100, src, luck_check_type = LUCK_CHECK_ENG))
 				wired = FALSE
 				to_chat(user, "<span class='notice'>You cut the wire and remove the device.</span>")
 				assembly.master = null
@@ -154,7 +156,7 @@ var/list/global/tank_gauge_cache = list()
 					assembly.process_activation(src)
 
 		else if(wired)
-			if(!do_after(user, 10, src))
+			if(!do_after(user, 10, src, luck_check_type = LUCK_CHECK_ENG))
 				return
 
 			if(QDELETED(src))
@@ -170,7 +172,7 @@ var/list/global/tank_gauge_cache = list()
 	if(istype(W, /obj/item/device/assembly_holder))
 		if(wired)
 			to_chat(user, "<span class='notice'>You begin attaching the assembly to \the [src].</span>")
-			if(do_after(user, 50, src))
+			if(do_after(user, 50, src, luck_check_type = LUCK_CHECK_ENG))
 				to_chat(user, "<span class='notice'>You finish attaching the assembly to \the [src].</span>")
 				GLOB.bombers += "[key_name(user)] attached an assembly to a wired [src]. Temp: [CONV_KELVIN_CELSIUS(air_contents.temperature)]"
 				message_admins("[key_name_admin(user)] attached an assembly to a wired [src]. Temp: [CONV_KELVIN_CELSIUS(air_contents.temperature)]")
@@ -188,7 +190,7 @@ var/list/global/tank_gauge_cache = list()
 
 		to_chat(user, SPAN_NOTICE("You begin welding the \the [src] emergency pressure relief valve."))
 
-		if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 5))
+		if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 50))
 			GLOB.bombers += "[key_name(user)] attempted to weld a [src]. [CONV_KELVIN_CELSIUS(air_contents.temperature)]"
 			message_admins("[key_name_admin(user)] attempted to weld a [src]. [CONV_KELVIN_CELSIUS(air_contents.temperature)]")
 			if(WT.welding)
@@ -382,22 +384,28 @@ var/list/global/tank_gauge_cache = list()
 
 	set_next_think(world.time + 1 SECOND)
 
-/obj/item/tank/on_update_icon(override)
-	var/needs_updating = override
-
-	if((atom_flags & ATOM_FLAG_INITIALIZED) && istype(loc, /obj/) && !istype(loc, /obj/item/clothing/suit/) && !override) //So we don't eat up our tick. Every tick, when we're not actually in play.
+/obj/item/tank/on_update_icon()
+	if((atom_flags & ATOM_FLAG_INITIALIZED) && istype(loc, /obj/) && !istype(loc, /obj/item/clothing/suit/)) //So we don't eat up our tick. Every tick, when we're not actually in play.
 		return
 
-	var/gauge_pressure = 0
-	if(air_contents)
+	CutOverlays(gauge_overlay)
+	CutOverlays(bomb_assembly)
+	CutOverlays(assembly_overlay)
+
+	if(gauge_icon && air_contents)
+		var/gauge_pressure = 0
 		gauge_pressure = air_contents.return_pressure()
 		if(gauge_pressure > TANK_IDEAL_PRESSURE)
 			gauge_pressure = -1
 		else
-			gauge_pressure = round((gauge_pressure/TANK_IDEAL_PRESSURE)*gauge_cap)
+			gauge_pressure = round((gauge_pressure / TANK_IDEAL_PRESSURE) * gauge_cap)
 
-	CutOverlays(bomb_assembly)
-	CutOverlays(assembly_overlay)
+		var/indicator = "[gauge_icon][(gauge_pressure == -1) ? "overload" : gauge_pressure]"
+		if(!tank_gauge_cache[indicator])
+			tank_gauge_cache[indicator] = image(icon, indicator)
+		gauge_overlay = tank_gauge_cache[indicator]
+		AddOverlays(gauge_overlay)
+
 	if(wired)
 		AddOverlays(bomb_assembly)
 		if(istype(assembly))
@@ -406,23 +414,6 @@ var/list/global/tank_gauge_cache = list()
 			assembly_overlay.pixel_y = -1
 			assembly_overlay.pixel_x = -3
 			AddOverlays(assembly_overlay)
-
-	if(previous_gauge_pressure != gauge_pressure)
-		needs_updating = 1
-
-	previous_gauge_pressure = gauge_pressure
-	if(!needs_updating)
-		return
-
-	ClearOverlays() // Each time you modify this, the object is redrawn. Cunts.
-
-	if(!gauge_icon)
-		return
-
-	var/indicator = "[gauge_icon][(gauge_pressure == -1) ? "overload" : gauge_pressure]"
-	if(!tank_gauge_cache[indicator])
-		tank_gauge_cache[indicator] = image(icon, indicator)
-	AddOverlays(tank_gauge_cache[indicator])
 
 /// Handle exploding, leaking, and rupturing of the tank.
 /// Returns `TRUE` if it should continue thinking.
@@ -549,7 +540,7 @@ var/list/global/tank_gauge_cache = list()
 	air_contents.gas["oxygen"] = oxygen_amt
 	air_contents.update_values()
 	valve_welded = 1
-	air_contents.temperature = PLASMA_MINIMUM_BURN_TEMPERATURE-1
+	air_contents.temperature = FLAMMABLE_GAS_MINIMUM_BURN_TEMPERATURE - 1
 
 	wired = 1
 
@@ -574,7 +565,7 @@ var/list/global/tank_gauge_cache = list()
 	assembly = S
 	assembly.master = src
 
-	if(user.get_active_item() != src && Adjacent(user, src))
+	if(!user.has_in_hands(src) && Adjacent(user, src))
 		user.pick_or_drop(src)  // Equips the bomb if possible, or puts it on the floor.
 
 	update_icon()

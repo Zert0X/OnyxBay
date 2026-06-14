@@ -9,7 +9,11 @@
 	mod_weight = 0.45
 	mod_reach = 0.25
 	mod_handy = 0.65
-	volume = 30
+
+	volume = 0.3 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;100;150;250;300"
+
 	center_of_mass = "x=15;y=13"
 	filling_states = "20;40;80;100"
 	lid_type = null
@@ -57,7 +61,7 @@
 	desc = "A white coffee mug, prominently featuring a \"#1 monkey\"."
 	icon_state = "coffeecup_punitelli"
 	item_state = "coffeecup"
-	startswith = list(/datum/reagent/drink/juice/banana = 30)
+	startswith = list(/datum/reagent/drink/juice/banana = 300)
 
 /obj/item/reagent_containers/vessel/mug/rainbow
 	name = "rainbow mug"
@@ -109,7 +113,11 @@
 	mod_weight = 0.55
 	mod_reach = 0.35
 	mod_handy = 0.65
-	volume = 60
+
+	volume = 0.45 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;100;150;250;300;450"
+
 	center_of_mass = "x=15;y=19"
 	filling_states = "50;70;90;100"
 	base_icon = null

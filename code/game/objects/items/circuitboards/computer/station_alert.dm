@@ -1,5 +1,6 @@
 /obj/item/circuitboard/stationalert
 	name = T_BOARD("alert console")
+	icon_state = "id_mod_orange"
 	build_path = /obj/machinery/computer/station_alert
 	var/list/alarm_handlers
 

@@ -46,10 +46,10 @@ GLOBAL_LIST_INIT(lawgiver_modes, list(
 /obj/item/gun/projectile/lawgiver/proc/init_voice_activators()
 	if(voice_activators_init_complete)
 		return
-	if(!fexists("config/names/lawgiver.txt"))
+	if(!fexists("strings/names/lawgiver.txt"))
 		CRASH("Lawgiver voice activators file not found")
 	voice_activators_init_complete = TRUE
-	var/list/voice_activators = world.file2list("config/names/lawgiver.txt")
+	var/list/voice_activators = world.file2list("strings/names/lawgiver.txt")
 	var/ind
 	for(ind = 1, ind <= length(GLOB.lawgiver_modes), ind++)
 		GLOB.lawgiver_modes[ind]["voice_activator"] = splittext(voice_activators[ind], ";")
@@ -62,6 +62,10 @@ GLOBAL_LIST_INIT(lawgiver_modes, list(
 	update_icon()
 	// for firemode voice-triggers
 	GLOB.listening_objects += src
+
+/obj/item/gun/projectile/lawgiver/Destroy()
+	GLOB.listening_objects -= src
+	. = ..()
 
 /obj/item/gun/projectile/lawgiver/equipped(mob/M, hand)
 	update_icon()
@@ -116,8 +120,8 @@ GLOBAL_LIST_INIT(lawgiver_modes, list(
 	if(!dna_profile)
 		dna_profile = H.dna.unique_enzymes
 		to_chat(usr, SPAN("notice", "You submit a DNA sample to \the [src]."))
-		add_verb(loc, /obj/item/gun/projectile/lawgiver/verb/erase_DNA_sample)
-		remove_verb(loc, /obj/item/gun/projectile/lawgiver/verb/submit_DNA_sample)
+		verbs += /obj/item/gun/projectile/lawgiver/verb/erase_DNA_sample
+		verbs -= /obj/item/gun/projectile/lawgiver/verb/submit_DNA_sample
 		update_icon()
 		return 1
 
@@ -143,8 +147,8 @@ GLOBAL_LIST_INIT(lawgiver_modes, list(
 /obj/item/gun/projectile/lawgiver/proc/remove_dna()
 	dna_profile = null
 	audible_message("<b>\The [src]</b> reports, \"No DNA profile found.\"", splash_override = "No DNA profile found.")
-	add_verb(loc, /obj/item/gun/projectile/lawgiver/verb/submit_DNA_sample)
-	remove_verb(loc, /obj/item/gun/projectile/lawgiver/verb/erase_DNA_sample)
+	verbs += /obj/item/gun/projectile/lawgiver/verb/submit_DNA_sample
+	verbs -= /obj/item/gun/projectile/lawgiver/verb/erase_DNA_sample
 	update_icon()
 
 /obj/item/gun/projectile/lawgiver/emp_act(severity)
@@ -174,7 +178,7 @@ GLOBAL_LIST_INIT(lawgiver_modes, list(
 			to_chat(user, SPAN("notice", "You think you're being silly trying to reset the DNA profile from \the [src] because there is no DNA profile here."))
 			return
 		hack_in_progress = TRUE
-		if(do_after(user, 10 SECOND, src) && prob(25))
+		if(do_after(user, 10 SECOND, src, luck_check_type = LUCK_CHECK_COMBAT) && prob(25))
 			hack_in_progress = FALSE
 			if(--hacks_remains)
 				to_chat(user, SPAN("notice", "\The [src] cracks, after a few tries, you will be able to reset the DNA lock."))

@@ -19,7 +19,7 @@ var/global/datum/body_build/default_body_build = new
 		"slot_head"      = 'icons/inv_slots/hats/mob.dmi',
 		"slot_shoes"     = 'icons/inv_slots/shoes/mob.dmi',
 		"slot_belt"      = 'icons/inv_slots/belts/mob.dmi',
-		"slot_s_store"   = 'icons/inv_slots/belts/mirror/mob.dmi',
+		"slot_s_store"   = 'icons/inv_slots/suitstorage/mob.dmi',
 		"slot_back"      = 'icons/inv_slots/back/mob.dmi',
 		"slot_tie"       = 'icons/inv_slots/acessories/mob.dmi',
 		"slot_hidden"    = 'icons/inv_slots/hidden/mob.dmi',
@@ -38,6 +38,9 @@ var/global/datum/body_build/default_body_build = new
 	var/poise_pool         = HUMAN_DEFAULT_POISE
 	var/stomach_capacity   = STOMACH_CAPACITY_NORMAL
 	var/ambiguous_gender   = FALSE // If TRUE, both females and females will be PLURAL if there's no beard and their groin is covered
+	var/melee_modifier     = 1.0
+	var/climb_speed        = 1.0 // Climbing tables, etc.; lower is faster
+	var/pull_slowdown      = 1.0 // How difficult we are to pull; higher is slower
 
 	var/list/equip_adjust
 	var/list/equip_overlays = list()
@@ -77,7 +80,7 @@ var/global/datum/body_build/default_body_build = new
 		"slot_head"      = 'icons/inv_slots/hats/mob.dmi',
 		"slot_shoes"     = 'icons/inv_slots/shoes/mob_slim.dmi',
 		"slot_belt"      = 'icons/inv_slots/belts/mob_slim.dmi',
-		"slot_s_store"   = 'icons/inv_slots/belts/mirror/mob_slim.dmi',
+		"slot_s_store"   = 'icons/inv_slots/suitstorage/mob_slim.dmi',
 		"slot_back"      = 'icons/inv_slots/back/mob_slim.dmi',
 		"slot_tie"       = 'icons/inv_slots/acessories/mob_slim.dmi',
 		"slot_hidden"    = 'icons/inv_slots/hidden/mob_slim.dmi',
@@ -92,6 +95,7 @@ var/global/datum/body_build/default_body_build = new
 
 	stomach_capacity   = STOMACH_CAPACITY_LOW
 	poise_pool         = HUMAN_LOW_POISE
+	melee_modifier     = 0.75 // It's kinda hard to club people when you're two times thinner than a regular person.
 
 	equip_adjust = list(
 		"slot_l_hand" = list(
@@ -122,7 +126,7 @@ var/global/datum/body_build/default_body_build = new
 		"slot_head"      = 'icons/inv_slots/hats/mob.dmi',
 		"slot_shoes"     = 'icons/inv_slots/shoes/mob_slimalt.dmi',
 		"slot_belt"      = 'icons/inv_slots/belts/mob_slim.dmi',
-		"slot_s_store"   = 'icons/inv_slots/belts/mirror/mob_slim.dmi',
+		"slot_s_store"   = 'icons/inv_slots/suitstorage/mob_slim.dmi',
 		"slot_back"      = 'icons/inv_slots/back/mob_slim.dmi',
 		"slot_tie"       = 'icons/inv_slots/acessories/mob_slim.dmi',
 		"slot_hidden"    = 'icons/inv_slots/hidden/mob_slimalt.dmi',
@@ -150,7 +154,7 @@ var/global/datum/body_build/default_body_build = new
 		"slot_head"      = 'icons/inv_slots/hats/mob.dmi',
 		"slot_shoes"     = 'icons/inv_slots/shoes/mob_slim.dmi',
 		"slot_belt"      = 'icons/inv_slots/belts/mob_slim.dmi',
-		"slot_s_store"   = 'icons/inv_slots/belts/mirror/mob_slim.dmi',
+		"slot_s_store"   = 'icons/inv_slots/suitstorage/mob_slim.dmi',
 		"slot_back"      = 'icons/inv_slots/back/mob_slim_m.dmi',
 		"slot_tie"       = 'icons/inv_slots/acessories/mob_slim_m.dmi',
 		"slot_hidden"    = 'icons/inv_slots/hidden/mob_slim_m.dmi',
@@ -179,7 +183,7 @@ var/global/datum/body_build/default_body_build = new
 		"slot_head"      = 'icons/inv_slots/hats/mob.dmi',
 		"slot_shoes"     = 'icons/inv_slots/shoes/mob_slim.dmi',
 		"slot_belt"      = 'icons/inv_slots/belts/mob_slim.dmi',
-		"slot_s_store"   = 'icons/inv_slots/belts/mirror/mob_slim.dmi',
+		"slot_s_store"   = 'icons/inv_slots/suitstorage/mob_slim.dmi',
 		"slot_back"      = 'icons/inv_slots/back/mob_slim_m.dmi',
 		"slot_tie"       = 'icons/inv_slots/acessories/mob_slim_m.dmi',
 		"slot_hidden"    = 'icons/inv_slots/hidden/mob_slim_flat.dmi',
@@ -208,7 +212,7 @@ var/global/datum/body_build/default_body_build = new
 		"slot_head"      = 'icons/inv_slots/hats/mob.dmi',
 		"slot_shoes"     = 'icons/inv_slots/shoes/mob.dmi',
 		"slot_belt"      = 'icons/inv_slots/belts/mob_fat.dmi',
-		"slot_s_store"   = 'icons/inv_slots/belts/mirror/mob.dmi',
+		"slot_s_store"   = 'icons/inv_slots/suitstorage/mob_fat.dmi',
 		"slot_back"      = 'icons/inv_slots/back/mob_fat.dmi',
 		"slot_tie"       = 'icons/inv_slots/acessories/mob_fat.dmi',
 		"slot_hidden"    = 'icons/inv_slots/hidden/mob_fat.dmi',
@@ -225,7 +229,10 @@ var/global/datum/body_build/default_body_build = new
 	movespeed_modifier = /datum/movespeed_modifier/bodybuild/fat
 	equipment_modifier = 0.5
 	poise_pool         = HUMAN_HIGH_POISE
-	ambiguous_gender = TRUE
+	ambiguous_gender   = TRUE
+	melee_modifier     = 1.15 // Force is acceleration times MASS, so...
+	climb_speed        = 2.5 // You're a landwhale; not a, what, tablewhale?
+	pull_slowdown      = 2.0
 
 
 /datum/body_build/slim/alt/tajaran //*sigh. I regret of doing this.
@@ -242,7 +249,7 @@ var/global/datum/body_build/default_body_build = new
 		"slot_head"      = 'icons/inv_slots/hats/mob_tajaran.dmi',
 		"slot_shoes"     = 'icons/inv_slots/shoes/mob_slimalt.dmi',
 		"slot_belt"      = 'icons/inv_slots/belts/mob_slim.dmi',
-		"slot_s_store"   = 'icons/inv_slots/belts/mirror/mob_slim.dmi',
+		"slot_s_store"   = 'icons/inv_slots/suitstorage/mob_slim.dmi',
 		"slot_back"      = 'icons/inv_slots/back/mob_slim.dmi',
 		"slot_tie"       = 'icons/inv_slots/acessories/mob_slim.dmi',
 		"slot_hidden"    = 'icons/inv_slots/hidden/mob_slimalt.dmi',
@@ -256,6 +263,7 @@ var/global/datum/body_build/default_body_build = new
 	dam_mask             = 'icons/mob/human_races/masks/dam_mask_tajaran_slim.dmi'
 
 	equipment_modifier = -0.5
+	climb_speed = 0.75
 
 /datum/body_build/tajaran
 	name                 = "Tajaran"
@@ -271,7 +279,7 @@ var/global/datum/body_build/default_body_build = new
 		"slot_head"      = 'icons/inv_slots/hats/mob_tajaran.dmi',
 		"slot_shoes"     = 'icons/inv_slots/shoes/mob_tajaran.dmi',
 		"slot_belt"      = 'icons/inv_slots/belts/mob.dmi',
-		"slot_s_store"   = 'icons/inv_slots/belts/mirror/mob.dmi',
+		"slot_s_store"   = 'icons/inv_slots/suitstorage/mob.dmi',
 		"slot_back"      = 'icons/inv_slots/back/mob.dmi',
 		"slot_tie"       = 'icons/inv_slots/acessories/mob.dmi',
 		"slot_hidden"    = 'icons/inv_slots/hidden/mob_tajaran.dmi',
@@ -280,6 +288,7 @@ var/global/datum/body_build/default_body_build = new
 		"slot_r_hand"    = 'icons/mob/onmob/items/righthand.dmi'
 		)
 	dam_mask             = 'icons/mob/human_races/masks/dam_mask_tajaran.dmi'
+	climb_speed = 0.75
 
 /datum/body_build/tajaran/fat
 	name                 = "Fat Tajaran"
@@ -296,7 +305,7 @@ var/global/datum/body_build/default_body_build = new
 		"slot_head"      = 'icons/inv_slots/hats/mob_tajaran.dmi',
 		"slot_shoes"     = 'icons/inv_slots/shoes/mob_tajaran.dmi',
 		"slot_belt"      = 'icons/inv_slots/belts/mob.dmi',
-		"slot_s_store"   = 'icons/inv_slots/belts/mirror/mob.dmi',
+		"slot_s_store"   = 'icons/inv_slots/suitstorage/mob_fat.dmi',
 		"slot_back"      = 'icons/inv_slots/back/mob_fat.dmi',
 		"slot_tie"       = 'icons/inv_slots/acessories/mob_fat.dmi',
 		"slot_hidden"    = 'icons/inv_slots/hidden/mob_fat.dmi',
@@ -310,7 +319,9 @@ var/global/datum/body_build/default_body_build = new
 	movespeed_modifier = /datum/movespeed_modifier/bodybuild/fat
 	equipment_modifier = 0.5
 	poise_pool         = HUMAN_HIGH_POISE
-	ambiguous_gender = TRUE
+	ambiguous_gender   = TRUE
+	climb_speed        = 1.0 // Even a OH-LAWD-CHONK-BOI-fat cat is at least as agile as a normal human
+	pull_slowdown      = 2.0
 
 /datum/body_build/unathi
 	name                 = SPECIES_UNATHI
@@ -326,7 +337,7 @@ var/global/datum/body_build/default_body_build = new
 		"slot_head"      = 'icons/inv_slots/hats/mob_unathi.dmi',
 		"slot_shoes"     = 'icons/inv_slots/shoes/mob.dmi',
 		"slot_belt"      = 'icons/inv_slots/belts/mob.dmi',
-		"slot_s_store"   = 'icons/inv_slots/belts/mirror/mob.dmi',
+		"slot_s_store"   = 'icons/inv_slots/suitstorage/mob.dmi',
 		"slot_back"      = 'icons/inv_slots/back/mob.dmi',
 		"slot_tie"       = 'icons/inv_slots/acessories/mob.dmi',
 		"slot_hidden"    = 'icons/inv_slots/hidden/mob_unathi.dmi',
@@ -337,6 +348,7 @@ var/global/datum/body_build/default_body_build = new
 	dam_mask             = 'icons/mob/human_races/masks/dam_mask_lizard.dmi'
 
 	poise_pool         = HUMAN_HIGH_POISE
+	melee_modifier     = 1.15
 
 /datum/body_build/vox
 	name                 = "Vox"
@@ -352,7 +364,7 @@ var/global/datum/body_build/default_body_build = new
 		"slot_head"      = 'icons/inv_slots/hats/mob_vox.dmi',
 		"slot_shoes"     = 'icons/inv_slots/shoes/mob_vox.dmi',
 		"slot_belt"      = 'icons/inv_slots/belts/mob.dmi',
-		"slot_s_store"   = 'icons/inv_slots/belts/mirror/mob.dmi',
+		"slot_s_store"   = 'icons/inv_slots/suitstorage/mob.dmi',
 		"slot_back"      = 'icons/inv_slots/back/mob.dmi',
 		"slot_tie"       = 'icons/inv_slots/acessories/mob_vox.dmi',
 		"slot_hidden"    = 'icons/inv_slots/hidden/mob.dmi',
@@ -375,7 +387,7 @@ var/global/datum/body_build/default_body_build = new
 		"slot_head"      = 'icons/inv_slots/hats/mob.dmi',
 		"slot_shoes"     = 'icons/inv_slots/shoes/mob.dmi',
 		"slot_belt"      = 'icons/inv_slots/belts/mob.dmi',
-		"slot_s_store"   = 'icons/inv_slots/belts/mirror/mob.dmi',
+		"slot_s_store"   = 'icons/inv_slots/suitstorage/mob.dmi',
 		"slot_back"      = 'icons/inv_slots/back/mob.dmi',
 		"slot_tie"       = 'icons/mob/species/monkey/ties.dmi',
 		"slot_hidden"    = 'icons/inv_slots/hidden/mob.dmi',
@@ -390,6 +402,9 @@ var/global/datum/body_build/default_body_build = new
 	stomach_capacity   = STOMACH_CAPACITY_LOW
 
 	equipment_modifier = -0.5
+	melee_modifier     = 1.25 // Monke muscles are no joke
+	climb_speed        = 0.5
+	pull_slowdown      = 0.75
 
 /datum/body_build/xenomorph
 	name                 = "Xenomorph"
@@ -399,3 +414,5 @@ var/global/datum/body_build/default_body_build = new
 	bandages_icon        =  null
 
 	poise_pool         = HUMAN_MAX_POISE
+	climb_speed        = 0.5 // Realistically, they should be able to jog along walls and ceilings, effectively ignoring four-legged thingies, but let's keep things at least somewhat balanced.
+	pull_slowdown      = 2.0

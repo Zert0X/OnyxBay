@@ -10,8 +10,10 @@
 
 	var/holy = FALSE
 
-	// Initial air contents (in moles)
-	var/list/initial_gas
+	var/open_turf_type // Which open turf type to use by default above this turf in a multiz context. Overridden by area.
+
+	// Initial gas contents, must be a path of a /decl/initial_gas_mix child. Will become a reference automatically during New(). ~NoSieve
+	var/decl/initial_gas_mix/initial_gas = /decl/initial_gas_mix/empty
 
 	//Properties for airtight tiles (/wall)
 	var/thermal_conductivity = 0.05
@@ -46,23 +48,72 @@
 	/// See __DEFINES/construction.dm for RCD_MEMORY_*.
 	var/rcd_memory
 
+	/**
+	 * Certified atmos shitfuckery.
+	 */
+
+	/// Will participate in ZAS, join zones, etc.
+	var/zone_membership_candidate = TRUE
+	/// Will participate in external atmosphere simulation if the turf is outside and no zone is set.
+	var/external_atmosphere_participation = TRUE
+
+	///The turf's current zone.
+	var/zone/zone
+	///All directions in which a turf that can contain air is present.
+	var/open_directions
+
+	///Is this turf queued in the TURFS cycle of SSair?
+	var/needs_air_update = 0
+
+	///The cached air mixture of a turf. Never directly access, use `return_air()`.
+	//This exists to store air during zone rebuilds, as well as for unsimulated turfs.
+	//They are never deleted to not overwhelm the garbage collector.
+	var/datum/gas_mixture/air
+
+	///Whether this tile is willing to copy air from a previous tile through ChangeTurf, transfer_turf_properties etc.
+	var/can_inherit_air = TRUE
+
+	/// TL DR leave this shit alone please.
+	var/is_outside = OUTSIDE_AREA
+	var/last_outside_check = OUTSIDE_UNCERTAIN
+
 /datum/rad_resist/turf
 	alpha_particle_resist = 38 MEGA ELECTRONVOLT
 	beta_particle_resist = 50 KILO ELECTRONVOLT
 	hawking_resist = 81 MILLI ELECTRONVOLT
 
+/turf/New(newloc) // TODO: Get rid of New's in turfs or at least make them organized
+	if(!ispath(initial_gas)) // I fukken HOPE it's safe to do this BEFORE everything
+		initial_gas = /decl/initial_gas_mix/empty
+	initial_gas = decls_repository.get_decl(initial_gas)
+
+	..(newloc)
+
 /turf/Initialize(mapload, ...)
 	. = ..()
+
 	if(dynamic_lighting)
 		luminosity = 0
 	else
 		luminosity = 1
 
+	if(!mapload)
+		SSair.mark_for_update(src)
+
 	RecalculateOpacity()
+	update_astar_node()
+	update_graphic()
 
 /turf/Destroy()
 	if(!changing_turf)
 		util_crash_with("Improper turf qdel. Do not qdel turfs directly.")
+
+	if(zone)
+		if(can_safely_remove_from_zone())
+			c_copy_air()
+			zone.remove(src)
+		else
+			zone.rebuild()
 
 	changing_turf = FALSE
 	remove_cleanables()
@@ -182,17 +233,10 @@ var/const/enterloopsanity = 100
 	if(!istype(AM))
 		return
 
-	if(ismob(AM))
-		var/mob/M = AM
-		if(!M.check_solid_ground())
-			inertial_drift(M)
-			//we'll end up checking solid ground again but we still need to check the other things.
-			//Ususally most people aren't in space anyways so hopefully this is acceptable.
-			M.update_floating()
-		else
-			M.inertia_dir = 0
-			M.make_floating(0) //we know we're not on solid ground so skip the checks to save a bit of processing
-			M.update_height_offset(turf_height)
+	if(isliving(AM))
+		var/mob/living/M = AM
+		M.update_height_offset(turf_height)
+		M.update_floating()
 
 	else if(isobj(AM))
 		var/obj/O = AM
@@ -210,20 +254,6 @@ var/const/enterloopsanity = 100
 
 /turf/proc/protects_atom(atom/A)
 	return FALSE
-
-/turf/proc/inertial_drift(atom/movable/A)
-	if(!(A.last_move))	return
-	if((istype(A, /mob/) && src.x > 2 && src.x < (world.maxx - 1) && src.y > 2 && src.y < (world.maxy-1)))
-		var/mob/M = A
-		if(M.Allow_Spacemove(1)) //if this mob can control their own movement in space then they shouldn't be drifting
-			M.inertia_dir  = 0
-			return
-		spawn(5)
-			if(M && !(M.anchored) && !(M.pulledby) && (M.loc == src))
-				if(!M.inertia_dir)
-					M.inertia_dir = M.last_move
-				step(M, M.inertia_dir)
-	return
 
 /turf/proc/levelupdate()
 	for(var/obj/O in src)
@@ -262,24 +292,39 @@ var/const/enterloopsanity = 100
 				L.Add(t)
 	return L
 
-/turf/proc/contains_dense_objects(check_mobs = TRUE)
+/turf/proc/contains_dense_objects(list/exceptions, check_mobs = TRUE)
 	if(density)
 		return TRUE
+	return !!get_first_dense_object(exceptions)
+
+/turf/proc/get_first_dense_object(list/exceptions, check_mobs = TRUE)
 	for(var/atom/A in src)
 		if(!check_mobs && ismob(A))
 			continue
+		if(exceptions && (exceptions == A || (islist(exceptions) && (A in exceptions))))
+			continue
 		if(A.density && !(A.atom_flags & ATOM_FLAG_CHECKS_BORDER))
-			return TRUE
-	return FALSE
+			return A
+	return null
 
 //expects an atom containing the reagents used to clean the turf
 /turf/proc/clean(atom/source, mob/user = null)
-	if(source.reagents.has_reagent(/datum/reagent/water, 1) || source.reagents.has_reagent(/datum/reagent/space_cleaner, 1))
+	var/volume_to_spend
+	if(source.reagents.has_reagent(/datum/reagent/space_cleaner, 5))
+		volume_to_spend = 5
+	else if(source.reagents.has_reagent(/datum/reagent/water, 30))
+		volume_to_spend = 30
+
+	if(volume_to_spend)
 		clean_blood()
 		remove_cleanables()
-	else
-		to_chat(user, "<span class='warning'>\The [source] is too dry to wash that.</span>")
-	source.reagents.trans_to_turf(src, 1, 10)	//10 is the multiplier for the reaction effect. probably needed to wet the floor properly.
+		source.reagents.trans_to_turf(src, volume_to_spend, 10)	//10 is the multiplier for the reaction effect. probably needed to wet the floor properly.
+		return TRUE
+
+	if(user)
+		to_chat(user, SPAN("warning", "\The [source] is too dry to wash that."))
+	return FALSE
+
 
 /turf/proc/remove_cleanables()
 	for(var/obj/effect/O in src)
@@ -295,13 +340,19 @@ var/const/enterloopsanity = 100
 		decals = null
 
 // Called when turf is hit by a thrown object
-/turf/hitby(atom/movable/AM, speed, nomsg)
-	if(src.density)
-		spawn(2)
-			step(AM, turn(AM.last_move, 180))
+/turf/hitby(atom/movable/AM, datum/thrownthing/TT)
+	..()
+	if(density)
 		if(isliving(AM))
 			var/mob/living/M = AM
-			M.turf_collision(src, speed)
+			M.turf_collision(src, TT.speed)
+			if(M.pinned)
+				return
+		spawn(2)
+			bounce_off(AM, TT.init_dir)
+
+/turf/proc/bounce_off(atom/movable/AM, direction)
+	step(AM, turn(direction, 180))
 
 /turf/allow_drop()
 	return TRUE
@@ -327,3 +378,101 @@ var/const/enterloopsanity = 100
 	turf_height = max_height
 	for(var/mob/M in contents)
 		M.update_height_offset(turf_height)
+
+/// Used for astar pathfinding
+/turf/proc/__get_astar_linked_nodes()
+	return list()
+
+/// Used for astar pathfinding
+/turf/proc/__get_astar_node_mask()
+	. = density ? NODE_DENSE_BIT : 0
+	. |= NODE_TURF_BIT
+
+/turf/proc/__get_astar_node()
+	return list(
+		"position" = list("x" = x, "y" = y, "z" = z),
+		"mask" = __get_astar_node_mask(),
+		"links" = __get_astar_linked_nodes(),
+	)
+
+/turf/proc/update_astar_node()
+	var/result = rustg_update_nodes_astar(json_encode(list(__get_astar_node())))
+
+	if(result != "1")
+		CRASH(result)
+
+// Updates turf participation in ZAS according to outside status. Must be called whenever the outside status of a turf may change.
+/turf/proc/update_external_atmos_participation()
+	var/old_outside = last_outside_check
+	last_outside_check = OUTSIDE_UNCERTAIN
+	if(is_outside())
+		if(zone && external_atmosphere_participation)
+			if(can_safely_remove_from_zone())
+				zone.remove(src)
+			else
+				zone.rebuild()
+	else if(!zone && zone_membership_candidate && old_outside == OUTSIDE_YES)
+		// Set the turf's air to the external atmosphere to add to its new zone.
+		air = get_external_air(FALSE)
+
+	SSair.mark_for_update(src)
+
+/turf/proc/is_outside()
+
+	// Can't rain inside or through solid walls.
+	// TODO: dense structures like full windows should probably also block weather.
+	if(density)
+		return OUTSIDE_NO
+
+	if(last_outside_check != OUTSIDE_UNCERTAIN)
+		return last_outside_check
+
+	// What is our local outside value?
+	// Some turfs can be roofed irrespective of the turf above them in multiz.
+	// I have the feeling this is redundat as a roofed turf below max z will
+	// have a floor above it, but ah well.
+	. = is_outside
+	if(. == OUTSIDE_AREA)
+		var/area/A = get_area(src)
+		var/is_area_outside = (A.area_flags & AREA_FLAG_EXTERNAL) ? TRUE : FALSE
+		. = A ? is_area_outside : OUTSIDE_NO
+
+	// If we are in a multiz volume and not already inside, we return
+	// the outside value of the highest unenclosed turf in the stack.
+	if(HasAbove(z))
+		. =  OUTSIDE_YES // assume for the moment we're unroofed until we learn otherwise.
+		var/turf/top_of_stack = src
+		while(HasAbove(top_of_stack.z))
+			var/turf/next_turf = GetAbove(top_of_stack)
+			if(!next_turf.is_open())
+				return OUTSIDE_NO
+			top_of_stack = next_turf
+		// If we hit the top of the stack without finding a roof, we ask the upmost turf if we're outside.
+		. = top_of_stack.is_outside()
+	last_outside_check = . // Cache this for later calls.
+
+/turf/proc/set_outside(new_outside)
+	if(is_outside == new_outside)
+		return FALSE
+
+	is_outside = new_outside
+	update_external_atmos_participation()
+
+	if(!HasBelow(z))
+		return TRUE
+
+	// Invalidate the outside check cache for turfs below us.
+	var/turf/checking = src
+	while(HasBelow(checking.z))
+		checking = GetBelow(checking)
+		if(!isturf(checking))
+			break
+
+		checking.update_external_atmos_participation()
+		if(!checking.is_open())
+			break
+
+	return TRUE
+
+/turf/proc/is_open()
+	return FALSE

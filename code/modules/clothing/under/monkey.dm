@@ -8,17 +8,20 @@
 	name = "fancy monkey uniform"
 	desc = "For the most fashionable of apes."
 	icon_state = "punpun"
+	item_state = "punpun"
 
 /obj/item/clothing/under/monkey/pants
 	name = "monkey pants"
 	desc = "Too smol pant. For monke."
 	icon_state = "jeansmustang"
+	item_state = "jeansmustang"
 
 // colored monke clothing
 /obj/item/clothing/under/monkey/color
 	name = "monkey suit"
 	desc = "Monkey shall never kill monkey. In theory."
 	icon_state = "monkey_jump"
+	item_state = "monkey_jump"
 
 /obj/item/clothing/under/monkey/color/white
 	name = "white monkey suit"

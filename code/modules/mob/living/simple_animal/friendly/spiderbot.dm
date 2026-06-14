@@ -11,7 +11,7 @@
 	var/obj/item/cell/cell = null
 	var/obj/machinery/camera/camera = null
 	var/obj/item/organ/internal/cerebrum/mmi/mmi = null
-	var/list/req_access = list(access_robotics) //Access needed to pop out the brain.
+	var/list/req_access = list(access_robotics) // Access needed to pop out the brain.
 	var/positronic
 
 	name = "spider-bot"
@@ -46,10 +46,8 @@
 	add_language(LANGUAGE_GALCOM)
 	default_language = all_languages[LANGUAGE_GALCOM]
 
-	grant_verb(src, list(
-		/mob/living/proc/ventcrawl,
-		/mob/living/proc/hide,
-	))
+	verbs |= /mob/living/proc/ventcrawl
+	verbs |= /mob/living/proc/hide
 
 /mob/living/simple_animal/spiderbot/attackby(obj/item/O as obj, mob/user as mob)
 
@@ -101,7 +99,7 @@
 
 	if(isWelder(O))
 		var/obj/item/weldingtool/WT = O
-		if(!WT.use_tool(src, user, amount = 1))
+		if(!WT.use_tool(src, user, amount = 10))
 			return
 
 		if(health < maxHealth)

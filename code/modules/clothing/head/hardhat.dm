@@ -6,8 +6,9 @@
 	brightness_on = 4 //luminosity when on
 	light_overlay = "hardhat_light"
 	w_class = ITEM_SIZE_NORMAL
-	armor = list(melee = 80, bullet = 70, laser = 60, energy = 20, bomb = 35, bio = 10)
-	flags_inv = 0
+	armor_values = alist(melee = 80, bullet = 70, laser = 60, energy = 20, bomb = 35, bio = 10)
+	flags_inv = BLOCKHEADHAIR
+	item_flags = ITEM_FLAG_THICKMATERIAL
 	siemens_coefficient = 0.5
 	heat_protection = HEAD
 	max_heat_protection_temperature = FIRE_HELMET_MAX_HEAT_PROTECTION_TEMPERATURE

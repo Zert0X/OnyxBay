@@ -1,24 +1,24 @@
 /obj/item/implanter
 	name = "implanter"
 	icon = 'icons/obj/items.dmi'
-	icon_state = "implanter0"
-	item_state = "syringe_0"
+	icon_state = "implanter"
 	throw_range = 5
 	w_class = ITEM_SIZE_SMALL
 	matter = list(MATERIAL_STEEL = 1000, MATERIAL_GLASS = 1000)
 	var/obj/item/implant/imp = null
 
-/obj/item/implanter/New()
+/obj/item/implanter/Initialize()
+	. = ..()
 	if(ispath(imp))
 		imp = new imp(src)
-	..()
 	update_icon()
 
 /obj/item/implanter/on_update_icon()
-	if (imp)
-		icon_state = "implanter1"
+	if(imp)
+		icon_state = "implanter"
 	else
-		icon_state = "implanter0"
+		icon_state = "implanter-empty"
+	update_held_icon()
 
 /obj/item/implanter/verb/remove_implant()
 	set category = "Object"
@@ -77,7 +77,7 @@
 		if(src.imp.can_implant(M, user, target_zone))
 			var/imp_name = imp.name
 
-			if(do_after(user, 50, M) && src.imp?.implant_in_mob(M, target_zone))
+			if(do_after(user, 50, M, luck_check_type = LUCK_CHECK_COMBAT) && src.imp?.implant_in_mob(M, target_zone))
 				M.visible_message("<span class='warning'>[M] has been implanted by [user].</span>")
 				admin_attack_log(user, M, "Implanted using \the [src] ([imp_name])", "Implanted with \the [src] ([imp_name])", "used an implanter, \the [src] ([imp_name]), on")
 

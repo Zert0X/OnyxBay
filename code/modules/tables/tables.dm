@@ -9,6 +9,7 @@
 	layer = TABLE_LAYER
 	throwpass = 1
 	turf_height_offset = 12
+	climb_delay = 1.5 SECONDS
 
 	rad_resist_type = /datum/rad_resist/none
 
@@ -46,8 +47,17 @@
 
 		if(reinforced)
 			maxhealth += reinforced.integrity / 2
+			climb_delay = 2.5 SECONDS // Reinforced tables are harder to climb. Somehow.
+		else
+			climb_delay = 1.5 SECONDS
 
 	health += maxhealth - old_maxhealth
+
+/obj/structure/table/add_debris_element()
+	if(material?.name == MATERIAL_WOOD || material?.name == MATERIAL_DARKWOOD)
+		AddElement(/datum/element/debris, DEBRIS_WOOD, -10, 5)
+	else
+		AddElement(/datum/element/debris, DEBRIS_SPARKS, -10, 5)
 
 /obj/structure/table/proc/take_damage(amount)
 	// If the table is made of a brittle material, and is *not* reinforced with a non-brittle material, damage is multiplied by TABLE_BRITTLE_MATERIAL_MULTIPLIER
@@ -83,6 +93,7 @@
 	update_icon()
 	update_desc()
 	update_material()
+	add_debris_element()
 
 /obj/structure/table/Destroy()
 	material = null
@@ -152,7 +163,7 @@
 	if(health < maxhealth && isWelder(W))
 		var/obj/item/weldingtool/F = W
 		to_chat(user, SPAN_NOTICE("You begin reparing damage to \the [src]."))
-		if(!F.use_tool(src, user, delay = 2 SECONDS, amount = 1))
+		if(!F.use_tool(src, user, delay = 2 SECONDS, amount = 10))
 			return FALSE
 
 		if(QDELETED(src) || !user)
@@ -174,11 +185,79 @@
 
 	return ..()
 
-/obj/structure/table/MouseDrop_T(obj/item/stack/material/what)
-	if(can_reinforce && isliving(usr) && (!usr.stat) && istype(what) && usr.get_active_hand() == what && Adjacent(usr))
-		reinforce_table(what, usr)
+/obj/structure/table/proc/can_be_crawled_under()
+	if(reinforced || flipped)
+		return FALSE
+	return TRUE
+
+/obj/structure/table/proc/do_crawl(mob/living/user)
+	user.visible_message(SPAN_WARNING("\The [user] starts crawling under \the [src]!"))
+
+	if(!do_after(user, 0.8 SECONDS, src, incapacitation_flags = INCAPACITATION_BUCKLED_FULLY|INCAPACITATION_STUNNED))
+		return
+
+	if(!user.lying || user.stat || user.buckled || !can_be_crawled_under())
+		return
+
+	user.hiding = TRUE
+	user.crawling = TRUE
+	user.reset_layer()
+	user.visible_message(SPAN_WARNING("\The [user] crawls under \the [src]!"))
+	user.forceMove(get_turf(src))
+
+/obj/structure/table/proc/headbumped(mob/living/user)
+	if(!ishuman(user))
+		return
+
+	var/bump_force = rand(3, 10)
+	if(MUTATION_CLUMSY in user.mutations)
+		bump_force = 10
+
+	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
+	user.apply_damage(bump_force, BRUTE, BP_HEAD)
+	user.Stun(Ceiling(bump_force / 3))
+
+	if(bump_force == 10)
+		to_chat(user, SPAN("warning", "You tried to get up, but you <b>forcefully</b> bump your head instead!"))
+		audible_message("You hear a loud bang from under \the [src]!", splash_override = "*BANG*")
 	else
-		return ..()
+		to_chat(user, SPAN("warning", "You tried to get up, but you bump your head instead!"))
+		audible_message("You hear a dull thud from under \the [src]!", splash_override = "*thud*")
+
+	throw_contents_around(ITEM_SIZE_LARGE, 35, FALSE)
+	shake_animation(stime = 1)
+	playsound(loc, 'sound/effects/deskslam.ogg', 50, 1)
+	take_damage(round(bump_force * 0.5))
+	return
+
+/obj/structure/table/proc/slide_object(obj/O, mob/living/user, params)
+	if(!istype(O, /obj/item))
+		return FALSE
+
+	if(O.anchored)
+		return FALSE
+
+	var/turf/T = get_turf(O)
+	var/table_found = FALSE
+	for(var/obj/item in T.contents)
+		if(istype(item, /obj/structure/table))
+			table_found = TRUE
+			break
+
+	var/do_slide = FALSE
+	if(O.loc == loc)
+		do_slide = TRUE // Sliding on the same time
+	else if(ishuman(user) && user.has_in_hands(O) && user.drop(O))
+		do_slide = TRUE // Dropping from the inventory
+	else if(table_found && T.Adjacent(src, user))
+		do_slide = TRUE // Sliding across tables
+
+	if(do_slide)
+		O.forceMove(loc)
+		auto_align(O, params)
+		return TRUE
+
+	return FALSE
 
 /obj/structure/table/proc/reinforce_table(obj/item/stack/material/S, mob/user)
 	if(reinforced)
@@ -225,7 +304,7 @@
 	if(manipulating) return M
 	manipulating = 1
 	to_chat(user, "<span class='notice'>You begin [verb]ing \the [src] with [M.display_name].</span>")
-	if(!do_after(user, 20, src) || !S.use(1))
+	if(!do_after(user, 20, src, luck_check_type = LUCK_CHECK_ENG) || !S.use(1))
 		manipulating = 0
 		return null
 	user.visible_message("<span class='notice'>\The [user] [verb]es \the [src] with [M.display_name].</span>", "<span class='notice'>You finish [verb]ing \the [src].</span>")
@@ -244,7 +323,7 @@
 	                              "<span class='notice'>You begin removing the [type_holding] holding \the [src]'s [M.display_name] [what] in place.</span>")
 	if(sound)
 		playsound(src.loc, sound, 50, 1)
-	if(!do_after(user, 40, src))
+	if(!do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 		manipulating = 0
 		return M
 	user.visible_message("<span class='notice'>\The [user] removes the [M.display_name] [what] from \the [src].</span>",
@@ -270,7 +349,7 @@
 	user.visible_message("<span class='notice'>\The [user] begins dismantling \the [src].</span>",
 	                              "<span class='notice'>You begin dismantling \the [src].</span>")
 	playsound(src.loc, 'sound/items/Ratchet.ogg', 50, 1)
-	if(!do_after(user, 20, src))
+	if(!do_after(user, 20, src, luck_check_type = LUCK_CHECK_ENG))
 		manipulating = 0
 		return
 	user.visible_message("<span class='notice'>\The [user] dismantles \the [src].</span>",
@@ -279,9 +358,13 @@
 	qdel(src)
 	return
 
-/obj/structure/table/proc/throw_contents_around(max_size = ITEM_SIZE_HUGE, dropchance = -1)
+/obj/structure/table/proc/throw_contents_around(max_size = ITEM_SIZE_HUGE, dropchance = -1, throw_crawlers = TRUE)
 	var/list/targets = list(get_step(src, dir), get_step(src, turn(dir, 45)), get_step(src, turn(dir, -45)))
 	for(var/atom/movable/A in get_turf(src))
+		if(!throw_crawlers && isliving(A))
+			var/mob/living/L = A
+			if(L.crawling)
+				continue
 		if(!A.anchored)
 			if(dropchance == -1)
 				A.throw_at(pick(targets), 1)

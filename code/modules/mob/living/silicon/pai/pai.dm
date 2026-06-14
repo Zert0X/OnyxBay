@@ -91,10 +91,8 @@
 	//As a human made device, we'll understand sol common without the need of the translator
 	add_language(LANGUAGE_SOL_COMMON, 1)
 
-	grant_verb(src, list(
-		/mob/living/silicon/pai/proc/choose_chassis,
-		/mob/living/silicon/pai/proc/choose_verbs,
-	))
+	verbs += /mob/living/silicon/pai/proc/choose_chassis
+	verbs += /mob/living/silicon/pai/proc/choose_verbs
 
 	..()
 
@@ -109,12 +107,18 @@
 	silicon_radio = null // Because this radio actually belongs to another instance we simply null
 	. = ..()
 
-/mob/living/silicon/pai/get_status_tab_items()
-	. = ..()
-
-	if(silence_time)
+// this function shows the information about being silenced as a pAI in the Status panel
+/mob/living/silicon/pai/proc/show_silenced()
+	if(src.silence_time)
 		var/timeleft = round((silence_time - world.timeofday)/10 ,1)
-		. += "Communications system reboot in -[(timeleft / 60) % 60]:[add_zero(num2text(timeleft % 60), 2)]"
+		stat(null, "Communications system reboot in -[(timeleft / 60) % 60]:[add_zero(num2text(timeleft % 60), 2)]")
+
+
+/mob/living/silicon/pai/Stat()
+	. = ..()
+	statpanel("Status")
+	if (src.client.statpanel == "Status")
+		show_silenced()
 
 /mob/living/silicon/pai/check_eye(mob/user as mob)
 	if (!src.current)
@@ -244,9 +248,9 @@
 		var/mob/holder = card.loc
 		if(ishuman(holder))
 			var/mob/living/carbon/human/H = holder
-			for(var/obj/item/organ/external/affecting in H.organs)
+			for(var/obj/item/organ/external/affecting in H.external_organs)
 				if(card in affecting.implants)
-					affecting.take_external_damage(rand(30,50))
+					affecting.take_pierce_damage(rand(30, 50))
 					affecting.implants -= card
 					H.visible_message("<span class='danger'>\The [src] explodes out of \the [H]'s [affecting.name] in a shower of gore!</span>")
 					break
@@ -297,8 +301,8 @@
 
 	chassis = possible_chassis[choice]
 
-	revoke_verb(src, /mob/living/silicon/pai/proc/choose_chassis)
-	grant_verb(src, /mob/living/proc/hide)
+	verbs -= /mob/living/silicon/pai/proc/choose_chassis
+	verbs += /mob/living/proc/hide
 
 /mob/living/silicon/pai/proc/choose_verbs()
 	set category = "pAI Commands"
@@ -312,7 +316,7 @@
 	speak_exclamation = sayverbs[(sayverbs.len>1 ? 2 : sayverbs.len)]
 	speak_query = sayverbs[(sayverbs.len>2 ? 3 : sayverbs.len)]
 
-	revoke_verb(src, /mob/living/silicon/pai/proc/choose_verbs)
+	verbs -= /mob/living/silicon/pai/proc/choose_verbs
 
 /mob/living/silicon/pai/lay_down()
 	set name = "Rest"
@@ -320,12 +324,12 @@
 
 	// Pass lying down or getting up to our pet human, if we're in a rig.
 	if(istype(src.loc, /obj/item/device/paicard))
-		resting = 0
+		set_resting(FALSE)
 		var/obj/item/rig/rig = get_rig()
 		if(istype(rig))
 			rig.force_rest(src)
 	else
-		resting = !resting
+		set_resting(!resting)
 		icon_state = resting ? "[chassis]_rest" : "[chassis]"
 		to_chat(src, "<span class='notice'>You are now [resting ? "resting" : "getting up"]</span>")
 
@@ -334,7 +338,7 @@
 	if(W.force)
 		visible_message("<span class='danger'>[user.name] attacks [src] with [W]!</span>")
 		src.adjustBruteLoss(W.force)
-		src.updatehealth()
+		src.update_health()
 	else
 		visible_message("<span class='warning'>[user.name] bonks [src] harmlessly with [W].</span>")
 	spawn(1)
@@ -361,7 +365,7 @@
 	src.client.eye = card
 
 	//stop resting
-	resting = 0
+	set_resting(FALSE)
 
 	// If we are being held, handle removing our holder from their inv.
 	var/obj/item/holder/H = loc
@@ -374,7 +378,7 @@
 	// Move us into the card and move the card to the ground.
 	src.forceMove(card)
 	card.forceMove(get_turf(card))
-	resting = 0
+	set_resting(FALSE)
 	icon_state = "[chassis]"
 
 // No binary for pAIs.

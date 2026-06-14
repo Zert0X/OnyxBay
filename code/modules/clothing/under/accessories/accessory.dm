@@ -1,7 +1,7 @@
 /obj/item/clothing/accessory
 	name = "tie"
 	desc = "A neosilk clip-on tie."
-	icon = 'icons/obj/clothing/ties.dmi'
+	icon = 'icons/obj/clothing/accessories.dmi'
 	icon_state = "tie"
 	item_state = ""	//no inhands
 	slot_flags = SLOT_TIE
@@ -64,7 +64,7 @@
 //when user attached an accessory to S
 /obj/item/clothing/accessory/proc/on_attached(obj/item/clothing/S, mob/user)
 	if(!istype(S))
-		return
+		return FALSE
 	has_suit = S
 	forceMove(has_suit)
 	has_suit.AddOverlays(get_inv_overlay())
@@ -72,6 +72,7 @@
 	if(user)
 		to_chat(user, "<span class='notice'>You attach \the [src] to \the [has_suit].</span>")
 		src.add_fingerprint(user)
+	return TRUE
 
 /obj/item/clothing/accessory/proc/on_removed(mob/user)
 	if(!has_suit)
@@ -93,18 +94,6 @@
 	if(has_suit)
 		return	//we aren't an object on the ground so don't call parent
 	..()
-
-//Necklaces
-/obj/item/clothing/accessory/necklace
-	name = "necklace"
-	desc = "A simple necklace."
-	icon_state = "necklace"
-	slot_flags = SLOT_MASK | SLOT_TIE
-
-/obj/item/clothing/accessory/necklace/aquila
-	name = "aquila"
-	desc = "You can see the Emperor smiling in the reflection."
-	icon_state = "aquila"
 
 //Misc
 /obj/item/clothing/accessory/kneepads

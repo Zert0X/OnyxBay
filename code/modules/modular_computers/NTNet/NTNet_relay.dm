@@ -21,13 +21,13 @@
 
 // TODO: Implement more logic here. For now it's only a placeholder.
 /obj/machinery/ntnet_relay/operable()
-	if(!..(EMPED))
-		return 0
 	if(dos_failure)
-		return 0
+		return FALSE
 	if(!enabled)
-		return 0
-	return 1
+		return FALSE
+	if(!..(EMPED))
+		return FALSE
+	return TRUE
 
 /obj/machinery/ntnet_relay/on_update_icon()
 	if(operable())

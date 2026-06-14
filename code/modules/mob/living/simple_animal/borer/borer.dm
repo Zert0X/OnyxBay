@@ -65,6 +65,11 @@
 	register_signal(src, SIGNAL_MOB_DEATH, CALLBACK(src, nameof(.proc/on_mob_death)))
 
 
+/mob/living/simple_animal/borer/UnarmedAttack(atom/A, proximity)
+	if(host)
+		return
+	return ..()
+
 /mob/living/simple_animal/borer/Life()
 
 	..()
@@ -104,10 +109,17 @@
 		else if((is_ooc_dead() || host.is_ooc_dead()) && controlling)
 			detatch()
 
-/mob/living/simple_animal/borer/get_status_tab_items()
+/mob/living/simple_animal/borer/Stat()
 	. = ..()
+	statpanel("Status")
 
-	. += "Chemicals: [chemicals]"
+	if(evacuation_controller)
+		var/eta_status = evacuation_controller.get_status_panel_eta()
+		if(eta_status)
+			stat(null, eta_status)
+
+	if (client.statpanel == "Status")
+		stat("Chemicals", chemicals)
 
 /mob/living/simple_animal/borer/handle_environment(datum/gas_mixture/environment)
 	if(host)

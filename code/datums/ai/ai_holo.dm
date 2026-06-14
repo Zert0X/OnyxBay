@@ -7,7 +7,7 @@
 GLOBAL_LIST_INIT(AI_holos, init_subtypes(/datum/ai_holo))
 /datum/ai_holo
 	var/requires_malf = FALSE
-	var/icon = 'icons/mob/hologram.dmi'
+	var/icon = 'icons/mob/silicon/hologram.dmi'
 	var/icon_state = "icon_state"
 	var/icon_colorize = FALSE
 	var/name

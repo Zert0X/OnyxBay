@@ -3,10 +3,13 @@
 /datum/reagent/crayon_dust
 	name = "Crayon dust"
 	description = "Intensely coloured powder obtained by grinding crayons."
+
 	taste_description = "the back of class"
+
 	reagent_state = LIQUID
 	color = "#888888"
-	overdose = 5
+
+	overdose = REAGENTS_OVERDOSE * 2
 
 /datum/reagent/crayon_dust/red
 	name = "Red crayon dust"
@@ -43,9 +46,12 @@
 /datum/reagent/paint
 	name = "Paint"
 	description = "This paint will stick to almost any object."
+
 	taste_description = "chalk"
+
 	reagent_state = LIQUID
 	color = "#808080"
+
 	overdose = REAGENTS_OVERDOSE * 0.5
 	color_weight = 20
 
@@ -98,11 +104,16 @@
 
 /datum/reagent/adminordrazine //An OP chemical for admins
 	name = "Adminordrazine"
+
 	description = "It's magic. We don't have to explain it."
+
 	taste_description = "100% abuse"
+
 	reagent_state = LIQUID
 	color = "#c8a5dc"
+
 	flags = AFFECTS_DEAD //This can even heal dead people.
+	forced_metabolism = TRUE
 
 	glass_name = "liquid gold"
 	glass_desc = "It's magic. We don't have to explain it."
@@ -136,23 +147,37 @@
 /datum/reagent/gold
 	name = "Gold"
 	description = "Gold is a dense, soft, shiny metal and the most malleable and ductile metal known."
+
 	taste_description = "expensive metal"
+
 	reagent_state = SOLID
 	color = "#f7c430"
 
 /datum/reagent/silver
 	name = "Silver"
 	description = "A soft, white, lustrous transition metal, it has the highest electrical conductivity of any element and the highest thermal conductivity of any metal."
+
 	taste_description = "expensive yet reasonable metal"
+
 	reagent_state = SOLID
 	color = "#d0d0d0"
+
+	metabolism = REM * 0.1
+	ingest_met = METABOLISM_NONE
 
 /datum/reagent/uranium
 	name = "Uranium"
 	description = "A silvery-white metallic chemical element in the actinide series, weakly radioactive."
+
 	taste_description = "the inside of a reactor"
+
 	reagent_state = SOLID
 	color = "#b8b8c0"
+
+	metabolism = REM * 0.1
+	ingest_met = METABOLISM_NONE
+	forced_metabolism = TRUE
+
 	radiation = new /datum/radiation/preset/uranium_238
 
 /datum/reagent/uranium/affect_touch(mob/living/carbon/M, alien, removed)
@@ -177,12 +202,19 @@
 /datum/reagent/water/holywater
 	name = "Holy Water"
 	description = "An ashen-obsidian-water mix, this solution will alter certain sections of the brain's rationality."
+
 	color = "#e0e8ef"
+
+	ingest_met = REM // It's HOLY, let it work straight from the stomach.
 
 	glass_name = "holy water"
 	glass_desc = "An ashen-obsidian-water mix, this solution will alter certain sections of the brain's rationality."
 
 /datum/reagent/water/holywater/affect_ingest(mob/living/carbon/M, alien, removed)
+	..()
+	affect_digest(M, alien, removed)
+
+/datum/reagent/water/holywater/affect_digest(mob/living/carbon/M, alien, removed)
 	..()
 	if(ishuman(M)) // Any location
 		if(iscultist(M) || is_species(M, /datum/species/golem/runic))
@@ -198,7 +230,7 @@
 	if(!L.mind)
 		return
 	if((L.mind.vampire && !(L.mind.vampire.vamp_status & VAMP_ISTHRALL)) || is_species(L, /datum/species/golem/runic))
-		L.adjust_fire_stacks(amount / 15)
+		L.adjust_fire_stacks(ceil(amount / 15))
 		L.IgniteMob()
 
 /datum/reagent/water/holywater/touch_turf(turf/T)
@@ -212,30 +244,40 @@
 /datum/reagent/diethylamine
 	name = "Diethylamine"
 	description = "A secondary amine, mildly corrosive."
+
 	taste_description = "iron"
+
 	reagent_state = LIQUID
 	color = "#604030"
 
 /datum/reagent/surfactant // Foam precursor
 	name = "Azosurfactant"
 	description = "A isocyanate liquid that forms a foam when mixed with water."
+
 	taste_description = "metal"
 	reagent_state = LIQUID
+
 	color = "#9e6b38"
 
 /datum/reagent/foaming_agent // Metal foaming agent. This is lithium hydride. Add other recipes (e.g. LiH + H2O -> LiOH + H2) eventually.
 	name = "Foaming agent"
 	description = "A agent that yields metallic foam when mixed with light metal and a strong acid."
+
 	taste_description = "metal"
+
 	reagent_state = SOLID
 	color = "#664b63"
 
 /datum/reagent/thermite
 	name = "Thermite"
 	description = "Thermite produces an aluminothermic reaction known as a thermite reaction. Can be used to melt walls."
+
 	taste_description = "sweet tasting metal"
+
+	forced_metabolism = TRUE
 	reagent_state = SOLID
 	color = "#673910"
+
 	touch_met = 50
 
 /datum/reagent/thermite/touch_turf(turf/T)
@@ -249,7 +291,7 @@
 
 /datum/reagent/thermite/touch_mob(mob/living/L, amount)
 	if(istype(L))
-		L.adjust_fire_stacks(amount / 5)
+		L.adjust_fire_stacks(ceil(amount)) // Sweet hell that's a lot
 
 /datum/reagent/thermite/affect_blood(mob/living/carbon/M, alien, removed)
 	M.adjustFireLoss(3 * removed)
@@ -257,9 +299,12 @@
 /datum/reagent/space_cleaner
 	name = "Space cleaner"
 	description = "A compound used to clean things. Now with 50% more sodium hypochlorite!"
+
 	taste_description = "sourness"
+
 	reagent_state = LIQUID
 	color = "#a5f0ee"
+
 	touch_met = 50
 
 /datum/reagent/space_cleaner/touch_obj(obj/O)
@@ -278,7 +323,11 @@
 		for(var/mob/living/carbon/metroid/M in T)
 			M.adjustToxLoss(rand(5, 10))
 
-/datum/reagent/space_cleaner/affect_touch(mob/living/carbon/M, alien, removed)
+/datum/reagent/space_cleaner/touch_mob(mob/living/L, amount)
+	var/mob/living/carbon/M = L
+	if(!istype(M))
+		return
+
 	if(M.r_hand)
 		M.r_hand.clean_blood()
 	if(M.l_hand)
@@ -314,7 +363,9 @@
 /datum/reagent/space_cleaner/dry
 	name = "Concentrated space cleaner"
 	description = "A compound used to clean things after getting dissolved in water."
+
 	taste_description = "regrets"
+
 	reagent_state = SOLID
 	color = "#5DD8D4"
 
@@ -323,25 +374,29 @@
 		M.adjustOxyLoss(-removed * 10)
 	else if(alien != IS_DIONA)
 		M.adjustToxLoss(removed * 5)
-		M.druggy = max(M.druggy, 5)
+		M.make_drugged(5)
 
 /datum/reagent/lube // TODO: spraying on borgs speeds them up
 	name = "Space Lube"
 	description = "Lubricant is a substance introduced between two moving surfaces to reduce the friction and wear between them. giggity."
+
 	taste_description = "slime"
+
 	reagent_state = LIQUID
 	color = "#009ca8"
 
 /datum/reagent/lube/touch_turf(turf/simulated/T)
 	if(!istype(T))
 		return
-	if(volume >= 1)
+	if(volume >= 5)
 		T.wet_floor(80)
 
 /datum/reagent/silicate
 	name = "Silicate"
 	description = "A compound that can be used to reinforce glass."
+
 	taste_description = "plastic"
+
 	reagent_state = LIQUID
 	color = "#c7ffff"
 
@@ -366,14 +421,18 @@
 /datum/reagent/glycerol
 	name = "Glycerol"
 	description = "Glycerol is a simple polyol compound. Glycerol is sweet-tasting and of low toxicity."
+
 	taste_description = "sweetness"
+
 	reagent_state = LIQUID
 	color = "#808080"
 
 /datum/reagent/nitroglycerin
 	name = "Nitroglycerin"
 	description = "Nitroglycerin is a heavy, colorless, oily, explosive liquid obtained by nitrating glycerol."
+
 	taste_description = "oil"
+
 	reagent_state = LIQUID
 	color = "#808080"
 
@@ -381,9 +440,20 @@
 	..()
 	M.add_chemical_effect(CE_PULSE, 2)
 
+/datum/reagent/nitroglycerin/decompile_into(datum/reagents/target)
+	if(!target)
+		return FALSE
+
+	var/datum/effect/effect/system/reagents_explosion/e = new()
+	e.set_up(volume * 0.25, holder.my_atom, 0, 0)
+	e.start()
+	holder.del_reagent(type)
+	return TRUE
+
 /datum/reagent/coolant
 	name = "Coolant"
 	description = "Industrial cooling substance."
+
 	taste_description = "sourness"
 	taste_mult = 1.1
 	reagent_state = LIQUID
@@ -392,27 +462,35 @@
 /datum/reagent/ultraglue
 	name = "Ultra Glue"
 	description = "An extremely powerful bonding agent."
+
 	taste_description = "a special education class"
+
 	color = "#ffffcc"
 
 /datum/reagent/woodpulp
 	name = "Wood Pulp"
 	description = "A mass of wood fibers."
+
 	taste_description = "wood"
+
 	reagent_state = LIQUID
 	color = "#b97a57"
 
 /datum/reagent/glass
 	name = "Glass"
 	description = "A regular silicate glass, in form of a fine powder."
+
 	taste_description = "tiny cuts"
+
 	reagent_state = SOLID
 	color = "#b5edff"
 
 /datum/reagent/luminol
 	name = "Luminol"
 	description = "A compound that interacts with blood on the molecular level."
+
 	taste_description = "metal"
+
 	reagent_state = LIQUID
 	color = "#f2f3f4"
 
@@ -425,32 +503,61 @@
 /datum/reagent/fuel
 	name = "Welding fuel"
 	description = "Required for welders. Flamable."
+
 	taste_description = "gross metal"
+
 	reagent_state = LIQUID
 	color = "#660000"
+
 	touch_met = 5
-	absorbability = 1.0
+	digest_absorbability = 1.0
 
 	glass_name = "welder fuel"
 	glass_desc = "Unless you are an industrial tool, this is probably not safe for consumption."
 
-/datum/reagent/fuel/touch_turf(turf/T)
-	new /obj/effect/decal/cleanable/liquid_fuel(T, volume)
-	remove_self(volume)
+/datum/reagent/fuel/touch_turf(turf/T, amount)
+	new /obj/effect/decal/cleanable/liquid_fuel(T, amount)
 	return
 
 /datum/reagent/fuel/affect_blood(mob/living/carbon/M, alien, removed)
 	if(alien == IS_DIONA)
-		M.adjust_fire_stacks(removed)
+		M.adjust_fire_stacks(ceil(removed))
 	M.adjustToxLoss(3 * removed)
 
 /datum/reagent/fuel/touch_mob(mob/living/L, amount)
 	if(istype(L))
-		L.adjust_fire_stacks(amount / 10) // Splashing people with welding fuel to make them easy to ignite!
+		L.adjust_fire_stacks(ceil(amount / 5)) // Splashing people with welding fuel to make them easy to ignite!
 
 /datum/reagent/water/firefoam
 	name = "Firefighting foam"
 	description = "A substance used for fire suppression. Its role is to cool the fire and to coat the fuel, preventing its contact with oxygen, resulting in suppression of the combustion."
+
 	taste_description = "foamy dryness"
+
 	color = "#e2e2e2"
 	slippery = 0
+
+/datum/reagent/urates
+	name = "Urates"
+	description = "Products of metabolism, a normal component of urine."
+
+	taste_description = "acrid saltness"
+	taste_mult = 5.0
+
+	reagent_state = SOLID
+	color = "#e0e254"
+
+	glass_name = "apple juice"
+	glass_desc = "Two cups a day keeps... Wait, is it really?.."
+
+/datum/reagent/bodily_waste
+	name = "Bodily Waste"
+	description = "Waste products of the digestive system."
+
+	taste_description = "most literal shit"
+	taste_mult = 7.5
+
+	color = "#7f4323"
+
+	glass_name = "shit"
+	glass_desc = "You should probably keep at least half the station away from this."

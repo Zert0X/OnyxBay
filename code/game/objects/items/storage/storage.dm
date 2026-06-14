@@ -78,39 +78,19 @@
 	QDEL_NULL(storage_ui)
 	. = ..()
 
-/obj/item/storage/MouseDrop(obj/over_object as obj)
-	if(!canremove)
-		return
-
-	if(((ishuman(usr) || isrobot(usr) || issmall(usr)) && (!isxenomorph(usr) && !islarva(usr)))  && !usr.incapacitated())
-		if(over_object == usr && Adjacent(usr)) // this must come before the screen objects only block
-			src.add_fingerprint(usr)
-			src.open(usr)
+/obj/item/storage/MouseDrop(atom/over)
+	if(((ishuman(usr) || isrobot(usr) || issmall(usr)) && (!isxenomorph(usr) && !ischestburster(usr))) && !usr.incapacitated())
+		if(over == usr && Adjacent(usr)) // this must come before the screen objects only block
+			add_fingerprint(usr)
+			open(usr)
 			return TRUE
-
-		if(!(istype(over_object, /atom/movable/screen)))
-			return ..()
-
-		//makes sure that the storage is equipped, so that we can't drag it into our hand from miles away.
-		if(loc != usr)
-			return
-
-		add_fingerprint(usr)
-		switch(over_object.name)
-			if(BP_R_HAND)
-				if(usr.drop(src))
-					usr.put_in_r_hand(src)
-			if(BP_L_HAND)
-				if(usr.drop(src))
-					usr.put_in_l_hand(src)
-			if("back")
-				usr.drop(src)
+	return ..()
 
 /obj/item/storage/AltClick(mob/usr)
 	if(!canremove)
 		return
 
-	if((((ishuman(usr) || isrobot(usr) || issmall(usr)) && (!isxenomorph(usr) && !islarva(usr))) && !usr.incapacitated() && Adjacent(usr)))
+	if((((ishuman(usr) || isrobot(usr) || issmall(usr)) && (!isxenomorph(usr) && !ischestburster(usr))) && !usr.incapacitated() && Adjacent(usr)))
 		add_fingerprint(usr)
 		if(usr.s_active == src)
 			close(usr)
@@ -342,13 +322,12 @@
 		var/turf/T = get_turf(user)
 		for(var/obj/item/light/L in src.contents)
 			if(L.status == 0)
-				if(LP.uses < LP.max_uses)
-					LP.AddUses(1)
+				if(LP.bulbs_amt() < LP.max_uses)
 					amt_inserted++
 					remove_from_storage(L, T)
-					qdel(L)
+					LP.load_bulb_and_qdel(L)
 		if(amt_inserted)
-			to_chat(user, "You inserted [amt_inserted] light\s into \the [LP.name]. You have [LP.uses] light\s remaining.")
+			to_chat(user, "You inserted [amt_inserted] light\s into \the [LP.name]. You have [LP.bulbs_amt()] light\s remaining.")
 			return
 
 	if(!can_be_inserted(W, user))
@@ -366,7 +345,7 @@
 	W.add_fingerprint(user)
 	return handle_item_insertion(W)
 
-/obj/item/storage/throw_at(atom/target, range, speed = throw_speed, atom/thrower, thrown_with, target_zone, launched_div)
+/obj/item/storage/throw_at(atom/target, range, speed, mob/thrower, spin = TRUE, obj/launcher, datum/callback/callback)
 	if(ismob(thrower))
 		close(thrower)
 	return ..()
@@ -377,11 +356,11 @@
 /obj/item/storage/attack_hand(mob/user)
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
-		if(H.l_store == src && !H.get_active_hand())	//Prevents opening if it's in a pocket.
+		if(H.l_store == src && (!H.get_active_hand() || !H.get_inactive_hand()))//Prevents opening if it's in a pocket.
 			if(H.put_in_hands(src))
 				H.l_store = null
 			return
-		if(H.r_store == src && !H.get_active_hand())
+		if(H.r_store == src && (!H.get_active_hand() || !H.get_inactive_hand()))
 			if(H.put_in_hands(src))
 				H.r_store = null
 			return

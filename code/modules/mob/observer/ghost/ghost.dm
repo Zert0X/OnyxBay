@@ -45,19 +45,12 @@
 	/// Holder for a spawners menu.
 	var/datum/spawners_menu/spawners_menu = null
 
-	var/icon/original_mob_icon
-
 	/// Holder for a follow-orbit panel.
 	var/datum/follow_panel/follow_panel = new()
 
 /mob/observer/ghost/Initialize()
+	. = ..()
 	see_in_dark = 100
-
-	grant_verb(src, list(
-		/mob/proc/toggle_antag_pool,
-		/mob/proc/join_as_actor,
-		/mob/proc/join_response_team,
-	))
 
 	var/turf/T
 	if(ismob(loc))
@@ -65,7 +58,6 @@
 		T = get_turf(body)               //Where is the body located?
 		attack_logs_ = body.attack_logs_ //preserve our attack logs by copying them to our ghost
 
-		original_mob_icon = body.icon
 		set_appearance(body)
 
 		name = body.mind?.name
@@ -95,7 +87,9 @@
 
 	GLOB.ghost_mob_list |= src
 
-	. = ..()
+	verbs += /mob/proc/toggle_antag_pool
+	verbs += /mob/proc/join_as_actor
+	verbs += /mob/proc/join_response_team
 
 /mob/observer/ghost/Destroy()
 	GLOB.ghost_mob_list.Remove(src)
@@ -183,17 +177,15 @@ Works together with spawning an observer, noted above.
 
 
 /mob/observer/ghost/proc/process_medHUD(mob/M)
-	var/client/C = M.client
 	for(var/mob/living/carbon/human/patient in oview(M, 14))
-		C.images += patient.hud_list[HEALTH_HUD]
-		C.images += patient.hud_list[STATUS_HUD_OOC]
+		M.add_client_image(patient.hud_list[HEALTH_HUD])
+		M.add_client_image(patient.hud_list[STATUS_HUD_OOC])
 
 /mob/observer/ghost/proc/assess_targets(list/target_list, mob/observer/ghost/U)
-	var/client/C = U.client
 	for(var/mob/living/carbon/human/target in target_list)
-		C.images += target.hud_list[SPECIALROLE_HUD]
+		U.add_client_image(target.hud_list[SPECIALROLE_HUD])
 	for(var/mob/living/silicon/target in target_list)
-		C.images += target.hud_list[SPECIALROLE_HUD]
+		U.add_client_image(target.hud_list[SPECIALROLE_HUD])
 	return 1
 
 /mob/proc/ghostize(can_reenter_corpse = CORPSE_CAN_REENTER)
@@ -209,12 +201,11 @@ Works together with spawning an observer, noted above.
 
 	hide_fullscreens()
 	ghost.key = key
-	ghost.client?.init_verbs()
 	ghost.can_reenter_corpse = can_reenter_corpse
 	ghost.timeofdeath = is_ooc_dead() ? src.timeofdeath : world.time
 
 	if(!ghost.client?.holder && !config.ghost.allow_antag_hud)
-		revoke_verb(ghost, /mob/observer/ghost/verb/toggle_antagHUD)
+		ghost.verbs -= /mob/observer/ghost/verb/toggle_antagHUD
 
 	if(ghost.client)
 		ghost.updateghostprefs()
@@ -241,7 +232,7 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 		return
 
 	var/response = tgui_alert(src, "Are you -sure- you want to ghost?\n(You are alive. If you ghost, you won't be able to [config.misc.respawn_delay ? "play this round for another [config.misc.respawn_delay] minute\s" : "return to this body"]! You can't change your mind so choose wisely!)", "Are you sure you want to ghost?", list("Ghost", "Stay in body"))
-	if(response == "Stay in body" || !may_ghost())
+	if(response != "Ghost" || !may_ghost())
 		return
 
 	log_and_message_admins("has ghosted")
@@ -282,6 +273,14 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 /mob/observer/ghost/is_active()
 	return 0
 
+/mob/observer/ghost/Stat()
+	. = ..()
+	if(statpanel("Status"))
+		if(evacuation_controller)
+			var/eta_status = evacuation_controller.get_status_panel_eta()
+			if(eta_status)
+				stat(null, eta_status)
+
 /mob/observer/ghost/verb/reenter_corpse()
 	set category = "Ghost"
 	set name = "Re-enter Corpse"
@@ -297,7 +296,6 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	mind.current.key = key
 	mind.current.teleop = null
 	mind.current.reload_fullscreen()
-	mind.current.client?.init_verbs()
 	if(isliving(mind.current))
 		var/mob/living/L = mind.current
 		L.handle_regular_hud_updates() // So we see a proper health icon and stuff
@@ -607,16 +605,17 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 /mob/observer/ghost/proc/updateghostsight()
 	set_see_invisible(ghostvision ? SEE_INVISIBLE_OBSERVER : SEE_INVISIBLE_LIVING)
 
-	var/atom/movable/renderer/lighting/l_renderer = renderers[LIGHTING_RENDERER]
-	switch(get_preference_value("GHOST_DARKVISION"))
-		if(GLOB.PREF_DARKNESS_VISIBLE)
-			l_renderer.relay.alpha = 255
-		if(GLOB.PREF_DARKNESS_MOSTLY_VISIBLE)
-			l_renderer.relay.alpha = 192
-		if(GLOB.PREF_DARKNESS_BARELY_VISIBLE)
-			l_renderer.relay.alpha = 128
-		if(GLOB.PREF_DARKNESS_INVISIBLE)
-			l_renderer.relay.alpha = 0
+	var/atom/movable/renderer/lighting/l_renderer = A_LAZYACCESS(renderers, LIGHTING_RENDERER)
+	if(istype(l_renderer))
+		switch(get_preference_value("GHOST_DARKVISION"))
+			if(GLOB.PREF_DARKNESS_VISIBLE)
+				l_renderer.relay.alpha = 255
+			if(GLOB.PREF_DARKNESS_MOSTLY_VISIBLE)
+				l_renderer.relay.alpha = 192
+			if(GLOB.PREF_DARKNESS_BARELY_VISIBLE)
+				l_renderer.relay.alpha = 128
+			if(GLOB.PREF_DARKNESS_INVISIBLE)
+				l_renderer.relay.alpha = 0
 
 /mob/observer/ghost/MayRespawn(feedback = FALSE, respawn_time = 0)
 	if(!client)
@@ -658,12 +657,17 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 /mob/observer/ghost/proc/set_appearance(mob/target)
 	ClearTransform()	//make goast stand up
 	ClearOverlays()
-	if(!target || (!original_mob_icon && !ishuman(target)))
+
+	if (!target)
 		icon = initial(icon)
+		icon_state = initial(icon_state)
 		return
-	icon = original_mob_icon
+
+	icon = target.icon
 	icon_state = target.icon_state
+
 	CopyOverlays(target)
+
 	if(ishuman(target))
 		ImmediateOverlayUpdate()
 		var/mob/living/carbon/human/H = target
@@ -716,7 +720,6 @@ This is the proc mobs get to turn into a ghost. Forked from ghostize due to comp
 	client.screen.Cut()
 	var/mob/new_player/M = new /mob/new_player()
 	M.key = key
-	M.client?.init_verbs()
 	log_and_message_admins("has respawned.", M)
 
 /mob/observer/ghost/update_height_offset()

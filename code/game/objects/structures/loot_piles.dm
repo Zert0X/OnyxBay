@@ -53,7 +53,7 @@ Loot piles can be depleted, if loot_depleted is turned on.  Note that players wh
 
 		//Do the searching
 		busy = TRUE
-		if(do_after(user,rand(4 SECONDS,6 SECONDS),src))
+		if(do_after(user,rand(4 SECONDS,6 SECONDS), src, luck_check_type = LUCK_CHECK_COMBAT))
 			// The loot's all gone.
 			if(loot_depletion && loot_left <= 0)
 				to_chat(L, "<span class='warning'>\The [src] has been picked clean.</span>")
@@ -250,7 +250,8 @@ Loot piles can be depleted, if loot_depleted is turned on.  Note that players wh
 		/obj/item/trash/cans/sodawater,
 		/obj/item/trash/cans/machpellabeer,
 		/obj/item/trash/cans/applecider,
-		/obj/item/trash/cans/red_mule
+		/obj/item/trash/cans/red_mule,
+		/obj/item/trash/cans/startrucks
 	)
 
 	uncommon_loot = list(
@@ -280,6 +281,7 @@ Loot piles can be depleted, if loot_depleted is turned on.  Note that players wh
 		/obj/item/storage/box/lights/tubes,
 		/obj/item/storage/box/lights/bulbs,
 		/obj/item/storage/box/masks,
+		/obj/item/storage/box/compact_shoe_covers,
 		/obj/item/storage/box/ids,
 		/obj/item/storage/box/mousetraps,
 		/obj/item/storage/box/syringes,

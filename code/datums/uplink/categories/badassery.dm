@@ -33,6 +33,7 @@
 	desc = "Default operative field food ration for your needs."
 	path = /obj/item/reagent_containers/food/packaged/surstromming
 	item_cost = 2
+	meme_item = TRUE
 
 /datum/uplink_item/item/badassery/lighter
 	name = "For lighting cigarettes in a badass manner"

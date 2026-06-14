@@ -57,12 +57,12 @@
 	..()
 
 /obj/item/gun/launcher/rocket/handle_war_crime(mob/living/carbon/human/user, mob/living/carbon/human/target)
-	var/obj/item/grab/G = user.get_inactive_hand()
+	var/obj/item/grab/G = user.rightclicked ? user.get_active_hand() : user.get_inactive_hand()
 	if(G?.affecting != target || !G?.current_grab?.can_absorb)
 		to_chat(user, SPAN_NOTICE("You need a better grab for this."))
 		return
 
-	var/obj/item/organ/external/head/head = target.organs_by_name[BP_HEAD]
+	var/obj/item/organ/external/head/head = target.external_organs_by_name[BP_HEAD]
 	if(!istype(head))
 		to_chat(user, SPAN_NOTICE("You can't shoot in [target]'s mouth because you can't find their head."))
 		return
@@ -75,7 +75,7 @@
 
 	weapon_in_mouth = TRUE
 	target.visible_message(SPAN_DANGER("[user] sticks their gun in [target]'s mouth, ready to pull the trigger..."))
-	if(!do_after(user, 2 SECONDS, progress=0))
+	if(!do_after(user, 2 SECONDS, progress=0, luck_check_type = LUCK_CHECK_COMBAT))
 		target.visible_message(SPAN_NOTICE("[user] decided [target]'s life was worth living."))
 		weapon_in_mouth = FALSE
 		return

@@ -1,3 +1,5 @@
+#define FAKE_ARRIVAL_ANNOUNCE_PROB 5
+
 /datum/shuttle/autodock/multi
 	var/list/destination_tags
 	var/list/destinations_cache = list()
@@ -31,6 +33,7 @@
 	var/cloaked = 1
 	var/arrival_announce
 	var/departure_announce
+	var/fake_arrival_announce
 	var/return_warning = 0
 
 	category = /datum/shuttle/autodock/multi/antag
@@ -56,10 +59,13 @@
 	SSannounce.play_station_announce(departure_announce)
 
 /datum/shuttle/autodock/multi/antag/proc/announce_arrival()
-	if(cloaked || isnull(arrival_announce))
+	if(cloaked)
 		return
-
-	SSannounce.play_station_announce(arrival_announce)
+	if(!isnull(fake_arrival_announce) && prob(FAKE_ARRIVAL_ANNOUNCE_PROB))
+		SSannounce.play_station_announce(fake_arrival_announce)
+		return
+	if(!isnull(arrival_announce))
+		SSannounce.play_station_announce(arrival_announce)
 
 /datum/shuttle/autodock/multi/antag/set_destination(destination_key, mob/user)
 	if(!return_warning && destination_key == home_waypoint.name)
@@ -67,3 +73,5 @@
 		return_warning = 1
 		return
 	..()
+
+#undef FAKE_ARRIVAL_ANNOUNCE_PROB

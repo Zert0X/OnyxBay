@@ -206,6 +206,7 @@
 
 	if(!QDELETED(cell))
 		cell.forceMove(loc)
+		cell.update_icon()
 	cell = null
 
 	GLOB.apc_list -= src
@@ -412,7 +413,7 @@
 			playsound(src.loc, 'sound/items/Crowbar.ogg', 50, 1)
 			to_chat(user, "You are trying to remove the power control board...")//lpeters - fixed grammar issues
 
-			if(do_after(user, 50, src))
+			if(do_after(user, 50, src, luck_check_type = LUCK_CHECK_ENG))
 				if (has_electronics==1)
 					has_electronics = 0
 					if ((stat & BROKEN))
@@ -489,16 +490,16 @@
 		else if(stat & (BROKEN|MAINT))
 			to_chat(user, "Nothing happens.")
 		else if(hacker && !hacker.hacked_apcs_hidden)
-			playsound(src.loc, 'sound/signals/error7.ogg', 25)
+			playsound(src.loc, 'sound/signals/error31.ogg', 50)
 			to_chat(user, "<span class='warning'>Access denied.</span>")
 		else
-			if(src.allowed(usr) && !isWireCut(APC_WIRE_IDSCAN))
+			if(check_access(usr) && !isWireCut(APC_WIRE_IDSCAN))
 				playsound(src.loc, 'sound/signals/warning9.ogg', 25)
 				locked = !locked
 				to_chat(user, "You [ locked ? "lock" : "unlock"] the APC interface.")
 				update_icon()
 			else
-				playsound(src.loc, 'sound/signals/error7.ogg', 25)
+				playsound(src.loc, 'sound/signals/error31.ogg', 50)
 				to_chat(user, "<span class='warning'>Access denied.</span>")
 	else if (isCoil(W) && !terminal && opened && has_electronics!=2)
 		var/turf/T = loc
@@ -512,7 +513,7 @@
 		user.visible_message("<span class='warning'>[user.name] adds cables to the APC frame.</span>", \
 							"You start adding cables to the APC frame...")
 		playsound(src.loc, 'sound/items/Deconstruct.ogg', 50, 1)
-		if(do_after(user, 20, src))
+		if(do_after(user, 20, src, luck_check_type = LUCK_CHECK_ENG))
 			if (C.amount >= 10 && !terminal && opened && has_electronics != 2)
 				var/obj/structure/cable/N = T.get_cable_node()
 				if (prob(50) && electrocute_mob(usr, N, N))
@@ -535,7 +536,7 @@
 		user.visible_message("<span class='warning'>[user.name] dismantles the power terminal from [src].</span>", \
 							"You begin to cut the cables...")
 		playsound(src.loc, 'sound/items/Deconstruct.ogg', 50, 1)
-		if(do_after(user, 50, src))
+		if(do_after(user, 50, src, luck_check_type = LUCK_CHECK_ENG))
 			if(terminal && opened && has_electronics!=2)
 				if (prob(50) && electrocute_mob(usr, terminal.powernet, terminal))
 					var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
@@ -550,7 +551,7 @@
 		user.visible_message("<span class='warning'>[user.name] inserts the power control board into [src].</span>", \
 							"You start to insert the power control board into the frame...")
 		playsound(src.loc, 'sound/items/Deconstruct.ogg', 50, 1)
-		if(do_after(user, 10, src))
+		if(do_after(user, 10, src, luck_check_type = LUCK_CHECK_ENG))
 			if(has_electronics==0)
 				has_electronics = 1
 				reboot() //completely new electronics
@@ -564,7 +565,7 @@
 		user.visible_message("<span class='warning'>[user.name] welds [src].</span>", \
 							"You start welding the APC frame...", \
 							"You hear welding.")
-		if(!WT.use_tool(src, user, delay = 5 SECONDS, amount = 5))
+		if(!WT.use_tool(src, user, delay = 5 SECONDS, amount = 50))
 			return
 
 		if(QDELETED(src) || !user)
@@ -600,7 +601,7 @@
 			return
 		user.visible_message("<span class='warning'>[user.name] replaces the damaged APC frame with a new one.</span>",\
 							"You begin to replace the damaged APC frame...")
-		if(do_after(user, 50, src))
+		if(do_after(user, 50, src, luck_check_type = LUCK_CHECK_ENG))
 			user.visible_message(\
 				"<span class='notice'>[user.name] has replaced the damaged APC frame with new one.</span>",\
 				"You replace the damaged APC frame with new one.")
@@ -632,7 +633,7 @@
 			user.visible_message("<span class='danger'>The [src.name] has been hit with the [W.name] by [user.name]!</span>", \
 				"<span class='danger'>You hit the [src.name] with your [W.name]!</span>", \
 				"You hear a bang")
-			user.setClickCooldown(W.update_attack_cooldown())
+			W.set_cooldown()
 			user.do_attack_animation(src)
 			if(W.force >= 5 && W.w_class >= ITEM_SIZE_NORMAL && prob(W.force))
 				var/roulette = rand(1,100)
@@ -661,7 +662,7 @@
 			to_chat(user, "Nothing happens.")
 		else
 			flick("apc-spark", src)
-			if (do_after(user,6,src))
+			if (do_after(user,6,src, luck_check_type = LUCK_CHECK_ENG))
 				if(prob(50))
 					playsound(src.loc, 'sound/effects/computer_emag.ogg', 25)
 					emagged = 1
@@ -832,7 +833,7 @@
 	return wires.IsIndexCut(wireIndex)
 
 
-/obj/machinery/power/apc/proc/can_use(mob/user as mob, loud = 0) //used by attack_hand() and Topic()
+/obj/machinery/power/apc/can_use(mob/user as mob, loud = 0) //used by attack_hand() and Topic()
 	if (user.stat)
 		to_chat(user, "<span class='warning'>You must be conscious to use [src]!</span>")
 		return 0
@@ -880,7 +881,7 @@
 		return 1
 
 	if(href_list["reboot"])
-		if(!allowed(usr) && (locked && !emagged))
+		if(!check_access(usr) && (locked && !emagged))
 			to_chat(usr, SPAN_WARNING("You must unlock the panel to use this!"))
 			return 1
 

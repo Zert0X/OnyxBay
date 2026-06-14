@@ -89,7 +89,8 @@ var/global/list/image/splatter_cache=list()
 		var/obj/item/clothing/shoes/S = H.shoes
 		if(istype(S))
 			S.add_blood(basecolor, amount)
-			S.blood_DNA |= blood_DNA
+			if(blood_DNA)
+				S.blood_DNA |= blood_DNA
 
 	else if(hasfeet) // Or feet
 		H.feet_blood_color = basecolor
@@ -117,7 +118,7 @@ var/global/list/image/splatter_cache=list()
 	user.add_blood(basecolor)
 	user.blood_DNA |= blood_DNA.Copy()
 	user.bloody_hands = taken
-	grant_verb(user, /mob/living/carbon/human/proc/bloody_doodle)
+	user.verbs += /mob/living/carbon/human/proc/bloody_doodle
 
 /obj/effect/decal/cleanable/blood/splatter
 	random_icon_states = list("mfloor3", "mfloor7", "mgibbl1", "mgibbl2", "mgibbl3", "mgibbl4", "mgibbl5")
@@ -169,7 +170,7 @@ var/global/list/image/splatter_cache=list()
 	density = 0
 	anchored = 1
 	icon = 'icons/effects/blood.dmi'
-	icon_state = "gibbl5"
+	icon_state = "gibbl"
 	random_icon_states = list("gib1", "gib2", "gib3", "gib5", "gib6")
 	var/fleshcolor = "#ffffff"
 

@@ -7,6 +7,7 @@
 	crew_data["tox"] = round(H.getToxLoss(), 1)
 	crew_data["fire"] = round(H.getFireLoss(), 1)
 	crew_data["brute"] = round(H.getBruteLoss(), 1)
+	crew_data["internal"] = round(H.getInternalLoss(), 1)
 	return ..()
 
 /**********
@@ -21,6 +22,7 @@
 	crew_data["tox"] = 0
 	crew_data["fire"] = 0
 	crew_data["brute"] = 0
+	crew_data["internal"] = 0
 	return MOD_SUIT_SENSORS_HANDLED
 
 /crew_sensor_modifier/vital/jamming/oxy/process_crew_data(mob/living/carbon/human/H, obj/item/clothing/under/C, turf/pos, list/crew_data)
@@ -39,6 +41,10 @@
 	. = ..()
 	crew_data["brute"] = max(200, crew_data["brute"])
 
+/crew_sensor_modifier/vital/jamming/internal/process_crew_data(mob/living/carbon/human/H, obj/item/clothing/under/C, turf/pos, list/crew_data)
+	. = ..()
+	crew_data["internal"] = max(200, crew_data["internal"])
+
 /*********
 * Random *
 *********/
@@ -53,7 +59,7 @@
 /crew_sensor_modifier/vital/jamming/random/New()
 	..()
 	if(!harms)
-		harms = list("brute", "fire", "oxy", "tox")
+		harms = list("brute", "fire", "oxy", "tox", "internal")
 	harm_diffs = list()
 
 /crew_sensor_modifier/vital/jamming/random/moderate

@@ -36,7 +36,7 @@ Self-sustaining extracts:
 	var/reagentselect = tgui_input_list(user, "Reagent the extract will produce.", "Self-sustaining Reaction", sort_list(extract.activate_reagents, /proc/cmp_name_or_type_asc))
 	if(isnull(reagentselect))
 		return
-	var/amount = 5
+	var/amount = 50
 	var/secondary
 
 	if (user.get_active_item() != src || user.stat != CONSCIOUS || user.restrained())
@@ -55,9 +55,9 @@ Self-sustaining extracts:
 	extract.forceMove(user.drop_location())
 	qdel(src)
 	user.put_in_active_hand(extract)
-	extract.reagents.add_reagent(reagentselect,amount)
+	extract.reagents.add_reagent(reagentselect, amount)
 	if(secondary)
-		extract.reagents.add_reagent(secondary,amount)
+		extract.reagents.add_reagent(secondary, amount)
 
 /obj/item/autometroid/examine(mob/user, infix)
 	. = ..()

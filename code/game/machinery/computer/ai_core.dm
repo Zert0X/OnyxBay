@@ -8,8 +8,9 @@
 	density = 1
 	anchored = FALSE
 	name = "\improper AI core"
-	icon = 'icons/mob/ai.dmi'
+	icon = 'icons/mob/silicon/ai.dmi'
 	icon_state = "0"
+	w_class = ITEM_SIZE_NO_CONTAINER
 	var/state = AI_STAGE_FRAME
 	var/datum/ai_laws/laws = new /datum/ai_laws/nanotrasen
 	var/obj/item/circuitboard/circuit = null
@@ -33,13 +34,13 @@
 		if(AI_STAGE_FRAME)
 			if(isWrench(P))
 				playsound(loc, 'sound/items/Ratchet.ogg', 50, 1)
-				if(do_after(user, 20, src))
+				if(do_after(user, 20, src, luck_check_type = LUCK_CHECK_ENG))
 					to_chat(user, SPAN("notice", "You wrench the frame into place."))
 					anchored = TRUE
 					state = AI_STAGE_CIRCUIT
 			if(isWelder(P))
 				var/obj/item/weldingtool/WT = P
-				if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 5))
+				if(!WT.use_tool(src, user, delay = 4 SECONDS, amount = 50))
 					return
 
 				if(QDELETED(src) || !user)
@@ -52,7 +53,7 @@
 		if(AI_STAGE_CIRCUIT)
 			if(isWrench(P))
 				playsound(loc, 'sound/items/Ratchet.ogg', 50, 1)
-				if(do_after(user, 20, src))
+				if(do_after(user, 20, src, luck_check_type = LUCK_CHECK_ENG))
 					to_chat(user, SPAN("notice", "You unfasten the frame."))
 					anchored = FALSE
 					state = AI_STAGE_FRAME
@@ -210,7 +211,7 @@
 
 /obj/structure/AIcore/deactivated
 	name = "inactive AI"
-	icon = 'icons/mob/ai.dmi'
+	icon = 'icons/mob/silicon/ai.dmi'
 	icon_state = "ai-empty"
 	anchored = TRUE
 	state = 20//So it doesn't interact based on the above. Not really necessary.
@@ -257,7 +258,7 @@
 	else if(isWrench(W))
 		if(anchored)
 			user.visible_message("<span class='notice'>\The [user] starts to unbolt \the [src] from the plating...</span>")
-			if(!do_after(user,40,src))
+			if(!do_after(user,40,src,luck_check_type = LUCK_CHECK_ENG))
 				user.visible_message("<span class='notice'>\The [user] decides not to unbolt \the [src].</span>")
 				return
 			user.visible_message("<span class='notice'>\The [user] finishes unfastening \the [src]!</span>")
@@ -265,7 +266,7 @@
 			return
 		else
 			user.visible_message("<span class='notice'>\The [user] starts to bolt \the [src] to the plating...</span>")
-			if(!do_after(user,40,src))
+			if(!do_after(user,40,src, luck_check_type = LUCK_CHECK_ENG))
 				user.visible_message("<span class='notice'>\The [user] decides not to bolt \the [src].</span>")
 				return
 			user.visible_message("<span class='notice'>\The [user] finishes fastening down \the [src]!</span>")

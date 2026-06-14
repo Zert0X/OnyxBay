@@ -26,10 +26,10 @@
 /mob/living/carbon/human/isSynthetic()
 	if(isnull(full_prosthetic))
 		robolimb_count = 0
-		for(var/obj/item/organ/external/E in organs)
+		for(var/obj/item/organ/external/E in external_organs)
 			if(BP_IS_ROBOTIC(E))
 				robolimb_count++
-		full_prosthetic = (robolimb_count == organs.len)
+		full_prosthetic = (robolimb_count == external_organs.len)
 	return full_prosthetic
 
 /mob/living/silicon/isSynthetic()
@@ -83,7 +83,7 @@
 
 //The base miss chance for the different defence zones
 var/list/global/base_miss_chance = list(
-	BP_HEAD = 25,
+	BP_HEAD = 40,
 	BP_CHEST = 10,
 	BP_GROIN = 20,
 	BP_L_LEG = 30,
@@ -513,10 +513,10 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 	else if(id && istype(id, /obj/item/card/id/centcom))
 		return SAFE_PERP
 
-	if(check_access && !access_obj.allowed(src))
+	if(check_access && !access_obj.check_access(src))
 		threatcount += 4
 
-	if(auth_weapons && !access_obj.allowed(src))
+	if(auth_weapons && !access_obj.check_access(src))
 		if(istype(l_hand, /obj/item/gun) || istype(l_hand, /obj/item/melee))
 			threatcount += 4
 
@@ -535,7 +535,7 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 			perpname = id.registered_name
 
 		var/datum/computer_file/crew_record/CR = get_crewmember_record(perpname)
-		if(check_records && !CR && !isMonkey())
+		if(check_records && !CR && !isMonkey(src))
 			threatcount += 4
 
 		if(check_arrest && CR && (CR.get_criminalStatus() == GLOB.arrest_security_status))
@@ -757,3 +757,8 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 	animate(C, pixel_x=recoil_x, pixel_y=recoil_y, time=1, easing=SINE_EASING|EASE_OUT, flags=ANIMATION_PARALLEL|ANIMATION_RELATIVE)
 	sleep(2)
 	animate(C, pixel_x=0, pixel_y=0, time=3, easing=SINE_EASING|EASE_IN)
+
+/mob/proc/get_climb_speed()
+	if(issmall(src))
+		return 0.6
+	return 1.0

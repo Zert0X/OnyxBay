@@ -6,12 +6,14 @@
 	icon_state = "bottle_medium"
 	center_of_mass = "x=16;y=11"
 	randpixel = 7
-	amount_per_transfer_from_this = 10
-	possible_transfer_amounts = "5;10;15;25;30;60"
+
+	volume = 0.75 LITER
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;100;150;250;300;500;750"
+
 	w_class = ITEM_SIZE_SMALL
 	item_flags = 0
 	obj_flags = 0
-	volume = 100
 	force = 8.5
 	mod_weight = 0.75
 	mod_reach = 0.5
@@ -30,6 +32,9 @@
 
 	drop_sound = SFX_DROP_GLASSBOTTLE
 	pickup_sound = SFX_PICKUP_GLASSBOTTLE
+
+/obj/item/reagent_containers/vessel/bottle/get_storage_cost()
+	return ..() * (volume >= 500 ? 1.5 : 1.0)
 
 /obj/item/reagent_containers/vessel/bottle/Destroy()
 	if(rag)
@@ -54,12 +59,13 @@
 		set_light(0)
 
 /obj/item/reagent_containers/vessel/bottle/attackby(obj/item/W, mob/user)
-	if(!rag && !pourer && istype(W, /obj/item/bottle_extra/pourer))
-		insert_pourer(W, user)
-		return
-	if(!rag && !pourer && istype(W, /obj/item/reagent_containers/rag))
-		insert_rag(W, user)
-		return
+	if(!rag && !pourer)
+		if(istype(W, /obj/item/bottle_extra/pourer))
+			insert_pourer(W, user)
+			return
+		if(istype(W, /obj/item/reagent_containers/rag))
+			insert_rag(W, user)
+			return
 	if(rag && istype(W, /obj/item/flame))
 		rag.attackby(W, user)
 		return
@@ -102,7 +108,8 @@
 	if(user.drop(P, src))
 		to_chat(user, SPAN("notice", "You stuff [P] into [src]."))
 		pourer = P
-		possible_transfer_amounts = "0.5;1;2;3;4;5;10"
+		amount_per_transfer_from_this = 5
+		possible_transfer_amounts = "5;10;25;50"
 		update_icon()
 
 /obj/item/reagent_containers/vessel/bottle/proc/remove_pourer(mob/user)
@@ -111,12 +118,15 @@
 	user.pick_or_drop(pourer)
 	pourer = null
 	possible_transfer_amounts = initial(possible_transfer_amounts)
-	amount_per_transfer_from_this = 5
+	amount_per_transfer_from_this = 25
 	update_icon()
 
 
 /obj/item/reagent_containers/vessel/bottle/small
-	volume = 50
+	volume = 0.330 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "25;30;50;60;100;150;330"
+
 	lid_type = /datum/vessel_lid/beercap
 	force = 7.0
 	mod_weight = 0.65
@@ -137,10 +147,12 @@
 	mod_reach = 0.45
 	mod_handy = 0.65
 	smash_weaken = 0
-	amount_per_transfer_from_this = 10
-	possible_transfer_amounts = "5;10;15;25;30;60"
+
+	volume = 0.25 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "10;15;25;30;50;60;100;150;250"
+
 	w_class = ITEM_SIZE_SMALL
-	volume = 60
 	precise_measurement = TRUE
 	filling_states = "5;10;25;50;75;80;100"
 	base_name = "bottle"
@@ -162,14 +174,19 @@
 	mod_reach = 0.25
 	mod_handy = 0.65
 	smash_weaken = 0
-	amount_per_transfer_from_this = 5
-	possible_transfer_amounts = "5;10;15;30"
+
+	volume = 0.1 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "10;15;25;30;50;60;100"
+
 	w_class = ITEM_SIZE_TINY
-	volume = 30
 	matter = list(MATERIAL_GLASS = 1000)
 	base_name = "small bottle"
 	base_desc = "A small glass bottle."
 	rag_underlay = "rag_small"
+
+/obj/item/reagent_containers/vessel/bottle/chemical/small/get_storage_cost()
+	return ..() * 1.5
 
 /obj/item/reagent_containers/vessel/bottle/chemical/big
 	name = "big bottle"
@@ -180,16 +197,16 @@
 	mod_reach = 0.5
 	mod_handy = 0.75
 	smash_weaken = 4
-	amount_per_transfer_from_this = 15
-	possible_transfer_amounts = "5;10;15;25;30;60"
-	volume = 90
+
+
+	volume = 0.5 LITERS
+	amount_per_transfer_from_this = 25
+	possible_transfer_amounts = "10;15;25;30;50;60;100;150;300;500"
+
 	matter = list(MATERIAL_GLASS = 3000)
 	base_name = "big bottle"
 	base_desc = "A big glass bottle."
 	rag_underlay = "rag_big"
-
-/obj/item/reagent_containers/vessel/bottle/chemical/big/get_storage_cost()
-	return ..() * 1.5
 
 /obj/item/reagent_containers/vessel/bottle/chemical/Initialize()
 	. = ..()
@@ -198,13 +215,13 @@
 		lid.icon_state = "lid[icon_state]"
 		update_icon()
 
-
+// Cyborg bottles
 /obj/item/reagent_containers/vessel/bottle/chemical/robot
-	amount_per_transfer_from_this = 10
-	possible_transfer_amounts = "5;10;15;25;30;50;100"
+	amount_per_transfer_from_this = 5
+	possible_transfer_amounts = "1;3;5;10;15;25;30;50;60;100" // Let borgs have their precise measuring
 	atom_flags = ATOM_FLAG_OPEN_CONTAINER
 	lid_type = null
-	volume = 60
+	volume = 0.3 LITERS
 	force = 0
 	brittle = FALSE // No, for the love of god
 	var/reagent = ""
@@ -251,7 +268,7 @@
 	icon_state = "coffee_cup_e"
 	base_icon_state = "coffee_cup"
 	possible_transfer_amounts = list(10)
-	volume = 30
+	volume = 0.2 LITERS
 
 /obj/item/reagent_containers/glass/coffee_cup/on_update_icon()
 	icon_state = reagents.total_volume ? base_icon_state : "[base_icon_state]_e"
@@ -265,8 +282,11 @@
 	desc = "A bottle with a syrup pump to dispense the delicious substance directly into your coffee cup."
 	icon = 'icons/obj/reagent_containers/bottles.dmi'
 	icon_state = "syrup"
-	possible_transfer_amounts = list(5, 10)
+
+	volume = 0.5 LITERS
+	possible_transfer_amounts = "5;10"
 	amount_per_transfer_from_this = 5
+
 	lid_type = null
 	/// Whether this syrup's pump is toggled or not
 	var/pump_cap = TRUE
@@ -301,9 +321,13 @@
 	if(pump_cap)
 		show_splash_text(user, "put pump cap on")
 		icon_state = "syrup"
+		possible_transfer_amounts = "5;10"
+		amount_per_transfer_from_this = 5
 	else
 		show_splash_text(user, "removed pump cap")
 		icon_state = "syrup_open"
+		possible_transfer_amounts = "25;30;50;60;100;150;250;300;500"
+		amount_per_transfer_from_this = 25
 
 //types of syrups
 /obj/item/reagent_containers/vessel/bottle/syrup_bottle/caramel

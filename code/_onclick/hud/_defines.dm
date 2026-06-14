@@ -43,6 +43,7 @@
 #define ui_equip "CENTER-1:16,SOUTH+1:5"
 #define ui_swaphand1 "CENTER-1:16,SOUTH+1:5"
 #define ui_swaphand2 "CENTER:16,SOUTH+1:5"
+#define ui_twohanded "CENTER:16,SOUTH+1:5"
 #define ui_storage1 "CENTER+1:16,SOUTH:5"
 #define ui_storage2 "CENTER+2:16,SOUTH:5"
 
@@ -95,6 +96,7 @@
 #define ui_alien_oxygen "EAST-1:28,NORTH-4:25"
 
 //Middle right (status indicators)
+#define ui_bladder "EAST-1:28,CENTER-3:9"
 #define ui_nutrition "EAST-1:28,CENTER-2:11"
 #define ui_temp "EAST-1:28,CENTER-1:13"
 #define ui_health "EAST-1:28,CENTER:15"
@@ -116,6 +118,8 @@
 #define ui_r_ear "WEST+2:10,SOUTH+3:11"
 
 #define ui_head "WEST+1:8,SOUTH+3:11"
+
+#define ui_underwear "WEST:6,SOUTH+3:11"
 
 //Intent small buttons
 #define ui_help_small "EAST-3:8,SOUTH:1"
@@ -139,9 +143,8 @@
 #define ui_spell_master "EAST-1:16,NORTH-1:16"
 #define ui_genetic_master "EAST-1:16,NORTH-3:16"
 
-//Blocking and dashing
-#define ui_block "EAST-4:24,SOUTH:5"
-#define ui_blockswitch "EAST-4:24,SOUTH:5"
+#define ui_block "EAST-4:24,SOUTH+1:5"
+#define ui_aim_assist "EAST-4:24,SOUTH:5"
 
 // AI
 #define ui_ai_core "SOUTH:6,WEST"

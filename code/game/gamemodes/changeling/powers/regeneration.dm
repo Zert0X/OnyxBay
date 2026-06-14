@@ -32,17 +32,16 @@
 		H.adjustFireLoss(-3.5 * config.health.organ_regeneration_multiplier)
 		any_effect = TRUE
 	if(H.getToxLoss())
-		H.adjustToxLoss(-5.0 * config.health.organ_regeneration_multiplier)
+		H.adjustToxLoss(-5.0)
 		any_effect = TRUE
 
 	if(prob(15) && !H.getBruteLoss() && !H.getFireLoss())
-		var/obj/item/organ/external/head/D = H.organs_by_name[BP_HEAD]
+		var/obj/item/organ/external/head/D = H.external_organs_by_name[BP_HEAD]
 		if(D?.status & ORGAN_DISFIGURED)
 			D.status &= ~ORGAN_DISFIGURED
 			any_effect = TRUE
 
-	for(var/bpart in shuffle(H.internal_organs_by_name))
-		var/obj/item/organ/internal/regen_organ = H.internal_organs_by_name[bpart]
+	for(var/obj/item/organ/internal/regen_organ in shuffle(H.internal_organs))
 		if(BP_IS_ROBOTIC(regen_organ))
 			continue
 		if(istype(regen_organ))

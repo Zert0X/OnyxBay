@@ -20,13 +20,14 @@
 	max_w_class = ITEM_SIZE_SMALL
 	max_storage_space = DEFAULT_BOX_STORAGE
 	attack_verb = list("doctored", "medicined", "unhealed", "fist-aided")
+	inspect_state = TRUE
 
 /obj/item/storage/firstaid/regular
 	icon_state = "firstaid"
 
 	startswith = list(
 		/obj/item/device/healthanalyzer,
-		/obj/item/stack/medical/bruise_pack = 2,
+		/obj/item/stack/medical/bandage = 2,
 		/obj/item/stack/medical/ointment = 1,
 		/obj/item/reagent_containers/hypospray/autoinjector,
 		/obj/item/storage/pill_bottle/antidexafen,
@@ -42,7 +43,7 @@
 	startswith = list(
 		/obj/item/device/healthanalyzer,
 		/obj/item/reagent_containers/hypospray/autoinjector,
-		/obj/item/stack/medical/bruise_pack,
+		/obj/item/stack/medical/bandage,
 		/obj/item/stack/medical/ointment = 2,
 		/obj/item/storage/pill_bottle/kelotane,
 		/obj/item/storage/pill_bottle/paracetamol
@@ -92,9 +93,9 @@
 
 	startswith = list(
 		/obj/item/device/healthanalyzer,
-		/obj/item/reagent_containers/hypospray/autoinjector,
-		/obj/item/stack/medical/advanced/bruise_pack = 2,
-		/obj/item/stack/medical/advanced/ointment = 2,
+		/obj/item/reagent_containers/hypospray/autoinjector/adrenaline,
+		/obj/item/stack/medical/gel/brute = 2,
+		/obj/item/stack/medical/gel/burn = 2,
 		/obj/item/stack/medical/splint
 		)
 
@@ -102,12 +103,13 @@
 	name = "combat medical kit"
 	desc = "Contains advanced medical treatments."
 	icon_state = "firstaid-bezerk"
-	item_state = "firstaid-advanced"
+	item_state = "firstaid-bezerk"
 	storage_slots = 9 // Tacticoolness makes it more spaceous
+	max_storage_space = null
 
 	startswith = list(
-		/obj/item/stack/medical/advanced/bruise_pack,
-		/obj/item/stack/medical/advanced/ointment,
+		/obj/item/stack/medical/gel/brute,
+		/obj/item/stack/medical/gel/burn,
 		/obj/item/storage/pill_bottle/bicaridine,
 		/obj/item/storage/pill_bottle/dermaline,
 		/obj/item/storage/pill_bottle/dexalin_plus,
@@ -137,7 +139,13 @@
 	can_hold = list(
 		/obj/item/reagent_containers/pill/,
 		/obj/item/reagent_containers/hypospray/autoinjector/,
-		/obj/item/reagent_containers/syringe/
+		/obj/item/reagent_containers/syringe/,
+		/obj/item/pen/,
+		/obj/item/reagent_containers/dropper/,
+		/obj/item/reagent_containers/vessel/beaker/vial/,
+		/obj/item/scalpel/,
+		/obj/item/hemostat/,
+		/obj/item/clothing/mask/smokable/cigarette/
 		)
 
 /obj/item/storage/firstaid/surgery
@@ -162,7 +170,7 @@
 		/obj/item/bonegel,
 		/obj/item/FixOVein,
 		/obj/item/organfixer,
-		/obj/item/stack/medical/advanced/bruise_pack,
+		/obj/item/stack/medical/gel/brute,
 		/obj/item/stack/nanopaste
 		)
 
@@ -177,7 +185,7 @@
 		/obj/item/bonegel,
 		/obj/item/FixOVein,
 		/obj/item/organfixer/standard,
-		/obj/item/stack/medical/advanced/bruise_pack,
+		/obj/item/stack/medical/gel/brute,
 		)
 
 	drop_sound = SFX_DROP_TOOLBOX

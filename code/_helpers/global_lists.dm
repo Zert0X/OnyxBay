@@ -28,7 +28,7 @@ var/global/list/all_species[0]
 var/global/list/all_languages[0]
 var/global/list/language_keys[0]					// Table of say codes for all languages
 var/global/list/whitelisted_species = list(SPECIES_HUMAN) // Species that require a whitelist check.
-var/global/list/playable_species = list(SPECIES_HUMAN)    // A list of ALL playable species, whitelisted, latejoin or otherwise.
+var/global/list/playable_species = list()                  // A list of ALL playable species, whitelisted, latejoin or otherwise.
 
 var/list/mannequins_
 
@@ -74,16 +74,6 @@ var/global/list/syndicate_access = list(access_maint_tunnels, access_syndicate, 
 
 /// Implants
 GLOBAL_LIST_EMPTY(implants_list)
-
-/// Associative list of string -> string, where key is armor class and value is an attack type it protects against.
-GLOBAL_LIST_INIT(descriptive_attack_types, list(
-	"melee" = "blunt force",
-	"bullet" = "ballistics",
-	"laser" = "lasers",
-	"energy" = "energy",
-	"bomb" = "explosions",
-	"bio" = "biohazards",
-))
 
 // Strings which corraspond to bodypart covering flags, useful for outputting what something covers.
 var/global/list/string_part_flags = list(

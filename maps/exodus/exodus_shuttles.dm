@@ -460,6 +460,7 @@
 	move_time = 120
 	arrival_announce = /datum/announce/nukeops_arrival
 	departure_announce = /datum/announce/nukeops_departure
+	fake_arrival_announce = /datum/announce/merchants_arrival
 
 /obj/effect/shuttle_landmark/syndi/start
 	name = "Syndicate Base"
@@ -597,9 +598,9 @@
 	current_location = "nav_merchant_start"
 	dock_target = "merchant_ship_dock"
 	home_waypoint = "nav_merchant_start"
-	cloaked = 1
+	cloaked = 0
 	move_time = 60
-	arrival_announce = /datum/announce/merchants_arrival
+	fake_arrival_announce = /datum/announce/nukeops_arrival
 
 /obj/effect/shuttle_landmark/merchant/start
 	name = "Merchant Base"

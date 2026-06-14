@@ -10,7 +10,7 @@
 	mod_weight = 0.7
 	mod_reach = 0.5
 	mod_handy = 1.0
-	fire_delay = 6.75 //Revolvers are naturally slower-firing
+	fire_delay = 0.8 SECONDS //Revolvers are naturally slower-firing
 	ammo_type = /obj/item/ammo_casing/a357
 	var/chamber_offset = 0 //how many empty chambers in the cylinder until you hit a round
 	fire_sound = 'sound/effects/weapons/gun/fire2.ogg'
@@ -29,7 +29,6 @@
 	mod_weight = 0.7
 	mod_reach = 0.5
 	mod_handy = 1.0
-	fire_delay = 6.75 //Revolvers are naturally slower-firing
 	ammo_type = /obj/item/ammo_casing/a357
 
 /obj/item/gun/projectile/revolver/AltClick()
@@ -42,8 +41,8 @@
 	set category = "Object"
 
 	chamber_offset = 0
-	visible_message("<span class='warning'>\The [usr] spins the cylinder of \the [src]!</span>", \
-	"<span class='notice'>You hear something metallic spin and click.</span>")
+	visible_message(SPAN("warning", "\The [usr] spins the cylinder of \the [src]!"), \
+					SPAN("notice", "You hear something metallic spin and click."))
 	playsound(src.loc, 'sound/effects/weapons/gun/revolver_spin.ogg', 100, FALSE)
 	loaded = shuffle(loaded)
 	if(rand(1,max_shells) > loaded.len)
@@ -64,6 +63,7 @@
 	desc = "The Lumoco Arms HE Colt is a choice revolver for when you absolutely, positively need to put a hole in the other guy. Uses .50 ammo."
 	icon_state = "mateba"
 	caliber = ".50"
+	fire_delay = 1.0 SECONDS
 	origin_tech = list(TECH_COMBAT = 2, TECH_MATERIAL = 2)
 	ammo_type = /obj/item/ammo_casing/a50
 
@@ -106,10 +106,11 @@
 	name = "Deckard .44"
 	desc = "A custom-built revolver, based off the semi-popular Detective Special model."
 	icon_state = "deckard-empty"
-	ammo_type = /obj/item/ammo_magazine/c38/rubber
+	caliber = ".44"
+	ammo_type = /obj/item/ammo_casing/c44/rubber
 
 /obj/item/gun/projectile/revolver/deckard/emp
-	ammo_type = /obj/item/ammo_casing/c38/emp
+	ammo_type = /obj/item/ammo_casing/c44/emp
 
 /obj/item/gun/projectile/revolver/deckard/on_update_icon()
 	..()
@@ -119,9 +120,10 @@
 		icon_state = "deckard-empty"
 
 /obj/item/gun/projectile/revolver/deckard/load_ammo(obj/item/A, mob/user)
-	if(istype(A, /obj/item/ammo_magazine))
-		flick("deckard-reload",src)
-	..()
+    var/old_loaded_len = loaded.len
+    ..()
+    if(old_loaded_len != loaded.len)
+        flick("deckard-reload",src)
 
 /obj/item/gun/projectile/revolver/capgun
 	name = "cap gun"
@@ -294,3 +296,32 @@
 		icon_state = "[icon_state]0"
 	else
 		icon_state = "[icon_state][chargemode]"
+
+/obj/item/gun/projectile/revolver/grenade_launcher
+	name = "multiple grenade launcher"
+	desc = "The Lumoco Arms MGL is the weapon of choice for when civilized approach is not even considered an option."
+	icon_state = "grenade_launcher"
+	item_state = "grenade_launcher"
+	wielded_item_state = "grenade_launcher-wielded"
+
+	w_class = ITEM_SIZE_HUGE
+	force = 12.5
+	mod_weight = 1.0
+	mod_reach = 0.8
+	mod_handy = 1.0
+	origin_tech = list(TECH_COMBAT = 4, TECH_MATERIAL = 2)
+	slot_flags = 0
+
+	caliber = "40mm"
+	handle_casings = HOLD_CASINGS
+	handle_casings = CYCLE_CASINGS
+	ammo_type = /obj/item/ammo_casing/grenade
+	max_shells = 6
+	fire_delay = 1.2 SECONDS
+	fire_sound = 'sound/effects/weapons/misc/bloop.ogg'
+	one_hand_penalty = 3
+	starts_loaded = FALSE
+
+/obj/item/gun/projectile/revolver/grenade_launcher/on_update_icon()
+	icon_state = "grenade_launcher[!!loaded.len]"
+	..()

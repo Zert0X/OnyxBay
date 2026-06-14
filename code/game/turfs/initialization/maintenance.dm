@@ -40,10 +40,14 @@
 		new new_junk(T)
 
 	if(prob(vermin_probability))
-		if(prob(80))
-			new /mob/living/simple_animal/mouse(T)
-		else
-			new /mob/living/simple_animal/lizard(T)
+		var/verminprob = rand(1, 100)
+		switch(verminprob)
+			if(1 to 70)
+				new /mob/living/simple_animal/mouse(T)
+			if(71 to 90)
+				new /mob/living/simple_animal/lizard(T)
+			if(91 to 100)
+				new /mob/living/simple_animal/hamster(T)
 
 	if(prob(web_probability))	// Keep in mind that only "corners" get any sort of web
 		attempt_web(T, cardinal_turfs)

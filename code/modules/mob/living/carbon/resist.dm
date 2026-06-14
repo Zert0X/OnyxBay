@@ -2,7 +2,6 @@
 
 	//drop && roll
 	if(on_fire && !buckled)
-		fire_stacks -= 1.2
 		Weaken(3)
 		spin(32,2)
 		visible_message(
@@ -10,12 +9,12 @@
 			"<span class='notice'>You stop, drop, and roll!</span>"
 			)
 		sleep(30)
-		if(fire_stacks <= 0)
+		adjust_fire_stacks(-25, TRUE)
+		if(!on_fire)
 			visible_message(
 				"<span class='danger'>[src] has successfully extinguished themselves!</span>",
 				"<span class='notice'>You extinguish yourself.</span>"
 				)
-			ExtinguishMob()
 		return TRUE
 
 	if(istype(buckled, /obj/effect/vine))
@@ -60,7 +59,7 @@
 		"<span class='warning'>You attempt to remove \the [HC]. (This will take around [displaytime] minutes and you need to stand still)</span>"
 		)
 
-	if(do_after(src, breakouttime, incapacitation_flags = INCAPACITATION_DEFAULT & ~INCAPACITATION_RESTRAINED))
+	if(do_after(src, breakouttime, incapacitation_flags = INCAPACITATION_DEFAULT & ~INCAPACITATION_RESTRAINED, luck_check_type = LUCK_CHECK_COMBAT))
 		if(!handcuffed || buckled)
 			return
 		visible_message(
@@ -79,7 +78,7 @@
 		"<span class='warning'>You attempt to break your [handcuffed.name]. (This will take around 5 seconds and you need to stand still)</span>"
 		)
 
-	if(do_after(src, 5 SECONDS, incapacitation_flags = INCAPACITATION_DEFAULT & ~INCAPACITATION_RESTRAINED))
+	if(do_after(src, 5 SECONDS, incapacitation_flags = INCAPACITATION_DEFAULT & ~INCAPACITATION_RESTRAINED, luck_check_type = LUCK_CHECK_COMBAT))
 		if(!handcuffed || buckled)
 			return
 
@@ -117,7 +116,7 @@
 		visible_message(SPAN_DANGER("[src] attempts to unbuckle themself!"),
 						SPAN_WARNING("You attempt to unbuckle yourself. (This will take around 2 minutes and you need to stand still)"))
 
-		if(do_after(src, 2 MINUTES, incapacitation_flags = INCAPACITATION_DEFAULT & ~(INCAPACITATION_RESTRAINED | INCAPACITATION_BUCKLED_FULLY)))
+		if(do_after(src, 2 MINUTES, incapacitation_flags = INCAPACITATION_DEFAULT & ~(INCAPACITATION_RESTRAINED | INCAPACITATION_BUCKLED_FULLY),  luck_check_type = LUCK_CHECK_COMBAT))
 			if(!buckled)
 				return
 			visible_message(SPAN_DANGER("\The [src] manages to unbuckle themself!"),

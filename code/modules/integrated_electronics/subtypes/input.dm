@@ -355,7 +355,7 @@
 
 		if(istype(H, /mob/living/carbon/human))
 			var/mob/living/carbon/human/M = H
-			var/msg = M.run_examinate(src)
+			var/msg = M.examine(src)
 			if(msg)
 				set_pin_data(IC_OUTPUT, 2, msg)
 
@@ -1010,8 +1010,7 @@
 	var/pu = get_pin_data(IC_INPUT, 1)
 	if(pu && !user.drop(A, get_turf(src)))
 		return FALSE
-	if(pu)
-		user.drop(A)
+
 	set_pin_data(IC_OUTPUT, 1, weakref(A))
 	push_data()
 	to_chat(user, SPAN("notice", "You let [assembly] scan [A]."))

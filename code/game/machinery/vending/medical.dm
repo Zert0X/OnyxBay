@@ -30,10 +30,14 @@
 		/obj/item/device/healthanalyzer = 5,
 		/obj/item/reagent_containers/vessel/beaker = 4,
 		/obj/item/reagent_containers/dropper = 2,
-		/obj/item/stack/medical/advanced/bruise_pack = 3,
-		/obj/item/stack/medical/advanced/ointment = 3,
+		/obj/item/stack/medical/bandage = 6,
+		/obj/item/stack/medical/ointment = 6,
+		/obj/item/stack/medical/gel/brute = 3,
+		/obj/item/stack/medical/gel/burn = 3,
 		/obj/item/stack/medical/splint = 2,
-		/obj/item/reagent_containers/hypospray/autoinjector/pain = 4
+		/obj/item/reagent_containers/hypospray/autoinjector/pain = 4,
+		/obj/item/compact_shoe_covers = 5,
+		/obj/item/storage/box/compact_shoe_covers = 1
 		)
 
 	illegal = list(
@@ -41,6 +45,11 @@
 		/obj/item/reagent_containers/pill/stox = 4,
 		/obj/item/reagent_containers/pill/dylovene = 6,
 		/obj/item/reagent_containers/hypospray/autoinjector/combatpain = 2
+		)
+
+	premium = list(
+		/obj/item/storage/firstaid/adv = 1,
+		/obj/item/reagent_containers/hypospray/autoinjector/adrenaline = 2
 		)
 
 /obj/item/vending_cartridge/medical
@@ -64,8 +73,9 @@
 		)
 
 	legal = list(
-		/obj/item/stack/medical/bruise_pack = 2,
+		/obj/item/stack/medical/bandage = 2,
 		/obj/item/stack/medical/ointment = 2,
+		/obj/item/stack/medical/bandaids = 4,
 		/obj/item/reagent_containers/hypospray/autoinjector = 4
 		)
 
@@ -98,8 +108,9 @@
 	legal = list(
 		/obj/item/reagent_containers/hypospray/autoinjector = 5,
 		/obj/item/reagent_containers/syringe/antitoxin/packaged = 1,
-		/obj/item/stack/medical/bruise_pack = 3,
-		/obj/item/stack/medical/ointment =3
+		/obj/item/stack/medical/bandage = 3,
+		/obj/item/stack/medical/ointment = 3,
+		/obj/item/stack/medical/bandaids = 5
 		)
 
 	illegal = list(

@@ -2,6 +2,15 @@
 	var/genetype    // Label used when applying trait.
 	var/list/values // Values to copy into the target seed datum.
 
+	var/source
+	var/source_short
+
+/datum/plantgene/New(datum/seed/sampled_from, gene_name)
+	src.genetype = gene_name
+
+	source = "[gene_name], sampled from [sampled_from.display_name]"
+	source_short = "[copytext(capitalize(gene_name), 1, 3)], #[sampled_from.uid]"
+
 /datum/seed
 	//Tracking.
 	var/uid                        // Unique identifier.
@@ -15,7 +24,7 @@
 	var/growth_stages = 0          // Number of stages the plant passes through before it is mature.
 	var/list/traits = list()       // Initialized in New()
 	var/list/mutants               // Possible predefined mutant varieties, if any.
-	var/list/chems                 // Chemicals that plant produces in products/injects into victim.
+	var/list/chems                 // Chemicals that plant produces in products/injects into victim. Format: list(/datum/reagent/reagent_path = list(default_volume, volume_per_potency), ...)
 	var/list/consume_gasses        // The plant will absorb these gasses during its life.
 	var/list/exude_gasses          // The plant will exude these gasses during its life.
 	var/kitchen_tag                // Used by the reagent grinder.
@@ -126,7 +135,7 @@
 	var/blocked = target.run_armor_check(target_limb, "melee")
 	var/obj/item/organ/external/affecting = target.get_organ(target_limb)
 
-	if(blocked >= 100 || (target.species && target.species.species_flags & (SPECIES_FLAG_NO_EMBED|SPECIES_FLAG_NO_MINOR_CUT)))
+	if(blocked >= 100 || (target.species && (target.species.species_flags & SPECIES_FLAG_NO_MINOR_CUT)))
 		to_chat(target, "<span class='danger'>\The [fruit]'s thorns scratch against the armour on your [affecting.name]!</span>")
 		return
 
@@ -157,13 +166,13 @@
 
 	if(chems && chems.len && target.reagents)
 
-		var/obj/item/organ/external/affecting = pick(target.organs)
+		var/obj/item/organ/external/affecting = pick(target.external_organs)
 
 		for(var/obj/item/clothing/C in list(target.head, target.wear_mask, target.wear_suit, target.w_uniform, target.gloves, target.shoes))
 			if(C && (C.body_parts_covered & affecting.body_part) && (C.item_flags & ITEM_FLAG_THICKMATERIAL))
 				affecting = null
 
-		if(target.species && target.species.species_flags & (SPECIES_FLAG_NO_EMBED|SPECIES_FLAG_NO_MINOR_CUT))
+		if(target.species && (target.species.species_flags & SPECIES_FLAG_NO_MINOR_CUT))
 			affecting = null
 
 		if(affecting)
@@ -653,8 +662,7 @@
 	if(!genetype) return 0
 
 	var/list/traits_to_copy
-	var/datum/plantgene/P = new()
-	P.genetype = genetype
+	var/datum/plantgene/P = new(src, genetype)
 	P.values = list()
 
 	switch(genetype)
@@ -841,3 +849,12 @@
 
 /datum/seed/proc/is_canonical()
 	return canonical_icon && (SSplants.canonical_plants[canonical_icon] == get_canonical_key())
+
+/// Checks whether this seed is unique and saves it if necessary.
+/datum/seed/proc/save_seed()
+	if(name != "new line" && isnull(SSplants.seeds[name]))
+		return
+
+	uid = sequential_id(/datum/seed/)
+	name = "[uid]"
+	SSplants.seeds[name] = src

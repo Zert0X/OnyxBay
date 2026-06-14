@@ -4,7 +4,7 @@
 	icon_state = "securecrate"
 	icon_opened = "securecrateopen"
 	icon_closed = "securecrate"
-	req_access = list()
+	req_access = null
 	var/list/code = list()
 	var/list/lastattempt = list()
 	var/attempts = 10
@@ -125,7 +125,7 @@
 			new /obj/item/pen/crayon/rainbow(src)
 			new /obj/item/reagent_containers/spray/waterflower(src)
 		if(95)
-			new /obj/item/clothing/under/mime(src)
+			new /obj/item/clothing/under/rank/mime(src)
 			new /obj/item/clothing/shoes/black(src)
 			new /obj/item/device/pda/mime(src)
 			new /obj/item/clothing/gloves/white(src)
@@ -139,7 +139,7 @@
 		if(97)
 			new /obj/item/archaeological_find(src)
 		if(98)
-			new /obj/item/melee/energy/sword/one_hand(src)
+			new /obj/item/melee/energy/sword/saber(src)
 		if(99)
 			new /obj/item/storage/belt/champion(src)
 			new /obj/item/clothing/mask/luchador(src)

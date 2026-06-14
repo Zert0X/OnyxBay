@@ -16,8 +16,8 @@
 		slot_r_hand_str = 'icons/mob/onmob/items/righthand_vessels.dmi',
 		)
 
-	volume = 60
-	amount_per_transfer_from_this = 10
+	volume = 0.5 LITERS
+	amount_per_transfer_from_this = 100
 	possible_transfer_amounts = "5;10;15;25;30;60"
 	w_class = ITEM_SIZE_SMALL
 	atom_flags = ATOM_FLAG_OPEN_CONTAINER
@@ -178,14 +178,14 @@
 /obj/item/reagent_containers/vessel/examine(mob/user, infix)
 	. = ..()
 
-	. += "Can hold up to <b>[volume]</b> units."
+	. += "Can hold up to <b>[volume]</b>ml."
 
 	if(get_dist(src, user) > 2)
 		return
 
 	if(precise_measurement)
 		if(reagents?.reagent_list.len)
-			. += SPAN_NOTICE("It contains <b>[reagents.total_volume]</b> units of liquid.")
+			. += SPAN_NOTICE("It contains <b>[reagents.total_volume]</b>ml of liquid.")
 		else
 			. += SPAN_NOTICE("It is empty.")
 	else
@@ -219,12 +219,81 @@
 	if(force && !(item_flags & ITEM_FLAG_NO_BLUDGEON) && user.a_intent == I_HURT)
 		return ..()
 
+	if(clink_glasses(user, M, def_zone))
+		return
+
 	if(standard_feed_mob(user, M))
 		return
 
 	return FALSE
 
-/obj/item/reagent_containers/vessel/standard_feed_mob(mob/user, mob/target)
+/obj/item/reagent_containers/vessel/proc/clink_glasses(mob/user, mob/target, zone)
+	if(user == target)
+		return FALSE
+	if(user.a_intent != I_HELP)
+		return FALSE
+	if(zone != BP_R_HAND && zone != BP_L_HAND)
+		return FALSE
+
+	var/obj/item/reagent_containers/vessel/target_vessel
+
+	if(ishuman(target))
+		var/mob/living/carbon/human/human_target = target
+		if(zone == BP_R_HAND && isvessel(human_target.r_hand))
+			target_vessel = human_target.r_hand
+		else if(isvessel(human_target.l_hand))
+			target_vessel = human_target.l_hand
+		else if(isvessel(human_target.r_hand))
+			target_vessel = human_target.r_hand
+
+	else if(isrobot(target))
+		var/mob/living/silicon/robot/robot_target = target
+		if(isvessel(robot_target.module_active))
+			target_vessel = robot_target.module_active
+
+	else if(isliving(target))
+		for(var/obj/item/reagent_containers/vessel/V in target)
+			target_vessel = V
+			break
+
+	else
+		return FALSE
+
+	if(!target_vessel)
+		return FALSE
+
+	user.custom_emote(message = "reaches out to clink glasses with [target].")
+	user.show_splash_text(target, "offers to clink!", force_skip_chat = TRUE)
+
+	var/choice = show_radial_menu(target, user, list("accept" = image('icons/hud/radial.dmi', "radial_accept"), "decline" = image('icons/hud/radial.dmi', "radial_decline")), require_near = TRUE)
+
+	if(!choice || choice == "decline")
+		target.show_splash_text(user, "declined!", force_skip_chat = TRUE)
+		target.custom_emote(message = "refuses to clink glasses with [user]!")
+		return TRUE
+
+	if(choice == "accept")
+		target.show_splash_text(user, "accepted!", force_skip_chat = TRUE)
+		user.custom_emote(message = "and <b>[target]</b> clink glasses! Cheers!")
+		playsound(user.loc, GET_SFX(SFX_GLASSES_CLINK), 50, 1)
+
+	if(!is_open_container() || !target_vessel.is_open_container())
+		return TRUE
+
+	if(!reagents.total_volume || !target_vessel.reagents.total_volume)
+		return TRUE
+
+	var/transfer_amount = rand(5, 25) // milliliters
+
+	reagents.remove_any(transfer_amount)
+	target_vessel.reagents.remove_any(transfer_amount)
+
+	reagents.trans_to_holder(target_vessel.reagents, 1, transfer_amount, TRUE)
+	target_vessel.reagents.trans_to_holder(reagents, 1, transfer_amount, TRUE)
+
+	return TRUE
+
+/obj/item/reagent_containers/vessel/standard_feed_mob(mob/user, mob/target, bypass_resist = FALSE)
 	if(!is_open_container())
 		to_chat(user, SPAN("notice", "You need to open \the [src] first."))
 		return TRUE
@@ -244,8 +313,36 @@
 		return TRUE
 	return ..()
 
-/obj/item/reagent_containers/vessel/self_feed_message(mob/user)
-	to_chat(user, SPAN("notice", "You [pick("swallow a gulp", "take a sip", "chug", "drink")] from \the [src]."))
+/obj/item/reagent_containers/vessel/self_feed_message(mob/user, feed_volume = 0)
+	var/feed_desc = ""
+	switch(feed_volume)
+		if(50.01 to INFINITY)
+			feed_desc = "swallow a mouth full"
+		if(30.01 to 50)
+			feed_desc = "take a gulp"
+		if(15.01 to 30)
+			feed_desc = "drink"
+		if(5.01 to 15)
+			feed_desc = "take a sip"
+		if(0 to 5)
+			feed_desc = "take a tiny sip"
+	to_chat(user, SPAN("notice", "You [feed_desc] from \the [src]."))
+
+/obj/item/reagent_containers/vessel/other_feed_message_finish(mob/user, mob/target, feed_volume = 0)
+	user.visible_message("<span class='warning'>[user] has fed [target] \the [src]!</span>")
+	var/feed_desc = "drink"
+	switch(feed_volume)
+		if(50.01 to INFINITY)
+			feed_desc = "swallow a mouth full"
+		if(30.01 to 50)
+			feed_desc = "take a gulp"
+		if(15.01 to 30)
+			feed_desc = "drink"
+		if(5.01 to 15)
+			feed_desc = "take a sip"
+		if(0 to 5)
+			feed_desc = "take a tiny sip"
+	target.visible_message(SPAN("warning", "[user] has fed [target] from \the [src]!"), SPAN("warning", "[user] has made you [feed_desc] from \the [src]!"))
 
 /obj/item/reagent_containers/vessel/afterattack(obj/target, mob/user, proximity)
 	if(!is_open_container() || !proximity) //Is the container open & are they next to whatever they're clicking?
@@ -260,12 +357,10 @@
 	return ..()
 
 //when thrown on impact, brittle containers smash and spill their contents
-/obj/item/reagent_containers/vessel/throw_impact(atom/hit_atom, speed)
+/obj/item/reagent_containers/vessel/throw_impact(atom/hit_atom, datum/thrownthing/TT)
 	..()
-	var/mob/M = thrower
-	if(brittle && istype(M) && M.a_intent != I_HELP)
-		var/throw_dist = get_dist(throw_source, loc)
-		if(speed < throw_speed || smash_check(throw_dist)) // not as reliable as smashing directly
+	if(brittle && TT.thrower && TT.thrower.a_intent != I_HELP)
+		if(TT.speed < throw_speed || smash_check(TT.dist_travelled)) // not as reliable as smashing directly
 			if(reagents)
 				hit_atom.visible_message(SPAN("notice", "The contents of \the [src] splash all over [hit_atom]!"))
 				reagents.splash(hit_atom, reagents.total_volume)
@@ -365,18 +460,18 @@
 			to_chat(C, SPAN("warning", "\The [blocked] is in the way!"))
 			return
 
-		if(reagents.total_volume > 30) // 30 equates to 3 SECONDS.
+		if(reagents.total_volume > MOUTH_CAPACITY)
 			C.visible_message(\
 				SPAN("notice", "[C] prepares to drink down [src]."),\
 				SPAN("notice", "You prepare to drink down [src]."))
 			playsound(C, 'sound/items/drinking.ogg', reagents.total_volume, 1)
 
-		if(!do_after(C, reagents.total_volume))
+		if(!do_after(C, max(1 SECOND, reagents.total_volume * 0.05)))
 			if(!Adjacent(C))
 				return
 			standard_splash_mob(src, src)
 			C.visible_message(\
-				SPAN("danger", "[C] splashed \the [src]'s contents on self while trying drink it down."),\
+				SPAN("danger", "[C] splashes \the [src]'s contents all over themself while trying drink it down."),\
 				SPAN("danger", "You splash \the [src]'s contents on yourself!"))
 			return
 
@@ -384,7 +479,7 @@
 			if(!Adjacent(C))
 				return
 			C.visible_message(\
-				SPAN("notice", "[C] drinked down the whole [src]!"),\
+				SPAN("notice", "[C] drinks down the whole [src]!"),\
 				SPAN("notice", "You drink down the whole [src]!"))
 			playsound(C, 'sound/items/drinking_after.ogg', reagents.total_volume, 1)
 			reagents.trans_to_mob(C, reagents.total_volume, CHEM_INGEST)
@@ -437,7 +532,7 @@
 	var/anim_icon_state = initial(item_state)
 	if (!anim_icon_state)
 		anim_icon_state = initial(icon_state)
-	if(!user.hand)
+	if(user.active_hand == ACTIVE_HAND_RIGHT)
 		switch(user.dir)
 			if (NORTH)
 				pixOffX = 3

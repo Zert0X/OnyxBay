@@ -24,12 +24,26 @@
 	opacity = 1
 	density = 1
 
+/obj/machinery/door/unpowered/shuttle/close(forced = 0)
+	if(!can_close(forced))
+		return
+	playsound(loc, 'sound/machines/airlock/quiet_close.ogg', 100, 1)
+	..()
+
+/obj/machinery/door/unpowered/shuttle/open(forced = 0)
+	if(!can_open(forced))
+		return
+	playsound(loc, 'sound/machines/airlock/quiet_open.ogg', 100, 1)
+	..()
 
 /obj/machinery/door/unpowered/vent_shaft
 	name = "Vent Shaft"
 	desc = "Used to hide ugly pipes and cabels."
 	icon = 'icons/obj/doors/doormorgue.dmi'
 	icon_state = "door1"
+
+/obj/machinery/door/unpowered/vent_shaft/operable(additional_flags = 0)
+	return !(stat & (BROKEN|additional_flags))
 
 /obj/machinery/door/unpowered/vent_shaft/inoperable(additional_flags = 0)
 	return (stat & (BROKEN|additional_flags))

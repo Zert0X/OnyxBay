@@ -12,8 +12,8 @@ SUBSYSTEM_DEF(think)
 	var/last_group = 1
 	var/next_possible_run = 0
 
-/datum/controller/subsystem/think/stat_entry(msg)
-	msg = "G:("
+/datum/controller/subsystem/think/stat_entry()
+	var/msg = "G:("
 
 	for(var/grp in contexts_groups)
 		msg += "[length(grp)],"
@@ -25,7 +25,7 @@ SUBSYSTEM_DEF(think)
 
 	msg += ")"
 
-	return ..()
+	..(msg)
 
 /datum/controller/subsystem/think/fire(resumed = 0)
 	if(!resumed)
@@ -61,7 +61,7 @@ SUBSYSTEM_DEF(think)
 
 		if(world.time >= ctx.next_think)
 			var/last_think = world.time
-			ctx.callback.Invoke(arglist(ctx.arguments))
+			ctx.callback.InvokeAsync(arglist(ctx.arguments))
 			ctx.last_think = last_think
 		else
 			if(next_possible_run == 0)

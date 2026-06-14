@@ -35,6 +35,7 @@
 	shy_animal = 1
 	controllable = TRUE
 	bodyparts = /decl/simple_animal_bodyparts/quadruped
+	burnt_remains = /obj/item/remains/mouse
 	var/obj/item/holding_item = null
 	var/datum/disease2/disease/virus = null
 
@@ -68,10 +69,8 @@
 /mob/living/simple_animal/mouse/Initialize()
 	. = ..()
 
-	grant_verb(src, list(
-		/mob/living/proc/ventcrawl,
-		/mob/living/proc/hide,
-	))
+	verbs += /mob/living/proc/ventcrawl
+	verbs += /mob/living/proc/hide
 
 	if(name == initial(name))
 		name = "[name] ([sequential_id(/mob/living/simple_animal/mouse)])"
@@ -115,7 +114,7 @@
 	. = ..()
 
 	if(holding_item)
-		. += SPAN_NOTICE("You may notice that she has \a [holding_item] glued with tape.")
+		. += SPAN_NOTICE("You may notice that it has \a [holding_item] taped to its back.")
 
 /mob/living/simple_animal/mouse/proc/splat()
 	icon_dead = "mouse_[body_color]_splat"
@@ -146,7 +145,6 @@
 				return
 
 		if(H.apply_damage(rand(1, 2), BRUTE, limb.organ_tag, blocked) && !BP_IS_ROBOTIC(limb) && prob(70 - blocked))
-			limb.germ_level += rand(75, 150)
 			if(virus)
 				infect_virus2(H, virus)
 		visible_message(SPAN_DANGER("[src] bites [H]'s [organ_name_by_zone(H, limb.organ_tag)]!"),
@@ -163,7 +161,7 @@
 		var/mob/M = AM
 		to_chat(M, SPAN("warning", "\icon[src] Squeek!"))
 		playsound(loc, 'sound/effects/mousesqueek.ogg', 40)
-		resting = 0
+		set_resting(FALSE)
 		icon_state = "mouse_[body_color]"
 		if(prob(50))
 			UnarmedAttack(M)

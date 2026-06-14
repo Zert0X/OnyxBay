@@ -69,7 +69,7 @@
 	adjustToxLoss(amount-getToxLoss())
 
 /mob/living/carbon/metroid/New(location, colour = "green")
-	grant_verb(src, /mob/living/proc/ventcrawl)
+	verbs += /mob/living/proc/ventcrawl
 
 	src.colour = colour
 	number = random_id(/mob/living/carbon/metroid, 1, 1000)
@@ -104,9 +104,10 @@
 	return tally + config.movement.metroid_delay
 
 /mob/living/carbon/metroid/Bump(atom/movable/AM as mob|obj, yes)
-	if ((!(yes) || now_pushing))
-		return
-	now_pushing = 1
+	if((!(yes) || now_pushing))
+		return FALSE
+
+	now_pushing = TRUE
 
 	if(isobj(AM) && !client && powerlevel > 0)
 		var/probab = 10
@@ -129,35 +130,33 @@
 		if(is_adult)
 			if(istype(tmob, /mob/living/carbon/human))
 				if(prob(90))
-					now_pushing = 0
-					return
+					now_pushing = FALSE
+					return TRUE
 		else
 			if(istype(tmob, /mob/living/carbon/human))
-				now_pushing = 0
-				return
+				now_pushing = FALSE
+				return TRUE
 
-	now_pushing = 0
+	now_pushing = FALSE
 
-	..()
+	return ..()
 
-/mob/living/carbon/metroid/Allow_Spacemove()
-	return 1
-
-/mob/living/carbon/metroid/get_status_tab_items()
+/mob/living/carbon/metroid/Stat()
 	. = ..()
 
-	. += "Health: [round((health / maxHealth) * 100)]%"
-	. += "Intent: [a_intent]"
+	statpanel("Status")
+	stat(null, "Health: [round((health / maxHealth) * 100)]%")
+	stat(null, "Intent: [a_intent]")
 
-	. += "Nutrition: [nutrition]/[get_max_nutrition()]"
+	if(client.statpanel == "Status")
+		stat(null, "Nutrition: [nutrition]/[get_max_nutrition()]")
+		if(amount_grown >= 10)
+			if(is_adult)
+				stat(null, "You can reproduce!")
+			else
+				stat(null, "You can evolve!")
 
-	if(amount_grown >= 10)
-		if(is_adult)
-			. += "You can reproduce!"
-		else
-			. += "You can evolve!"
-
-	. += "Power Level: [powerlevel]"
+		stat(null,"Power Level: [powerlevel]")
 
 /mob/living/carbon/metroid/adjustFireLoss(amount)
 	..(-abs(amount)) // Heals them
@@ -194,7 +193,7 @@
 	adjustBruteLoss(b_loss)
 	adjustFireLoss(f_loss)
 
-	updatehealth()
+	update_health()
 
 
 /mob/living/carbon/metroid/__unequip(obj/W)
@@ -273,7 +272,7 @@
 				)
 
 				adjustBruteLoss(damage)
-				updatehealth()
+				update_health()
 			else
 				playsound(loc, 'sound/weapons/punchmiss.ogg', 25, 1, -1)
 				visible_message(SPAN("danger", "[H] has attempted to [attack_verb] [src]!"))

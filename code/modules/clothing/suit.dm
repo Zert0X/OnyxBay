@@ -3,12 +3,16 @@
 /obj/item/clothing/suit
 	name = "suit"
 	icon = 'icons/obj/clothing/suits.dmi'
+	item_icons = list(
+		slot_l_hand_str = 'icons/inv_slots/suits/hand_l_default.dmi',
+		slot_r_hand_str = 'icons/inv_slots/suits/hand_r_default.dmi',
+		)
 	w_class = ITEM_SIZE_NORMAL
 
 	siemens_coefficient = 0.9
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS|LEGS
 	allowed = list(/obj/item/tank/emergency)
-	armor = list(melee = 5, bullet = 5, laser = 5,energy = 0, bomb = 0, bio = 0)
+	armor_values = alist(melee = 5, bullet = 5, laser = 5,energy = 0, bomb = 0, bio = 0)
 	slot_flags = SLOT_OCLOTHING
 	coverage = 1.0
 
@@ -22,6 +26,7 @@
 	if (ismob(src.loc))
 		var/mob/M = src.loc
 		M.update_inv_wear_suit()
+		M.update_inv_s_store()
 
 /obj/item/clothing/suit/get_mob_overlay(mob/user_mob, slot)
 	. = ..()
@@ -31,7 +36,7 @@
 
 	var/image/ret = .
 
-	if(item_state_slots && item_state_slots[slot])
+	if(item_state_slots?[slot])
 		ret.icon_state = item_state_slots[slot]
 	else
 		ret.icon_state = icon_state

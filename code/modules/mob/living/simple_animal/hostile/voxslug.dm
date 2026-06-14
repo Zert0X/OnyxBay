@@ -54,7 +54,7 @@ Small, little HP, poisonous.
 	else return ..()
 
 /mob/living/simple_animal/hostile/voxslug/proc/attach(mob/living/carbon/human/H)
-	var/obj/item/organ/external/chest = H.organs_by_name["chest"]
+	var/obj/item/organ/external/chest = H.external_organs_by_name["chest"]
 	var/obj/item/holder/voxslug/holder = new(get_turf(src), src)
 	src.forceMove(holder)
 	chest.embed(holder, 0, "\The [src] latches itself onto \the [H]!")
@@ -71,7 +71,7 @@ Small, little HP, poisonous.
 	. = ..()
 	if(. && istype(src.loc, /obj/item/holder) && isliving(src.loc.loc)) //We in somebody
 		var/mob/living/L = src.loc.loc
-		if(src.loc in L.get_visible_implants(0))
+		if(src.loc in L.get_embedded_objects(0))
 			if(prob(1))
 				to_chat(L, "<span class='warning'>You feel strange as \the [src] pulses...</span>")
 			var/datum/reagents/R = L.reagents

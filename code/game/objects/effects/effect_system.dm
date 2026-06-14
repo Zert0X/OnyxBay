@@ -24,7 +24,8 @@ would spawn and follow the beaker, even if it is carried or thrown.
 	number = min(n, 10)
 	cardinals = c
 	location = loc
-	register_signal(holder, SIGNAL_QDELETING, nameof(.proc/onHolderDeleted))
+	if(holder)
+		register_signal(holder, SIGNAL_QDELETING, nameof(.proc/onHolderDeleted))
 	setup = 1
 
 /datum/effect/effect/system/proc/attach(atom/atom)
@@ -116,14 +117,15 @@ steam.start() -- spawns the effect
 /obj/effect/sparks/Initialize(mapload, volume)
 	. = ..()
 	playsound(src.loc, SFX_SPARK, volume, 1)
-	var/turf/T = loc
-	if(istype(T, /turf))
+
+	if(isturf(loc))
+		var/turf/T = loc
 		T.hotspot_expose(1000, 100)
-	QDEL_IN(src, 5 SECONDS)
+	QDEL_IN(src, 2 SECONDS)
 
 /obj/effect/sparks/Destroy()
-	var/turf/T = loc
-	if (istype(T, /turf))
+	if(isturf(loc))
+		var/turf/T = loc
 		T.hotspot_expose(1000, 100)
 	return ..()
 
@@ -132,8 +134,8 @@ steam.start() -- spawns the effect
 	if(!.)
 		return
 
-	var/turf/T = loc
-	if(isturf(T))
+	if(isturf(loc))
+		var/turf/T = loc
 		T.hotspot_expose(1000, 100)
 
 /datum/effect/effect/system/spark_spread
@@ -148,12 +150,17 @@ steam.start() -- spawns the effect
 /datum/effect/effect/system/spark_spread/set_up(n = 3, c = 0, loca)
 	if(n > 10)
 		n = 10
+
 	number = n
 	cardinals = c
-	if(istype(loca, /turf/))
+
+	if(isturf(loca))
 		location = loca
 	else
 		location = get_turf(loca)
+
+	if(!location)
+		qdel_self()
 
 /datum/effect/effect/system/spark_spread/start()
 	for(var/i = 0, i < src.number, i++)
@@ -161,17 +168,24 @@ steam.start() -- spawns the effect
 
 /datum/effect/effect/system/spark_spread/spread(i)
 	set waitfor = 0
-	if(holder)
-		src.location = get_turf(holder)
+
+	if(!QDELETED(holder))
+		location = get_turf(holder)
+
+	if(!location)
+		qdel_self()
+		return
+
 	var/obj/effect/sparks/sparks = new /obj/effect/sparks(location, sparks_volume)
 	var/direction
 	if(src.cardinals)
 		direction = pick(GLOB.cardinal)
 	else
 		direction = pick(GLOB.alldirs)
-	for(i=0, i<pick(1,2,3), i++)
+	for(i = 0, i < pick(1, 2, 3), i++)
 		sleep(5)
-		step(sparks,direction)
+		if(!QDELETED(src))
+			step(sparks, direction)
 
 /////////////////////////////////////////////
 //// SMOKE SYSTEMS
@@ -339,7 +353,7 @@ steam.start() -- spawns the effect
 		R.emote("gasp")
 		spawn (20)
 			R.coughedtime = 0
-	R.updatehealth()
+	R.update_health()
 	return
 
 /////////////////////////////////////////////
@@ -496,7 +510,7 @@ steam.start() -- spawns the effect
 	trail_type = /obj/effect/effect/steam
 
 /datum/effect/effect/system/reagents_explosion
-	var/amount 					// units based on "1 potassium + 1 water = 2-amount explosion"
+	var/amount 					// units based on "1 potassium + 1 water = 1.5-amount explosion"
 	var/mob/living/living_holder = null
 
 	// doesn't used in build now
@@ -565,5 +579,5 @@ steam.start() -- spawns the effect
 	icon_state = "mummy_revive"
 
 /obj/effect/mummy_animation/Initialize()
-	..()
+	. = ..()
 	QDEL_IN(src, 2 SECONDS)

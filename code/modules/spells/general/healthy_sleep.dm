@@ -34,9 +34,10 @@
 		return
 
 	H.restore_blood()
-	H.adjustToxLoss(H.getToxLoss() * -1)
-	H.adjustOxyLoss(H.getOxyLoss() * -1)
-	H.adjustBrainLoss(H.getBrainLoss() * -1)
+	H.setToxLoss(0)
+	H.setOxyLoss(0)
+	H.setBrainLoss(0)
+	H.setInternalLoss(0)
 	H.heal_overall_damage(H.getBruteLoss(), H.getFireLoss())
 
 	var/list/organs = H.get_damaged_organs(1, 1)
@@ -48,9 +49,8 @@
 			E.status &= ~ORGAN_TENDON_CUT
 		if(E.status & ORGAN_BROKEN)
 			E.mend_fracture()
-			E.stage = 0
 
-	H.updatehealth()
+	H.update_health()
 	H.sleeping = 0
 	to_chat(H, SPAN("notice", "<b>You've had a good rest. Now you absolutely need to munch on something.</b>"))
 	H.remove_nutrition(H.nutrition)

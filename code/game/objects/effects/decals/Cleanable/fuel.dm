@@ -1,13 +1,13 @@
 /obj/effect/decal/cleanable/liquid_fuel
 	//Liquid fuel is used for things that used to rely on volatile fuels or plasma being contained to a couple tiles.
 	icon = 'icons/effects/effects.dmi'
-	icon_state = "fuel"
+	icon_state = "liquid" //By design it should have a unique sprite "fuel", however in this implementation it has a ‘liquid’ sprite. You can draw something else in the future.
 	layer = BLOOD_LAYER
 	var/amount = 1
 
 /obj/effect/decal/cleanable/liquid_fuel/proc/Spread(exclude=list())
 	//Allows liquid fuels to sometimes flow into other tiles.
-	if(amount < 15)
+	if(amount < 300)
 		return //lets suppose welder fuel is fairly thick and sticky. For something like water, 5 or less would be more appropriate.
 	var/turf/simulated/S = loc
 	if(!istype(S))

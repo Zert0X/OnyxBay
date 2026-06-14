@@ -18,6 +18,7 @@
 	return ITEM_SIZE_NO_CONTAINER
 
 /obj/item/device/radio/intercom/receive()
+	. = ..()
 	flick("intercom-r", src)
 
 /obj/item/device/radio/intercom/custom
@@ -179,7 +180,7 @@
 	playsound(loc, 'sound/items/Screwdriver.ogg', 100, 1)
 	show_splash_text(user, "unscrewing...", "Now unscrewing \the [src]...")
 
-	if(do_after(user, 40, src))
+	if(do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG))
 		show_splash_text(user, "unscrewed!", SPAN("notice", "You have unscrewed \the [src]!"))
 		new /obj/item/intercom_assembly(loc, dir, src)
 		qdel(src)

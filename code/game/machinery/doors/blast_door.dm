@@ -24,9 +24,9 @@
 	explosion_block = 3
 
 	var/open_sound = 'sound/machines/blastdoor_open.ogg'
-	var/close_sound = 'sound/machines/blastdoor_close.ogg'
+	var/close_sound = list('sound/machines/blastdoor_close.ogg')
 
-	closed_layer = ABOVE_WINDOW_LAYER
+	closed_layer = BLASTDOOR_LAYER
 	var/id = 1.0
 	dir = 1
 	explosion_resistance = 25
@@ -121,7 +121,7 @@
 // Description: Closes the door. No checks are done inside this proc.
 /obj/machinery/door/blast/proc/force_close()
 	operating = TRUE
-	playsound(loc, close_sound, 100, 1)
+	playsound(loc, pick(close_sound), 100, 1)
 	src.layer = closed_layer
 	flick(icon_state_closing, src)
 	set_density(TRUE)
@@ -178,7 +178,7 @@
 			return
 
 		to_chat(usr, SPAN_NOTICE("You begin repairing [src]..."))
-		if(do_after(user, 30, src))
+		if(do_after(user, 30, src, luck_check_type = LUCK_CHECK_ENG))
 			if(P.use(amt))
 				to_chat(user, SPAN_NOTICE("You have repaired \the [src]"))
 				repair()
@@ -251,6 +251,7 @@
 
 /obj/machinery/door/blast/regular/open
 	begins_closed = FALSE
+	icon_state = "pdoor0"
 
 /obj/machinery/door/blast/regular/singulo/emp_act()
 	return
@@ -263,6 +264,11 @@
 	icon_state_closing = "old_pdoorc1"
 	icon_state = "old_pdoor1"
 	maxhealth = 300
+	close_sound = list('sound/machines/blastdoor_close2.ogg')
+
+/obj/machinery/door/blast/regular/retro/open
+	begins_closed = FALSE
+	icon_state = "pdoor0"
 
 // SUBTYPE: Shutters
 // Nicer looking, and also weaker, shutters. Found in kitchen and similar areas.
@@ -279,3 +285,4 @@
 
 /obj/machinery/door/blast/shutters/open
 	begins_closed = FALSE
+	icon_state = "shutter0"

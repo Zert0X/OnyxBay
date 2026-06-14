@@ -17,3 +17,53 @@
 	item_cost = 5
 	job_specific = list("Chef")
 	path = /obj/item/gun/meathook
+	meme_item = TRUE
+
+/datum/uplink_item/item/job/mimesword
+	name = "Baguette Sword"
+	desc = "A sword made from a baguette. It's not very sharp, but it's still a good weapon. You can sharpen it, if you are brave enough."
+	item_cost = 4
+	job_specific = list("Mime")
+	path = /obj/item/melee/mimesword
+
+/datum/uplink_item/item/job/lubeshoes
+	name = "Lube Shoes Honk Edition"
+	desc = "A pair of clown shoes, which can sometimes spill lube on floor. Slippery!"
+	item_cost = 4
+	job_specific = list("Clown")
+	path = /obj/item/clothing/shoes/clown_shoes/traitorshoes
+
+/datum/uplink_item/item/job/vuvuzela
+	name = "Vuvuzela"
+	desc = "A very loud vuvuzela. It's loud enough to make you and all around you deaf."
+	item_cost = 2
+	job_specific = list("Clown")
+	path = /obj/item/bikehorn/vuvuzela/traitor
+
+/datum/uplink_item/item/job/empty_grenades
+	name = "Empty Grenades"
+	desc = "A box of empty grenades. For your little experiments."
+	item_cost = 2
+	job_specific = list("Chief Medical Officer", "Chemist")
+	path = /obj/item/storage/box/syndie_kit/empty_grenades
+
+/datum/uplink_item/item/job/strange_seeds
+	name = "Strange Seeds"
+	desc = "A box of strange seeds. Just put it in tray and watch something horrible grow."
+	item_cost = 2
+	job_specific = list("Gardener")
+	path = /obj/item/storage/box/syndie_kit/strange_seeds
+
+/datum/uplink_item/item/job/applenades
+	name = "Box of applenades"
+	desc = "A box of grenades, that look like apples. Comes with water-pottasium sollution, but you can experiment and change reaction!"
+	item_cost = 5
+	job_specific = list("Gardener")
+	path = /obj/item/storage/box/syndie_kit/applenades
+
+/datum/uplink_item/item/job/emitter_controller
+	name = "Emitter Controller"
+	desc = "A remote emitter controller, disguised as a T-ray Scanner. It can store in its memory up to 3 emitters."
+	item_cost = 5
+	job_specific = list("Chief Engineer", "Station Engineer", "Atmospheric Technician")
+	path = /obj/item/device/t_scanner/emitter_controller

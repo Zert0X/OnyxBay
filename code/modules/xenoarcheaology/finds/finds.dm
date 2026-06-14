@@ -41,7 +41,7 @@
 
 	if(isWelder(I))
 		var/obj/item/weldingtool/WT = I
-		if(!WT.use_tool(src, user, amount = 2))
+		if(!WT.use_tool(src, user, amount = 20))
 			return FALSE
 
 		var/obj/item/inside = locate() in src

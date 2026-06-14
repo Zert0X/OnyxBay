@@ -91,9 +91,9 @@
 
 /obj/item/clothing/suit/syndicatefake
 	name = "red space suit replica"
-	icon_state = "syndicate"
-	item_state = "space_suit_syndicate"
 	desc = "A plastic replica of the syndicate space suit, you'll look just like a real murderous syndicate agent in this! This is a toy, it is not made for use in space!"
+	icon_state = "syndicate"
+	item_state = "syndicate"
 	w_class = ITEM_SIZE_NORMAL
 	allowed = list(/obj/item/device/flashlight,/obj/item/tank/emergency,/obj/item/toy)
 	flags_inv = HIDEGLOVES|HIDESHOES|HIDEJUMPSUIT
@@ -264,13 +264,14 @@
 	name = "mankini"
 	desc = "No honest man would wear this abomination."
 	icon_state = "mankini"
+	item_state = "mankini"
 	siemens_coefficient = 1
 
 /obj/item/clothing/suit/xenos
 	name = "xenos suit"
 	desc = "A suit made out of chitinous alien hide."
 	icon_state = "xenos"
-	//item_state = "xenos_helm"
+	item_state = "xenos_suit"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|FEET|ARMS|HANDS
 	flags_inv = HIDEGLOVES|HIDESHOES|HIDEJUMPSUIT
 	siemens_coefficient = 2.0
@@ -284,30 +285,35 @@
 	name = "black swimsuit"
 	desc = "An oldfashioned black swimsuit."
 	icon_state = "swim_black"
+	item_state = "swim_black"
 	siemens_coefficient = 1
 
 /obj/item/clothing/under/swimsuit/blue
 	name = "blue swimsuit"
 	desc = "An oldfashioned blue swimsuit."
 	icon_state = "swim_blue"
+	item_state = "swim_blue"
 	siemens_coefficient = 1
 
 /obj/item/clothing/under/swimsuit/purple
 	name = "purple swimsuit"
 	desc = "An oldfashioned purple swimsuit."
 	icon_state = "swim_purp"
+	item_state = "swim_purp"
 	siemens_coefficient = 1
 
 /obj/item/clothing/under/swimsuit/green
 	name = "green swimsuit"
 	desc = "An oldfashioned green swimsuit."
 	icon_state = "swim_green"
+	item_state = "swim_green"
 	siemens_coefficient = 1
 
 /obj/item/clothing/under/swimsuit/red
 	name = "red swimsuit"
 	desc = "An oldfashioned red swimsuit."
 	icon_state = "swim_red"
+	item_state = "swim_red"
 	siemens_coefficient = 1
 
 /obj/item/clothing/suit/poncho/colored
@@ -676,7 +682,7 @@
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO
 	cold_protection = UPPER_TORSO|LOWER_TORSO
 	min_cold_protection_temperature = ARMOR_MIN_COLD_PROTECTION_TEMPERATURE
-	armor = list(melee = 25, bullet = 10, laser = 0, energy = 40, bomb = 0, bio = 10)
+	armor_values = alist(melee = 25, bullet = 10, laser = 0, energy = 40, bomb = 0, bio = 10)
 	action_button_name = "Toggle hood"
 	hoodtype = /obj/item/clothing/head/goatcapehood
 	siemens_coefficient = 0.6
@@ -689,4 +695,46 @@
 	cold_protection = HEAD
 	flags_inv = HIDEEARS | BLOCKHAIR
 	min_cold_protection_temperature = ARMOR_MIN_COLD_PROTECTION_TEMPERATURE
-	armor = list(melee = 25, bullet = 10, laser = 0, energy = 40, bomb = 0, bio = 10)
+	armor_values = alist(melee = 25, bullet = 10, laser = 0, energy = 40, bomb = 0, bio = 10)
+
+/obj/item/clothing/suit/hos_formal
+	name = "head of security's formal coat"
+	desc = "For when an armoured vest isn't fashionable enough."
+	icon_state = "hosformal"
+	item_state = "hosformal"
+	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
+
+	allowed = list(
+		/obj/item/ammo_magazine,
+		/obj/item/ammo_casing,
+		/obj/item/clothing/head/helmet,
+		/obj/item/clothing/mask/gas,
+		/obj/item/device/radio,
+		/obj/item/device/flashlight,
+		/obj/item/grenade,
+		/obj/item/gun/energy,
+		/obj/item/gun/projectile,
+		/obj/item/gun/charge,
+		/obj/item/gun/magnetic,
+		/obj/item/gun/launcher/grenade,
+		/obj/item/handcuffs,
+		/obj/item/melee/baton,
+		/obj/item/reagent_containers/spray/pepper
+	)
+
+	armor_values = alist(melee = 70, bullet = 110, laser = 100, energy = 35, bomb = 55, bio = 20)
+	siemens_coefficient = 0.6
+
+/obj/item/clothing/suit/yuri
+	name = "yuri initiate coat"
+	desc = "Yuri is master! Sponsored by DonkSoft Co."
+	icon_state = "yuri_coat"
+	item_state = "yuri_coat"
+	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
+
+/obj/item/clothing/suit/witchhunter
+	name = "witchunter garb"
+	desc = "This worn outfit saw much use back in the day."
+	icon_state = "witchhunter"
+	item_state = "witchhunter"
+	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS|LEGS

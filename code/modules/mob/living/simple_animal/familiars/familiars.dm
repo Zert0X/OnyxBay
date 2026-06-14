@@ -65,14 +65,12 @@
 	melee_damage_lower = 10
 	melee_damage_upper = 10
 	can_escape = 1
+	skip_spacemove = TRUE
 	bodyparts = /decl/simple_animal_bodyparts/fish
 
 	min_gas = null
 
 	wizardy_spells = list(/datum/spell/aoe_turf/conjure/forcewall)
-
-/mob/living/simple_animal/familiar/pike/Allow_Spacemove(check_drift = 0)
-	return 1	//No drifting in space for space carp!	//original comments do not steal
 
 /mob/living/simple_animal/familiar/horror
 	name = "horror"
@@ -160,10 +158,8 @@
 /mob/living/simple_animal/familiar/pet/mouse/New()
 	..()
 
-	grant_verb(src, list(
-		/mob/living/proc/ventcrawl,
-		/mob/living/proc/hide,
-	))
+	verbs += /mob/living/proc/ventcrawl
+	verbs += /mob/living/proc/hide
 
 /mob/living/simple_animal/familiar/pet/cat
 	name = "black cat"

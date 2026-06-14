@@ -56,9 +56,8 @@ SUBSYSTEM_DEF(supply)
 /datum/controller/subsystem/supply/fire()
 	add_points_from_source(points_per_process, "time")
 
-/datum/controller/subsystem/supply/stat_entry(msg)
-	msg = "Points: [points]"
-	return ..()
+/datum/controller/subsystem/supply/stat_entry()
+	..("Points: [points]")
 
 //Supply-related helper procs.
 
@@ -130,7 +129,7 @@ SUBSYSTEM_DEF(supply)
 	var/announce = FALSE
 	announce = prob(chance) || force
 	if(announce)
-		SSannounce.play_station_announce(/datum/announce/suspicious_cargo, title_override = "[GLOB.using_map.company_name] Cargo Security Departament")
+		SSannounce.play_station_announce(/datum/announce/suspicious_cargo, title_override = "[GLOB.using_map.company_name] Cargo Security Department")
 
 //Buyin
 /datum/controller/subsystem/supply/proc/buy()

@@ -49,10 +49,15 @@
 	var/atom/movable/screen/bodytemp = null
 	var/atom/movable/screen/healths = null
 	var/atom/movable/screen/pains = null
+	var/atom/movable/screen/resting_icon = null
 	var/atom/movable/screen/throw_icon = null
 	var/atom/movable/screen/block_icon = null
-	var/atom/movable/screen/blockswitch_icon = null
+	var/atom/movable/screen/aim_assist_icon = null
+	var/atom/movable/screen/twohanded_mode_icon = null
 	var/atom/movable/screen/nutrition_icon = null
+	var/atom/movable/screen/hydration_icon = null
+	var/atom/movable/screen/bladder_icon = null
+	var/atom/movable/screen/bowels_icon = null
 	var/atom/movable/screen/pressure = null
 	var/atom/movable/screen/pain = null
 	var/atom/movable/screen/poise_icon = null
@@ -86,8 +91,11 @@
 	var/atom/movable/pulling = null
 	var/other_mobs = null
 	var/next_move = null
-	var/hand = null
+	var/active_hand = ACTIVE_HAND_RIGHT
 	var/real_name = null
+	var/aim_assist = FALSE
+	var/twohanded_mode = FALSE
+	var/rightclicked = FALSE // Only TRUE if the last click was a "functional" RMB click, so we don't have to pass an extra argument through a massive sequence of proc calls.
 
 	var/bhunger = 0			//Carbon
 
@@ -97,7 +105,7 @@
 	var/druggy = 0			//Carbon
 	var/confused = 0		//Carbon
 	var/sleeping = 0		//Carbon
-	var/resting = 0			//Carbon
+	var/resting = FALSE
 	var/lying = 0
 	var/lying_prev = 0
 	var/hanging = FALSE
@@ -108,6 +116,7 @@
 	var/list/pinned = list()            // List of things pinning this creature to walls (see living_defense.dm)
 	var/list/embedded = list()          // Embedded items, since simple mobs don't have organs.
 	var/list/languages = list()         // For speaking/listening.
+	var/list/speak_only_languages = list() // For speaking only (no understanding).
 	var/species_language = null			// For species who want reset to use a specified default.
 	var/only_species_language  = 0		// For species who can only speak their default and no other languages. Does not effect understanding.
 	var/list/speak_emote = list("says") // Verbs used when speaking. Defaults to 'say' if speak_emote is null.
@@ -124,6 +133,7 @@
 	var/bodytemperature_lasttick
 	var/default_pixel_x = 0
 	var/default_pixel_y = 0
+	var/default_pixel_z = 0
 
 	var/shakecamera = 0
 	var/a_intent = I_HELP//Living
@@ -138,8 +148,6 @@
 	var/list/grabbed_by = list(  )
 
 	var/in_throw_mode = 0
-
-	var/inertia_dir = 0
 
 //	var/job = null//Living
 
@@ -187,6 +195,9 @@
 	//so don't treat them as being SSD even though their client var is null.
 	var/mob/teleop = null
 
+	var/turf/listed_turf = null //the current turf being examined in the stat panel
+	var/list/shouldnt_see = list() //list of objects that this mob shouldn't see in the stat panel. this silliness is needed because of AI alt+click and cult blood runes
+
 	var/mob_size = MOB_MEDIUM
 	var/throw_multiplier = 1
 
@@ -232,8 +243,12 @@
 
 	/// UI holder for a language menu.
 	var/datum/language_menu/language_menu
-	/// Associative list of procpath -> list/atom, where atom is a source a procpath comes from.
-	var/list/atom_verbs
+
+	///AI controller that controls this atom. type on init, then turned into an instance during runtime
+	var/datum/ai_controller/ai_controller
+
+	///For storing what do_after's someone has, key = string, value = amount of interactions of that type happening.
+	var/list/do_afters
 
 /datum/rad_resist/mob
 	alpha_particle_resist = 6 MEGA ELECTRONVOLT

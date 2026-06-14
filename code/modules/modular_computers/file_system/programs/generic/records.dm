@@ -24,8 +24,10 @@
 
 	data["message"] = message
 	if(active_record)
-		send_rsc(user, active_record.photo_front, "front_[active_record.uid].png")
-		send_rsc(user, active_record.photo_side, "side_[active_record.uid].png")
+		if(!isnull(active_record.photo_front))
+			send_rsc(user, active_record.photo_front, "front_[active_record.uid].png")
+		if(!isnull(active_record.photo_side))
+			send_rsc(user, active_record.photo_side, "side_[active_record.uid].png")
 		data["pic_edit"] = check_access(user, access_heads) || check_access(user, access_security)
 		data["uid"] = active_record.uid
 		var/list/fields = list()
@@ -130,7 +132,7 @@
 			if(EDIT_SHORTTEXT)
 				newValue = sanitize(input(user, "Enter [F.name]:", "Record edit", html_decode(F.get_value())))
 			if(EDIT_LONGTEXT)
-				newValue = sanitize(replacetext(input(user, "Enter [F.name]. You may use HTML paper formatting tags:", "Record edit", replacetext(html_decode(F.get_value()), "\[br\]", "\n")), "\n", "\[br\]"))
+				newValue = sanitize(tgui_input_pencode_editor(user, "Enter [F.name] record:", "Record edit", html_decode(F.get_value())))
 			if(EDIT_NUMERIC)
 				newValue = input(user, "Enter [F.name]:", "Record edit", F.get_value()) as null|num
 			if(EDIT_LIST)

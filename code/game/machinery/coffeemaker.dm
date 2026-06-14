@@ -103,7 +103,7 @@
 		SPAN_NOTICE("- Brewing coffee at <b>[speed*100]%</b>.")
 		if(coffeepot)
 			for(var/datum/reagent/drink/cawfee as anything in coffeepot.reagents.reagent_list)
-				. += SPAN_NOTICE("- [cawfee.volume] units of coffee in pot.")
+				. += SPAN_NOTICE("- [cawfee.volume] ml of coffee in pot.")
 
 	if(coffee_cups >= 1)
 		. += SPAN_NOTICE("There [coffee_cups == 1 ? "is" : "are"] [coffee_cups] coffee cup[coffee_cups != 1 && "s"] left.")
@@ -135,7 +135,7 @@
 	CutOverlays(coffeepot_full)
 	CutOverlays(coffeepot_halffull)
 	if(coffeepot)
-		if(coffeepot.reagents.total_volume >= 70)
+		if(coffeepot.reagents.total_volume >= 0.45 LITERS)
 			AddOverlays(coffeepot_full)
 		else if(coffeepot.reagents.total_volume > 0)
 			AddOverlays(coffeepot_halffull)
@@ -478,8 +478,8 @@
 		return
 
 	operate_for(brew_time)
-	coffeepot.reagents.add_reagent(/datum/reagent/caffeine/coffee, 120)
-	coffee.Cut(1,2) //remove the first item from the list
+	coffeepot.reagents.add_reagent(/datum/reagent/caffeine/coffee, 0.6 LITERS)
+	coffee.Cut(1, 2) //remove the first item from the list
 	coffee_amount--
 	update_icon()
 

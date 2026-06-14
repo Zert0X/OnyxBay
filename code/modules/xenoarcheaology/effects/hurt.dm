@@ -14,6 +14,7 @@
 			C.adjustFireLoss(rand(5,25) * weakness)
 			C.adjustBrainLoss(rand(1,5) * weakness)
 			C.remove_nutrition(min(50 * weakness, C.nutrition))
+			C.remove_hydration(min(20 * weakness, C.hydration))
 			C.make_dizzy(6 * weakness)
 			C.weakened += 6 * weakness
 
@@ -30,7 +31,7 @@
 				C.adjustToxLoss(1 * weakness)
 				C.adjustOxyLoss(1 * weakness)
 				C.adjustBrainLoss(0.1 * weakness)
-				C.updatehealth()
+				C.update_health()
 
 /datum/artifact_effect/hurt/DoEffectPulse()
 	if(holder)
@@ -44,4 +45,4 @@
 				C.adjustToxLoss(3 * weakness)
 				C.adjustOxyLoss(3 * weakness)
 				C.adjustBrainLoss(0.1 * weakness)
-				C.updatehealth()
+				C.update_health()

@@ -89,7 +89,7 @@
 			SPAN_WARNING("[user] is trying to pull you off \the [src], opening up fresh wounds!"),\
 			SPAN("italics", "You hear a squishy wet noise.</span>"))
 		unbuckling = TRUE
-		if(!do_after(user, delay = 150, target = src))
+		if(!do_after(user, delay = 150, target = src, luck_check_type = LUCK_CHECK_COMBAT))
 			if(M && M == buckled_mob)
 				M.visible_message(\
 				SPAN_WARNING("[user] fails to free [M]!"),\
@@ -102,7 +102,7 @@
 		SPAN_WARNING("You struggle to break free from \the [src], exacerbating your wounds!"),\
 		SPAN("italics", "You hear a wet squishing noise."))
 		M.adjustBruteLoss(30)
-		if(!do_after(M, delay = 600, target = src))
+		if(!do_after(M, delay = 600, target = src, luck_check_type = LUCK_CHECK_COMBAT))
 			if(M && M == buckled_mob)
 				to_chat(M, SPAN("warning", "You fail to free yourself!"))
 			return
@@ -126,7 +126,7 @@
 	var/mob/living/carbon/human/H = buckled_mob
 	if (!istype(H))
 		to_chat(user, SPAN_NOTICE("You start to butcher [buckled_mob] with your [I]..."))
-		if (!do_after(user, delay = 100, target = buckled_mob))
+		if (!do_after(user, delay = 100, target = buckled_mob, luck_check_type = LUCK_CHECK_COMBAT))
 			return
 		var/slab_name = buckled_mob.name
 		var/slab_count = 3
@@ -135,7 +135,7 @@
 		if (iscarbon(buckled_mob))
 			var/mob/living/carbon/C = buckled_mob
 			slab_nutrition = C.nutrition / 15
-			if (istype(buckled_mob, /mob/living/carbon/alien))
+			if (istype(buckled_mob, /mob/living/carbon/larva))
 				slab_type = /obj/item/reagent_containers/food/meat/xeno
 
 		if (istype(buckled_mob,/mob/living/simple_animal))
@@ -158,7 +158,7 @@
 			var/obj/item/reagent_containers/food/meat/new_meat = new slab_type(src, rand(3,8))
 			if (istype(new_meat))
 				new_meat.SetName("[slab_name] [new_meat.name]")
-				new_meat.reagents.add_reagent(/datum/reagent/nutriment,slab_nutrition)
+				new_meat.reagents.add_reagent(/datum/reagent/nutriment, slab_nutrition * 10)
 				if (buckled_mob.reagents)
 					buckled_mob.reagents.trans_to_obj(new_meat, reagent_transfer_amt)
 
@@ -182,7 +182,7 @@
 		return
 
 	var/meat_limbs_left = 0
-	for (var/obj/item/organ/external/O in H.organs)
+	for (var/obj/item/organ/external/O in H.external_organs)
 		if (BP_IS_ROBOTIC(O) || O.is_stump())
 			continue
 		var/obj/item/organ/external/chest/OC = O
@@ -203,7 +203,7 @@
 		SPAN_NOTICE("You try to butcher [H]'s [butchered_organ_name]..."),\
 		SPAN("italics", "You hear a wet squishing noise.</span>"))
 
-	if (do_after(user, delay = 20, target = H))
+	if (do_after(user, delay = 20, target = H, luck_check_type = LUCK_CHECK_COMBAT))
 		if (istype(C))
 			if (C.butchering_capacity <= 0)
 				return
@@ -220,7 +220,7 @@
 		var/obj/item/reagent_containers/food/meat/new_meat = new slab_type(get_turf(src), rand(3,8))
 		if (istype(new_meat))
 			new_meat.SetName("[slab_name] [new_meat.name]")
-			new_meat.reagents.add_reagent(/datum/reagent/nutriment,slab_nutrition * nutrition_transfer_mod)
+			new_meat.reagents.add_reagent(/datum/reagent/nutriment, slab_nutrition * nutrition_transfer_mod * 10)
 			if (H.reagents)
 				H.reagents.trans_to_obj(new_meat, round(buckled_mob.reagents.total_volume / meat_limbs_left, 1))
 	return

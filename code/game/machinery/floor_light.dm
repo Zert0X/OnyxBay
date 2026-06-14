@@ -50,6 +50,13 @@
 /obj/machinery/floor_light/prebuilt
 	anchored = TRUE
 
+/obj/machinery/floor_light/prebuilt/on
+	on = TRUE
+
+/obj/machinery/floor_light/prebuilt/on/Initialize()
+	. = ..()
+	update_glow()
+	update_icon()
 
 /obj/machinery/floor_light/on_update_icon()
 	ClearOverlays()
@@ -86,7 +93,7 @@
 
 
 /obj/machinery/floor_light/proc/_repair_damage(mob/user, obj/item/weldingtool/WT)
-	if(!WT.use_tool(src, user, delay = 2 SECONDS, amount = 5))
+	if(!WT.use_tool(src, user, delay = 2 SECONDS, amount = 50))
 		return
 
 	if(QDELETED(src) || !user)
@@ -111,11 +118,16 @@
 				show_splash_text_to_viewers("color changed", force_skip_chat = TRUE)
 				update_icon()
 		if("paste")
-			var/obj/item/I = user.get_active_item()
-			_paste_settigs(I)
-			update_icon()
+			var/obj/item/device/multitool/MT = user.get_active_item()
+			if(!istype(MT))
+				MT = user.get_inactive_item()
+			if(istype(MT))
+				_paste_settigs(MT)
+				update_icon()
 		if("copy")
 			var/obj/item/device/multitool/MT = user.get_active_item()
+			if(!istype(MT))
+				MT = user.get_inactive_item()
 			if(istype(MT))
 				MT.set_buffer(src)
 				show_splash_text(user, "settings copied")

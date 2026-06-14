@@ -1,6 +1,6 @@
 #define MEGAPHONE_COOLDOWN 2 SECONDS
 
-GLOBAL_LIST_INIT(megaphone_insults, world.file2list("config/translation/megaphone_insults.txt"))
+GLOBAL_LIST_INIT(megaphone_insults, world.file2list("strings/translation/megaphone_insults.txt"))
 
 /obj/item/device/megaphone
 	name = "megaphone"
@@ -58,7 +58,7 @@ GLOBAL_LIST_INIT(megaphone_insults, world.file2list("config/translation/megaphon
 
 	var/list/mob/hearing_mobs = list()
 	var/list/obj/hearing_objs = list()
-	get_mobs_and_objs_in_view_fast(get_turf(talker), world.view, hearing_mobs, hearing_objs)
+	get_listeners_in_range(get_turf(talker), world.view, hearing_mobs, hearing_objs)
 
 	for(var/mob/O in hearing_mobs)
 		O.hear_say(FONT_GIANT(SPAN_BOLD(msg)), "broadcasts", speaking, speaker = talker, speech_sound = 'sound/items/megaphone.ogg', sound_vol = 20)

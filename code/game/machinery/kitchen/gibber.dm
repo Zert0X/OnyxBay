@@ -219,7 +219,7 @@
 
 	user.visible_message(SPAN("danger", "\The [user] starts to put \the [victim] into \the [src]!"))
 	add_fingerprint(user)
-	if(do_after(user, 30, src) && victim.Adjacent(src) && user.Adjacent(src) && victim.Adjacent(user) && length(mobs_to_process) < mob_capacity)
+	if(do_after(user, 30, src, luck_check_type = LUCK_CHECK_COMBAT) && victim.Adjacent(src) && user.Adjacent(src) && victim.Adjacent(user) && length(mobs_to_process) < mob_capacity)
 		user.visible_message(SPAN("danger", "\The [user] stuffs \the [victim] into \the [src]!"))
 		move_inside(victim)
 		update_icon()
@@ -276,7 +276,7 @@
 		slab_count = 0
 		slab_owner = H.real_name
 		slab_type = H.species.meat_type
-		for(var/obj/item/organ/external/O in H.organs)
+		for(var/obj/item/organ/external/O in H.external_organs)
 			if(O.is_stump())
 				continue
 
@@ -309,7 +309,7 @@
 				continue
 
 			new_meat.SetName("[slab_owner] [new_meat.name]")
-			new_meat.reagents.add_reagent(/datum/reagent/nutriment, slab_nutrition)
+			new_meat.reagents.add_reagent(/datum/reagent/nutriment, slab_nutrition * 10)
 			if(!victim.reagents)
 				continue
 
@@ -336,7 +336,7 @@
 			continue
 
 		O.dropInto(loc)
-		if(!slipshod || !throw_dir)
+		if(!slipshod)
 			continue
 
 		O.throw_at(get_edge_target_turf(src, gib_throw_dir), rand(0, 3), 0.5)

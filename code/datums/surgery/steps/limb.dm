@@ -63,12 +63,12 @@
 		)
 	E.replaced(target)
 	target.update_body()
-	target.updatehealth()
-	target.UpdateDamageIcon()
+	target.update_health()
+	target.update_damage_overlays()
 
 /datum/surgery_step/limb/attach_organic/failure(obj/item/organ/external/parent_organ, obj/item/organ/target_organ, mob/living/carbon/human/target, obj/item/tool, mob/user)
 	var/obj/item/organ/external/E = tool
-	var/obj/item/organ/external/P = target.organs_by_name[E.parent_organ]
+	var/obj/item/organ/external/P = target.external_organs_by_name[E.parent_organ]
 	announce_failure(user,
 		"[user]'s hand slips, damaging [target]'s [E.amputation_point]!",
 		"Your hand slips, damaging [target]'s [E.amputation_point]!"
@@ -84,7 +84,6 @@
  * Connects attached limbs to targets body.
  */
 /datum/surgery_step/limb/connect
-	can_infect = TRUE
 	duration = CLAMP_DURATION
 
 	allowed_tools = list(
@@ -122,8 +121,8 @@
 			C.update_tally()
 	parent_organ.update_tally()
 	target.update_body()
-	target.updatehealth()
-	target.UpdateDamageIcon()
+	target.update_health()
+	target.update_damage_overlays()
 
 /datum/surgery_step/limb/connect/failure(obj/item/organ/external/parent_organ, obj/item/organ/target_organ, mob/living/carbon/human/target, obj/item/tool, mob/user)
 	announce_failure(
@@ -133,7 +132,7 @@
 	target.apply_damage(
 		10,
 		BRUTE,
-		target.organs_by_name[parent_organ.parent_organ],
+		target.external_organs_by_name[parent_organ.parent_organ],
 		damage_flags = DAM_SHARP
 		)
 
@@ -183,8 +182,8 @@
 		)
 
 	target.update_body()
-	target.updatehealth()
-	target.UpdateDamageIcon()
+	target.update_health()
+	target.update_damage_overlays()
 
 	qdel(tool)
 
@@ -199,7 +198,6 @@
  * Amputates limb.
  */
 /datum/surgery_step/amputate
-	can_infect = TRUE
 	shock_level = 10
 	duration = AMPUTATION_DURATION
 
@@ -215,7 +213,7 @@
 	if(!.)
 		return
 
-	if(parent_organ.open())
+	if(parent_organ.is_surgically_open())
 		target.show_splash_text(user, "can't get a clean cut due to present incisions!", "You can't get a clean cut due to present incisions!")
 		return SURGERY_FAILURE
 
@@ -245,7 +243,7 @@
 		"[user]'s hand slips, sawing through the bone in [target]'s [parent_organ] with \the [tool]!",
 		"Your hand slips, sawwing through the bone in [target]'s [parent_organ] with \the [tool]!"
 		)
-	parent_organ.take_external_damage(30, 0, (DAM_SHARP|DAM_EDGE), used_weapon = tool)
+	parent_organ.take_cut_damage(30, tool)
 	parent_organ.fracture()
 
 /datum/surgery_step/amputate/failure(obj/item/organ/external/parent_organ, obj/item/organ/target_organ, mob/living/carbon/human/target, obj/item/tool, mob/user)
@@ -253,10 +251,6 @@
 		"[user]'s hand slips, sawing through the bone in [target]'s [parent_organ] with \the [tool]!",
 		"Your hand slips, sawwing through the bone in [target]'s [parent_organ] with \the [tool]!"
 		)
-	parent_organ.take_external_damage(
-		30,
-		0,
-		(DAM_SHARP|DAM_EDGE),
-		used_weapon = tool
-		)
+
 	parent_organ.fracture()
+	parent_organ.take_cut_damage(30, tool)

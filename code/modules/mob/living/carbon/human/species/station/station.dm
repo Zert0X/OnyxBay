@@ -16,6 +16,7 @@
 	min_age = 18
 	max_age = 100
 	gluttonous = GLUT_TINY
+	remains_type = /obj/item/remains/human
 
 	body_builds = list(
 		new /datum/body_build,
@@ -50,7 +51,7 @@
 	if(!H.restrained() && H.shock_stage < 40 && prob(3))
 		var/maxdam = 0
 		var/obj/item/organ/external/damaged_organ = null
-		for(var/obj/item/organ/external/E in H.organs)
+		for(var/obj/item/organ/external/E in H.external_organs)
 			if(!E.can_feel_pain()) continue
 			var/dam = E.get_damage()
 			// make the choice of the organ depend on damage,
@@ -99,8 +100,8 @@
 	burn_mod =  1.15
 	gluttonous = GLUT_TINY
 	num_alternate_languages = 2
-	secondary_langs = list(LANGUAGE_SIIK_TAJR)
-	additional_langs = list(LANGUAGE_SIIK_MAAS)
+	secondary_langs = list(LANGUAGE_SIIK_MAAS)
+	additional_langs = list(LANGUAGE_SIIK_TAJR)
 	name_language = LANGUAGE_SIIK_MAAS
 	health_hud_intensity = 1.75
 
@@ -154,7 +155,7 @@
 
 	sexybits_location = BP_GROIN
 
-	xenomorph_type = /mob/living/carbon/alien/larva/feral
+	xenomorph_type = /mob/living/carbon/larva/xenomorph/feral
 
 /datum/species/tajaran/equip_survival_gear(mob/living/carbon/human/H)
 	..()
@@ -165,12 +166,22 @@
 		return tail_slim
 	return ..()
 
+/datum/species/tajaran/handle_vision(mob/living/carbon/human/H)
+	..()
+	if(H.eyecheck() < FLASH_PROTECTION_NONE && !H.eye_blind)
+		var/obj/item/organ/internal/eyes/E = H.internal_organs_by_name[BP_EYES]
+		E.damage += 1
+		if(prob(40))
+			H.flash_eyes()
+			to_chat(H, SPAN_DANGER("Your eyes hurt from the intensified light!"))
+
 /datum/species/skrell
 	name = SPECIES_SKRELL
 	name_plural = SPECIES_SKRELL
 	icobase = 'icons/mob/human_races/r_skrell.dmi'
 	primitive_form = "Neaera"
 	hair_key = SPECIES_SKRELL
+	default_h_style = "Short Headtails"
 	unarmed_types = list(/datum/unarmed_attack/punch)
 	blurb = "An amphibious species, Skrell come from the star system known as Qerr'Vallis, which translates to 'Star of \
 	the royals' or 'Light of the Crown'.<br/><br/>Skrell are a highly advanced and logical race who live under the rule \
@@ -216,7 +227,7 @@
 	default_eye_color = "#ffffff"
 	organs_icon = 'icons/mob/human_races/organs/skrell.dmi'
 
-	cold_level_1 = 280 //Default 260 - Lower is better
+	cold_level_1 = 260 //Default 260 - Lower is better
 	cold_level_2 = 220 //Default 200
 	cold_level_3 = 130 //Default 120
 
@@ -224,8 +235,8 @@
 	heat_level_2 = 650 //Default 500
 	heat_level_3 = 1100 //Default 1000
 
-	cold_discomfort_level = 295 //16.85C, not more because they will have a constant messages
-	heat_discomfort_level = 375 //101.85C
+	cold_discomfort_level = 290 //16.85C, not more because they will have a constant messages
+	heat_discomfort_level = 315 //41.85C
 
 	reagent_tag = IS_SKRELL
 
@@ -243,7 +254,7 @@
 		BP_R_FOOT = list("path" = /obj/item/organ/external/foot/right)
 		)
 
-	xenomorph_type = /mob/living/carbon/alien/larva/vile
+	xenomorph_type = /mob/living/carbon/larva/xenomorph/vile
 
 /datum/species/diona
 	name = SPECIES_DIONA
@@ -346,7 +357,7 @@
 		return
 
 	spawn(1) // So it has time to be thrown about by the gib() proc.
-		var/mob/living/carbon/alien/diona/D = new(target)
+		var/mob/living/carbon/larva/diona/D = new(target)
 		var/datum/ghosttrap/plant/P = get_ghost_trap("living plant")
 		P.request_player(D, "A diona nymph has split off from its gestalt. ")
 		spawn(60)
@@ -356,10 +367,10 @@
 
 #define DIONA_LIMB_DEATH_COUNT 9
 /datum/species/diona/handle_death_check(mob/living/carbon/human/H)
-	var/lost_limb_count = has_limbs.len - H.organs.len
+	var/lost_limb_count = has_limbs.len - H.external_organs.len
 	if(lost_limb_count >= DIONA_LIMB_DEATH_COUNT)
 		return TRUE
-	for(var/thing in H.organs)
+	for(var/thing in H.external_organs)
 		var/obj/item/organ/external/E = thing
 		if(E && E.is_stump())
 			lost_limb_count++
@@ -367,7 +378,7 @@
 #undef DIONA_LIMB_DEATH_COUNT
 
 /datum/species/diona/can_understand(mob/other)
-	var/mob/living/carbon/alien/diona/D = other
+	var/mob/living/carbon/larva/diona/D = other
 	if(istype(D))
 		return 1
 	return 0
@@ -385,7 +396,7 @@
 /datum/species/diona/handle_death(mob/living/carbon/human/H)
 
 	if(H.isSynthetic())
-		var/mob/living/carbon/alien/diona/S = new(get_turf(H))
+		var/mob/living/carbon/larva/diona/S = new(get_turf(H))
 
 		if(H.mind)
 			H.mind.transfer_to(S)
@@ -401,7 +412,7 @@
 	if(H.InStasis() || H.is_ic_dead())
 		return
 	if(H.nutrition < 10)
-		H.take_overall_damage(2,0)
+		H.take_overall_damage(1, 0, 0, "Cellular Collapse", FALSE)
 	else if(H.innate_heal)
 		// Heals normal damage.
 		if(H.getBruteLoss())
@@ -412,7 +423,7 @@
 			H.remove_nutrition(2)
 
 		if(prob(10) && H.nutrition > 200 && !H.getBruteLoss() && !H.getFireLoss())
-			var/obj/item/organ/external/head/D = H.organs_by_name["head"]
+			var/obj/item/organ/external/head/D = H.external_organs_by_name["head"]
 			if(D.status & ORGAN_DISFIGURED)
 				D.status &= ~ORGAN_DISFIGURED
 				H.remove_nutrition(20)
@@ -426,7 +437,7 @@
 
 		if(prob(10) && H.nutrition > 70)
 			for(var/limb_type in has_limbs)
-				var/obj/item/organ/external/E = H.organs_by_name[limb_type]
+				var/obj/item/organ/external/E = H.external_organs_by_name[limb_type]
 				if(E && !E.is_usable())
 					E.removed()
 					qdel(E)
@@ -439,10 +450,6 @@
 					to_chat(H, SPAN("notice", "Some of your nymphs split and hurry to reform your [O.name]."))
 					H.remove_nutrition(60)
 					H.update_body()
-				else
-					for(var/datum/wound/W in E.wounds)
-						if(W.wound_damage() == 0 && prob(50))
-							E.wounds -= W
 
 /datum/species/diona/is_eligible_for_antag_spawn(antag_id)
 	return FALSE

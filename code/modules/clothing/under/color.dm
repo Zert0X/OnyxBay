@@ -11,6 +11,7 @@
 	name = "orange jumpsuit"
 	desc = "It's standardised prisoner-wear. Its suit sensor controls are permanently set to the \"Fully On\" position."
 	icon_state = "orange"
+	item_state = "orange"
 	has_sensor = 2
 	sensor_mode = 3
 
@@ -20,6 +21,7 @@
 	name = "jumpsuit"
 	desc = "The latest in space fashion."
 	icon_state = "white"
+	item_state = "white"
 
 // legacy colours - these are used somewhere in the game, but aren't available in the loadout
 
@@ -66,12 +68,10 @@
 
 /obj/item/clothing/under/jumpskirt
 	name = "jumpskirt"
-	desc = "A slimming, short jumpskirt."
+	desc = "A neat and comfortable jumpskirt."
 	icon_state = "jumpskirt"
-	item_state_slots = list(
-		slot_hand_str = "white"
-		)
-	body_parts_covered = UPPER_TORSO|LOWER_TORSO
+	item_state = "jumpskirt"
+	body_parts_covered = UPPER_TORSO|LOWER_TORSO|ARMS
 
 /obj/item/clothing/under/jumpskirt/white
 	name = "white jumpskirt"
@@ -111,4 +111,51 @@
 
 /obj/item/clothing/under/jumpskirt/brown
 	name = "brown jumpskirt"
+	color = "#c08720"
+
+/obj/item/clothing/under/jumpdress
+	name = "jumpdress"
+	desc = "A slimming, short jumpdress."
+	icon_state = "jumpdress"
+	item_state = "jumpdress"
+	body_parts_covered = UPPER_TORSO|LOWER_TORSO
+
+/obj/item/clothing/under/jumpdress/white
+	name = "white jumpdress"
+	color = "#ffffff"
+
+/obj/item/clothing/under/jumpdress/black
+	name = "black jumpdress"
+	color = "#3d3d3d"
+
+/obj/item/clothing/under/jumpdress/grey
+	name = "grey jumpdress"
+	color = "#c4c4c4"
+
+/obj/item/clothing/under/jumpdress/blue
+	name = "blue jumpdress"
+	color = "#0066ff"
+
+/obj/item/clothing/under/jumpdress/pink
+	name = "pink jumpdress"
+	color = "#df20a6"
+
+/obj/item/clothing/under/jumpdress/red
+	name = "red jumpdress"
+	color = "#ee1511"
+
+/obj/item/clothing/under/jumpdress/green
+	name = "green jumpdress"
+	color = "#42a345"
+
+/obj/item/clothing/under/jumpdress/yellow
+	name = "yellow jumpdress"
+	color = "#ffee00"
+
+/obj/item/clothing/under/jumpdress/lightpurple
+	name = "light purple jumpdress"
+	color = "#c600fc"
+
+/obj/item/clothing/under/jumpdress/brown
+	name = "brown jumpdress"
 	color = "#c08720"

@@ -92,7 +92,7 @@
 	startswith = list(/obj/item/clothing/mask/breath = 1,
 					/obj/item/tank/emergency/oxygen = 1,
 					/obj/item/reagent_containers/hypospray/autoinjector = 1,
-					/obj/item/stack/medical/patches = 1,
+					/obj/item/stack/medical/bandaids = 1,
 					/obj/item/device/flashlight/glowstick = 1,
 					/obj/item/reagent_containers/food/packaged/nutribar = 1)
 
@@ -105,7 +105,7 @@
 	foldable = /obj/item/crowbar/emergency/vox
 	startswith = list(/obj/item/clothing/mask/breath = 1,
 					/obj/item/tank/emergency/nitrogen = 1,
-					/obj/item/stack/medical/patches = 1,
+					/obj/item/stack/medical/bandaids = 1,
 					/obj/item/device/flashlight/glowstick = 1,
 					/obj/item/reagent_containers/food/packaged/nutribar = 1)
 
@@ -120,7 +120,7 @@
 					/obj/item/tank/emergency/oxygen/engi = 1,
 					/obj/item/reagent_containers/hypospray/autoinjector = 1,
 					/obj/item/reagent_containers/hypospray/autoinjector/detox = 1,
-					/obj/item/stack/medical/patches = 1,
+					/obj/item/stack/medical/bandaids = 1,
 					/obj/item/device/flashlight/glowstick/orange = 1,
 					/obj/item/reagent_containers/food/packaged/nutribar = 1)
 
@@ -135,7 +135,7 @@
 					/obj/item/tank/emergency/oxygen = 1,
 					/obj/item/reagent_containers/hypospray/autoinjector = 1,
 					/obj/item/reagent_containers/hypospray/autoinjector/tricordrazine = 1,
-					/obj/item/stack/medical/patches = 1,
+					/obj/item/stack/medical/bandaids = 1,
 					/obj/item/device/flashlight/glowstick/red = 1,
 					/obj/item/reagent_containers/food/packaged/nutribar = 1)
 
@@ -229,6 +229,12 @@
 	desc = "It has a picture of a gun and several warning symbols on the front.<br>WARNING: Live ammunition. Misuse may result in serious injury or death."
 	startswith = list(/obj/item/ammo_casing/shotgun/stunshell = 20)
 
+/obj/item/storage/box/shotgun/breaching
+	icon_state = "shotgunbreach"
+	name = "box of breaching shells"
+	desc = "It has a picture of a gun and several warning symbols on the front.<br>WARNING: Live ammunition. Designed for structural breaching operations."
+	startswith = list(/obj/item/ammo_casing/shotgun/breaching = 20)
+
 /obj/item/storage/box/practiceshells
 	name = "box of practice shells"
 	desc = "It has a picture of a gun and several warning symbols on the front.<br>WARNING: Live ammunition. Misuse may result in serious injury or death."
@@ -293,6 +299,24 @@
 	drop_sound = SFX_DROP_AMMOBOX
 	pickup_sound = SFX_PICKUP_AMMOBOX
 
+/obj/item/storage/box/stingbangs
+	name = "box of stingbangs"
+	desc = "A box containing 7 non-lethal stingbang grenades.<br> WARNING: Less-lethal munitions. May cause injury at close range."
+	icon_state = "flashbang"
+	inspect_state = "sec-open"
+	startswith = list(/obj/item/grenade/frag/stingbang = 7)
+	drop_sound = SFX_DROP_AMMOBOX
+	pickup_sound = SFX_PICKUP_AMMOBOX
+
+/obj/item/storage/box/grenade_shells_stingbang
+	name = "box of stingbang grenade shells"
+	desc = "A box containing 6 40mm stingbang grenade shells.<br> WARNING: Less-lethal munitions. May cause injury at close range."
+	icon_state = "fragshells"
+	inspect_state = "sec-open"
+	startswith = list(/obj/item/ammo_casing/grenade/loaded/stingbang = 6)
+	drop_sound = SFX_DROP_AMMOBOX
+	pickup_sound = SFX_PICKUP_AMMOBOX
+
 /obj/item/storage/box/smokes
 	name = "box of smoke bombs"
 	desc = "A box containing 5 smoke bombs."
@@ -316,6 +340,87 @@
 	desc = "A box containing 5 highly experimental supermatter grenades."
 	icon_state = "radbox"
 	startswith = list(/obj/item/grenade/supermatter = 5)
+	drop_sound = SFX_DROP_AMMOBOX
+	pickup_sound = SFX_PICKUP_AMMOBOX
+
+/obj/item/storage/box/grenade_shells
+	name = "box of spare grenade shells"
+	desc = "A box containing 6 spare 40mm grenade shells."
+	icon_state = "fragshells"
+	inspect_state = "sec-open"
+	startswith = list(/obj/item/ammo_casing/grenade/loaded/empty = 6)
+	drop_sound = SFX_DROP_AMMOBOX
+	pickup_sound = SFX_PICKUP_AMMOBOX
+
+/obj/item/storage/box/grenade_shells_he
+	name = "box of HE grenade shells"
+	desc = "A box containing 6 40mm HE grenade shells. <br> WARNING: Live explosives. Misuse may result in serious injury or death."
+	icon_state = "fragshells"
+	inspect_state = "sec-open"
+	startswith = list(/obj/item/ammo_casing/grenade/he = 6)
+	drop_sound = SFX_DROP_AMMOBOX
+	pickup_sound = SFX_PICKUP_AMMOBOX
+
+/obj/item/storage/box/grenade_shells_hep
+	name = "box of HE+ grenade shells"
+	desc = "A box containing 6 40mm HE+ grenade shells. <br> WARNING: Live explosives. Misuse may result in serious injury or death."
+	icon_state = "fragshells"
+	inspect_state = "sec-open"
+	startswith = list(/obj/item/ammo_casing/grenade/hep = 6)
+	drop_sound = SFX_DROP_AMMOBOX
+	pickup_sound = SFX_PICKUP_AMMOBOX
+
+/obj/item/storage/box/grenade_shells_rubber
+	name = "box of rubber grenade shells"
+	desc = "A box containing 6 40mm rubber grenade shells."
+	icon_state = "fragshells"
+	inspect_state = "sec-open"
+	startswith = list(/obj/item/ammo_casing/grenade/rubber = 6)
+	drop_sound = SFX_DROP_AMMOBOX
+	pickup_sound = SFX_PICKUP_AMMOBOX
+
+/obj/item/storage/box/grenade_shells_tg
+	name = "box of tear gas grenade shells"
+	desc = "A box containing 6 40mm tear gas grenade shells."
+	icon_state = "fragshells"
+	inspect_state = "sec-open"
+	startswith = list(/obj/item/ammo_casing/grenade/loaded/teargas = 6)
+	drop_sound = SFX_DROP_AMMOBOX
+	pickup_sound = SFX_PICKUP_AMMOBOX
+
+/obj/item/storage/box/grenade_shells_frag
+	name = "box of FRAG grenade shells"
+	desc = "A box containing 6 40mm FRAG grenade shells. <br> WARNING: Live explosives. Misuse may result in serious injury or death."
+	icon_state = "fragshells"
+	inspect_state = "sec-open"
+	startswith = list(/obj/item/ammo_casing/grenade/loaded/frag = 6)
+	drop_sound = SFX_DROP_AMMOBOX
+	pickup_sound = SFX_PICKUP_AMMOBOX
+
+/obj/item/storage/box/grenade_shells_frag_better
+	name = "box of FRAG+ grenade shells"
+	desc = "A box containing 6 40mm FRAG+ grenade shells. <br> WARNING: Live explosives. Misuse may result in serious injury or death."
+	icon_state = "fragshells"
+	inspect_state = "sec-open"
+	startswith = list(/obj/item/ammo_casing/grenade/loaded/frag/better = 6)
+	drop_sound = SFX_DROP_AMMOBOX
+	pickup_sound = SFX_PICKUP_AMMOBOX
+
+/obj/item/storage/box/grenade_shells_frag_best
+	name = "box of FRAG++ grenade shells"
+	desc = "A box containing 6 40mm FRAG++ grenade shells. <br> WARNING: Live exp- The rest is unreadable, but who cares?"
+	icon_state = "fragshells"
+	inspect_state = "sec-open"
+	startswith = list(/obj/item/ammo_casing/grenade/loaded/frag/best = 6)
+	drop_sound = SFX_DROP_AMMOBOX
+	pickup_sound = SFX_PICKUP_AMMOBOX
+
+/obj/item/storage/box/grenade_shells_emp
+	name = "box of EMP grenade shells"
+	desc = "A box containing 6 40mm low-yield EMP grenade shells. <br> WARNING: Live exp- The rest is unreadable, but who cares?"
+	icon_state = "fragshells"
+	inspect_state = "sec-open"
+	startswith = list(/obj/item/ammo_casing/grenade/loaded/empgrenade/low_yield = 6)
 	drop_sound = SFX_DROP_AMMOBOX
 	pickup_sound = SFX_PICKUP_AMMOBOX
 
@@ -501,8 +606,7 @@
 /obj/item/storage/box/lights/tubes
 	name = "box of replacement tubes"
 	icon_state = "lighttube"
-	startswith = list(/obj/item/light/tube = 17,
-					/obj/item/light/tube/large = 4)
+	startswith = list(/obj/item/light/tube = 21)
 
 /obj/item/storage/box/lights/tubes/empty
 	startswith = null
@@ -510,8 +614,7 @@
 /obj/item/storage/box/lights/mixed
 	name = "box of replacement lights"
 	icon_state = "lightmixed"
-	startswith = list(/obj/item/light/tube = 12,
-					/obj/item/light/tube/large = 4,
+	startswith = list(/obj/item/light/tube = 16,
 					/obj/item/light/bulb = 5)
 
 /obj/item/storage/box/lights/mixed/empty

@@ -28,7 +28,7 @@ var/const/IAA_ban_reason = "Restricted by CentComm"
 		if (guest_jobbans(rank))
 			if(config.game.guest_jobban && IsGuestKey(M.key))
 				return "Guest Job-ban"
-			if(config.game.use_whitelist && !check_whitelist(M))
+			if(config.whitelist.jobs_enable && !check_job_whitelist(M.ckey, rank))
 				return "Whitelisted Job"
 
 		for (var/s in jobban_keylist)
@@ -51,7 +51,7 @@ var/const/IAA_ban_reason = "Restricted by CentComm"
 			var/datum/job/J_banned = job_master.GetJob(JB.job)
 			if (rank == JB.job) //fastest check first
 				return IAA_ban_reason
-			if (J_banned.department == "Civilian" || J_banned.department == "Service" || J_banned.department == "Supply")
+			if (J_banned.department == "Civilian" || J_banned.department == "Provisioning" || J_banned.department == "Cargo")
 				if (J.head_position)
 					return IAA_ban_reason
 			else if (J_banned.department == J.department)
@@ -98,14 +98,14 @@ DEBUG
 
 		//Job permabans
 		var/DBQuery/query = sql_query({"
-			SELECT 
-				ckey, 
-				job 
-			FROM 
-				erro_ban 
-			WHERE 
-				bantype = 'JOB_PERMABAN' 
-				AND 
+			SELECT
+				ckey,
+				job
+			FROM
+				erro_ban
+			WHERE
+				bantype = 'JOB_PERMABAN'
+				AND
 				isnull(unbanned)
 				[isnull(config.general.server_id) ? "" : " AND server_id = $sid"]
 			"}, dbcon, list(sid = config.general.server_id))

@@ -36,8 +36,6 @@
 				return
 		if("Cancel")
 			return
-		if("No")
-			pass()
 
 	callproc_targetpicked(targetselected, target)
 
@@ -153,8 +151,6 @@
 							return CANCEL
 					if("Cancel")
 						return CANCEL
-					if("No")
-						pass()
 				var/datum/callproc/CP = new(C)
 				current = CP.callproc(targetselected, target)
 				if(isnull(current)) return CANCEL
@@ -200,20 +196,14 @@
 				if(!M) return
 				current = get_area(M)
 				if(!current)
-					switch(alert("\The [M] appears to not have an area; do you want to pass null instead?",, "Yes", "Cancel"))
-						if("Yes")
-							pass()
-						if("Cancel")
-							return CANCEL
+					if(alert("\The [M] appears to not have an area; do you want to pass null instead?",, "Yes", "Cancel") == "Cancel")
+						return CANCEL
 
 			if("marked datum")
 				current = C.holder.marked_datum()
 				if(!current)
-					switch(alert("You do not currently have a marked datum; do you want to pass null instead?",, "Yes", "Cancel"))
-						if("Yes")
-							pass()
-						if("Cancel")
-							return CANCEL
+					if(alert("You do not currently have a marked datum; do you want to pass null instead?",, "Yes", "Cancel") == "Cancel")
+						return CANCEL
 
 			if("click on atom")
 				waiting_for_click = 1
@@ -234,17 +224,6 @@
 	if(holder && holder.callproc && holder.callproc.waiting_for_click)
 		holder.callproc.waiting_for_click = 0
 		holder.callproc.do_args()
-
-/client/Click(atom/A)
-	if(holder && holder.callproc && holder.callproc.waiting_for_click)
-		if(alert("Do you want to select \the [A] as the [length(holder.callproc.arguments)+1]\th argument?",, "Yes", "No") == "Yes")
-			holder.callproc.arguments += A
-
-		holder.callproc.waiting_for_click = 0
-		verbs -= /client/proc/cancel_callproc_select
-		holder.callproc.do_args()
-	else
-		return ..()
 
 /datum/callproc/proc/finalise()
 	var/returnval

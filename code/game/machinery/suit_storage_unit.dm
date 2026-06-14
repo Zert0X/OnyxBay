@@ -14,7 +14,7 @@
 	idle_power_usage = 50 WATTS
 	active_power_usage = 200 WATTS
 	interact_offline = 1
-	req_access = list()
+	req_access = null
 
 	var/mob/living/carbon/human/occupant = null
 	var/obj/item/clothing/suit/space/suit = null
@@ -211,9 +211,11 @@
 		else
 			return
 
+/obj/machinery/suit_storage_unit/inoperable(additional_flags = 0)
+	return (stat & (BROKEN|additional_flags)) // We really don't want this thing to be completely unoperable when off-power.
 
 /obj/machinery/suit_storage_unit/attack_hand(mob/user)
-	if(..() || inoperable(MAINT))
+	if(..())
 		return
 
 	interact(user)
@@ -225,32 +227,34 @@
 		choices["toggle_uv"] = radial_uv
 		choices["toggle_safety"] = radial_safety
 
+
 	if(islocked)
 		choices["unlock"] = radial_unlock
-	else if(isopen && !isbroken)
-		choices["close"] = radial_close
-		if(istype(suit))
-			choices["suit"] = icon(suit.icon, suit.icon_state)
-
-		if(istype(helmet))
-			choices["helmet"] = icon(helmet.icon, helmet.icon_state)
-
-		if(istype(boots))
-			choices["boots"] = icon(boots.icon, boots.icon_state)
-
-		if(istype(tank))
-			choices["tank"] = icon(tank.icon, tank.icon_state)
-
-		if(istype(mask))
-			choices["mask"] = icon(mask.icon, mask.icon_state)
-
-		if(istype(occupant))
-			choices["eject"] = radial_eject
-
 	else
-		choices["open"] = radial_open
 		choices["disinfect"] = radial_disinfect
 		choices["lock"] = radial_lock
+
+		if(isopen)
+			choices["close"] = radial_close
+			if(istype(suit))
+				choices["suit"] = icon(suit.icon, suit.icon_state)
+
+			if(istype(helmet))
+				choices["helmet"] = icon(helmet.icon, helmet.icon_state)
+
+			if(istype(boots))
+				choices["boots"] = icon(boots.icon, boots.icon_state)
+
+			if(istype(tank))
+				choices["tank"] = icon(tank.icon, tank.icon_state)
+
+			if(istype(mask))
+				choices["mask"] = icon(mask.icon, mask.icon_state)
+
+			if(istype(occupant))
+				choices["eject"] = radial_eject
+		else
+			choices["open"] = radial_open
 
 	if(length(choices) < 1)
 		return
@@ -324,6 +328,8 @@
 /obj/machinery/suit_storage_unit/proc/togglesafeties(mob/user as mob)
 	if(!panelopen) //Needed check due to bugs
 		return
+	else if(inoperable(MAINT) || isbroken)
+		to_chat(user, SPAN("warning", "You push the button. Nothing happens."))
 	else
 		safetieson = !safetieson
 		to_chat(user, "<span class='notice'>You push the button. The coloured LED next to it [safetieson ? "turns green" : "turns red"].</span>")
@@ -362,6 +368,9 @@
 	if(stat & NOPOWER)
 		to_chat(user, "<span class='warning'>The unit is offline.</span>")
 		return
+	if(isbroken)
+		to_chat(user, SPAN("warning", "The unit doesn't seem to be operational."))
+		return
 	if(islocked || isUV)
 		to_chat(user, "<span class='warning'>Unable to open unit.</span>")
 		return
@@ -377,7 +386,10 @@
 	if(stat & NOPOWER)
 		to_chat(user, "<span class='warning'>The unit is offline.</span>")
 		return
-	if(!allowed(user))
+	if(isbroken)
+		to_chat(user, SPAN("warning", "The unit doesn't seem to be operational."))
+		return
+	if(!check_access(user))
 		to_chat(user, FEEDBACK_ACCESS_DENIED)
 		return
 	if(occupant && safetieson)
@@ -548,12 +560,26 @@
 	if(isCrowbar(I))
 		if((stat & NOPOWER) && !islocked && !isopen)
 			to_chat(user, "<span class='warning'>You begin prying the unit open.</span>")
-			if(do_after(user, 50, src))
+			if(do_after(user, 5 SECONDS, src, luck_check_type = LUCK_CHECK_ENG) && !QDELETED(src))
 				isopen = 1
 				to_chat(user, "<span class='warning'>You pry the unit open.</span>")
 				update_icon()
 		else if(islocked)
 			to_chat(user, "<span class='warning'>You can't pry the unit open, it's locked!</span>")
+		return
+	if(isWelder(I))
+		if(isopen)
+			return
+		if(isbroken)
+			to_chat(user, SPAN("warning", "You can't seem to find a way to make \the [src] even more broken."))
+			return
+		var/obj/item/weldingtool/WT = I
+		to_chat(user, SPAN("notice", "You start welding off anything that might end up being a lock... This is gonna be a tricky one."))
+		if(!WT.use_tool(src, user, delay = 15 SECONDS, amount = 100))
+			return
+		isbroken = TRUE
+		islocked = FALSE
+		visible_message(SPAN("warning", "[user] welds some of \the [src]'s important parts off, wrecking the thing for good."))
 		return
 	if(istype(I, /obj/item/grab) )
 		var/obj/item/grab/G = I
@@ -878,7 +904,7 @@
 	departments = list("Engineering","Mining","Medical","Security","Atmos","^%###^%$")
 	emagged = 1
 	safeties = 0
-	req_access = list()
+	req_access = null
 	updateUsrDialog()
 	return 1
 
@@ -902,7 +928,7 @@
 
 	else if(locked)
 		dat += "<br><font color='red'><B>The [model_text ? "[model_text] " : ""]suit cycler is currently locked. Please contact your system administrator.</b></font>"
-		if(allowed(user))
+		if(check_access(user))
 			dat += "<br><a href='?src=\ref[src];toggle_lock=1'>\[unlock unit\]</a>"
 	else
 		dat += "<h1>Suit cycler</h1>"
@@ -971,7 +997,7 @@
 
 	else if(href_list["toggle_lock"])
 
-		if(allowed(usr))
+		if(check_access(usr))
 			locked = !locked
 			to_chat(usr, "You [locked ? "lock" : "unlock"] [src].")
 			playsound(src.loc, locked ? 'sound/effects/suitcycler/close1.ogg' : 'sound/effects/suitcycler/open1.ogg', 70, 1)
@@ -1097,72 +1123,72 @@
 		if("Engineering")
 			if(helmet)
 				helmet.SetName("engineering voidsuit helmet")
-				helmet.icon_state = "rig0-engineering"
+				helmet.icon_state = "eng_helm"
 				helmet.item_state = "eng_helm"
 			if(suit)
 				suit.SetName("engineering voidsuit")
-				suit.icon_state = "rig-engineering"
-				suit.item_state_slots = list(
+				suit.icon_state = "eng_voidsuit"
+				suit.item_state_slots = alist(
 					slot_l_hand_str = "eng_voidsuit",
 					slot_r_hand_str = "eng_voidsuit",
 				)
 		if("Mining")
 			if(helmet)
 				helmet.SetName("mining voidsuit helmet")
-				helmet.icon_state = "rig0-mining"
+				helmet.icon_state = "mining_helm"
 				helmet.item_state = "mining_helm"
 			if(suit)
 				suit.SetName("mining voidsuit")
-				suit.icon_state = "rig-mining"
-				suit.item_state_slots = list(
+				suit.icon_state = "mining_voidsuit"
+				suit.item_state_slots = alist(
 					slot_l_hand_str = "mining_voidsuit",
 					slot_r_hand_str = "mining_voidsuit",
 				)
 		if("Science")
 			if(helmet)
 				helmet.SetName("excavation voidsuit helmet")
-				helmet.icon_state = "rig0-excavation"
+				helmet.icon_state = "excavation_helm"
 				helmet.item_state = "excavation_helm"
 			if(suit)
 				suit.SetName("excavation voidsuit")
-				suit.icon_state = "rig-excavation"
-				suit.item_state_slots = list(
+				suit.icon_state = "excavation_voidsuit"
+				suit.item_state_slots = alist(
 					slot_l_hand_str = "excavation_voidsuit",
 					slot_r_hand_str = "excavation_voidsuit",
 				)
 		if("Medical")
 			if(helmet)
 				helmet.SetName("medical voidsuit helmet")
-				helmet.icon_state = "rig0-medical"
+				helmet.icon_state = "medical_helm"
 				helmet.item_state = "medical_helm"
 			if(suit)
 				suit.SetName("medical voidsuit")
-				suit.icon_state = "rig-medical"
-				suit.item_state_slots = list(
+				suit.icon_state = "medical_voidsuit"
+				suit.item_state_slots = alist(
 					slot_l_hand_str = "medical_voidsuit",
 					slot_r_hand_str = "medical_voidsuit",
 				)
 		if("Security")
 			if(helmet)
 				helmet.SetName("security voidsuit helmet")
-				helmet.icon_state = "rig0-sec"
+				helmet.icon_state = "sec_helm"
 				helmet.item_state = "sec_helm"
 			if(suit)
 				suit.SetName("security voidsuit")
-				suit.icon_state = "rig-sec"
-				suit.item_state_slots = list(
+				suit.icon_state = "sec_voidsuit"
+				suit.item_state_slots = alist(
 					slot_l_hand_str = "sec_voidsuit",
 					slot_r_hand_str = "sec_voidsuit",
 				)
 		if("Atmos")
 			if(helmet)
 				helmet.SetName("atmospherics voidsuit helmet")
-				helmet.icon_state = "rig0-atmos"
+				helmet.icon_state = "atmos_helm"
 				helmet.item_state = "atmos_helm"
 			if(suit)
 				suit.SetName("atmospherics voidsuit")
-				suit.icon_state = "rig-atmos"
-				suit.item_state_slots = list(
+				suit.icon_state = "atmos_voidsuit"
+				suit.item_state_slots = alist(
 					slot_l_hand_str = "atmos_voidsuit",
 					slot_r_hand_str = "atmos_voidsuit",
 				)
@@ -1178,23 +1204,23 @@
 		if("^%###^%$",  "Syndicate")
 			if(helmet)
 				helmet.SetName("blood-red voidsuit helmet")
-				helmet.icon_state = "rig0-syndie"
+				helmet.icon_state = "syndie_helm"
 				helmet.item_state = "syndie_helm"
 			if(suit)
 				suit.SetName("blood-red voidsuit")
-				suit.icon_state = "rig-syndie"
-				suit.item_state_slots = list(
+				suit.icon_state = "syndie_voidsuit"
+				suit.item_state_slots = alist(
 					slot_l_hand_str = "syndie_voidsuit",
 					slot_r_hand_str = "syndie_voidsuit",
 				)
 		if("Pilot")
 			if(helmet)
 				helmet.SetName("pilot voidsuit helmet")
-				helmet.icon_state = "rig0_pilot"
+				helmet.icon_state = "pilot_helm"
 				helmet.item_state = "pilot_helm"
 			if(suit)
 				suit.SetName("pilot voidsuit")
-				suit.icon_state = "rig-pilot"
+				suit.icon_state = "pilot_voidsuit"
 
 	if(helmet) helmet.SetName("refitted [helmet.name]")
 	if(suit) suit.SetName("refitted [suit.name]")

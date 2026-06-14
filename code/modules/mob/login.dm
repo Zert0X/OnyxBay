@@ -11,10 +11,10 @@
 			if( M.key && (M.key != key) )
 				var/matches
 				if( (M.lastKnownIP == client.address) )
-					matches += "IP ([client.address])"
+					matches += "IP ([MARK_IP(client.address)])"
 				if( (client.connection != "web") && (M.computer_id == client.computer_id) )
 					if(matches)	matches += " and "
-					matches += "ID ([client.computer_id])"
+					matches += "ID ([MARK_COMPUTER_ID(client.computer_id)])"
 					is_multikeying = 1
 				if(matches)
 					if(M.client)
@@ -42,6 +42,8 @@
 			world.Export("[config.external.login_export_addr]?[list2params(params)]", null, 1)
 
 /mob/Login()
+	CAN_BE_REDEFINED(TRUE)
+	SHOULD_CALL_PARENT(TRUE)
 	if(!client)
 		return
 
@@ -82,12 +84,22 @@
 
 	update_client_color()
 
-	//set macro to normal incase it was overriden (like cyborg currently does)
-	var/hotkey_mode = client.get_preference_value("DEFAULT_HOTKEY_MODE")
-	if(hotkey_mode == GLOB.PREF_YES)
-		winset(src, null, "mainwindow.macro=hotkeymode hotkey_toggle.is-checked=true input.focus=false")
-	else
-		winset(src, null, "mainwindow.macro=macro hotkey_toggle.is-checked=false input.focus=true")
+	update_mouse_pointer()
+
+	client.mouse_click_opportunity_window = get_preference_value(/datum/client_preference/click_precision_assist)
+	switch(client.mouse_click_opportunity_window)
+		if(GLOB.PREF_CLICK_PRECISION_NONE)
+			client.mouse_click_opportunity_window = 0
+		if(GLOB.PREF_CLICK_PRECISION_1DS)
+			client.mouse_click_opportunity_window = 1
+		if(GLOB.PREF_CLICK_PRECISION_2DS)
+			client.mouse_click_opportunity_window = 2
+		if(GLOB.PREF_CLICK_PRECISION_3DS)
+			client.mouse_click_opportunity_window = 3
+		if(GLOB.PREF_CLICK_PRECISION_4DS)
+			client.mouse_click_opportunity_window = 4
+		if(GLOB.PREF_CLICK_PRECISION_5DS)
+			client.mouse_click_opportunity_window = 5
 
 	if(!skybox)
 		skybox = new(src)
@@ -104,5 +116,3 @@
 
 	SEND_GLOBAL_SIGNAL(SIGNAL_LOGGED_IN, src)
 	SEND_SIGNAL(src, SIGNAL_LOGGED_IN, src)
-
-	client.init_verbs()

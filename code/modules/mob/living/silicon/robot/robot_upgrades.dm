@@ -99,18 +99,22 @@
 
 /obj/item/borg/upgrade/remodel/research
 	name = "research model board"
+	icon_state = "cyborg_upgrade1_purple"
 	module = "Research"
 
 /obj/item/borg/upgrade/remodel/miner
 	name = "miner model board"
+	icon_state = "cyborg_upgrade1_brown"
 	module = "Miner"
 
 /obj/item/borg/upgrade/remodel/medical
 	name = "medical model board"
+	icon_state = "cyborg_upgrade1_cyan"
 	module = "Medical"
 
 /obj/item/borg/upgrade/remodel/security
 	name = "security model board"
+	icon_state = "cyborg_upgrade1_red"
 	module = "Security"
 
 /obj/item/borg/upgrade/remodel/combat
@@ -119,6 +123,7 @@
 
 /obj/item/borg/upgrade/remodel/engineering
 	name = "engineering model board"
+	icon_state = "cyborg_upgrade1_orange"
 	module = "Engineering"
 
 /obj/item/borg/upgrade/remodel/janitor
@@ -127,14 +132,17 @@
 
 /obj/item/borg/upgrade/remodel/advanced/medical
 	name = "advanced medical model board"
+	icon_state = "cyborg_upgrade4_cyan"
 	module = "Advanced Medical"
 
 /obj/item/borg/upgrade/remodel/advanced/engineering
 	name = "advanced engineering model board"
+	icon_state = "cyborg_upgrade4_orange"
 	module = "Advanced Engineering"
 
 /obj/item/borg/upgrade/remodel/advanced/miner
 	name = "advanced miner model board"
+	icon_state = "cyborg_upgrade4_brown"
 	module = "Advanced Miner"
 
 /obj/item/borg/upgrade/rename
@@ -221,7 +229,7 @@
 /obj/item/borg/upgrade/tasercooler
 	name = "robotic Rapid Taser Cooling Module"
 	desc = "Used to cool a mounted taser, increasing the potential current in it and thus its recharge rate."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_red"
 	require_module = 1
 
 
@@ -253,7 +261,7 @@
 /obj/item/borg/upgrade/lasercooler
 	name = "robotic Rapid Laser Carbine Cooling Module"
 	desc = "Used to cool a mounted laser carbine, increasing the potential current in it and thus its recharge rate."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_red"
 	require_module = 1
 
 
@@ -285,7 +293,7 @@
 /obj/item/borg/upgrade/jetpack
 	name = "robot jetpack"
 	desc = "A carbon dioxide jetpack suitable for low-gravity operations."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_orange"
 	require_module = 1
 
 /obj/item/borg/upgrade/jetpack/action(mob/living/silicon/robot/R)
@@ -307,7 +315,7 @@
 /obj/item/borg/upgrade/visor/thermal
 	name = "thermal visor upgrade"
 	desc = "Module contains callibration settings for cyborg visial sensors (THERMAL)."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_red"
 	require_module = 1
 
 /obj/item/borg/upgrade/visor/thermal/action(mob/living/silicon/robot/R)
@@ -323,7 +331,7 @@
 /obj/item/borg/upgrade/visor/nvg
 	name = "night visor upgrade"
 	desc = "Module contains callibration settings for cyborg visial sensors (NIGHT VISION)."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_red"
 	require_module = 1
 
 /obj/item/borg/upgrade/visor/nvg/action(mob/living/silicon/robot/R)
@@ -355,7 +363,7 @@
 /obj/item/borg/upgrade/visor/meson
 	name = "meson visor upgrade"
 	desc = "Module contains callibration settings for cyborg visial sensors (MESON VISION)."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_brown"
 	require_module = 1
 
 /obj/item/borg/upgrade/visor/meson/action(mob/living/silicon/robot/R)
@@ -371,7 +379,7 @@
 /obj/item/borg/upgrade/visor/x_ray
 	name = "x-ray visor upgrade"
 	desc = "Module contains callibration settings for cyborg visial sensors (X-RAY)."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_black"
 	require_module = 1
 
 /obj/item/borg/upgrade/visor/x_ray/action(mob/living/silicon/robot/R)
@@ -387,7 +395,7 @@
 /obj/item/borg/upgrade/rcd
 	name = "engineering robot RCD"
 	desc = "A rapid construction device module for use during construction operations."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_orange"
 	require_module = 1
 
 /obj/item/borg/upgrade/rcd/action(mob/living/silicon/robot/R)
@@ -403,7 +411,7 @@
 /obj/item/borg/upgrade/rped
 	name = "science robot RPED"
 	desc = "Special mechanical module made to store, sort, and apply standard machine parts."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_orange"
 	require_module = 1
 
 /obj/item/borg/upgrade/rped/action(mob/living/silicon/robot/R)
@@ -419,7 +427,7 @@
 /obj/item/borg/upgrade/bb_printer
 	name = "bodybag printer"
 	desc = "Special printer module designed to rapidly manufacture bodybags."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_cyan"
 	require_module = 1
 
 /obj/item/borg/upgrade/bb_printer/action(mob/living/silicon/robot/R)
@@ -435,7 +443,7 @@
 /obj/item/borg/upgrade/paramedic
 	name = "paramedic module"
 	desc = "A paramedic kit for cyborgs."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_cyan"
 	require_module = 1
 
 /obj/item/borg/upgrade/paramedic/action(mob/living/silicon/robot/R)
@@ -448,7 +456,7 @@
 		R.module.synths += medicine
 		R.module.modules += new /obj/item/device/healthanalyzer(R.module)
 		R.module.modules += new /obj/item/roller_holder(R.module)
-		var/obj/item/stack/medical/bruise_pack/B = new /obj/item/stack/medical/bruise_pack(R.module)
+		var/obj/item/stack/medical/bandage/B = new /obj/item/stack/medical/bandage(R.module)
 		B.uses_charge = 1
 		B.charge_costs = list(1000)
 		B.synths = list(medicine)
@@ -460,7 +468,7 @@
 /obj/item/borg/upgrade/paperwork
 	name = "paperwork module"
 	desc = "A paperwork kit for cyborgs."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_blue"
 	require_module = 1
 
 /obj/item/borg/upgrade/paperwork/action(mob/living/silicon/robot/R)
@@ -482,7 +490,7 @@
 /obj/item/borg/upgrade/cargo_managment
 	name = "cargo managment module"
 	desc = "A tool kit for cargo manipulation."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_brown"
 	require_module = 1
 
 /obj/item/borg/upgrade/cargo_managment/action(mob/living/silicon/robot/R)
@@ -502,7 +510,7 @@
 /obj/item/borg/upgrade/detective
 	name = "detective module"
 	desc = "A detective kit for cyborgs."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_red"
 	require_module = 1
 
 /obj/item/borg/upgrade/detective/action(mob/living/silicon/robot/R)
@@ -530,7 +538,7 @@
 /obj/item/borg/upgrade/archeologist
 	name = "archeologist module"
 	desc = "A archeologist kit for cyborgs."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_purple"
 	require_module = 1
 
 /obj/item/borg/upgrade/archeologist/action(mob/living/silicon/robot/R)
@@ -578,7 +586,7 @@
 /obj/item/borg/upgrade/organ_printer
 	name = "organ synthesizer module"
 	desc = "Special printer module designed to rapidly manufacture organs and limbs."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_cyan"
 	require_module = 1
 
 /obj/item/borg/upgrade/organ_printer/action(mob/living/silicon/robot/R)
@@ -594,7 +602,7 @@
 /obj/item/borg/upgrade/blood_printer
 	name = "blood synthesizer module"
 	desc = "Special printer module designed to rapidly synthesize blood."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_cyan"
 	require_module = 1
 
 /obj/item/borg/upgrade/blood_printer/action(mob/living/silicon/robot/R)
@@ -610,7 +618,7 @@
 /obj/item/borg/upgrade/art
 	name = "art module"
 	desc = "Contains instruments to create an art, but can robots create art?"
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_yellow"
 	require_module = 1
 
 /obj/item/borg/upgrade/art/action(mob/living/silicon/robot/R)
@@ -627,7 +635,7 @@
 /obj/item/borg/upgrade/pipe_printer
 	name = "pipe printer module"
 	desc = "Special printer module designed to rapidly manufacture pipes."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_orange"
 	require_module = 1
 
 /obj/item/borg/upgrade/pipe_printer/action(mob/living/silicon/robot/R)
@@ -643,7 +651,7 @@
 /obj/item/borg/upgrade/engineer_printer
 	name = "construction parts printer module"
 	desc = "Special printer module designed to rapidly manufacture construction part and basic circuits."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_orange"
 	require_module = 1
 
 /obj/item/borg/upgrade/engineer_printer/action(mob/living/silicon/robot/R)
@@ -656,10 +664,10 @@
 		installed = 1
 		return 1
 
-/obj/item/borg/upgrade/syndicate/
+/obj/item/borg/upgrade/syndicate
 	name = "illegal equipment module"
 	desc = "Unlocks the hidden, deadlier functions of a robot."
-	icon_state = "cyborg_upgrade3"
+	icon_state = "cyborg_upgrade3_black"
 	require_module = 1
 
 /obj/item/borg/upgrade/syndicate/action(mob/living/silicon/robot/R)
@@ -674,7 +682,7 @@
 
 /obj/item/borg/upgrade/death_alarm
 	name = "death alarm module"
-	desc = "An alarm which monitors cyborg signals and transmits a radio message upon destruction."
+	desc = "A module which monitors a cyborg's status and transmits a radio message upon destruction."
 	icon_state = "cyborg_upgrade1"
 	origin_tech = list(TECH_MATERIAL = 2, TECH_DATA = 2)
 	var/mob/living/silicon/robot/host = null
@@ -690,9 +698,9 @@
 		var/area/default = world.area
 		location = initial(default.name)
 
-	var/death_message = "Message from [name] acquired successful. [host] has been destroyed in [location]!"
+	var/death_message = "[host] has been destroyed in [location]!"
 	if(!cause)
-		death_message = "Message from [name] acquired successful. [host] has been destroyed-zzzzt in-in-in..."
+		death_message = "[host] has been destroyed-zzzzt in-in-in..."
 	var/obj/item/robot_module/CH = host.module
 	for(var/channel in CH.channels)
 		if (channel != "Science")
@@ -721,10 +729,10 @@
 		activate("emp")	//let's shout that this borg is dead
 	if(severity == 1)
 		if(prob(60) && !broken)	//small chance of obvious meltdown
-			to_chat(host, "<span class='warning'>Your's \the [src] stopped recive signals!</span>")
+			to_chat(host, SPAN_WARNING("Your \the [src] stopped receiving signals!"))
 			broken = 1
 			name = "melted circuit"
-			desc = "Charred circuit. Wonder what that used to be..."
+			desc = "A charred circuit. Wonder what that used to be..."
 			set_next_think(0)
 
 /obj/item/borg/upgrade/death_alarm/action(mob/living/silicon/robot/R)
@@ -740,7 +748,7 @@
 /obj/item/borg/upgrade/integrated_circuit_upgrade
 	name = "integrated circuit module"
 	desc = "A system that allows cyborgs to create and use integrated circuit assemblies."
-	icon_state = "cyborg_upgrade1"
+	icon_state = "cyborg_upgrade1_purple"
 	origin_tech = list(TECH_DATA = 3, TECH_MATERIAL = 5)
 	require_module = 1
 

@@ -139,7 +139,7 @@
 	if(locate(/obj/effect/overlay/wallrot) in src)
 		if(isWelder(W))
 			var/obj/item/weldingtool/WT = W
-			if(!WT.use_tool(src, user, amount = 1))
+			if(!WT.use_tool(src, user, amount = 10))
 				return
 
 			to_chat(user, SPAN("notice","You burn away the fungi with \the [WT]."))
@@ -156,7 +156,7 @@
 	if(thermite)
 		if(isWelder(W))
 			var/obj/item/weldingtool/WT = W
-			if(!WT.use_tool(src, user, amount = 1))
+			if(!WT.use_tool(src, user, amount = 10))
 				return
 
 			thermitemelt(user)
@@ -182,7 +182,7 @@
 	if(damage && isWelder(W))
 		var/obj/item/weldingtool/WT = W
 		to_chat(user, SPAN("notice","You start repairing the damage to [src]."))
-		if(!WT.use_tool(src, user, delay = max(5, damage / 5), amount = 5))
+		if(!WT.use_tool(src, user, delay = max(5, damage / 5), amount = 50))
 			return
 
 		if(QDELETED(src) || !user)
@@ -203,7 +203,7 @@
 			var/obj/item/weldingtool/WT = W
 			to_chat(user, SPAN("notice", "You begin cutting through the outer plating."))
 
-			if(!WT.use_tool(src, user, cut_delay * 0.7, 5))
+			if(!WT.use_tool(src, user, cut_delay * 0.7, 50))
 				return
 
 			if(QDELETED(src) || !user)
@@ -233,7 +233,7 @@
 			if(cut_delay<0)
 				cut_delay = 0
 
-			if(!do_after(user, cut_delay, src))
+			if(!do_after(user, cut_delay, src, luck_check_type = LUCK_CHECK_ENG))
 				return
 
 			to_chat(user, SPAN("notice","You remove the outer plating."))
@@ -256,7 +256,7 @@
 				if(isScrewdriver(W))
 					to_chat(user, SPAN("notice","You begin removing the support lines."))
 					playsound(src, 'sound/items/Screwdriver.ogg', 100, 1)
-					if(!do_after(user,40,src) || !istype(src, /turf/simulated/wall) || construction_stage != 5)
+					if(!do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG) || !istype(src, /turf/simulated/wall) || construction_stage != 5)
 						return
 					construction_stage = 4
 					update_icon()
@@ -273,11 +273,11 @@
 			if(4)
 				if(isWelder(W))
 					var/obj/item/weldingtool/WT = W
-					if(!WT.use_tool(src, user, amount = 1))
+					if(!WT.use_tool(src, user, amount = 10))
 						return
 
 					to_chat(user, SPAN("notice","You begin slicing through the metal cover."))
-					if(!WT.use_tool(src, user, delay = 6 SECONDS, amount = 5) || !istype(src, /turf/simulated/wall) || construction_stage != 4)
+					if(!WT.use_tool(src, user, delay = 6 SECONDS, amount = 50) || !istype(src, /turf/simulated/wall) || construction_stage != 4)
 						return
 
 					if(QDELETED(src))
@@ -291,7 +291,7 @@
 				else if (istype(W, /obj/item/gun/energy/plasmacutter))
 					to_chat(user, SPAN("notice","You begin slicing through the metal cover."))
 					playsound(src, 'sound/items/Welder.ogg', 100, 1)
-					if(!do_after(user, 60, src) || !istype(src, /turf/simulated/wall) || construction_stage != 4)
+					if(!do_after(user, 60, src, luck_check_type = LUCK_CHECK_ENG) || !istype(src, /turf/simulated/wall) || construction_stage != 4)
 						return
 
 					if(QDELETED(src))
@@ -306,7 +306,7 @@
 				if(isCrowbar(W))
 					to_chat(user, SPAN("notice","You struggle to pry off the cover."))
 					playsound(src, 'sound/items/Crowbar.ogg', 100, 1)
-					if(!do_after(user,100,src) || !istype(src, /turf/simulated/wall) || construction_stage != 3)
+					if(!do_after(user, 100, src, luck_check_type = LUCK_CHECK_ENG) || !istype(src, /turf/simulated/wall) || construction_stage != 3)
 						return
 					construction_stage = 2
 					update_icon()
@@ -316,7 +316,7 @@
 				if(isWrench(W))
 					to_chat(user, SPAN("notice","You start loosening the anchoring bolts which secure the support rods to their frame."))
 					playsound(src, 'sound/items/Ratchet.ogg', 100, 1)
-					if(!do_after(user,40,src) || !istype(src, /turf/simulated/wall) || construction_stage != 2)
+					if(!do_after(user, 40, src, luck_check_type = LUCK_CHECK_ENG) || !istype(src, /turf/simulated/wall) || construction_stage != 2)
 						return
 					construction_stage = 1
 					update_icon()
@@ -326,7 +326,7 @@
 				if(isWelder(W))
 					var/obj/item/weldingtool/WT = W
 					to_chat(user, SPAN("notice","You begin slicing through the support rods."))
-					if(!WT.use_tool(src, user, delay = 7 SECONDS, amount = 5) || !istype(src, /turf/simulated/wall) || construction_stage != 1)
+					if(!WT.use_tool(src, user, delay = 7 SECONDS, amount = 50) || !istype(src, /turf/simulated/wall) || construction_stage != 1)
 						return
 
 					if(QDELETED(src))
@@ -341,7 +341,7 @@
 				else if(istype(W, /obj/item/gun/energy/plasmacutter))
 					to_chat(user, SPAN("notice","You begin slicing through the support rods."))
 					playsound(src, 'sound/items/Welder.ogg', 100, 1)
-					if(!do_after(user,70,src) || !istype(src, /turf/simulated/wall) || construction_stage != 1)
+					if(!do_after(user, 70, src, luck_check_type = LUCK_CHECK_ENG) || !istype(src, /turf/simulated/wall) || construction_stage != 1)
 						return
 
 					if(QDELETED(src))
@@ -357,8 +357,8 @@
 				if(isCrowbar(W))
 					to_chat(user, SPAN("notice","You struggle to pry off the outer sheath."))
 					playsound(src, 'sound/items/Crowbar.ogg', 100, 1)
-					if(!do_after(user,100,src) || !istype(src, /turf/simulated/wall) || !user || !W || !T )	return
-					if(user.loc == T && user.get_active_hand() == W )
+					if(!do_after(user, 100, src, luck_check_type = LUCK_CHECK_ENG) || !istype(src, /turf/simulated/wall) || !user || !W || !T )	return
+					if(user.loc == T && user.has_in_hands(W))
 						to_chat(user, SPAN("notice","You pry off the outer sheath."))
 						dismantle_wall(TRUE)
 					return
@@ -374,7 +374,7 @@
 		var/dam_threshhold = material.integrity
 		if(reinf_material)
 			dam_threshhold = ceil(max(dam_threshhold,reinf_material.integrity)/2)
-		user.setClickCooldown(W.update_attack_cooldown())
+		W.set_cooldown()
 		user.do_attack_animation(src)
 		var/dam_prob = min(100, material.hardness*1.5)
 		if(dam_prob < 100 && W.force > (dam_threshhold/10))

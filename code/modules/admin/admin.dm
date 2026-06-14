@@ -77,6 +77,7 @@ var/global/floorIsLava = 0
 		<A href='?_src_=holder;warn=[M.ckey]'>Warn</A> |
 		<A href='?src=\ref[src];newban=\ref[M]'>Ban</A> |
 		<A href='?src=\ref[src];jobban2=\ref[M]'>Jobban</A> |
+		<A href='?src=\ref[src];hellban=\ref[M]'>Hellban</A> |
 		<A href='?src=\ref[src];notes=show;mob=\ref[M]'>Notes</A>
 	"}
 
@@ -160,12 +161,12 @@ var/global/floorIsLava = 0
 				<A href='?src=\ref[src];simplemake=human;species=Xenomorph Queen;mob=\ref[M]'>Queen</A> \] |
 				\[ Crew: <A href='?src=\ref[src];simplemake=human;mob=\ref[M]'>Human</A>
 				<A href='?src=\ref[src];simplemake=human;species=Unathi;mob=\ref[M]'>Unathi</A>
-				<A href='?src=\ref[src];simplemake=human;species=Tajaran;mob=\ref[M]'>Tajaran</A>
+				<A href='?src=\ref[src];simplemake=human;species=Tajara;mob=\ref[M]'>Tajaran</A>
 				<A href='?src=\ref[src];simplemake=human;species=Skrell;mob=\ref[M]'>Skrell</A>
 				<A href='?src=\ref[src];simplemake=human;species=Trottine;mob=\ref[M]'>Trottine</A>
 				<A href='?src=\ref[src];simplemake=human;species=Vox;mob=\ref[M]'>Vox</A> \] | \[
 				<A href='?src=\ref[src];simplemake=nymph;mob=\ref[M]'>Nymph</A>
-				<A href='?src=\ref[src];simplemake=human;species='Diona';mob=\ref[M]'>Diona</A> \] |
+				<A href='?src=\ref[src];simplemake=human;species=Diona;mob=\ref[M]'>Diona</A> \] |
 				\[ metroid: <A href='?src=\ref[src];simplemake=metroid;mob=\ref[M]'>Baby</A>,
 				<A href='?src=\ref[src];simplemake=adultmetroid;mob=\ref[M]'>Adult</A> \]
 				<A href='?src=\ref[src];simplemake=monkey;mob=\ref[M]'>Monkey</A> |
@@ -934,10 +935,10 @@ var/global/floorIsLava = 0
 	SSticker.round_progressing = !SSticker.round_progressing
 	if (!SSticker.round_progressing)
 		to_world("<b>The game start has been delayed.</b>")
-		log_admin("[key_name(usr)] delayed the game.")
+		log_and_message_admins("delayed the game.")
 	else
 		to_world("<b>The game will start soon.</b>")
-		log_admin("[key_name(usr)] removed the delay.")
+		log_and_message_admins("removed the delay.")
 	feedback_add_details("admin_verb","DELAY") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /datum/admins/proc/adjump()
@@ -977,6 +978,34 @@ var/global/floorIsLava = 0
 	else
 		alert("[M.name] is not prisoned.")
 	feedback_add_details("admin_verb","UP") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
+
+/datum/admins/proc/ring_unready()
+	set category = "Server"
+	set desc = "(Pre-round only) Send an audio and text notification to all non-ready players."
+	set name = "Ring Unready"
+
+	if(!check_rights(R_SERVER))
+		return
+
+	if(GAME_STATE > RUNLEVEL_LOBBY)
+		to_chat(usr, "Ring Unready is only available during the pre-round lobby.")
+		return
+
+	var/secs_to_roundstart = round(SSticker.pregame_timeleft / 10)
+	var/players_rung = 0
+
+	for(var/mob/new_player/player in GLOB.player_list)
+		if(player.ready)
+			continue
+
+		to_chat(player, "<font size = '6'>READY UP! The round is starting in [secs_to_roundstart] seconds!</font>")
+		sound_to(player, sound('sound/effects/adminhelp.ogg'))
+		players_rung++
+
+	to_chat(usr, "[players_rung] unready players notified.")
+	log_and_message_admins("notified [players_rung] unready players.")
+
+	feedback_add_details("admin_verb","RING") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 ////////////////////////////////////////////////////////////////////////////////////////////////ADMIN HELPER PROCS
 
@@ -1025,13 +1054,13 @@ var/global/floorIsLava = 0
 
 	if(!check_rights(R_SPAWN))	return
 
-	var/owner = input("Select a ckey.", "Spawn Custom Item") as null|anything in custom_items
-	if(!owner|| !custom_items[owner])
+	var/owner = input("Select a ckey.", "Spawn Custom Item") as null|anything in config.custom.items
+	if(!owner|| !config.custom.items[owner])
 		return
 
-	var/list/possible_items = custom_items[owner]
+	var/list/possible_items = config.custom.items[owner]
 	var/datum/custom_item/item_to_spawn = input("Select an item to spawn.", "Spawn Custom Item") as null|anything in possible_items
-	if(!item_to_spawn || !item_to_spawn.is_valid(usr))
+	if(!item_to_spawn)
 		return
 
 	item_to_spawn.spawn_item(get_turf(usr))
@@ -1042,21 +1071,18 @@ var/global/floorIsLava = 0
 	set desc = "Check the custom item list."
 	set name = "Check Custom Items"
 
-	if(!check_rights(R_SPAWN))	return
-
-	if(!custom_items)
-		to_chat(usr, "Custom item list is null.")
+	if(!check_rights(R_SPAWN))
 		return
 
-	if(!custom_items.len)
+	if(!length(config.custom.items))
 		to_chat(usr, "Custom item list not populated.")
 		return
 
-	for(var/assoc_key in custom_items)
+	for(var/assoc_key in config.custom.items)
 		to_chat(usr, "[assoc_key] has:")
-		var/list/current_items = custom_items[assoc_key]
+		var/list/current_items = config.custom.items[assoc_key]
 		for(var/datum/custom_item/item in current_items)
-			to_chat(usr, "- name: [item.name] icon: [item.item_icon] path: [item.item_path] desc: [item.item_desc]")
+			to_chat(usr, "- path: [item.item_path] patreon_type: [item.patreon_type] req_job: [json_encode(item.req_job)] flags: [json_encode(item.flags)]")
 
 /datum/admins/proc/spawn_plant(seedtype in SSplants.seeds)
 	set category = "Debug"
@@ -1534,3 +1560,26 @@ datum/admins/var/obj/item/paper/admin/faxreply // var to hold fax replies in
 		return
 
 	SSlobby.change_lobby_art(chosen_one)
+
+/datum/admins/proc/change_lobby_music()
+	set name = "Change Lobby Music"
+	set category = "Server"
+
+	if(!check_rights(R_SERVER))
+		return
+
+	var/list/music_choices = list()
+	for (var/type in typesof(/lobby_music))
+		var/lobby_music/temp = new type()
+		music_choices[temp.title] = type
+
+	var/choice = input("Choose a new lobby music to set.", "Lobby Music") as null|anything in music_choices
+
+	if (choice)
+		var/lobby_music/M = music_choices[choice]
+		GLOB.lobby_music = new M()
+		message_admins("[key_name(usr)] has changed lobby music to [M.title].")
+		for(var/client/C in GLOB.clients)
+			if(C.mob && isnewplayer(C.mob))
+				sound_to(C, sound(null, repeat = 0, wait = 0, volume = 0, channel = 1))
+				C.playtitlemusic()

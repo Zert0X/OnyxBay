@@ -45,7 +45,7 @@
 		if(istype(loc, /mob/living))
 			var/mob/living/carbon/human/host = loc
 			if(istype(host))
-				for(var/obj/item/organ/external/organ in host.organs)
+				for(var/obj/item/organ/external/organ in host.external_organs)
 					for(var/obj/item/O in organ.implants)
 						if(O == src)
 							organ.implants -= src
@@ -98,7 +98,8 @@
 	canremove = FALSE
 	force_drop = TRUE
 
-/obj/item/finger_lockpick/New()
+/obj/item/finger_lockpick/Initialize()
+	. = ..()
 	if(ismob(loc))
 		to_chat(loc, SPAN("changeling", "We shape our finger to fit inside electronics, and are ready to force them open."))
 

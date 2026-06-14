@@ -1,9 +1,3 @@
-#define FOR_DVIEW(type, range, center, invis_flags) \
-	GLOB.dview_mob.loc = center; \
-	GLOB.dview_mob.see_invisible = invis_flags; \
-	for(type in view(range, GLOB.dview_mob))
-
-#define END_FOR_DVIEW GLOB.dview_mob.loc = null
 
 #define LIGHTING_ICON 'icons/effects/lighting_overlay.dmi' // icon used for lighting shading effects
 #define LIGHTING_ICON_STATE_DARK "dark" // Change between "soft_dark" and "dark" to swap soft darkvision
@@ -30,3 +24,18 @@
 #define LIGHTMODE_ALARM "alarm"
 #define LIGHTMODE_READY "ready"
 #define LIGHTMODE_RADSTORM "radiation_storm"
+
+#define ADDITIVE_LIGHTING_PLANE_ALPHA_MAX 255
+#define ADDITIVE_LIGHTING_PLANE_ALPHA_NORMAL 128
+#define ADDITIVE_LIGHTING_PLANE_ALPHA_INVISIBLE 0
+
+#define GLOW_BRIGHTNESS_BASE_DEF 0.46
+#define GLOW_BRIGHTNESS_POWER_DEF -1.6
+#define GLOW_CONTRAST_BASE_DEF 1.0
+#define GLOW_CONTRAST_POWER_DEF 0.25
+#define EXPOSURE_BRIGHTNESS_BASE_DEF 0.2
+#define EXPOSURE_BRIGHTNESS_POWER_DEF -0.2
+#define EXPOSURE_CONTRAST_BASE_DEF 10
+#define EXPOSURE_CONTRAST_POWER_DEF 0
+
+#define LIGHTING_ANIMATE_TIME   1.5

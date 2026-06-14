@@ -48,6 +48,15 @@ GLOBAL_VAR_CONST(PREF_DARKNESS_INVISIBLE, "Invisible")
 GLOBAL_VAR_CONST(PREF_SPLASH_MAPTEXT, "Maptext only")
 GLOBAL_VAR_CONST(PREF_SPLASH_CHAT, "Chat only")
 GLOBAL_VAR_CONST(PREF_SPLASH_BOTH, "Maptext and chat")
+GLOBAL_VAR_CONST(PREF_ENABLED, "Enabled")
+GLOBAL_VAR_CONST(PREF_DISABLED, "Disabled")
+GLOBAL_VAR_CONST(PREF_CLICK_PRECISION_NONE, "Disabled")
+GLOBAL_VAR_CONST(PREF_CLICK_PRECISION_1DS,  "0.1s")
+GLOBAL_VAR_CONST(PREF_CLICK_PRECISION_2DS,  "0.2s")
+GLOBAL_VAR_CONST(PREF_CLICK_PRECISION_3DS,  "0.3s")
+GLOBAL_VAR_CONST(PREF_CLICK_PRECISION_4DS,  "0.4s")
+GLOBAL_VAR_CONST(PREF_CLICK_PRECISION_5DS,  "0.5s")
+
 
 var/global/list/_client_preferences
 var/global/list/_client_preferences_by_key
@@ -147,7 +156,20 @@ var/global/list/_client_preferences_by_type
 		if(isnewplayer(preference_mob) && preference_mob.client)
 			GLOB.lobby_music.play_to(preference_mob.client)
 	else
-		sound_to(preference_mob.client, sound(null, repeat = 0, wait = 0, volume = 85, channel = 1))
+		sound_to(preference_mob.client, sound(null, repeat = 0, wait = 0, volume = 0, channel = 1))
+
+/datum/client_preference/volume_lobby_music
+	description ="Lobby music volume"
+	key = "SOUND_LOBBY_VOLUME"
+	category = PREF_CATEGORY_AUDIO
+	options = list(GLOB.PREF_LOW, GLOB.PREF_MED, GLOB.PREF_HIGH)
+	default_value = GLOB.PREF_MED
+
+/datum/client_preference/volume_lobby_music/changed(mob/preference_mob, new_value)
+	if(isnewplayer(preference_mob) && preference_mob.client)
+		var/sound/S = sound(channel = 1, volume = GLOB.lobby_music.get_volume_from_pref(new_value))
+		S.status = SOUND_UPDATE
+		sound_to(preference_mob.client, S)
 
 /datum/client_preference/play_ambiance
 	description ="Play ambience"
@@ -249,6 +271,30 @@ var/global/list/_client_preferences_by_type
 	category = PREF_CATEGORY_CONTROL
 	options = list(GLOB.PREF_MIDDLE_CLICK, GLOB.PREF_CTRL_CLICK, GLOB.PREF_ALT_CLICK, GLOB.PREF_CTRL_SHIFT_CLICK)
 
+/datum/client_preference/click_precision_assist
+	description = "Click Precision Assist Time"
+	key = "CLICK_PRECISION_ASSIST"
+	category = PREF_CATEGORY_CONTROL
+	default_value = GLOB.PREF_CLICK_PRECISION_2DS
+	options = list(GLOB.PREF_CLICK_PRECISION_NONE, GLOB.PREF_CLICK_PRECISION_1DS, GLOB.PREF_CLICK_PRECISION_2DS, GLOB.PREF_CLICK_PRECISION_3DS, GLOB.PREF_CLICK_PRECISION_4DS, GLOB.PREF_CLICK_PRECISION_5DS)
+
+/datum/client_preference/click_precision_assist/changed(mob/preference_mob, new_value)
+	if(!istype(preference_mob))
+		return
+	switch(new_value)
+		if(GLOB.PREF_CLICK_PRECISION_NONE)
+			preference_mob?.client.mouse_click_opportunity_window = 0
+		if(GLOB.PREF_CLICK_PRECISION_1DS)
+			preference_mob?.client.mouse_click_opportunity_window = 1
+		if(GLOB.PREF_CLICK_PRECISION_2DS)
+			preference_mob?.client.mouse_click_opportunity_window = 2
+		if(GLOB.PREF_CLICK_PRECISION_3DS)
+			preference_mob?.client.mouse_click_opportunity_window = 3
+		if(GLOB.PREF_CLICK_PRECISION_4DS)
+			preference_mob?.client.mouse_click_opportunity_window = 4
+		if(GLOB.PREF_CLICK_PRECISION_5DS)
+			preference_mob?.client.mouse_click_opportunity_window = 5
+
 /datum/client_preference/tgui_style
 	description = "TGUI Style"
 	key = "TGUI_FANCY"
@@ -315,8 +361,56 @@ var/global/list/_client_preferences_by_type
 	options = list(GLOB.PREF_YES, GLOB.PREF_NO)
 
 /datum/client_preference/ambient_occlusion/changed(mob/preference_mob, new_value)
-	if(preference_mob?.client)
-		var/atom/movable/renderer/R = preference_mob.renderers[GAME_RENDERER]
+	if(isnull(preference_mob.client))
+		return
+
+	var/atom/movable/renderer/R = A_LAZYACCESS(preference_mob.renderers, GAME_RENDERER)
+	if(istype(R))
+		R.GraphicsUpdate()
+
+/datum/client_preference/glow
+	description = "Lighting: Lamp Glow"
+	key = "LAMP_GLOW"
+	category = PREF_CATEGORY_GRAPHICS
+	default_value = GLOB.PREF_MED
+	options = list(GLOB.PREF_OFF, GLOB.PREF_LOW, GLOB.PREF_MED, GLOB.PREF_HIGH)
+
+/datum/client_preference/glow/changed(mob/preference_mob, new_value)
+	if(isnull(preference_mob.client))
+		return
+
+	var/atom/movable/renderer/R = A_LAZYACCESS(preference_mob.renderers, LIGHTING_LAMPS_GLOW_RENDERER)
+	if(istype(R))
+		R.GraphicsUpdate()
+
+/datum/client_preference/glare
+	description = "Lighting: Lamp Glare"
+	key = "LAMP_GLARE"
+	category = PREF_CATEGORY_GRAPHICS
+	default_value = GLOB.PREF_ENABLED
+	options = list(GLOB.PREF_ENABLED, GLOB.PREF_DISABLED)
+
+/datum/client_preference/glare/changed(mob/preference_mob, new_value)
+	if(isnull(preference_mob.client))
+		return
+
+	var/atom/movable/renderer/R = A_LAZYACCESS(preference_mob.renderers, LIGHTING_LAMPS_GLARE_RENDERER)
+	if(istype(R))
+		R.GraphicsUpdate()
+
+/datum/client_preference/exposure
+	description = "Lighting: Lamp Exposure"
+	key = "LAMP_EXPOSURE"
+	category = PREF_CATEGORY_GRAPHICS
+	default_value = GLOB.PREF_ENABLED
+	options = list(GLOB.PREF_ENABLED, GLOB.PREF_DISABLED)
+
+/datum/client_preference/exposure/changed(mob/preference_mob, new_value)
+	if(isnull(preference_mob.client))
+		return
+
+	var/atom/movable/renderer/R = A_LAZYACCESS(preference_mob.renderers, ADDITIVE_LIGHTING_RENDERER)
+	if(istype(R))
 		R.GraphicsUpdate()
 
 /datum/client_preference/graphics_quality
@@ -330,8 +424,9 @@ var/global/list/_client_preferences_by_type
 	if(isnull(preference_mob.client))
 		return
 
-	var/atom/movable/renderer/R = preference_mob.renderers[TEMPERATURE_EFFECT_RENDERER]
-	R.GraphicsUpdate()
+	var/atom/movable/renderer/R = A_LAZYACCESS(preference_mob.renderers, TEMPERATURE_EFFECT_RENDERER)
+	if(istype(R))
+		R.GraphicsUpdate()
 
 /datum/client_preference/pixel_size
 	description = "Pixel Size"
@@ -421,12 +516,6 @@ var/global/list/_client_preferences_by_type
 	ASSERT(given_client)
 	return given_client.donator_info.patron_type
 
-/datum/client_preference/default_hotkey_mode
-	description = "Default Hotkey Mode"
-	key = "DEFAULT_HOTKEY_MODE"
-	category = PREF_CATEGORY_CONTROL
-	default_value = GLOB.PREF_NO
-
 /********************
 * Ghost Preferences *
 ********************/
@@ -446,18 +535,21 @@ var/global/list/_client_preferences_by_type
 	key = "CHAT_GHOSTEARS"
 	category = PREF_CATEGORY_GHOST
 	options = list(GLOB.PREF_ALL_SPEECH, GLOB.PREF_NEARBY)
+	default_value = GLOB.PREF_NEARBY
 
 /datum/client_preference/ghost_sight
 	description = "Ghost sight"
 	key = "CHAT_GHOSTSIGHT"
 	category = PREF_CATEGORY_GHOST
 	options = list(GLOB.PREF_ALL_EMOTES, GLOB.PREF_NEARBY)
+	default_value = GLOB.PREF_NEARBY
 
 /datum/client_preference/ghost_radio
 	description = "Ghost radio"
 	key = "CHAT_GHOSTRADIO"
 	category = PREF_CATEGORY_GHOST
 	options = list(GLOB.PREF_ALL_CHATTER, GLOB.PREF_NEARBY)
+	default_value = GLOB.PREF_NEARBY
 
 /datum/client_preference/ghost_follow_link_length
 	description = "Ghost Follow Links"
@@ -494,6 +586,7 @@ var/global/list/_client_preferences_by_type
 	description = "Ghost lighting"
 	key = "GHOST_DARKVISION"
 	category = PREF_CATEGORY_GHOST
+	default_value = GLOB.PREF_DARKNESS_MOSTLY_VISIBLE
 	options = list(GLOB.PREF_DARKNESS_VISIBLE, GLOB.PREF_DARKNESS_MOSTLY_VISIBLE, GLOB.PREF_DARKNESS_BARELY_VISIBLE, GLOB.PREF_DARKNESS_INVISIBLE)
 
 /********************
@@ -560,18 +653,4 @@ var/global/list/_client_preferences_by_type
 	description = "Play Pray Sound"
 	key = "SOUND_PRAY"
 	category = PREF_CATEGORY_STAFF
-	flags = R_PERMISSIONS
-
-/datum/client_preference/staff/fast_mc_refresh
-	description = "Fast MC Refresh"
-	key = "FAST_REFRESH"
-	category = PREF_CATEGORY_STAFF
-	default_value = GLOB.PREF_NO
-	flags = R_DEBUG
-
-/datum/client_preference/staff/split_admin_tabs
-	description = "Split Admin Tabs"
-	key = "SPLIT_TABS"
-	category = PREF_CATEGORY_STAFF
-	default_value = GLOB.PREF_NO
 	flags = R_PERMISSIONS

@@ -165,7 +165,7 @@
 				continue
 		M.sleeping = 0
 		M.stuttering += 20
-		M.ear_deaf += 30
+		M.adjustEarDamage(null, 30)
 		M.Weaken(3)
 		if(prob(30))
 			M.Stun(10)
@@ -200,10 +200,10 @@
 		wrench_floor_bolts(user, 0)
 		power_change()
 		return
-	else if(istype(W, /obj/item/card/id) || istype(W, /obj/item/device/pda))
-		if(allowed(user))
+	else if(W?.get_id_card())
+		if(check_access(W))
 			locked = !locked
-			to_chat(user, "The tape holder is now [locked ? "locked." : "unlocked."]")
+			to_chat(user, "The tape holder is now [locked ? "locked" : "unlocked"].")
 		else
 			to_chat(user, SPAN_WARNING("Access denied."))
 		return
@@ -253,7 +253,7 @@
 	if(!spamcheck && prob(RICKROLL_PROBABILITY))
 		lock_rickroll()
 	// Jukeboxes cheat massively and actually don't share id. This is only done because it's music rather than ambient noise.
-	sound_token = GLOB.sound_player.PlayLoopingSound(src, sound_id, current_track.GetTrack(), volume = volume, range = 7, falloff = 3, prefer_mute = TRUE, preference = /datum/client_preference/play_jukeboxes, streaming = TRUE)
+	sound_token = GLOB.sound_player.PlayLoopingSound(src, sound_id, current_track.GetTrack(), volume = volume, range = 7, falloff = 3, prefer_mute = TRUE, preference = /datum/client_preference/play_jukeboxes, streaming = TRUE, is_spatial = FALSE)
 
 	playing = 1
 	update_use_power(POWER_USE_ACTIVE)

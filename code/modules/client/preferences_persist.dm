@@ -72,6 +72,33 @@
 
 	clear_character_previews() // Recalculate them on next show
 
+// Returns a deep copy of the character data as an assoc list (no disk write).
+/datum/preferences/proc/snapshot_character()
+	var/datum/pref_record_writer/json_list/W = new(PREF_SER_VERSION)
+	player_setup.save_character(W)
+	return deep_copy_assoc(W.data)
+
+// Recursively deep-copies a list including both indexed and associated values.
+/datum/preferences/proc/deep_copy_assoc(list/L)
+	if(!islist(L))
+		return L
+	var/list/copy = L.Copy()
+	// Deep-copy indexed values (handles numeric-indexed lists like gear_list)
+	for(var/i = 1 to copy.len)
+		if(islist(copy[i]))
+			copy[i] = deep_copy_assoc(copy[i])
+	// Deep-copy associated values (handles assoc lists like data["gear_list"])
+	for(var/key in copy)
+		if(istext(key) && islist(copy[key]))
+			copy[key] = deep_copy_assoc(copy[key])
+	return copy
+
+// Restores character data from a snapshot produced by snapshot_character().
+/datum/preferences/proc/restore_character_snapshot(list/snapshot)
+	var/datum/pref_record_reader/json_list/R = new /datum/pref_record_reader/json_list(snapshot)
+	player_setup.load_character(R)
+	sanitize_preferences()
+
 /datum/preferences/proc/save_character(override_key = null)
 	var/datum/pref_record_writer/json_list/W = new(PREF_SER_VERSION)
 	player_setup.save_character(W)
@@ -86,5 +113,33 @@
 /datum/preferences/proc/sanitize_preferences()
 	player_setup.sanitize_setup()
 	return 1
+
+/datum/preferences/proc/get_lp_cost()
+	total_lpoints_cost = player_setup.get_lp_cost()
+	return total_lpoints_cost
+
+/datum/preferences/proc/get_loadout_points_cost()
+	return player_setup.get_loadout_points_cost()
+
+/datum/preferences/proc/is_default_module(organ_tag, module_path)
+	if(!organ_tag || !module_path)
+		return FALSE
+	var/datum/robolimb/R = GLOB.all_robolimbs[rlimb_data[organ_tag]]
+	if(!R || !R.default_modules)
+		return FALSE
+	return (module_path in R.default_modules)
+
+/datum/preferences/proc/get_aug_cost()
+	total_aug_points = 0
+	for(var/organ_tag in BP_ALL_LIMBS + BP_INTERNAL_ORGANS)
+		for(var/obj/item/organ_module/mod as anything in organ_modules[organ_tag])
+			if(initial(mod.module_type) == OM_TYPE_ACTUATOR)
+				continue
+			if(is_default_module(organ_tag, mod))
+				continue
+			if(initial(mod.augment_cost) <= 0)
+				continue
+			total_aug_points += initial(mod.augment_cost)
+	return total_aug_points
 
 #undef PREF_SER_VERSION

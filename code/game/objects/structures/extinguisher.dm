@@ -1,5 +1,5 @@
-#define MIN_EMAGGED_REAGENTS_VOLUME 1
-#define MAX_EMAGGED_REAGENTS_VOLUME 300
+#define MIN_EMAGGED_REAGENTS_VOLUME 10 MILLI LITERS
+#define MAX_EMAGGED_REAGENTS_VOLUME 3 LITERS
 
 /obj/structure/extinguisher_cabinet
 	name = "extinguisher cabinet"
@@ -75,11 +75,7 @@
 
 	if(ishuman(user))
 		var/mob/living/carbon/human/H = user
-		var/obj/item/organ/external/temp = H.organs_by_name[BP_R_HAND]
-		if(user.hand)
-			temp = H.organs_by_name[BP_L_HAND]
-		if(temp && !temp.is_usable())
-			to_chat(user, SPAN_NOTICE("You try to move your [temp.name], but cannot!"))
+		if(!H.is_hand_usable())
 			return
 
 	if(has_extinguisher)

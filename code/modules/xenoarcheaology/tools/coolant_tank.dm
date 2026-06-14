@@ -3,11 +3,11 @@
 	desc = "A tank of industrial coolant"
 	icon = 'icons/obj/objects.dmi'
 	icon_state = "coolanttank"
-	amount_per_transfer_from_this = 10
+	amount_per_transfer_from_this = 100
 
 /obj/structure/reagent_dispensers/coolanttank/New()
 	..()
-	reagents.add_reagent(/datum/reagent/coolant, 1000)
+	reagents.add_reagent(/datum/reagent/coolant, 10 LITERS)
 
 /obj/structure/reagent_dispensers/coolanttank/bullet_act(obj/item/projectile/Proj)
 	if(Proj.get_structure_damage())
@@ -26,9 +26,9 @@
 
 	var/datum/gas_mixture/env = src.loc.return_air()
 	if(env)
-		if (reagents.total_volume > 750)
+		if (reagents.total_volume > 7.5 LITERS)
 			env.temperature = 0
-		else if (reagents.total_volume > 500)
+		else if (reagents.total_volume > 5.0 LITERS)
 			env.temperature -= 100
 		else
 			env.temperature -= 50

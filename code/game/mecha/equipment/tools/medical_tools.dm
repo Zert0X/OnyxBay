@@ -178,8 +178,8 @@
 		return 0
 	var/to_inject = min(R.volume, inject_amount)
 	if(to_inject && occupant.reagents.get_reagent_amount(R.type) + to_inject <= inject_amount*2)
-		occupant_message("Injecting [occupant] with [to_inject] units of [R.name].")
-		log_message("Injecting [occupant] with [to_inject] units of [R.name].")
+		occupant_message("Injecting [occupant] with [to_inject] ml of [R.name].")
+		log_message("Injecting [occupant] with [to_inject] ml of [R.name].")
 		SG.reagents.trans_type_to(occupant,R.type,to_inject)
 		update_equip_info()
 	return
@@ -208,7 +208,7 @@
 		return
 	if(M.health > 0)
 		M.adjustOxyLoss(-1)
-		M.updatehealth()
+		M.update_health()
 	M.AdjustStunned(-4)
 	M.AdjustWeakened(-4)
 	M.AdjustStunned(-4)
@@ -226,7 +226,7 @@
 	var/list/known_reagents
 	var/list/processed_reagents
 	var/max_syringes = 10
-	var/max_volume = 75 //max reagent volume
+	var/max_volume = 750 //max reagent volume
 	var/synth_speed = 5 //[num] reagent units per cycle
 	energy_drain = 2 KILO WATTS // Synthetises things, so it's quite power-hungry
 	var/mode = 0 //0 - fire syringe, 1 - analyze reagents.

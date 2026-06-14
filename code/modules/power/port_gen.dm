@@ -295,6 +295,7 @@
 		playsound(loc, 'sound/items/Ratchet.ogg', 50, 1)
 		to_chat(user, SPAN_NOTICE("You [anchored ? "unwrench" : "wrench"] \the [src] [anchored ? "from" : "into"] place."))
 		anchored = !anchored
+		connect_to_network()
 	if(default_deconstruction_screwdriver(user, W))
 		return
 	if(default_deconstruction_crowbar(user, W))
@@ -456,18 +457,18 @@
 	anchored = 1
 
 /obj/machinery/power/port_gen/pacman/super/potato/New()
-	create_reagents(120)
+	create_reagents(1.2 LITERS)
 	..()
 
 /obj/machinery/power/port_gen/pacman/super/potato/examine(mob/user, infix)
 	. = ..()
-	. += "Auxilary tank shows [reagents.total_volume]u of liquid in it."
+	. += "Auxilary tank shows [reagents.total_volume]ml of liquid in it."
 
 /obj/machinery/power/port_gen/pacman/super/potato/UseFuel()
 	if(reagents.has_reagent("vodka"))
 		rad_power = 2
 		temperature_gain = 60
-		reagents.remove_any(1)
+		reagents.remove_any(10)
 		if(prob(2))
 			audible_message("<span class='notice'>[src] churns happily</span>", splash_override = "*churn*")
 	else

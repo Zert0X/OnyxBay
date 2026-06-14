@@ -1,9 +1,8 @@
 /mob/living/carbon/human/proc/isAggresiveStrip(mob/living/user)
-	if (user.a_intent == "help")
-		return FALSE
-	for (var/obj/item/grab/G in grabbed_by)
-		if (G.force_danger())
+	for(var/obj/item/grab/G in grabbed_by)
+		if(G.force_danger())
 			return TRUE
+
 	return FALSE
 
 /mob/living/carbon/human/proc/handle_strip(slot_to_strip_text, mob/living/user, obj/item/clothing/holder)
@@ -179,7 +178,7 @@
 // Remove all splints.
 /mob/living/carbon/human/proc/remove_splints(mob/living/user)
 	var/removed_splint = 0
-	for(var/obj/item/organ/external/o in organs)
+	for(var/obj/item/organ/external/o in external_organs)
 		if (o && o.splinted)
 			var/obj/item/S = o.splinted
 			if(!istype(S) || S.loc != o) //can only remove splints that are actually worn on the organ (deals with powersuit splints)

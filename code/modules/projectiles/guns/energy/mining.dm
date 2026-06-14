@@ -11,7 +11,7 @@
 	icon_state = "kineticgun"
 	item_state = "kineticgun"
 	charge_meter = 0
-	fire_delay = 16
+	fire_delay = 1.6 SECONDS
 	force = 11.5
 	mod_weight = 1.15
 	mod_reach = 0.9
@@ -23,6 +23,7 @@
 	var/max_mod_capacity = 100
 	var/list/modkits = list()
 	combustion = FALSE
+	space_recoil = TRUE
 
 /obj/item/gun/energy/kinetic_accelerator/attack_self(mob/living/user as mob)
 	if(power_supply.charge < power_supply.maxcharge)
@@ -119,7 +120,7 @@
 				M.GetDrilled(1)
 	if(mob_aoe)
 		for(var/mob/living/L in range(1, target_turf) - firer - target)
-			L.apply_damage(damage*mob_aoe, damage_type, def_zone, armor)
+			L.apply_damage(damage*mob_aoe, damage_type, def_zone)
 			to_chat(L, "<span class='danger'>You're struck by a [name]!</span>")
 
 

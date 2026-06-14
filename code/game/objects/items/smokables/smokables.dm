@@ -17,12 +17,9 @@
 	var/filter_trans = 0.5
 	var/smoke_effect = 0
 
-/obj/item/clothing/mask/smokable/New()
-	..()
-	atom_flags |= ATOM_FLAG_OPEN_CONTAINER
-
 /obj/item/clothing/mask/smokable/Initialize()
 	. = ..()
+	atom_flags |= ATOM_FLAG_OPEN_CONTAINER
 	create_reagents(chem_volume) // making the cigarrete a chemical holder with a maximum volume of [chem_volume]
 
 /obj/item/clothing/mask/smokable/Destroy()
@@ -74,8 +71,8 @@
 		if(H.head && istype(H.head, /obj/item/clothing/head/cardborg))
 			H.visible_message(SPAN("danger", "[src] ignites \the [H.head], and sets [H] on fire!"), \
 							  SPAN("danger", "[src] ignites \the [H.head] on your head. You are on fire!"))
-			H.adjust_fire_stacks(1)
-			H.IgniteMob()
+			H.adjust_fire_stacks(10)
+			H.IgniteMob(TRUE)
 
 	set_next_think(world.time + 1 SECOND)
 

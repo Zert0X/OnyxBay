@@ -1,5 +1,6 @@
 /obj/item/circuitboard/atmoscontrol
 	name = "\improper Central Atmospherics Computer Circuitboard"
+	icon_state = "id_mod_orange"
 	build_path = /obj/machinery/computer/atmoscontrol
 
 /obj/machinery/computer/atmoscontrol
@@ -25,6 +26,7 @@
 	icon_keyboard = "laptop_key"
 	icon_screen = "atmoslaptop"
 	density = 0
+	turf_height_offset = 0
 
 /obj/machinery/computer/atmoscontrol/attack_ai(mob/user as mob)
 	ui_interact(user)

@@ -9,7 +9,7 @@
 	belt = /obj/item/gun/energy/pulse_rifle/pistol
 	back = /obj/item/storage/backpack/satchel
 	shoes = /obj/item/clothing/shoes/combat
-	gloves = /obj/item/clothing/gloves/thick/combat
+	gloves = /obj/item/clothing/gloves/swat/combat
 
 	id_slot = slot_wear_id
 	id_type = /obj/item/card/id/centcom/ERT
@@ -18,7 +18,7 @@
 
 /decl/hierarchy/outfit/spec_op_officer/space
 	name = "Spec Ops - Officer in space"
-	suit = /obj/item/clothing/suit/space/void/swat
+	suit = /obj/item/clothing/suit/space/void/deathsquad
 	back = /obj/item/tank/jetpack/oxygen
 	mask = /obj/item/clothing/mask/gas/swat
 
@@ -28,7 +28,7 @@
 	name = "Spec Ops - Emergency response team"
 	uniform = /obj/item/clothing/under/ert
 	shoes = /obj/item/clothing/shoes/swat
-	gloves = /obj/item/clothing/gloves/thick/swat
+	gloves = /obj/item/clothing/gloves/swat
 	l_ear = /obj/item/device/radio/headset/ert
 	belt = /obj/item/gun/energy/gun
 	glasses = /obj/item/clothing/glasses/sunglasses
@@ -58,7 +58,7 @@
 	l_ear = /obj/item/device/radio/headset/syndicate
 	belt = /obj/item/storage/belt/security
 	glasses = /obj/item/clothing/glasses/sunglasses
-	gloves = /obj/item/clothing/gloves/thick/swat
+	gloves = /obj/item/clothing/gloves/swat
 
 	l_pocket = /obj/item/reagent_containers/pill/cyanide
 

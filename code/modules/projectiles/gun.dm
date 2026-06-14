@@ -60,6 +60,7 @@
 	var/far_fire_sound = null
 	var/fire_sound_text = "gunshot"
 	var/screen_shake = 0 //shouldn't be greater than 2 unless zoomed
+	var/space_recoil = FALSE // Extravehicular combat is fun
 	var/silenced = 0
 	var/accuracy = 0   //accuracy is measured in tiles. +1 accuracy means that everything is effectively one tile closer for the purpose of miss chance, -1 means the opposite. launchers are not supported, at the moment.
 	var/scoped_accuracy = null
@@ -96,6 +97,26 @@
 	drop_sound = SFX_DROP_GUN
 	pickup_sound = SFX_PICKUP_GUN
 
+/*
+ *  HEAT MECHANIC VARS
+ *
+*/
+	/// heat on this gun. at over 100 heat stops you from firing and goes on cooldown
+	var/heat_amount = 0
+	///heat that we add every successful fire()
+	var/heat_per_fire = 0
+	///heat reduction per second
+	var/cool_amount = 5
+	/// Whether this gun is in overheat mode and on cooldown until it cools
+	var/on_overheat = FALSE
+	///multiplier on cool amount to determine overheat time
+	var/overheat_multiplier = 1.1
+	///image we create to keep track of heat
+	var/image/heat_bar/heat_meter
+
+	/// Whether this gun has smoke particles
+	var/has_smoke_particles = FALSE
+
 /obj/item/gun/Initialize()
 	. = ..()
 	for(var/i in 1 to firemodes.len)
@@ -108,6 +129,8 @@
 		verbs |= /obj/item/gun/proc/toggle_safety_verb
 
 	add_think_ctx("autofire_context", CALLBACK(src, nameof(.proc/handle_autofire)), 0)
+	add_think_ctx("overheat_context", CALLBACK(src, nameof(.proc/end_overheat)), 0)
+	set_next_think(world.time + 1 SECOND)
 
 /obj/item/gun/Destroy()
 	// autofire timer is automatically cleaned up
@@ -131,11 +154,15 @@
 		autofiring_by = fire_by
 		if(!already_autofiring)
 			already_autofiring = TRUE
-			set_next_think_ctx("autofire_context", world.time + burst_delay)
+			set_next_think_ctx("autofire_context", world.time)
 	else
 		clear_autofire()
 
 /obj/item/gun/proc/clear_autofire()
+	if(already_autofiring)
+		next_fire_time = world.time + fire_delay // No Arc Raiders' Kettle gameplay, please
+		. = TRUE
+
 	autofiring_at = null
 	autofiring_by = null
 	already_autofiring = FALSE
@@ -146,7 +173,7 @@
 	. = TRUE
 	if(QDELETED(autofiring_at) || QDELETED(autofiring_by))
 		. = FALSE
-	else if(autofiring_by.get_active_hand() != src || autofiring_by.incapacitated())
+	else if(!autofiring_by.has_in_hands(src) || autofiring_by.incapacitated())
 		. = FALSE
 	else if(!autofiring_by.client || !(autofiring_by in view(autofiring_by.client.view, autofiring_by)))
 		. = FALSE
@@ -167,12 +194,12 @@
 		var/mob/living/M = loc
 		if(istype(M))
 			if(M.can_wield_item(src) && is_held_twohanded(M))
-				item_state_slots[slot_l_hand_str] = wielded_item_state
-				item_state_slots[slot_r_hand_str] = wielded_item_state
+				A_LAZYSET(item_state_slots, slot_l_hand_str, wielded_item_state)
+				A_LAZYSET(item_state_slots, slot_r_hand_str, wielded_item_state)
 				improper_held_icon = TRUE
 			else
-				item_state_slots[slot_l_hand_str] = initial(item_state)
-				item_state_slots[slot_r_hand_str] = initial(item_state)
+				A_LAZYSET(item_state_slots, slot_l_hand_str, (base_icon_state || initial(item_state)))
+				A_LAZYSET(item_state_slots, slot_r_hand_str, (base_icon_state || initial(item_state)))
 				improper_held_icon = FALSE
 	update_held_icon()
 
@@ -196,6 +223,10 @@
 		return FALSE
 	if(!user.IsAdvancedToolUser())
 		return FALSE
+
+	if(!prob(user.client?.get_luck_for_type(LUCK_CHECK_COMBAT)))
+		show_splash_text(user, "Gun misfires!", SPAN_DANGER("Your Gun misfires!"))
+		return
 
 	var/mob/living/M = user
 	if(is_pacifist(user))
@@ -228,7 +259,8 @@
 		O.emp_act(severity)
 
 /obj/item/gun/afterattack(atom/A, mob/living/user, adjacent, params)
-	if(adjacent) return //A is adjacent, is the user, or is on the user's person
+	if(adjacent)
+		return //A is adjacent, is the user, or is on the user's person
 
 	if(!user.aiming)
 		user.aiming = new(user)
@@ -238,6 +270,12 @@
 		return
 
 	Fire(A, user, params, target_zone = user.zone_sel?.selecting) //Otherwise, fire normally.
+
+/obj/item/gun/resolve_attackby(atom/A, mob/user, click_params)
+	if(user.a_intent != I_HURT || !user.Adjacent(A) || ismob(A) || ismob(A.loc))
+		return ..()
+	Fire(A, user, click_params, target_zone = user.zone_sel?.selecting)
+	return TRUE
 
 /obj/item/gun/attack(atom/A, mob/living/user, def_zone)
 	if(ishuman(A) && user.zone_sel.selecting == BP_MOUTH && user.a_intent != I_HURT && !weapon_in_mouth)
@@ -267,28 +305,41 @@
 			to_chat(firer, SPAN_WARNING("[src] is not ready to fire again!"))
 		return
 
-	var/shoot_time = (burst - 1)* burst_delay
+	// Handling heat now
+	if(!heat_amount && heat_per_fire != 0 )
+		set_next_think(world.time + 1 SECOND)
+		heat_amount += heat_per_fire
+
+	if(on_overheat)
+		show_splash_text(firer, "Overheat!", SPAN_DANGER("\The [src] is not ready to fire!"))
+		return
+
+	var/shoot_time = max((burst - 1) * burst_delay, 1)
 
 	var/held_twohanded = TRUE
 
 	if(ismob(firer))
 		var/mob/user = firer
-		user.setClickCooldown(shoot_time) //no clicking on things while shooting
-		user.setMoveCooldown(shoot_time) //no moving while shooting either
+		set_cooldown(shoot_time) // no beating things while shooting
+		user.setMoveCooldown(shoot_time) // no moving while shooting either
 		held_twohanded = user.can_wield_item(src) && src.is_held_twohanded(user)
 
 	next_fire_time = world.time + shoot_time
 
 	//actually attempt to shoot
 	var/turf/targloc = get_turf(target) //cache this in case target gets deleted during shooting, e.g. if it was a securitron that got destroyed.
-	var/fired = FALSE
+	var/obj/projectile
 	for(var/i in 1 to burst)
-		var/obj/projectile = consume_next_projectile(firer)
+		projectile = consume_next_projectile(firer)
 		if(!projectile)
 			handle_click_empty(firer)
 			break
 
-		fired = TRUE
+		if(ismob(firer))
+			var/mob/living/A = firer
+			if(!A.aura_check(AURA_TYPE_BULLET, projectile, target_zone, firer))
+				target = firer
+				targloc = get_turf(target)
 		process_accuracy(projectile, firer, target, i, held_twohanded)
 
 		if(pointblank)
@@ -312,20 +363,42 @@
 			pointblank = 0
 
 	//update timing
-	var/turf/T = get_turf(firer)
-	var/area/A = get_area(T)
 	if(ismob(firer))
 		var/mob/user = firer
-
-		if(((istype(T, /turf/space)) || (A.has_gravity == FALSE)) && fired)
-			user.inertia_dir = get_dir(target, src)
-			user.setMoveCooldown(shoot_time) //no moving while shooting either
-			step(user, user.inertia_dir) // they're in space, move em in the opposite direction
-
-		user.setClickCooldown(DEFAULT_QUICK_COOLDOWN)
+		if(space_recoil && istype(projectile) && user.can_slip(magboots_only = TRUE))
+			var/old_dir = user.dir
+			user.inertia_ignore = projectile
+			step(user, get_dir(target, user))
+			user.set_dir(old_dir)
 		user.setMoveCooldown(move_delay)
 
-	next_fire_time = world.time + fire_delay
+	if(heat_amount >= 100)
+		overheat()
+
+	if(!autofire_enabled) // Let the autofire handling do its thing.
+		next_fire_time = world.time + fire_delay
+
+/obj/item/gun/proc/overheat()
+	on_overheat = TRUE
+	playsound(src, 'sound/effects/weapons/misc/gun_overheat.ogg', 25, 1, 5)
+	/// overheat gives either you a bonus or penalty depending on gun, by default it is +10% time.
+	var/overheat_time = ((heat_amount / cool_amount * overheat_multiplier) SECONDS)
+	new /atom/movable/particle_emitter/attachable/overheat_smoke(src, overheat_time)
+	set_next_think_ctx("overheat_context", world.time + overheat_time)
+
+/obj/item/gun/proc/end_overheat()
+	on_overheat = FALSE
+	heat_amount = 0
+	for(var/atom/movable/particle_emitter/attachable/overheat_smoke/S in contents)
+		QDEL_NULL(S)
+
+/obj/item/gun/think()
+	heat_amount = max(0, heat_amount - cool_amount)
+	if(!heat_amount)
+		set_next_think(0)
+		return
+
+	set_next_think(world.time + 1 SECOND)
 
 //obtains the next projectile to fire
 /obj/item/gun/proc/consume_next_projectile()
@@ -397,6 +470,13 @@
 		if(screen_shake)
 			INVOKE_ASYNC(GLOBAL_PROC, /proc/directional_recoil, user, screen_shake+1, Get_Angle(user, target))
 
+	if(has_smoke_particles)
+		var/firing_angle = Get_Angle(firer, target)
+		var/x_component = sin(firing_angle) * 40
+		var/y_component = cos(firing_angle) * 40
+		var/atom/movable/particle_emitter/firing_smoke/firing_smoke = new(get_turf(src))
+		firing_smoke.particles.velocity = list(x_component, y_component)
+
 	if(combustion)
 		var/turf/curloc = get_turf(src)
 		curloc.hotspot_expose(700, 5)
@@ -459,9 +539,6 @@
 	if(!istype(P))
 		return 0 //default behaviour only applies to true projectiles
 
-	if(params)
-		P.set_clickpoint(params)
-
 	//shooting while in shock
 	var/shock_dispersion = 0
 	if(istype(firer, /mob/living/carbon/human))
@@ -478,8 +555,14 @@
 
 	return launched
 
+/obj/item/gun/var/override_fire_sound = null // When set, takes priority over the projectile's fire_sound
+
 /obj/item/gun/proc/play_fire_sound(atom/movable/firer, obj/item/projectile/P)
-	var/shot_sound = (istype(P) && P.fire_sound)? P.fire_sound : fire_sound
+	var/shot_sound
+	if(override_fire_sound)
+		shot_sound = override_fire_sound
+	else
+		shot_sound = (istype(P) && P.fire_sound)? P.fire_sound : fire_sound
 
 	if (!silenced)
 		playsound(loc, shot_sound, rand(85, 95), extrarange = 10, falloff = 1) // it should be LOUD // TODO: Normalize all fire sound files so every volume is closely same
@@ -542,13 +625,16 @@
 /obj/item/gun/var/weapon_in_mouth = FALSE
 
 /obj/item/gun/proc/handle_war_crime(mob/living/carbon/human/user, mob/living/carbon/human/target)
-	var/obj/item/grab/G = user.get_inactive_hand()
+	var/obj/item/grab/G = user.get_passive_hand()
+	if(!istype(G))
+		return
+
 	if(G?.affecting == target)
 		if(!G?.current_grab?.can_absorb)
 			to_chat(user, SPAN_NOTICE("You need a better grab for this."))
 			return
 
-		var/obj/item/organ/external/head/head = target.organs_by_name[BP_HEAD]
+		var/obj/item/organ/external/head/head = target.external_organs_by_name[BP_HEAD]
 		if(!istype(head))
 			to_chat(user, SPAN_NOTICE("You can't shoot in [target]'s mouth because you can't find their head."))
 			return

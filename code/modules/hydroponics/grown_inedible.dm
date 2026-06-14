@@ -54,6 +54,7 @@
 	icon = 'icons/obj/items.dmi'
 	icon_state = "banana_peel"
 	item_state = "banana_peel"
+	color = "#FFEC58"
 	w_class = ITEM_SIZE_SMALL
 	throwforce = 0
 	throw_range = 20
@@ -63,3 +64,8 @@
 		return
 	if(!M.resting && M.m_intent != M_WALK)
 		M.slip_on_obj(src, 2, 2)
+
+/obj/item/bananapeel/lubanana
+	name = "lubanana peel"
+	desc = "A peel from a lubanana."
+	color = "#BEECD1"

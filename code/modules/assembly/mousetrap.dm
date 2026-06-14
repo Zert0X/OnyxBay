@@ -41,12 +41,18 @@
 					affecting = H.get_organ(type)
 					H.Stun(3)
 		if(affecting)
-			affecting.take_external_damage(1, 0)
-			H.updatehealth()
+			affecting.take_blunt_damage(3, src)
+			H.update_health()
 	else if(ismouse(target))
 		var/mob/living/simple_animal/mouse/M = target
-		visible_message("<span class='danger'>SPLAT!</span>")
+		visible_message(SPAN("danger", "SPLAT!"))
 		M.splat()
+	else if(istype(target, /mob/living/simple_animal/hamster) || istype(target, /mob/living/simple_animal/lizard))
+		var/mob/living/simple_animal/splatee = target
+		visible_message(SPAN("danger", "SPLAT!"))
+		splatee.adjustBruteLoss(splatee.maxHealth)  // Enough damage to kill
+		splatee.death()
+
 	playsound(target.loc, 'sound/effects/snap.ogg', 50, 1)
 	reset_plane_and_layer()
 	armed = FALSE
@@ -58,9 +64,7 @@
 		to_chat(user, "<span class='notice'>You arm [src].</span>")
 	else
 		if((MUTATION_CLUMSY in user.mutations) && prob(50))
-			var/which_hand = BP_L_HAND
-			if(!user.hand)
-				which_hand = BP_R_HAND
+			var/which_hand = (user.active_hand == ACTIVE_HAND_LEFT) ? BP_L_HAND : BP_R_HAND
 			triggered(user, which_hand)
 			user.visible_message("<span class='warning'>[user] accidentally sets off [src], breaking their fingers.</span>", \
 									"<span class='warning'>You accidentally trigger [src]!</span>")
@@ -73,9 +77,7 @@
 /obj/item/device/assembly/mousetrap/attack_hand(mob/living/user as mob)
 	if(armed)
 		if((MUTATION_CLUMSY in user.mutations) && prob(50))
-			var/which_hand = BP_L_HAND
-			if(!user.hand)
-				which_hand = BP_R_HAND
+			var/which_hand = (user.active_hand == ACTIVE_HAND_LEFT) ? BP_L_HAND : BP_R_HAND
 			triggered(user, which_hand)
 			user.visible_message("<span class='warning'>[user] accidentally sets off [src], breaking their fingers.</span>", \
 									"<span class='warning'>You accidentally trigger [src]!</span>")
@@ -91,7 +93,7 @@
 				triggered(H)
 				H.visible_message("<span class='warning'>[H] accidentally steps on [src].</span>", \
 									"<span class='warning'>You accidentally step on [src]</span>")
-		if(ismouse(AM))
+		if(ismouse(AM) || istype(AM, /mob/living/simple_animal/hamster) || istype(AM, /mob/living/simple_animal/lizard))
 			triggered(AM)
 	..()
 
@@ -99,17 +101,16 @@
 	if(armed)
 		finder.visible_message("<span class='warning'>[finder] accidentally sets off [src], breaking their fingers.</span>", \
 								"<span class='warning'>You accidentally trigger [src]!</span>")
-		triggered(finder, finder.hand ? BP_L_HAND : BP_R_HAND)
+		triggered(finder, (finder.active_hand == ACTIVE_HAND_LEFT) ? BP_L_HAND : BP_R_HAND)
 		return TRUE
 
 	return FALSE
 
-/obj/item/device/assembly/mousetrap/hitby(atom/movable/A)
-	if(!armed)
-		return ..()
-
-	visible_message("<span class='warning'>[src] is triggered by [A].</span>")
-	triggered(null)
+/obj/item/device/assembly/mousetrap/hitby(atom/movable/A, datum/thrownthing/TT)
+	..()
+	if(armed)
+		visible_message("<span class='warning'>[src] is triggered by [A].</span>")
+		triggered(A)
 
 /obj/item/device/assembly/mousetrap/armed
 	icon_state = "mousetraparmed"

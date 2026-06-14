@@ -23,17 +23,14 @@
 /obj/structure/spider/attackby(obj/item/W, mob/user)
 	user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
 
-	if(W.attack_verb.len)
-		visible_message("<span class='warning'>\The [src] have been [pick(W.attack_verb)] with \the [W][(user ? " by [user]." : ".")]</span>")
-	else
-		visible_message("<span class='warning'>\The [src] have been attacked with \the [W][(user ? " by [user]." : ".")]</span>")
+	visible_message("<span class='warning'>\The [src] have been [pick(W.attack_verb)] with \the [W][(user ? " by [user]." : ".")]</span>")
 
 	var/damage = W.force / 4.0
 
 	if(isWelder(W))
 		var/obj/item/weldingtool/WT = W
 
-		if(WT.use_tool(src, user, amount = 1))
+		if(WT.use_tool(src, user, amount = 10))
 			damage = 15
 
 	health -= damage
@@ -75,7 +72,7 @@
 /obj/structure/spider/stickyweb/sealed/attack_generic(mob/user, damage, attack_verb, wallbreaker)
     if(istype (user, /mob/living/simple_animal/hostile/giant_spider))
         user.visible_message(SPAN_WARNING("[user] begins to claw through the [src]!"), "You begin to claw through the [src].")
-        if(do_after(user, 50, target = src))
+        if(do_after(user, 50, target = src, luck_check_type = LUCK_CHECK_COMBAT))
             user.visible_message(SPAN_WARNING("[user] ruptures [src] open!"), "You succesfully claw through the [src].")
             health = 0
             healthcheck ()
@@ -113,7 +110,7 @@
 	var/obj/machinery/atmospherics/unary/vent_pump/entry_vent
 	var/travelling_in_vent = 0
 	var/dormant = FALSE    // If dormant, does not add the spiderling to the process list unless it's also growing
-	var/growth_chance = 50 // % chance of beginning growth, and eventually become a beautiful death machine
+	var/growth_chance = 80 // % chance of beginning growth, and eventually becoming a beautiful death machine
 
 	var/directive = "" //Message from the mother
 	var/faction = "spiders"
@@ -293,7 +290,7 @@
 			if(O.owner)
 				O.owner.apply_damage(1, BRUTE, O.organ_tag)
 		else if(prob(1))
-			O.owner.apply_damage(1, TOX, O.organ_tag)
+			O.owner.apply_damage(5, TOX, O.organ_tag)
 			if(world.time > last_itch + 30 SECONDS)
 				last_itch = world.time
 				to_chat(O.owner, "<span class='notice'>Your [O.name] itches...</span>")
@@ -328,7 +325,7 @@
 	user.last_special = world.time + 100
 	to_chat(user, SPAN_NOTICE("You struggle against the tight bonds... (This will take about [time2text(breakout_time)].)"))
 	visible_message(SPAN_NOTICE("You see something struggling and writhing in \the [src]!"))
-	if(do_after(user,(breakout_time), target = src))
+	if(do_after(user,(breakout_time), target = src, luck_check_type = LUCK_CHECK_COMBAT))
 		if(!user || user.stat != CONSCIOUS || user.loc != src)
 			return
 		qdel(src)

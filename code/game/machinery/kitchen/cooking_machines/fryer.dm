@@ -7,6 +7,11 @@
 	off_icon = "fryer_off"
 	food_color = "#ffad33"
 
+	var/list/allowed_to_jump = list(
+		/mob/living/simple_animal/mouse,
+		/mob/living/simple_animal/hamster
+	)
+
 /obj/machinery/cooker/fryer/hurt_big_mob(mob/living/victim, mob/user)
 
 	if(!istype(victim))
@@ -48,3 +53,25 @@
 	icon_state = off_icon
 	is_cooking = 0
 	return
+
+/obj/machinery/cooker/fryer/MouseDrop_T(atom/movable/dropping, mob/living/user)
+	if(!is_type_in_list(user, allowed_to_jump))
+		return ..()
+	if(!Adjacent(user) || dropping != user || user.stat)
+		return
+	if(stat & (NOPOWER|BROKEN) || product_status())
+		return
+
+	user.visible_message(SPAN("notice", "\The [user] jumps into \the [src]."))
+	is_cooking = TRUE
+	cooking_is_done = FALSE
+	thing_inside = user
+	thing_inside.forceMove(src)
+	icon_state = on_icon
+
+	user.death()
+	user.hiding = FALSE
+	user.reset_layer()
+	
+	cooking_done_time = world.time + cook_time
+	START_PROCESSING(SSmachines, src)

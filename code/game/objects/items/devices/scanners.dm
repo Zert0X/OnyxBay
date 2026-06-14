@@ -86,6 +86,12 @@ REAGENT SCANNER
 	var/p_name = list()
 	p_name = SPAN("notice", "<b>Scan results for \the [H]:</b>")
 
+	if(issilicon(H))
+		return (p_name + "<hr><span class='danger'>ERROR - Non-organic patient</span>")
+
+	if(!istype(H))
+		return (p_name + "<hr><span class='danger'>ERROR - Nonstandard biology</span>")
+
 	// Brain activity.
 	var/brain_data = list()
 	var/brain_result = "normal"
@@ -155,10 +161,24 @@ REAGENT SCANNER
 	// Other general warnings.
 	if(H.getOxyLoss() > 50)
 		status_data += "<span class='info'><b>Severe oxygen deprivation detected.</b></span>"
-	if(H.getToxLoss() > 50)
+
+	var/toxLoss = H.getToxLoss()
+	if(toxLoss > 80)
+		status_data += "<font color='lime'><b>Extreme toxic buildup detected.</b></font>"
+	else if(toxLoss > 50)
+		status_data += "<font color='lime'><b>Severe toxic buildup detected.</b></font>"
+	else if(toxLoss > 20)
+		status_data += "<font color='lime'><b>Mild toxic buildup detected.</b></font>"
+
+	var/internalLoss = H.getInternalLoss()
+	if(internalLoss > 100)
 		status_data += "<font color='black'><b>Major systemic organ failure detected.</b></font>"
+	else if(internalLoss > 50)
+		status_data += "<font color='black'><b>Systemic organ failure detected.</b></font>"
+
 	if(H.getFireLoss() > 50)
 		status_data += "<font color='#ffa500'><b>Severe burn damage detected.</b></font>"
+
 	if(H.getBruteLoss() > 50)
 		status_data += "<font color='red'><b>Severe anatomical damage detected.</b></font>"
 
@@ -169,7 +189,7 @@ REAGENT SCANNER
 		else if(H.shock_stage > 80)
 			status_data += "<span class='warning'>Patient is at serious risk of going into shock. Pain relief recommended.</span>"
 		var/is_bleeding
-		for(var/obj/item/organ/external/E in H.organs)
+		for(var/obj/item/organ/external/E in H.external_organs)
 			if(E.status & ORGAN_BLEEDING)
 				is_bleeding = TRUE
 				break
@@ -177,6 +197,10 @@ REAGENT SCANNER
 			status_data += "<span class='danger'>Patient is unstable, administer a single dose of inaprovaline.</span>"
 		if(H.get_blood_volume() <= 500 && H.nutrition < 150)
 			status_data += "<span class='warning'>Administer food or recommend the patient to eat.</span>"
+		if(H.hydration <= HYDRATION_NONE)
+			status_data += "<span class='danger'>Severe dehydration! Administer liquid intake immediately.</span>"
+		else if(H.hydration <= HYDRATION_LOW)
+			status_data += "<span class='warning'>Mild dehydration: administer liquid intake or recommend the patient to drink.</span>"
 
 	var/specific_limb_data = list()
 	var/overall_limbs_data = list()
@@ -193,23 +217,31 @@ REAGENT SCANNER
 	if(verbose)
 		specific_limb_data += "<span class='notice'><b>Specific limb damage:</b></span>"
 
-		for(var/obj/item/organ/external/E in H.organs)
-			var/limb_damaged	//in some cases we dont need apply this flag cause it already will be applied
+		for(var/obj/item/organ/external/E in H.external_organs)
+			var/limb_damaged // in some cases we dont need apply this flag cause it already will be applied
 			var/limb_result = "<b>[capitalize(E.name)][(BP_IS_ROBOTIC(E)) ? " (Cybernetic)" : ""]:</b>"
+
 			if(E.is_stump())
 				limb_damaged = TRUE
 				limb_result = "<span class='danger'><b>[capitalize(E.name)]</b></span>"
 				specific_limb_data += limb_result
 				continue
+
 			if(E.brute_dam > 0)
 				limb_damaged = TRUE
-				limb_result = "[limb_result] \[<span class='scanner_red'><b>[get_wound_severity(E.brute_ratio, (E.limb_flags & ORGAN_FLAG_HEALS_OVERKILL))] physical trauma</b></span>\]"
+				if(E.blunt_dam > 0)
+					limb_result = "[limb_result] \[<span class='scanner_red'><b>[get_wound_severity(E.blunt_ratio)] blunt trauma</b></span>\]"
+				if(E.cut_dam > 0 || E.pierce_dam > 0)
+					limb_result = "[limb_result] \[<span class='scanner_red'><b>[get_wound_severity(max(E.cut_ratio, E.pierce_ratio))] penetrating trauma</b></span>\]"
+
 			if(E.burn_dam > 0)
 				limb_damaged = TRUE
 				limb_result = "[limb_result] \[<span class='scanner_yellow'><b>[get_wound_severity(E.burn_ratio, (E.limb_flags & ORGAN_FLAG_HEALS_OVERKILL))] burns</b></span>\]"
+
 			if(E.status & ORGAN_BLEEDING)
 				limb_damaged = TRUE
 				limb_result = "[limb_result] \[<span class='scanner_red'>bleeding</span>\]"
+
 			if(E.status & ORGAN_BROKEN)
 				limb_damaged = TRUE
 				if(((E.organ_tag == BP_L_ARM) || (E.organ_tag == BP_R_ARM) || (E.organ_tag == BP_L_LEG) || (E.organ_tag == BP_R_LEG)) && (!E.splinted))
@@ -217,28 +249,22 @@ REAGENT SCANNER
 					found_fracture = TRUE
 				else
 					found_closed_fracture = TRUE
-			for(var/datum/wound/W in E.wounds)
-				if (W.damage_type == CUT && W.current_stage <= W.max_bleeding_stage && !W.bandaged)
-					limb_result = "[limb_result] \[<span class='danger'>open wound</span>\]"
-					break
-			if(E.has_infected_wound())
-				limb_damaged = TRUE
-				if(E.germ_level >= INFECTION_LEVEL_THREE)
-					limb_result = "[limb_result] \[<span class='danger'>extreme infection</span>\]"
-					found_extreme_infection = TRUE
-				else
-					limb_result = "[limb_result] \[<span class='danger'>infection</span>\]"
+
 			if(!found_bleed && (E.status & ORGAN_ARTERY_CUT))
 				found_bleed = TRUE
+
 			if(!found_tendon && (E.status & ORGAN_TENDON_CUT))
 				limb_damaged = TRUE
 				found_tendon = TRUE
+
 			if(!found_disloc && E.dislocated == 2)
 				limb_damaged = TRUE
 				found_disloc = TRUE
-			if (limb_damaged)
+
+			if(limb_damaged)
 				specific_limb_data += limb_result
 				found_injuries = TRUE
+
 		if (!found_injuries)
 			specific_limb_data += "No detectable limb injuries."
 
@@ -372,7 +398,7 @@ REAGENT SCANNER
 
 
 // Calculates severity based on the ratios defined external limbs.
-/proc/get_wound_severity(damage_ratio, vital = 0)
+/proc/get_wound_severity(damage_ratio)
 	var/degree
 
 	switch(damage_ratio)
@@ -387,10 +413,7 @@ REAGENT SCANNER
 		if(0.75 to 1)
 			degree = "extreme"
 		else
-			if(vital)
-				degree = "critical"
-			else
-				degree = "irreparable"
+			degree = "critical"
 
 	return degree
 
@@ -526,7 +549,7 @@ REAGENT SCANNER
 
 /obj/item/device/mass_spectrometer/New()
 	..()
-	create_reagents(5)
+	create_reagents(50)
 
 /obj/item/device/mass_spectrometer/on_reagent_change()
 	update_icon()
@@ -557,14 +580,14 @@ REAGENT SCANNER
 		for(var/T in blood_traces)
 			var/datum/reagent/R = text2path(T)
 			if(details)
-				dat += "[initial(R.name)] ([blood_traces[T]] units) "
+				dat += "[initial(R.name)] ([blood_traces[T]] ml) "
 			else
 				dat += "[initial(R.name)] "
 		if(details)
 			dat += "\nMetabolism Products of Chemicals Found:"
 			for(var/T in blood_doses)
 				var/datum/reagent/R = text2path(T)
-				dat += "[initial(R.name)] ([blood_doses[T]] units) "
+				dat += "[initial(R.name)] ([blood_doses[T]] ml) "
 		to_chat(user, "[dat]")
 		reagents.clear_reagents()
 	return
@@ -613,7 +636,7 @@ REAGENT SCANNER
 		var/list/reagents_block
 
 		for(var/datum/reagent/reagent in target.reagents.reagent_list)
-			LAZYADD(reagents_block, SPAN_NOTICE("[round(reagent.volume, 0.001)] units of [reagent.name]\n"))
+			LAZYADD(reagents_block, SPAN_NOTICE("[round(reagent.volume, 0.001)] ml of [reagent.name]\n"))
 
 		if(!length(reagents_block))
 			LAZYADD(reagents_out, SPAN_NOTICE("No active chemical agents found in \the [target]."))

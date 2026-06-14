@@ -146,8 +146,8 @@
 		new_item_state = wielded ? wielded_item_state : initial(item_state)
 	else
 		new_item_state = "[base_item_state][wielded]"
-	item_state_slots[slot_l_hand_str] = new_item_state
-	item_state_slots[slot_r_hand_str] = new_item_state
+	A_LAZYSET(item_state_slots, slot_l_hand_str, new_item_state)
+	A_LAZYSET(item_state_slots, slot_r_hand_str, new_item_state)
 
 /obj/item/balloon/update_twohanding()
 	if(!wieldable)
@@ -203,7 +203,7 @@
 	if(isobserver(usr) || usr.restrained() || !usr.Adjacent(src) || !isturf(loc))
 		return FALSE
 
-	remove_verb(loc, /obj/item/balloon/verb/deflate)
+	verbs -= /obj/item/balloon/verb/deflate
 	playsound(loc, 'sound/machines/hiss.ogg', 50, 1)
 	var/obj/item/balloon_flat/BF = new /obj/item/balloon_flat(loc)
 	BF.color = color

@@ -28,6 +28,7 @@
 	var/stop_automated_movement = 0 //Use this to temporarely stop random movement or to if you write special movement code for animals.
 	var/wander = 1	// Does the mob wander around when idle?
 	var/stop_automated_movement_when_pulled = 1 //When set to 1 this stops the animal from moving when someone is pulling it.
+	var/skip_spacemove = FALSE // Set to TRUE to ignore slipping while EVA
 
 	//Interaction
 	var/response_help   = "tries to help"
@@ -67,6 +68,7 @@
 	var/damtype = BRUTE
 	var/defense = "melee"
 	var/bodyparts = /decl/simple_animal_bodyparts // Fake bodyparts that can be shown when hit by projectiles.
+	var/burnt_remains = /obj/effect/decal/cleanable/ash // What's left of us when we get burnt out of existence.
 
 	//Null rod stuff
 	var/supernatural = 0
@@ -82,6 +84,8 @@
 	. = ..()
 	if(is_pet)
 		mob_ai = new /datum/mob_ai/pet()
+	else if(ispath(mob_ai))
+		mob_ai = new mob_ai()
 	else
 		mob_ai = new()
 	mob_ai.holder = src
@@ -118,13 +122,11 @@
 	handle_paralysed()
 	handle_supernatural()
 
-	mob_ai.attempt_escape()
-
-	mob_ai.process_moving()
-
-	mob_ai.process_speaking()
-
-	mob_ai.process_special_actions()
+	if(mob_ai)
+		mob_ai.attempt_escape()
+		mob_ai.process_moving()
+		mob_ai.process_speaking()
+		mob_ai.process_special_actions()
 
 	if(in_stasis)
 		return 1
@@ -220,38 +222,33 @@
 
 /mob/living/simple_animal/attackby(obj/item/O, mob/user)
 	if(istype(O, /obj/item/stack/medical))
-		if(!is_ooc_dead())
-			var/obj/item/stack/medical/MED = O
-			if(!MED.animal_heal)
-				to_chat(user, "<span class='notice'>That [MED] won't help \the [src] at all!</span>")
-				return
-			if(health < maxHealth)
-				if(MED.amount >= 1)
-					adjustBruteLoss(-MED.animal_heal)
-					MED.amount -= 1
-					if(MED.amount <= 0)
-						qdel(MED)
-					for(var/mob/M in viewers(src, null))
-						if ((M.client && !( M.blinded )))
-							M.show_message("<span class='notice'>[user] applies the [MED] on [src].</span>")
-		else
-			to_chat(user, "<span class='notice'>\The [src] is dead, medical items won't bring \him back to life.</span>")
+		if(is_ooc_dead())
+			to_chat(user, SPAN("notice", "\The [src] is dead, medical items won't bring \him back to life."))
+			return
+
+		if(health >= maxHealth)
+			to_chat(user, SPAN("notice", "\The [src] doesn't seem to need medical treatment."))
+			return
+
+		O.attack(src, user, user.zone_sel.selecting)
 		return
+
 	if(meat_type && (is_ooc_dead()))	//if the animal has a meat, and if it is dead.
 		if(istype(O, /obj/item/material/knife) || istype(O, /obj/item/material/knife/butch))
 			harvest(user)
-	else
-		if(!O.force)
-			visible_message("<span class='notice'>[user] gently taps [src] with \the [O].</span>")
-		else
-			O.attack(src, user, user.zone_sel.selecting)
+			return
+
+	if(!O.force)
+		visible_message(SPAN("notice", "[user] gently taps [src] with \the [O]."))
+		return
+
+	O.attack(src, user, user.zone_sel.selecting)
 
 /mob/living/simple_animal/hit_with_weapon(obj/item/O, mob/living/user, effective_force, hit_zone)
-
-	visible_message("<span class='danger'>\The [src] has been attacked with \the [O] by [user]!</span>")
+	visible_message(SPAN("danger", "\The [src] has been [pick(O.attack_verb)] with \the [O] by [user]!"))
 
 	if(O.force <= resistance)
-		to_chat(user, "<span class='danger'>This weapon is ineffective; it does no damage.</span>")
+		visible_message(SPAN("danger", "[user] attacks \the [src] with \the [O], but it bounces off!"))
 		return 2
 
 	var/damage = O.force
@@ -273,26 +270,30 @@
 	else
 		remove_movespeed_modifier(/datum/movespeed_modifier/purge_slowdown)
 
-/mob/living/simple_animal/get_status_tab_items()
+/mob/living/simple_animal/Stat()
 	. = ..()
 
-	if(show_stat_health)
-		. += "Health: [round((health / maxHealth) * 100)]%"
+	if(statpanel("Status") && show_stat_health)
+		stat(null, "Health: [round((health / maxHealth) * 100)]%")
 
 /mob/living/simple_animal/death(gibbed, deathmessage = "dies!", show_dead_message)
 	. = ..()
 	if(.)
 		icon_state = icon_dead
+		item_state = icon_dead
 		density = 0
 		health = 0 //Make sure dey dead.
 		walk_to(src, 0)
+
+/mob/living/simple_animal/dust(anim = "blank", remains, supernatural = TRUE)
+	..(anim, burnt_remains, supernatural)
 
 /mob/living/simple_animal/rejuvenate()
 	..()
 	icon_state = icon_living
 	set_density(1)
 
-/mob/living/simple_animal/updatehealth()
+/mob/living/simple_animal/update_health()
 	if(is_ooc_dead())
 		return
 	if(status_flags & GODMODE)
@@ -323,19 +324,19 @@
 
 /mob/living/simple_animal/adjustBruteLoss(damage)
 	..()
-	updatehealth()
+	update_health()
 
 /mob/living/simple_animal/adjustFireLoss(damage)
 	..()
-	updatehealth()
+	update_health()
 
 /mob/living/simple_animal/adjustToxLoss(damage)
 	..()
-	updatehealth()
+	update_health()
 
 /mob/living/simple_animal/adjustOxyLoss(damage)
 	..()
-	updatehealth()
+	update_health()
 
 /mob/living/simple_animal/proc/SA_attackable(target_mob)
 	if (isliving(target_mob))
@@ -404,3 +405,6 @@
 	if(M && !ckey)
 		panic_target = weakref(M)
 		turns_since_scan = 5
+
+/mob/living/simple_animal/is_space_movement_permitted(allow_movement = FALSE)
+	return skip_spacemove ? SPACE_MOVE_PERMITTED : ..()

@@ -4,6 +4,7 @@
 // New shields
 /obj/item/circuitboard/shield_generator
 	name = T_BOARD("advanced shield generator")
+	icon_state = "id_mod_orange"
 	board_type = "machine"
 	build_path = /obj/machinery/power/shield_generator
 	origin_tech = list(TECH_MAGNET = 3, TECH_POWER = 4)
@@ -15,6 +16,7 @@
 
 /obj/item/circuitboard/shield_diffuser
 	name = T_BOARD("shield diffuser")
+	icon_state = "id_mod_orange"
 	board_type = "machine"
 	build_path = /obj/machinery/shield_diffuser
 	origin_tech = list(TECH_MAGNET = 4, TECH_POWER = 2)

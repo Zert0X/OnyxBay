@@ -12,7 +12,7 @@
 
 /obj/item/soap/New()
 	..()
-	create_reagents(30)
+	create_reagents(150)
 	wet()
 
 /obj/item/soap/examine(mob/user, infix)
@@ -25,40 +25,73 @@
 		. += "It's dry!"
 
 /obj/item/soap/proc/wet()
-	reagents.add_reagent(/datum/reagent/space_cleaner, 15)
+	reagents.add_reagent(/datum/reagent/space_cleaner, 75)
 
-/obj/item/soap/Crossed(AM as mob|obj)
-	if(istype(AM, /mob/living))
-		var/mob/living/M = AM
-		if(reagents.total_volume <= 0)
-			return
-		if(M.slip_on_obj(src, 2, 2))
-			reagents.remove_any(3)
+/obj/item/soap/proc/wash(mob/user = null, volume_to_spend = 5)
+	if(reagents.has_reagent(/datum/reagent/space_cleaner, volume_to_spend))
+		reagents.remove_any(volume_to_spend)
+		return TRUE
 
-/obj/item/soap/afterattack(atom/target, mob/user as mob, proximity)
+	if(user)
+		to_chat(user, SPAN("notice", "\The [src] is too dry to wash that."))
+	return FALSE
+
+/obj/item/soap/Crossed(atom/movable/AM)
+	if(!istype(AM, /mob/living))
+		return
+
+	var/mob/living/M = AM
+	if(reagents.total_volume <= 0)
+		return
+
+	if(M.slip_on_obj(src, 2, 2))
+		reagents.remove_any(15)
+
+/obj/item/soap/afterattack(atom/target, mob/user, proximity)
 	if(!proximity)
 		return
+
 	//I couldn't feasibly  fix the overlay bugs caused by cleaning items we are wearing.
 	//So this is a workaround. This also makes more sense from an IC standpoint. ~Carn
 	if(istype(target,/obj/structure/sink))
 		to_chat(user, SPAN("notice", "You wet \the [src] in the sink."))
 		wet()
-	if(reagents.total_volume <= 0)
-		to_chat(user, SPAN("notice", "\The [src] is dry!"))
 		return
+
+	if(reagents.total_volume <= 0)
+		to_chat(user, SPAN("notice", "\The [src] is completely dry!"))
+		return
+
 	if(user.client && (target in user.client.screen))
 		to_chat(user, SPAN("notice", "You need to take that [target.name] off before cleaning it."))
-	else if(istype(target,/obj/effect/decal/cleanable/blood))
-		to_chat(user, SPAN("notice", "You scrub \the [target.name] out."))
-		target.clean_blood() //Blood is a cleanable decal, therefore needs to be accounted for before all cleanable decals.
-	else if(istype(target,/obj/effect/decal/cleanable))
-		to_chat(user, SPAN("notice", "You scrub \the [target.name] out."))
-		qdel(target)
-	else if(istype(target,/turf))
-		to_chat(user, SPAN("notice", "You scrub \the [target.name] clean."))
+		return
+
+	if(isturf(target))
 		var/turf/T = target
-		T.clean(src, user)
-	else
+		if(T.clean(src, user))
+			to_chat(user, SPAN("notice", "You scrub \the [target.name] clean."))
+		return
+
+	if(istype(target, /obj/effect/decal/cleanable/blood))
+		if(wash(user))
+			to_chat(user, SPAN("notice", "You scrub \the [target.name] out."))
+			target.clean_blood() //Blood is a cleanable decal, therefore needs to be accounted for before all cleanable decals.
+		return
+
+	if(istype(target,/obj/effect/decal/cleanable))
+		if(wash(user))
+			to_chat(user, SPAN("notice", "You scrub \the [target.name] out."))
+			qdel(target)
+		return
+
+	var/volume_required = 5
+	if(ismob(target))
+		volume_required = 10
+	else if(istype(target, /obj/item))
+		var/obj/item/I = target
+		volume_required = I.w_class
+
+	if(wash(user, volume_required))
 		to_chat(user, SPAN("notice", "You clean \the [target.name]."))
 		target.clean_blood() //Clean bloodied atoms. Blood decals themselves need to be handled above.
 	return

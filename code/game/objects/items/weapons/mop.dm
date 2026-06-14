@@ -13,25 +13,34 @@
 	attack_verb = list("mopped", "bashed", "bludgeoned", "whacked")
 
 /obj/item/mop/New()
-	create_reagents(30)
+	create_reagents(300)
 
 /obj/item/mop/afterattack(atom/A, mob/user, proximity)
 	if(!proximity)
 		return
 	if(istype(A, /turf) || istype(A, /obj/effect/decal/cleanable) || istype(A, /obj/effect/overlay) || istype(A, /obj/effect/rune))
-		if(reagents.total_volume < 1)
-			to_chat(user, "<span class='notice'>Your mop is dry!</span>")
+		var/volume_to_spend
+		if(reagents.has_reagent(/datum/reagent/space_cleaner, 5))
+			volume_to_spend = 5
+		else if(reagents.has_reagent(/datum/reagent/water, 30))
+			volume_to_spend = 30
+
+		if(!volume_to_spend)
+			to_chat(user, SPAN("notice", "Your mop is too dry!"))
 			return
+
 		var/turf/T = get_turf(A)
 		if(!T)
 			return
 
-		user.visible_message("<span class='warning'>[user] begins to clean \the [T].</span>")
+		user.visible_message("<b>[user]</b> begins to clean \the [T].")
 
-		if(do_after(user, 40, T))
-			if(T)
-				T.clean(src, user)
-			to_chat(user, "<span class='notice'>You have finished mopping!</span>")
+		if(!do_after(user, (3 SECONDS), T))
+			return
+
+		if(T)
+			T.clean(src, user)
+		to_chat(user, SPAN("notice", "You have finished mopping!"))
 
 
 /obj/effect/attackby(obj/item/I, mob/user)

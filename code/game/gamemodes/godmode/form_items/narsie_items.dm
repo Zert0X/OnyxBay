@@ -74,10 +74,10 @@
 	desc = "Said to bring those who drink it back to life, no matter the price."
 	icon = 'icons/obj/xenoarchaeology.dmi'
 	icon_state = "urn"
-	volume = 120
+	volume = 0.3 LITERS
 	amount_per_transfer_from_this = 30
 	lid_type = null
 
 /obj/item/reagent_containers/vessel/zombiedrink/Initialize()
 	. = ..()
-	reagents.add_reagent(/datum/reagent/toxin/zombie,120)
+	reagents.add_reagent(/datum/reagent/toxin/zombie, 0.3 LITERS)

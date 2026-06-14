@@ -672,6 +672,7 @@
 // For determining the color of holopads based on whether they're short or long range.
 #define HOLOPAD_SHORT_RANGE 1
 #define HOLOPAD_LONG_RANGE 2
+#define HOLOPAD_AVERAGE_RANGE 3
 
 // If safety is on, a new icon is not created.
 /proc/getHologramIcon(icon/A, safety = 1, noDecolor = FALSE, hologram_color = HOLOPAD_SHORT_RANGE)
@@ -680,6 +681,8 @@
 	if (noDecolor == FALSE)
 		if(hologram_color == HOLOPAD_LONG_RANGE)
 			flat_icon.ColorTone(rgb(225, 223, 125)) // Light yellow if it's a call to a long-range holopad.
+		else if (hologram_color == HOLOPAD_AVERAGE_RANGE)
+			flat_icon.ColorTone(rgb(225, 125, 125))
 		else
 			flat_icon.ColorTone(rgb(125, 180, 225)) // Let's make it bluish.
 	flat_icon.ChangeOpacity(0.5) // Make it half transparent.
@@ -869,24 +872,21 @@
 
 /// Costlier version of icon2html() that uses getFlatIcon() to account for overlays, underlays, etc. Use with extreme moderation, ESPECIALLY on mobs.
 /proc/costly_icon2html(thing, target, sourceonly = FALSE)
-	if(isnull(thing))
+	if (!thing)
 		return
 
-	if(isicon(thing))
+	if (isicon(thing))
 		return icon2html(thing, target)
 
-	var/icon/I
-	if(!isnull(target))
-		var/atom/thing_atom = thing
-		I = thing_atom.get_flat_icon(target)
-	else
-		I = getFlatIcon(thing)
-
+	var/icon/I = getFlatIcon(thing)
 	return icon2html(I, target, sourceonly = sourceonly)
 
 /proc/path2icon(path, dir = SOUTH, frame = 1, moving = FALSE)
 	var/atom/A = path
-	return icon(initial(A.icon), initial(A.icon_state), dir, frame, moving)
+	var/state = initial(A.icon_state)
+	if(!state)
+		state = ""
+	return icon(initial(A.icon), state, dir, frame, moving)
 
 /*
  *	Converts an icon to base64. Operates by putting the icon in the iconCache savefile,
@@ -974,9 +974,7 @@
 // I'm not completely sure how ethical the 'allow_ratty_rendering' usage is, since it's basically lowkey cryptomining, but who fucking cares?
 /atom/proc/get_flat_icon(mob/caller, dir, force_appearance_flags, allow_ratty_rendering = TRUE)
 	var/client/rendering_client
-	if(isclient(caller))
-		rendering_client = caller
-	else if(caller?.client)
+	if(caller?.client)
 		rendering_client = caller.client // We are good, let the caller deal with their own stuff.
 	else if(allow_ratty_rendering)
 		for(var/mob/prey in shuffle(GLOB.player_list)) // We are not that good, randomly choosing a poor being to deal with rendering.

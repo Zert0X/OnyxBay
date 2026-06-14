@@ -4,9 +4,9 @@
 	icon = 'icons/obj/chemical.dmi'
 	icon_state = null
 	w_class = ITEM_SIZE_SMALL
-	var/amount_per_transfer_from_this = 5
-	var/possible_transfer_amounts = "5;10;15;25;30"
-	var/volume = 30
+	var/amount_per_transfer_from_this = 50
+	var/possible_transfer_amounts = "50;100;150;250;300"
+	var/volume = 0.3 LITERS
 	var/label_text
 	var/can_be_splashed = FALSE
 	var/list/startswith // List of reagents to start with
@@ -20,12 +20,12 @@
 	if(N)
 		amount_per_transfer_from_this = N
 
-/obj/item/reagent_containers/Initialize()
-	. = ..()
+/obj/item/reagent_containers/Initialize(mapload, spawn_empty = FALSE)
+	. = ..(mapload)
 	if(!possible_transfer_amounts)
 		src.verbs -= /obj/item/reagent_containers/verb/set_APTFT
 	create_reagents(volume)
-	if(startswith)
+	if(startswith && !spawn_empty)
 		for(var/thing in startswith)
 			reagents.add_reagent(thing, startswith[thing] ? startswith[thing] : volume)
 		startswith = null // Unnecessary lists bad
@@ -80,7 +80,7 @@
 
 	var/trans = target.reagents.trans_to_obj(src, target:amount_per_transfer_from_this)
 	playsound(target, 'sound/effects/using/sink/fast_filling1.ogg', 75, TRUE)
-	to_chat(user, "<span class='notice'>You fill [src] with [trans] units of the contents of [target].</span>")
+	to_chat(user, "<span class='notice'>You fill [src] with [trans] ml of the contents of [target].</span>")
 	return 1
 
 /obj/item/reagent_containers/proc/standard_splash_mob(mob/user, mob/target) // This goes into afterattack
@@ -106,19 +106,19 @@
 	reagents.splash(target, reagents.total_volume)
 	return 1
 
-/obj/item/reagent_containers/proc/self_feed_message(mob/user)
+/obj/item/reagent_containers/proc/self_feed_message(mob/user, feed_volume = 0)
 	to_chat(user, "<span class='notice'>You eat \the [src]</span>")
 
 /obj/item/reagent_containers/proc/other_feed_message_start(mob/user, mob/target)
 	user.visible_message("<span class='warning'>[user] is trying to feed [target] \the [src]!</span>")
 
-/obj/item/reagent_containers/proc/other_feed_message_finish(mob/user, mob/target)
+/obj/item/reagent_containers/proc/other_feed_message_finish(mob/user, mob/target, feed_volume = 0)
 	user.visible_message("<span class='warning'>[user] has fed [target] \the [src]!</span>")
 
 /obj/item/reagent_containers/proc/feed_sound(mob/user)
 	playsound(user, SFX_DRINK, rand(45, 60), TRUE)
 
-/obj/item/reagent_containers/proc/standard_feed_mob(mob/user, mob/target) // This goes into attack
+/obj/item/reagent_containers/proc/standard_feed_mob(mob/user, mob/target, bypass_resist = FALSE) // This goes into attack
 	if(!istype(target))
 		return 0
 
@@ -129,45 +129,49 @@
 	// only carbons can eat
 	if(istype(target, /mob/living/carbon) && user.a_intent != I_HURT)
 		if(target == user)
+			var/feed_amount = min(MOUTH_CAPACITY, issmall(user) ? ceil(amount_per_transfer_from_this * 0.5) : amount_per_transfer_from_this)
 			if(istype(user, /mob/living/carbon/human))
 				var/mob/living/carbon/human/H = user
-				if(!H.check_has_mouth())
-					to_chat(user, "Where do you intend to put \the [src]? You don't have a mouth!")
+				if(!H.can_eat(src))
 					return
-				var/obj/item/blocked = H.check_mouth_coverage()
-				if(blocked)
-					to_chat(user, "<span class='warning'>\The [blocked] is in the way!</span>")
-					return
+				if(!H.ingest_reagents(reagents, feed_amount))
+					reagents.trans_to_mob(user, feed_amount, CHEM_INGEST)
+			else
+				reagents.trans_to_mob(user, feed_amount, CHEM_INGEST)
 
 			user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN) //puts a limit on how fast people can eat/drink things
-			self_feed_message(user)
-			reagents.trans_to_mob(user, issmall(user) ? ceil(amount_per_transfer_from_this/2) : amount_per_transfer_from_this, CHEM_INGEST)
+			self_feed_message(user, feed_amount)
 			feed_sound(user)
 			return 1
 
 
 		else
 			var/mob/living/carbon/H = target
-			if(!H.check_has_mouth())
-				to_chat(user, "Where do you intend to put \the [src]? \The [H] doesn't have a mouth!")
-				return
-			var/obj/item/blocked = H.check_mouth_coverage()
-			if(blocked)
-				to_chat(user, "<span class='warning'>\The [blocked] is in the way!</span>")
+			if(!H.can_force_feed(user, src))
 				return
 
 			other_feed_message_start(user, target)
 
 			user.setClickCooldown(DEFAULT_ATTACK_COOLDOWN)
-			if(!do_mob(user, target))
+			var/feed_amount = min(MOUTH_CAPACITY, amount_per_transfer_from_this)
+			if(!do_mob(user, target, time = max(1.5 SECONDS, round(feed_amount / 2)))) // 1.5 to 3 seconds
 				return
 
-			other_feed_message_finish(user, target)
+			if(!H.can_force_feed(user, src, check_resist = !bypass_resist)) // Secondary check since things could change during do_mob
+				return
+
+			other_feed_message_finish(user, target, feed_amount)
 
 			var/contained = reagentlist()
 			admin_attack_log(user, target, "Fed the victim with [name] (Reagents: [contained])", "Was fed [src] (Reagents: [contained])", "used [src] (Reagents: [contained]) to feed")
 
-			reagents.trans_to_mob(target, amount_per_transfer_from_this, CHEM_INGEST)
+			if(ishuman(H))
+				var/mob/living/carbon/human/HU = H
+				if(!HU.ingest_reagents(reagents, feed_amount))
+					reagents.trans_to_mob(target, feed_amount, CHEM_INGEST)
+			else
+				reagents.trans_to_mob(target, feed_amount, CHEM_INGEST)
+
 			feed_sound(user)
 			return 1
 
@@ -195,7 +199,7 @@
 
 	var/trans = reagents.trans_to(target, amount_per_transfer_from_this)
 	playsound(target, 'sound/effects/using/bottles/transfer1.ogg')
-	to_chat(user, "<span class='notice'>You transfer [trans] unit\s of the solution to \the [target].</span>")
+	to_chat(user, "<span class='notice'>You transfer [trans] ml of the solution to \the [target].</span>")
 	return 1
 
 /obj/item/reagent_containers/do_surgery(mob/living/carbon/M, mob/living/user)
@@ -203,6 +207,24 @@
 		return ..()
 
 /obj/item/reagent_containers/AltClick(mob/user)
+	if(!CanPhysicallyInteract(user))
+		return
+	if(!possible_transfer_amounts)
+		return
+
+	var/list/modes = list()
+	for(var/mode in params2list(possible_transfer_amounts))
+		modes += text2num(mode)
+
+	var/current_index = modes.Find(amount_per_transfer_from_this)
+	if(current_index == modes.len)
+		amount_per_transfer_from_this = modes[1]
+	else
+		amount_per_transfer_from_this = modes[current_index + 1]
+
+	to_chat(user, SPAN("notice", "You set the next amount per tranfser from \the [name]: <b>[amount_per_transfer_from_this]<b>"))
+
+/obj/item/reagent_containers/CtrlAltClick(mob/user)
 	if(possible_transfer_amounts)
 		if(CanPhysicallyInteract(user))
 			set_APTFT()

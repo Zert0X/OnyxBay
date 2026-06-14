@@ -7,13 +7,15 @@
 
 /obj/item/grenade/flashbang/detonate()
 	..()
-	for(var/obj/structure/closet/L in hear(7, get_turf(src)))
-		if(locate(/mob/living/carbon/, L))
-			for(var/mob/living/carbon/M in L)
-				bang(get_turf(src), M)
 
-	for(var/mob/living/carbon/M in hear(7, get_turf(src)))
-		bang(get_turf(src), M)
+	var/list/victims = list()
+	var/list/objs = list()
+	var/turf/T = get_turf(src)
+
+	get_listeners_in_range(T, 7, victims, objs)
+
+	for(var/mob/living/carbon/C in victims)
+		bang(T, C)
 
 	new /obj/effect/sparks(loc)
 	new /obj/effect/effect/smoke/illumination(loc, 5, range = 30, power = 1, color = "#ffffff")
@@ -22,7 +24,7 @@
 
 /obj/item/grenade/flashbang/proc/bang(turf/T , mob/living/carbon/M) // Added a new proc called 'bang' that takes a location and a person to be banged.
 	to_chat(M, SPAN("danger", "*BANG*"))                // Called during the loop that bangs people in lockers/containers and when banging
-	playsound(loc, 'sound/effects/bang.ogg', 50, 1, 30) // people in normal view. Could theroetically be called during other explosions.
+	playsound(loc, GET_SFX(SFX_BANG), 50, 1, 30) // people in normal view. Could theroetically be called during other explosions.
 															// -- Polymorph
 	// Checking for protections
 	var/eye_effect = 0
@@ -66,10 +68,10 @@
 
 	if(ear_effect >= 1)
 		if(prob(ear_effect * 2) || (M == loc && prob(70)))
-			M.ear_damage += rand(1, 10)
+			M.adjustEarDamage(rand(1, 10), null)
 		else
-			M.ear_damage += rand(0, 5)
-		M.ear_deaf = max(M.ear_deaf, (ear_effect * 3))
+			M.adjustEarDamage(rand(0, 5), null)
+		M.setEarDamage(null, max(M.ear_deaf, ear_effect * 3))
 
 	// This really should be in mob not every check
 	if(ishuman(M))

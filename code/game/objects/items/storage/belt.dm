@@ -173,11 +173,13 @@
 		/obj/item/gun/projectile/pistol/vp78,
 		/obj/item/taperoll,
 		/obj/item/device/holowarrant,
-		/obj/item/magnetic_ammo,
+		/obj/item/rcd_ammo/magnetic_ammo,
 		/obj/item/device/radio,
 		/obj/item/material/knife,
 		/obj/item/material/butterfly,
-		/obj/item/material/hatchet/tacknife
+		/obj/item/material/hatchet/tacknife,
+		/obj/item/cell/ammo/charge,
+		/obj/item/ammo_casing/grenade
 		)
 
 /obj/item/storage/belt/soulstone
@@ -238,7 +240,7 @@
 
 /obj/item/storage/belt/waistpack/big/New()
 	..()
-	slowdown_per_slot[slot_belt] = 1
+	A_LAZYSET(slowdown_per_slot, slot_belt, 1)
 
 /obj/item/storage/belt/mining
 	name = "explorer's belt"
@@ -311,7 +313,8 @@
 		/obj/item/stack/telecrystal,
 		/obj/item/material/knife,
 		/obj/item/material/butterfly,
-		/obj/item/material/hatchet/tacknife
+		/obj/item/material/hatchet/tacknife,
+		/obj/item/cell/ammo/charge
 		)
 
 /obj/item/storage/belt/janitor

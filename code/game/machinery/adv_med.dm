@@ -303,7 +303,7 @@
 	if(.)
 		return TRUE
 
-	if(!allowed(usr))
+	if(!check_access(usr))
 		to_chat(usr, SPAN("warning", "Access denied."))
 		return TRUE
 
@@ -430,10 +430,15 @@
 
 	if(H.nutrition < 150)
 		data["warnings"] += list("Warning: Very low nutrition value detected")
+	if(H.hydration <= HYDRATION_LOW)
+		data["warnings"] += list("Warning: Mild dehydration detected.")
+	else if(H.hydration <= HYDRATION_NONE)
+		data["warnings"] += list("Warning: Severe dehydration detected.")
 
 	data["brute_severity"] = capitalize(get_severity(H.getBruteLoss()))
 	data["burn_severity"] = capitalize(get_severity(H.getFireLoss()))
 	data["tox_severity"] = capitalize(get_severity(H.getToxLoss()))
+	data["internal_severity"] = capitalize(get_severity(H.getInternalLoss()))
 	data["oxy_severity"] = capitalize(get_severity(H.getOxyLoss()))
 	data["clone_severity"] = capitalize(get_severity(H.getCloneLoss()))
 	data["rad_dose"] = H.radiation
@@ -482,9 +487,12 @@
 	if (H.chem_effects[CE_ALCOHOL_TOXIC])
 		data["warnings"] += list("Warning: Subject suffering from alcohol intoxication.")
 
+	if (H.chem_effects[CE_TOXIN] && H.chem_effects[CE_TOXIN] >= 10)
+		data["warnings"] += list("Warning: Highly lethal toxic agents detected in subject's system.")
+
 	data["external_organs"] = list()
 
-	for (var/obj/item/organ/external/E in H.organs)
+	for (var/obj/item/organ/external/E in H.external_organs)
 		var/organ_data = list(
 			"name" = capitalize(E.name), "status" = list(), "damage" = list()
 			)
@@ -578,10 +586,15 @@
 	dat += "<b>Body temperature:</b> [CONV_KELVIN_CELSIUS(H.get_body_temperature())]&deg;C ([H.get_body_temperature()*1.8-459.67]&deg;F)"
 	if(H.nutrition < 150)
 		dat += SPAN("warning", "Warning: Very low nutrition value detected.")
+	if(H.hydration <= HYDRATION_LOW)
+		dat += SPAN("warning", "Warning: Mild dehydration detected.")
+	else if(H.hydration <= HYDRATION_NONE)
+		dat += SPAN("warning", "Warning: Severe dehydration detected.")
 
 	dat += "<b>Physical Trauma:</b>\t[get_severity(H.getBruteLoss())]"
 	dat += "<b>Burn Severity:</b>\t[get_severity(H.getFireLoss())]"
-	dat += "<b>Systematic Organ Failure:</b>\t[get_severity(H.getToxLoss())]"
+	dat += "<b>Toxic Buildup:</b>\t[get_severity(H.getToxLoss())]"
+	dat += "<b>Systematic Organ Failure:</b>\t[get_severity(H.getInternalLoss())]"
 	dat += "<b>Oxygen Deprivation:</b>\t[get_severity(H.getOxyLoss())]"
 
 	dat += "<b>Radiation dose:</b>\t[fmt_siunit(H.radiation, "Sv", 3)]"
@@ -624,7 +637,7 @@
 
 	var/list/table = list()
 	table += "<table border='1'><tr><th>Organ</th><th>Damage</th><th>Status</th></tr>"
-	for(var/obj/item/organ/external/E in H.organs)
+	for(var/obj/item/organ/external/E in H.external_organs)
 		table += "<tr><td>[E.name]</td>"
 		if(E.is_stump())
 			table += "<td>N/A</td><td>Missing</td>"

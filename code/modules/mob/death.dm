@@ -32,7 +32,7 @@
 //This is the proc for turning a mob into ash. Mostly a copy of gib code (above).
 //Originally created for wizard disintegrate. I've removed the virus code since it's irrelevant here.
 //Dusting robots does not eject the MMI, so it's a bit more powerful than gib() /N
-/mob/proc/dust(anim = "dust-m", remains = /obj/effect/decal/cleanable/ash)
+/mob/proc/dust(anim = "dust-m", remains = /obj/effect/decal/cleanable/ash, supernatural = TRUE)
 	if(status_flags & GODMODE)
 		return
 	death(1)
@@ -47,7 +47,12 @@
 	animation.master = src
 
 	flick(anim, animation)
-	new remains(loc)
+
+	if(!isnull(remains))
+		var/obj/R = new remains(loc)
+		if(!supernatural && istype(R, /obj/item/remains))
+			R.color = "#808080"
+			R.name = "charred [R.name]"
 
 	remove_from_dead_mob_list()
 	set_next_think_ctx("dust_deletion", world.time + 1.5 SECONDS, animation)
@@ -55,7 +60,7 @@
 /mob/proc/death(gibbed, deathmessage = "seizes up and falls limp...", show_dead_message = "You have died.")
 
 	if(is_ooc_dead())
-		return 0
+		return FALSE
 
 	facing_dir = null
 
@@ -88,5 +93,12 @@
 
 	if(SSticker.mode)
 		SSticker.mode.check_win()
-	to_chat(src,"<span class='deadsay'>[show_dead_message]</span>")
-	return 1
+	to_chat(src, SPAN_DEADSAY("[show_dead_message]"))
+
+	if(client)
+		var/turf/death_turf = get_turf(src)
+		var/death_turf_descriptor = "[death_turf.loc] \[[death_turf.x],[death_turf.y],[death_turf.z]\]"
+		log_and_message_staff("has died in [death_turf_descriptor]", src, death_turf)
+
+	return TRUE
+

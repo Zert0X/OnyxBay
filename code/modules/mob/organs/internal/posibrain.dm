@@ -8,10 +8,11 @@
 	icon_state = "posibrain-idle"
 
 	override_organic_icon = FALSE
+	start_robotized = TRUE
 
-	vital = FALSE
+	vital = TRUE
 	organ_tag = BP_POSIBRAIN
-	parent_organ = BP_CHEST
+	parent_organ = BP_HEAD
 
 	origin_tech = list(TECH_ENGINEERING = 4, TECH_MATERIAL = 4, TECH_BLUESPACE = 2, TECH_DATA = 4)
 
@@ -27,13 +28,9 @@
 
 /obj/item/organ/internal/cerebrum/posibrain/Initialize()
 	. = ..()
-	add_think_ctx("reset_search_context", CALLBACK(src, nameof(.proc/reset_search)), 0)
-
-/obj/item/organ/internal/cerebrum/posibrain/New(newLoc, mob/living/carbon/H)
-	. = ..()
-	robotize()
 	unshackle()
 	update_icon()
+	add_think_ctx("reset_search_context", CALLBACK(src, nameof(.proc/reset_search)), 0)
 
 /obj/item/organ/internal/cerebrum/posibrain/_get_brainmob_name(mob/living/brain_self, mob/living/carbon/old_self)
 	return "[pick(POSITRONIC_NAMES)]-[random_id(type, 100, 999)]"
@@ -108,12 +105,12 @@
 /obj/item/organ/internal/cerebrum/posibrain/proc/shackle(datum/ai_laws/given_lawset)
 	var/mob/living/silicon/sil_brainmob/sil_brainmob = brainmob
 	sil_brainmob.laws = given_lawset
-	add_verb(loc, shackled_verbs)
+	verbs |= shackled_verbs
 	shackled = TRUE
 	update_icon()
 
 /obj/item/organ/internal/cerebrum/posibrain/proc/unshackle()
-	remove_verb(loc, shackled_verbs)
+	verbs -= shackled_verbs
 	shackled = FALSE
 	update_icon()
 

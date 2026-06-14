@@ -110,7 +110,7 @@
 					T.visible_message(SPAN("warning", "The ceiling above looks as if it's being pried off."))
 				playsound(src, 'sound/items/Crowbar.ogg', 80, 1)
 				visible_message(SPAN("notice", "[user] has begun prying off the damaged plating."))
-				if(do_after(user, 10 SECONDS))
+				if(do_after(user, 10 SECONDS, luck_check_type = LUCK_CHECK_ENG))
 					if(!istype(src, /turf/simulated/floor))
 						return
 					if(!broken && !burnt || !is_plating())
@@ -132,7 +132,7 @@
 			var/obj/item/weldingtool/welder = C
 			if((is_plating()))
 				if(broken || burnt)
-					if(welder.use_tool(src, user, amount = 1))
+					if(welder.use_tool(src, user, amount = 10))
 						to_chat(user, "<span class='notice'>You fix some dents on the broken plating.</span>")
 						playsound(src, 'sound/items/Welder.ogg', 80, 1)
 						icon_state = base_icon_state
@@ -140,7 +140,7 @@
 						broken = null
 				else
 					visible_message("<span class='notice'>[user] has started melting the plating's reinforcements!</span>")
-					if(!welder.use_tool(src, user, delay = 5 SECONDS, amount = 5))
+					if(!welder.use_tool(src, user, delay = 5 SECONDS, amount = 50))
 						return
 
 					if(QDELETED(src) || !user)
@@ -198,3 +198,8 @@
 		to_chat(user, "<span class='warning'>This section is too damaged to support anything. Use a welder to fix the damage.</span>")
 		return 0
 	return 1
+
+/turf/simulated/floor/attack_hand(mob/user)
+	if(flooring?.on_attack_hand(user))
+		return TRUE
+	return ..()

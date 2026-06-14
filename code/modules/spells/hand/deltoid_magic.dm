@@ -32,14 +32,14 @@
 		user.visible_message(SPAN("danger", "[user] has punched the floor, sending themselves flying!"))
 		var/turf/T = get_turf(user)
 		T.ex_act(rand(2, 3))
-		playsound(T, 'sound/effects/bang.ogg', rand(80, 100), 1, -1)
+		playsound(T, GET_SFX(SFX_BANG), rand(80, 100), 1, -1)
 	else
 		throw_dir = turn(get_dir(H, user), 180)
 		user.visible_message(SPAN("danger", "[user] has punched \the [H] so hard, they're sent flying!"))
 		H.apply_damage(rand(20, 40), BRUTE, affecting)
 		H.Weaken(8)
 		H.Stun(4)
-		H.damage_poise(30)
+		H.damage_poise(30, TRUE)
 		playsound(H.loc, SFX_FIGHTING_PUNCH, rand(80, 100), 1, -1)
 
 	H.throw_at(get_edge_target_turf(H, throw_dir), 5, 1)

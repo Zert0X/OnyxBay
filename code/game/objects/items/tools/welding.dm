@@ -65,14 +65,14 @@
 
 	if(get_dist(src, user) <= 0)
 		if(tank)
-			. += "\icon[tank] \The [tank] contains [get_fuel()]/[tank.max_fuel] units of fuel!"
+			. += "\icon[tank] \The [tank] contains [get_fuel()]/[tank.max_fuel] ml of fuel!"
 		else
 			. += "There is no tank attached."
 
 /obj/item/weldingtool/attack(mob/living/M, mob/living/user, target_zone)
 	if(ishuman(M))
 		var/mob/living/carbon/human/H = M
-		var/obj/item/organ/external/S = H.organs_by_name[target_zone]
+		var/obj/item/organ/external/S = H.external_organs_by_name[target_zone]
 
 		if(!S || !BP_IS_ROBOTIC(S) || user.a_intent != I_HELP)
 			return ..()
@@ -80,7 +80,7 @@
 			to_chat(user, "<span class='warning'>You'll need to turn [src] on to patch the damage on [M]'s [S.name]!</span>")
 			return 1
 		if(S.robo_repair(15, BRUTE, "some dents", src, user))
-			remove_fuel(1, user)
+			remove_fuel(10, user)
 	else
 		return ..()
 
@@ -132,7 +132,7 @@
 	..()
 
 /obj/item/weldingtool/attack_hand(mob/user as mob)
-	if(tank && user.get_inactive_hand() == src)
+	if(tank && user.has_in_passive_hand(src))
 		if(!welding)
 			if(tank.can_remove)
 				user.visible_message("[user] removes \the [tank] from \the [src].", "You remove \the [tank] from \the [src].")
@@ -149,7 +149,7 @@
 
 /obj/item/weldingtool/think()
 	if(welding)
-		if(!remove_fuel(0.05))
+		if(!remove_fuel(0.5))
 			setWelding(0)
 
 	set_next_think(world.time + 1 SECOND)
@@ -161,7 +161,7 @@
 		refuel_from_obj(O, user)
 		return
 	if(welding)
-		remove_fuel(1)
+		remove_fuel(10)
 		var/turf/location = get_turf(user)
 		if(isliving(O))
 			var/mob/living/L = O
@@ -189,7 +189,7 @@
 		to_chat(user, SPAN("notice", "\The [src] is full."))
 		return
 	O.reagents.trans_to_obj(tank, amount)
-	to_chat(user, SPAN("notice", "You refill \the [src] with [amount] units of fuel from \the [O]."))
+	to_chat(user, SPAN("notice", "You refill \the [src] with [amount] ml of fuel from \the [O]."))
 	playsound(src.loc, 'sound/effects/refill.ogg', 50, 1, -6)
 	return
 
@@ -419,7 +419,7 @@
 	icon_state = "fuel_m"
 	w_class = ITEM_SIZE_SMALL
 	center_of_mass = "x=13;y=9"
-	var/max_fuel = 20
+	var/max_fuel = 0.2 LITERS
 	var/can_remove = 1
 
 /obj/item/welder_tank/Initialize()
@@ -453,7 +453,7 @@
 	name = "small welding fuel tank"
 	icon_state = "fuel_s"
 	w_class = ITEM_SIZE_TINY
-	max_fuel = 5
+	max_fuel = 0.05 LITERS
 	can_remove = 0
 
 /obj/item/weldingtool/largetank
@@ -473,7 +473,7 @@
 	name = "large welding fuel tank"
 	icon_state = "fuel_l"
 	w_class = ITEM_SIZE_SMALL
-	max_fuel = 40
+	max_fuel = 0.4 LITERS
 
 /obj/item/weldingtool/hugetank
 	name = "upgraded welding tool"
@@ -492,7 +492,7 @@
 	name = "huge welding fuel tank"
 	icon_state = "fuel_h"
 	w_class = ITEM_SIZE_SMALL
-	max_fuel = 80
+	max_fuel = 0.8 LITERS
 
 /obj/item/weldingtool/experimental
 	name = "experimental welding tool"
@@ -508,7 +508,7 @@
 	name = "experimental welding fuel tank"
 	icon_state = "fuel_x"
 	w_class = ITEM_SIZE_SMALL
-	max_fuel = 40
+	max_fuel = 0.4 LITERS
 	can_remove = 0
 	var/last_gen = 0
 
@@ -519,7 +519,7 @@
 /obj/item/welder_tank/experimental/think()
 	var/cur_fuel = reagents.get_reagent_amount(/datum/reagent/fuel)
 	if(cur_fuel < max_fuel)
-		var/gen_amount = ((world.time-last_gen)/25)
+		var/gen_amount = ((world.time-last_gen) / 2.5)
 		reagents.add_reagent(/datum/reagent/fuel, gen_amount)
 		last_gen = world.time
 

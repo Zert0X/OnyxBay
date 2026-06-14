@@ -47,3 +47,4 @@
 
 	new_player_panel(TRUE)
 	handle_changelog()
+	show_game_tip()

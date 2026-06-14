@@ -54,7 +54,7 @@
 
 /obj/machinery/biogenerator/New()
 	..()
-	create_reagents(1000)
+	create_reagents(10 LITERS)
 	beaker = new /obj/item/reagent_containers/vessel/bottle/chemical(src)
 
 	RefreshParts()

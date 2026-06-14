@@ -8,6 +8,7 @@
 #define HOURS   HOUR
 #define DAYS    DAY
 
+#define LITER        *1000
 #define WATT         *1
 #define METER        *1
 #define GRAM         *1
@@ -16,7 +17,6 @@
 #define MOLE         *1
 #define CANDELA      *1
 #define PASCAL       *1
-#define LITER        *1
 #define SIEVERT      *1
 #define BECQUEREL    *1
 #define JOULE        *1

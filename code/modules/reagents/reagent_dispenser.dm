@@ -9,7 +9,7 @@
 	pull_sound = SFX_PULL_MACHINE
 	pull_slowdown = PULL_SLOWDOWN_LIGHT
 
-	var/initial_capacity = 1000
+	var/initial_capacity = 10 LITERS
 	var/initial_reagent_types  // A list of reagents and their ratio relative the initial capacity. list(/datum/reagent/water = 0.5) would fill the dispenser halfway to capacity.
 	var/amount_per_transfer_from_this = 10
 	var/possible_transfer_amounts = "10;25;50;100;500"
@@ -39,7 +39,7 @@
 	. += SPAN_NOTICE("It contains:")
 	if(reagents && reagents.reagent_list.len)
 		for(var/datum/reagent/R in reagents.reagent_list)
-			. += SPAN_NOTICE("[R.volume] units of [R.name]")
+			. += SPAN_NOTICE("[R.volume] ml of [R.name]")
 	else
 		. += SPAN_NOTICE("Nothing.")
 
@@ -95,25 +95,27 @@
 	name = "watertank"
 	desc = "A tank containing water."
 	icon_state = "watertank"
-	amount_per_transfer_from_this = 10
-	possible_transfer_amounts = "10;25;50;100"
-	initial_capacity = 5000
+	amount_per_transfer_from_this = 0.1 LITERS
+	possible_transfer_amounts = "100;250;500;1000"
+	initial_capacity = 50 LITERS
 	initial_reagent_types = list(/datum/reagent/water = 1)
 	atom_flags = ATOM_FLAG_CLIMBABLE
 	filling_overlay_levels = 7
 	turf_height_offset = 25
+	climb_delay = 3 SECONDS
 
 /obj/structure/reagent_dispensers/fueltank
 	name = "fueltank"
 	desc = "A tank containing fuel."
 	icon_state = "weldtank"
-	amount_per_transfer_from_this = 10
+	amount_per_transfer_from_this = 0.1 LITERS
 	var/modded = FALSE
 	var/obj/item/device/assembly_holder/rig = null
 	initial_reagent_types = list(/datum/reagent/fuel = 1)
 	atom_flags = ATOM_FLAG_CLIMBABLE
 	filling_overlay_levels = 6
 	turf_height_offset = 25
+	climb_delay = 3 SECONDS
 
 /obj/structure/reagent_dispensers/fueltank/Destroy()
 	QDEL_NULL(rig)
@@ -136,7 +138,7 @@
 		  SPAN("notice", "\The [user] begins to detach [rig] from \the [src]."),
 		  SPAN("notice", "You begin to detach [rig] from \the [src].")
 		)
-		if(do_after(user, 20, src))
+		if(do_after(user, 20, src, , luck_check_type = LUCK_CHECK_COMBAT))
 			user.visible_message(
 			  SPAN("notice", "\The [user] detaches \the [rig] from \the [src]."),
 			  SPAN("notice", "You detach [rig] from \the [src]")
@@ -181,7 +183,14 @@
 			  SPAN("notice", "You rig [W] to \the [src].")
 			)
 			update_icon()
+
 	else if(W.get_temperature_as_from_ignitor())
+		if (reagents.total_volume == 0)
+			user.visible_message(
+		 	 SPAN("danger", "[user] puts [W] to [src]."),
+		 	 SPAN("danger", "You put \the [W] to \the [src] and nothing happens.")
+			)
+			return
 		log_and_message_admins("triggered a fueltank explosion with [W].")
 		user.visible_message(
 		  SPAN("danger", "[user] puts [W] to [src]!"),
@@ -215,7 +224,19 @@
 		if(!istype(Proj ,/obj/item/projectile/beam/lasertag) && !istype(Proj ,/obj/item/projectile/beam/practice) )
 			explode()
 
-/obj/structure/reagent_dispensers/fueltank/ex_act()
+/obj/structure/reagent_dispensers/fueltank/ex_act(severity)
+	switch(severity)
+		if(1.0)
+			qdel(src)
+			return
+		if(2.0)
+			if (prob(50))
+				qdel(src)
+				return
+		if(3.0)
+			if (prob(5))
+				qdel(src)
+				return
 	explode()
 
 /obj/structure/reagent_dispensers/fueltank/proc/explode()
@@ -225,6 +246,8 @@
 		explosion(src.loc,0,1,3,sfx_to_play=SFX_EXPLOSION_FUEL)
 	else if (reagents.total_volume > 50)
 		explosion(src.loc,-1,1,2,sfx_to_play=SFX_EXPLOSION_FUEL)
+	else if (reagents.total_volume == 0)
+		return
 	if(src)
 		qdel(src)
 
@@ -238,7 +261,7 @@
 /obj/structure/reagent_dispensers/fueltank/Move()
 	. = ..()
 	if (. && modded)
-		leak_fuel(amount_per_transfer_from_this/10.0)
+		leak_fuel(amount_per_transfer_from_this / 5.0)
 
 /obj/structure/reagent_dispensers/fueltank/proc/leak_fuel(amount)
 	if (reagents.total_volume == 0)
@@ -252,19 +275,20 @@
 	name = "compost tank"
 	desc = "A tank containing compost. Can be used to recycle excessive seeds."
 	icon_state = "compost"
-	amount_per_transfer_from_this = 10
-	possible_transfer_amounts = "5;10;25;50"
-	initial_capacity = 500
+	amount_per_transfer_from_this = 100
+	possible_transfer_amounts = "50;100;250;500"
+	initial_capacity = 5 LITERS
 	initial_reagent_types = list(/datum/reagent/toxin/fertilizer/compost = 1)
 	atom_flags = ATOM_FLAG_CLIMBABLE
 	turf_height_offset = 25
+	climb_delay = 3 SECONDS
 
 /obj/structure/reagent_dispensers/composttank/attackby(obj/item/W, mob/user)
 	src.add_fingerprint(user)
 	if(istype(W,/obj/item/seeds))
 		user.visible_message("[user] places [W] into \the [src].", \
 							 "You place [W] into \the [src].")
-		reagents.add_reagent(/datum/reagent/toxin/fertilizer/compost, 3)
+		reagents.add_reagent(/datum/reagent/toxin/fertilizer/compost, 30)
 		qdel(W)
 	return ..()
 
@@ -280,15 +304,37 @@
 
 /obj/structure/reagent_dispensers/water_cooler
 	name = "Water-Cooler"
-	desc = "A machine that dispenses water to drink."
-	amount_per_transfer_from_this = 5
+	desc = "A machine that dispenses water to drink. A stand for plastic cups has inexplicably attached itself to its side."
+	amount_per_transfer_from_this = 50
 	icon = 'icons/obj/water_cooler.dmi'
-	icon_state = "water_cooler"
+	icon_state = "water_cooler-4"
 	possible_transfer_amounts = null
 	anchored = 1
-	initial_capacity = 500
+	initial_capacity = 5 LITERS
 	initial_reagent_types = list(/datum/reagent/water = 1)
+	var/max_cups = 12
+	var/cups = 12
 
+/obj/structure/reagent_dispensers/water_cooler/New()
+	..()
+	update_icon()
+
+/obj/structure/reagent_dispensers/water_cooler/on_update_icon()
+	..()
+	if(cups >= max_cups)
+		icon_state = "water_cooler-4"
+		return
+	icon_state = "water_cooler-[ceil(cups / (max_cups / 4))]"
+
+/obj/structure/reagent_dispensers/water_cooler/examine()
+	. = ..()
+
+	if(cups)
+		. += SPAN_NOTICE("There's [cups] cups left.")
+		return
+
+	. += SPAN_NOTICE("Oh no, there's no cups left!")
+	return
 
 /obj/structure/reagent_dispensers/water_cooler/attackby(obj/item/W, mob/user)
 	if(isWrench(W))
@@ -300,17 +346,61 @@
 
 		if(do_after(user, 20, src))
 			if(!src) return
-			to_chat(user, "<span class='notice'>You [anchored? "un" : ""]secured \the [src]!</span>")
+			to_chat(user, SPAN_NOTICE("You [anchored? "un" : ""]secured \the [src]!"))
 			anchored = !anchored
+		return
+	else if(istype(W, /obj/item/storage/plastic_cup_bag))
+		if(cups >= max_cups)
+			to_chat(user, SPAN_NOTICE("\The [src]'s stand is full!"))
+			return
+
+		var/obj/item/storage/plastic_cup_bag/cup_bag = W
+		if(cup_bag.contents?.len <= 0)
+			to_chat(user, SPAN_NOTICE("\The [cup_bag] is empty!"))
+			return
+
+		add_fingerprint(user)
+		user.visible_message(SPAN_NOTICE("[user] begins refilling \the [src]'s cup stand from \the [cup_bag]."))
+		if(!do_after(user, 2 SECONDS, src))
+			return
+
+		var/new_cup_amount = min(cups + cup_bag.contents.len, max_cups)
+		var/i = 0
+		for(var/obj/item/reagent_containers/vessel/plastic/cup/cup in cup_bag.contents)
+			qdel(cup)
+			i++
+			if(i >= new_cup_amount - cups)
+				break
+		cups = new_cup_amount
+		update_icon()
+		user.visible_message(SPAN_NOTICE("[user] refills \the [src]'s cup stand!"))
 		return
 	else
 		return ..()
+
+/obj/structure/reagent_dispensers/water_cooler/attack_hand(mob/user)
+	..()
+	if(!ishuman(user))
+		to_chat(user, SPAN_NOTICE("No way to grab a cup without proper hands."))
+		return
+	if(cups <= 0)
+		to_chat(user, SPAN_NOTICE("Uh-oh. There's no cups left."))
+		return
+
+	var/mob/living/carbon/human/human_user = user
+	var/obj/item/reagent_containers/vessel/plastic/cup/new_cup = new(get_turf(human_user))
+	if(human_user.put_in_clicking_hand(new_cup))
+		human_user.visible_message(SPAN_NOTICE("[human_user] grabs a cup from \the [src]'s stand."))
+	else
+		human_user.visible_message(SPAN_NOTICE("[human_user] grabs a cup from \the [src]'s stand but drops it clumsily!"))
+	cups = max(0, cups - 1)
+	update_icon()
 
 /obj/structure/reagent_dispensers/beerkeg
 	name = "beer keg"
 	desc = "A beer keg."
 	icon_state = "beertankTEMP"
-	amount_per_transfer_from_this = 10
+	amount_per_transfer_from_this = 100
 	initial_reagent_types = list(/datum/reagent/ethanol/beer = 1)
 	atom_flags = ATOM_FLAG_CLIMBABLE
 	pull_slowdown = PULL_SLOWDOWN_MEDIUM
@@ -320,7 +410,7 @@
 	name = "Virus Food Dispenser"
 	desc = "A dispenser of virus food."
 	icon_state = "virusfoodtank"
-	amount_per_transfer_from_this = 10
+	amount_per_transfer_from_this = 100
 	anchored = 1
 	initial_reagent_types = list(/datum/reagent/nutriment/virus_food = 1)
 
@@ -328,6 +418,6 @@
 	name = "Sulphuric Acid Dispenser"
 	desc = "A dispenser of acid for industrial processes."
 	icon_state = "acidtank"
-	amount_per_transfer_from_this = 10
+	amount_per_transfer_from_this = 50
 	anchored = 1
 	initial_reagent_types = list(/datum/reagent/acid = 1)

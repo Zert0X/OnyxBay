@@ -9,14 +9,14 @@
 	coverage = 1.0
 	body_parts_covered = HANDS
 	slot_flags = SLOT_GLOVES
-	attack_verb = list("challenged")
+	attack_verb = "challenged"
 	species_restricted = list("exclude", SPECIES_UNATHI, SPECIES_TAJARA, SPECIES_VOX)
 	blood_overlay_type = "bloodyhands"
 
 	drop_sound = SFX_DROP_GLOVES
 	pickup_sound = SFX_PICKUP_GLOVES
 
-	item_state_slots = list(
+	item_state_slots = alist(
 		slot_l_hand_str = "bgloves",
 		slot_r_hand_str = "bgloves",
 		)
@@ -126,10 +126,10 @@
 		species_restricted -= SPECIES_TAJARA
 	return
 
-/obj/item/clothing/gloves/mob_can_equip(mob/user)
+/obj/item/clothing/gloves/mob_can_equip(mob/user, slot)
 	var/mob/living/carbon/human/H = user
 
-	if(istype(H.gloves, /obj/item/clothing/ring))
+	if(istype(H.gloves, /obj/item/clothing/ring) && slot == slot_gloves)
 		var/obj/item/clothing/ring/R = H.gloves
 		ring = weakref(R)
 		if(!R.undergloves)
@@ -147,7 +147,7 @@
 
 	var/obj/item/clothing/ring/R = ring?.resolve()
 	if(istype(R))
-		to_chat(user, "You slip \the [src] on over \the [R].")
+		user.visible_message(SPAN("notice", "\The [user] slips \the [src] on over \the [R]."), SPAN("notice", "You slip \the [src] on over \the [R]."))
 	wearer = weakref(H)
 	return TRUE
 
